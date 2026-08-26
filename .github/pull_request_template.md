@@ -16,12 +16,6 @@
 - [ ] `bun run build`
 - [ ] `bun run test:browser` or explained why it is not applicable
 
-## UI Evidence
-
-<!-- Add screenshots or a short recording for visible UI changes. Otherwise write "Not applicable." -->
-
-Not applicable.
-
 ## Security and Privacy
 
 <!-- Describe changes to data collection, schemas, origins, network calls, or trust boundaries. Otherwise write "No impact." -->
