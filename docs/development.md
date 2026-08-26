@@ -48,3 +48,19 @@ Formatting and linting can also be checked separately:
 bun run format:check
 bun run lint
 ```
+
+## Tests and builds
+
+Run the unit-test suites and build every workspace:
+
+```sh
+bun run test:unit
+bun run build
+```
+
+The browser command currently runs an explicit placeholder. It will be replaced
+by the localhost Chrome smoke test when that flow is implemented:
+
+```sh
+bun run test:browser
+```
