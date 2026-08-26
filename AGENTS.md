@@ -60,3 +60,12 @@ Run `bun run test:browser` when browser behavior or the end-to-end flow changes.
   `feat`, `fix`, `test`, `docs`, `refactor`, `ci`, or `chore`.
 - Explain skipped checks and mark non-applicable template items explicitly.
 - All required CI checks must pass before merge.
+
+## Release Notes
+
+- Start from `.github/release-notes-template.md`.
+- Write for users and maintainers, not for the internal task plan.
+- Do not include internal task IDs or implementation-only details.
+- Link each notable change to its pull request when available.
+- Put breaking changes and required upgrade actions first.
+- Remove empty sections before publishing.
