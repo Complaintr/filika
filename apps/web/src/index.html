@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Filika WebMCP Local Test</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, sans-serif;
+      }
+
+      body {
+        display: grid;
+        min-block-size: 100vh;
+        margin: 0;
+        place-items: center;
+      }
+
+      main {
+        inline-size: min(36rem, calc(100% - 3rem));
+      }
+
+      #registration-status {
+        font-weight: 700;
+      }
+
+      #registration-status[data-state="registered"] {
+        color: light-dark(#08783e, #72dc9e);
+      }
+
+      #registration-status[data-state="failed"],
+      #registration-status[data-state="unsupported"] {
+        color: light-dark(#a12a2a, #ff9d9d);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Filika WebMCP Local Test</h1>
+      <p id="registration-status" role="status">Checking WebMCP support…</p>
+      <p>Tool invocations in this page session: <strong id="invocation-count">0</strong></p>
+      <p>This test tool reads no page data and performs no network requests.</p>
+    </main>
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>

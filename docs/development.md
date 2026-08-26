@@ -59,7 +59,7 @@ bun run build
 ```
 
 The browser command currently runs an explicit placeholder. It will be replaced
-by the localhost Chrome smoke test when that flow is implemented:
+when automated localhost Chrome testing is added:
 
 ```sh
 bun run test:browser
