@@ -15,3 +15,4 @@ public contracts will be added in later phases.
 ## Documentation
 
 - [Local development](docs/development.md)
+- [Local WebMCP testing](docs/webmcp-local-testing.md)
