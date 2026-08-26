@@ -27,3 +27,24 @@ Type-check every workspace with the shared strict configuration:
 ```sh
 bun run typecheck
 ```
+
+## Formatting and linting
+
+Check formatting, lint rules, and import organization without changing files:
+
+```sh
+bun run check
+```
+
+Apply safe formatting and import-organization changes:
+
+```sh
+bun run check:fix
+```
+
+Formatting and linting can also be checked separately:
+
+```sh
+bun run format:check
+bun run lint
+```

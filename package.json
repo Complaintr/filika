@@ -12,10 +12,16 @@
     "tests/*"
   ],
   "scripts": {
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "install:frozen": "bun install --frozen-lockfile",
+    "lint": "biome lint .",
     "typecheck": "bun run --filter '*' typecheck"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.10",
     "typescript": "5.9.2"
   }
 }
