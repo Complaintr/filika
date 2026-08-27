@@ -1,15 +1,15 @@
 export const FILIKA_DESIGN_TOKENS = {
   color: {
-    accent: "#c7f36b",
-    border: "#c9d4cd",
+    accent: "#2dd4bf",
+    border: "#91d5cc",
     danger: "#9f2633",
-    focus: "#643cff",
+    focus: "#0e7490",
     onPrimary: "#ffffff",
-    primary: "#145c3a",
+    primary: "#0f766e",
     surface: "#ffffff",
-    surfaceMuted: "#f3f7f4",
-    text: "#17211b",
-    textMuted: "#536159",
+    surfaceMuted: "#e8faf7",
+    text: "#123330",
+    textMuted: "#476966",
   },
   focus: {
     offset: "3px",
