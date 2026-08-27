@@ -217,10 +217,26 @@ export function transitionFeedbackDialog(
 }
 
 export const NATIVE_DIALOG_CONTRACT = {
+  attributes: {
+    "aria-describedby": "filika-feedback-description",
+    "aria-labelledby": "filika-feedback-title",
+  },
+  cancelBehavior: {
+    escapeKey: "dispatch_cancel",
+    submittingOutcome: "aborted",
+  },
   descriptionId: "filika-feedback-description",
   dialogId: "filika-feedback-dialog",
   element: "dialog",
-  errorSummaryId: "filika-feedback-errors",
+  errorPresentation: {
+    fieldErrorIdPattern: "filika-{field}-error",
+    fieldUsesAriaDescribedBy: true,
+    fieldUsesAriaInvalid: true,
+    focusFirstInvalidField: true,
+    summaryId: "filika-feedback-errors",
+    summaryLinksFocusInvalidField: true,
+    summaryRole: "alert",
+  },
   focusOrder: {
     confirming: ["filika-edit", "filika-confirm", "filika-cancel"],
     editing: [
@@ -242,8 +258,36 @@ export const NATIVE_DIALOG_CONTRACT = {
     atomic: true,
     id: "filika-feedback-status",
     politeness: "polite",
+    role: "status",
   },
+  removalControlAccessibleNames: {
+    applicationRelease: "Remove application release",
+    routeLabel: "Remove page",
+  },
+  requiredMarkup: [
+    {
+      attributes: {
+        "aria-describedby": "filika-feedback-description",
+        "aria-labelledby": "filika-feedback-title",
+      },
+      element: "dialog",
+      id: "filika-feedback-dialog",
+    },
+    { element: "h2", id: "filika-feedback-title" },
+    { element: "p", id: "filika-feedback-description" },
+    {
+      attributes: { role: "alert", tabindex: "-1" },
+      element: "div",
+      id: "filika-feedback-errors",
+    },
+    {
+      attributes: { "aria-atomic": "true", "aria-live": "polite", role: "status" },
+      element: "div",
+      id: "filika-feedback-status",
+    },
+  ],
   restoreFocusToInvoker: true,
+  showMethod: "showModal",
   usesShowModal: true,
 } as const;
 
@@ -258,7 +302,7 @@ export const MANUAL_FEEDBACK_BUTTON_CONTRACT = {
 export const FILIKA_OPEN_INTERACTION_CONTRACT = {
   arguments: "none",
   concurrentCallBehavior: "focus_existing_dialog_and_share_active_result",
-  expectedFailureBehavior: "resolve_with_closed_outcome",
+  expectedFailureBehavior: "resolve_with_internal_error_outcome",
   opensEmptyManualDraft: true,
   returnType: "Promise<SdkExecutionResult>",
 } as const;
