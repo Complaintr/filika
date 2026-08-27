@@ -3,8 +3,9 @@
 Filika is a clean-room project for collecting user-reviewed feedback from a
 browser tool and presenting it in a read-only maintainer inbox.
 
-The repository contains the project foundation and the Phase 1 SDK contracts
-and browser bundle skeleton. The feedback runtime and collector are later work.
+The repository contains the project foundation, frontend contracts for the
+feedback dialog and maintainer inbox, and the Phase 1 SDK contracts and browser
+bundle skeleton. The feedback runtime and collector implementation are later work.
 
 ## Repository layout
 
