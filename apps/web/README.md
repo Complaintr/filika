@@ -3,4 +3,5 @@
 This directory is reserved for the deterministic demo application and the
 read-only maintainer inbox.
 
-Application setup and implementation belong to later project tasks.
+Frontend journey, state, wireframe, design-token, accessibility, sample-failure,
+and style-isolation foundations are defined in `src/foundation`.
