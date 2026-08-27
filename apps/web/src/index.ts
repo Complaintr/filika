@@ -163,5 +163,61 @@ async function registerSampleTaskTool(): Promise<void> {
   }
 }
 
+type ThemePreference = "system" | "light" | "dark";
+
+function initThemeSwitcher(): void {
+  const switcher = document.getElementById("theme-switcher");
+  if (!(switcher instanceof HTMLElement)) {
+    return;
+  }
+
+  const buttons = switcher.querySelectorAll<HTMLButtonElement>(".theme-btn");
+
+  function getStoredTheme(): ThemePreference {
+    try {
+      const stored = localStorage.getItem("filika-theme");
+      if (stored === "light" || stored === "dark" || stored === "system") {
+        return stored;
+      }
+    } catch {
+      // Ignored
+    }
+    return "system";
+  }
+
+  function applyTheme(pref: ThemePreference): void {
+    if (pref === "system") {
+      delete document.documentElement.dataset.theme;
+    } else {
+      document.documentElement.dataset.theme = pref;
+    }
+
+    for (const btn of buttons) {
+      const val = btn.dataset.themeValue;
+      const isSelected = val === pref;
+      btn.setAttribute("aria-checked", isSelected ? "true" : "false");
+    }
+  }
+
+  let currentPref = getStoredTheme();
+  applyTheme(currentPref);
+
+  for (const btn of buttons) {
+    btn.addEventListener("click", () => {
+      const selected = btn.dataset.themeValue as ThemePreference | undefined;
+      if (selected === "light" || selected === "dark" || selected === "system") {
+        currentPref = selected;
+        try {
+          localStorage.setItem("filika-theme", selected);
+        } catch {
+          // Ignored
+        }
+        applyTheme(currentPref);
+      }
+    });
+  }
+}
+
 showDemo();
+initThemeSwitcher();
 void registerSampleTaskTool();
