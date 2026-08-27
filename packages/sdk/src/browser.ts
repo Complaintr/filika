@@ -14,8 +14,9 @@ const api = installGlobal(globalThis, () => {
     document: documentSource,
     development: typeof __FILIKA_DEVELOPMENT__ !== "undefined" && __FILIKA_DEVELOPMENT__,
   });
+  const { createSdk: _factory, ...publicContracts } = contracts;
   return {
-    ...contracts,
+    ...publicContracts,
     ...sdk,
     get status() {
       return sdk.status;

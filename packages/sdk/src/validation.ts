@@ -6,7 +6,12 @@ export function closedRecord(
   try {
     if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
     const prototype: unknown = Object.getPrototypeOf(value);
-    if (prototype !== null && prototype !== Object.prototype) return null;
+    // Plain objects from another realm have a different Object.prototype identity.
+    if (
+      prototype !== null &&
+      (typeof prototype !== "object" || Object.getPrototypeOf(prototype) !== null)
+    )
+      return null;
     const result: Record<string, unknown> = Object.create(null);
     for (const key of Reflect.ownKeys(value)) {
       if (typeof key !== "string" || !keys.includes(key)) return null;

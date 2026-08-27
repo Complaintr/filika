@@ -19,6 +19,13 @@ review adapter. The native dialog, manual button, and collector server are not
 implemented by this package.
 
 The build uses the [esbuild IIFE/global name API](https://esbuild.github.io/api/#global-name).
-esbuild and the schema test validator are development dependencies only. Minified
-release output, runtime initialization, SRI, publishing, and deployment remain
-later-phase work. Generated `dist` files are not committed.
+esbuild and the schema test validator are development dependencies only. The
+production bundle is minified and requires HTTPS. Each build also emits
+`filika.meta.json` with stable version, compiler, mode, input paths, byte count,
+and SHA-256 checksum; no timestamps or absolute filesystem paths are included.
+The metadata supports later SRI generation; nothing is published or deployed.
+
+For local HTTP testing, run `bun run --filter @filika/sdk build:development`.
+This produces `filika.development.js` and its metadata, allowing HTTP only for
+exact loopback hosts. The production global has no development-mode switch.
+Generated `dist` files are not committed.

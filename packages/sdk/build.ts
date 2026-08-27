@@ -1,10 +1,12 @@
-import { type BuildOptions, build } from "esbuild";
+import { type BuildOptions, build, version as esbuildVersion } from "esbuild";
+import { version } from "./src/version";
 
 export const SDK_BUILD_OPTIONS = {
   absWorkingDir: import.meta.dir,
   entryPoints: ["src/browser.ts"],
   outfile: "dist/filika.js",
   bundle: true,
+  minify: true,
   format: "iife",
   define: { __FILIKA_DEVELOPMENT__: "false" },
   platform: "browser",
@@ -15,6 +17,38 @@ export const SDK_BUILD_OPTIONS = {
   charset: "utf8",
 } satisfies BuildOptions;
 
+export async function bundleSdk(development = false) {
+  const filename = development ? "filika.development.js" : "filika.js";
+  const result = await build({
+    ...SDK_BUILD_OPTIONS,
+    outfile: `dist/${filename}`,
+    define: { __FILIKA_DEVELOPMENT__: String(development) },
+    write: false,
+    metafile: true,
+  });
+  const output = result.outputFiles?.[0];
+  if (!output || result.outputFiles?.length !== 1) throw new Error("Expected one IIFE bundle");
+  if (Object.values(result.metafile?.outputs ?? {}).some((entry) => entry.imports.length > 0))
+    throw new Error("Unexpected external imports");
+  const metadata = {
+    sdkVersion: version,
+    esbuildVersion,
+    mode: development ? "development" : "production",
+    format: "iife",
+    target: SDK_BUILD_OPTIONS.target,
+    file: filename,
+    bytes: output.contents.byteLength,
+    sha256: new Bun.CryptoHasher("sha256").update(output.contents).digest("hex"),
+    inputs: Object.keys(result.metafile?.inputs ?? {}).sort(),
+  };
+  return { code: output.contents, metadata };
+}
+
 if (import.meta.main) {
-  await build(SDK_BUILD_OPTIONS);
+  const result = await bundleSdk(Bun.argv.includes("--development"));
+  await Bun.write(new URL(`dist/${result.metadata.file}`, import.meta.url), result.code);
+  await Bun.write(
+    new URL(`dist/${result.metadata.file.replace(/\.js$/u, ".meta.json")}`, import.meta.url),
+    `${JSON.stringify(result.metadata, null, 2)}\n`,
+  );
 }
