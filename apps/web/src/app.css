@@ -345,13 +345,14 @@ a:focus-visible {
   gap: 0.5rem;
   margin: 0;
   padding: 0.4rem 0.9rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--status-border);
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.65);
-  color: #515154;
+  background: var(--status-bg);
+  color: var(--status-color);
   font-size: 0.8rem;
   font-weight: 550;
   letter-spacing: -0.01em;
+  backdrop-filter: blur(12px);
 }
 
 #webmcp-status::before {
@@ -408,10 +409,10 @@ main {
   width: fit-content;
   margin: 0 0 0.85rem;
   padding: 0.28rem 0.8rem;
-  border: 1px solid rgba(0, 119, 117, 0.15);
+  border: 1px solid var(--eyebrow-border);
   border-radius: 9999px;
-  color: #007775;
-  background: #e6f7f5;
+  color: var(--eyebrow-color);
+  background: var(--eyebrow-bg);
   font-size: 0.725rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -521,33 +522,29 @@ main {
 }
 
 .button-primary {
-  color: #ffffff;
-  background: #007775;
-  border-color: #007775;
-  box-shadow:
-    0 3px 10px rgba(0, 119, 117, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: var(--primary-btn-text);
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: var(--primary-btn-shadow);
 }
 
 .button-primary:hover:not(:disabled) {
-  background: #006664;
-  border-color: #006664;
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
   transform: translateY(-1px);
-  box-shadow:
-    0 5px 16px rgba(0, 119, 117, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: var(--primary-btn-shadow-hover);
 }
 
 .button-secondary {
-  border-color: rgba(0, 119, 117, 0.16);
-  color: #007775;
-  background: rgba(0, 119, 117, 0.06);
+  border-color: var(--secondary-btn-border);
+  color: var(--secondary-btn-color);
+  background: var(--secondary-btn-bg);
 }
 
 .button-secondary:hover:not(:disabled) {
-  border-color: rgba(0, 119, 117, 0.28);
-  color: #006664;
-  background: rgba(0, 119, 117, 0.12);
+  border-color: var(--secondary-btn-hover-border);
+  color: var(--secondary-btn-hover-color);
+  background: var(--secondary-btn-hover-bg);
   transform: translateY(-1px);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
 }
@@ -561,17 +558,17 @@ main {
   opacity: 0.5;
   background: rgba(120, 120, 128, 0.08);
   border-color: rgba(0, 0, 0, 0.05);
-  color: #86868b;
+  color: var(--text-muted);
   box-shadow: none;
   transform: none;
 }
 
 .failure-message {
   padding: 0.85rem 1.05rem;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  border: 1px solid var(--failure-border);
   border-radius: 0.875rem;
-  color: #b91c1c;
-  background: #fff5f5;
+  color: var(--failure-color);
+  background: var(--failure-bg);
   font-size: 0.9rem;
   font-weight: 550;
   line-height: 1.5;
@@ -580,7 +577,7 @@ main {
 }
 
 .status-line {
-  color: #6e6e73;
+  color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.55;
   margin: 0 0 1.5rem;
@@ -588,7 +585,7 @@ main {
 }
 
 .muted {
-  color: #6e6e73;
+  color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.55;
 }
@@ -618,7 +615,7 @@ main {
 }
 
 .mono {
-  color: #007775;
+  color: var(--mono-color);
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 0.8rem;
 }
