@@ -8,6 +8,7 @@ describe("P2-BE-04 rejection responses", () => {
     expect(ERROR_CATEGORY_STATUS.denied_origin).toBe(403);
     expect(ERROR_CATEGORY_STATUS.payload_too_large).toBe(413);
     expect(ERROR_CATEGORY_STATUS.project_not_found).toBe(400);
+    expect(ERROR_CATEGORY_STATUS.rate_limited).toBe(429);
     expect(ERROR_CATEGORY_STATUS.internal_error).toBe(500);
   });
 

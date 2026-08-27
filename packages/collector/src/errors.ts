@@ -6,6 +6,7 @@ export const ERROR_CATEGORY_STATUS = {
   invalid_input: 400,
   payload_too_large: 413,
   project_not_found: 400,
+  rate_limited: 429,
 } as const satisfies Record<FeedbackErrorCategory, number>;
 
 export function rejectionResponse(category: FeedbackErrorCategory): Response {

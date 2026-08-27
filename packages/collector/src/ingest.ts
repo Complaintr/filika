@@ -7,6 +7,7 @@ import { checkOrigin } from "./origin";
 import { decodeJsonBody } from "./parse";
 import { persistFeedback } from "./persistence";
 import { isOriginAllowed, resolveProject } from "./project";
+import { consumeProjectRateLimit } from "./rate-limiting";
 import { buildServerOwnedValues } from "./server-owned";
 import { validateEnvelope } from "./validate";
 
@@ -47,6 +48,12 @@ export async function ingestFeedback(db: Db, request: Request): Promise<Response
 
   if (!isOriginAllowed(originCheck.origin, resolvedProject.allowedOrigins)) {
     return rejectionResponse("denied_origin");
+  }
+
+  const rateLimit = await consumeProjectRateLimit(db, resolvedProject.id, new Date());
+
+  if (!rateLimit.allowed) {
+    return rejectionResponse("rate_limited");
   }
 
   const serverValues = buildServerOwnedValues(new Date(), originCheck.origin);

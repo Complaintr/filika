@@ -16,6 +16,7 @@ export const FEEDBACK_ERROR_CATEGORIES = [
   "denied_origin",
   "payload_too_large",
   "project_not_found",
+  "rate_limited",
   "internal_error",
 ] as const;
 
