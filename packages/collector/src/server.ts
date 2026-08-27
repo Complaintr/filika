@@ -1,22 +1,16 @@
 import { allowOriginHeaders, buildPreflightResponse } from "./cors";
 import { createDb, type Db } from "./db/client";
-import { project } from "./db/schema";
 import { FEEDBACK_ENDPOINT, INBOX_DETAIL_ENDPOINT, INBOX_LIST_ENDPOINT } from "./endpoint-contract";
 import { getInboxFeedback, listInbox } from "./inbox";
 import { INBOX_PAGE_SIZE_DEFAULT, type InboxListQuery } from "./inbox-contract";
 import { ingestFeedback } from "./ingest";
+import { collectAllowedOrigins } from "./project";
 
 export const COLLECTOR_DEFAULT_PORT = 8787 as const;
 
 export interface CollectorServerOptions {
   databaseUrl: string;
   port?: number;
-}
-
-export async function collectAllowedOrigins(db: Db): Promise<string[]> {
-  const rows = await db.select({ allowedOrigins: project.allowedOrigins }).from(project);
-
-  return [...new Set(rows.flatMap((row) => row.allowedOrigins))];
 }
 
 function parseListQuery(url: URL): InboxListQuery {

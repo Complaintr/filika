@@ -114,6 +114,38 @@ describe("P2-BE-15 collector api and database tests", () => {
     );
   });
 
+  test("returns cors headers for accepted and rejected responses from an allowed origin", async () => {
+    const accepted = await postRaw(postEnvelope("a0000001-0000-4000-8000-000000000001"));
+
+    expect(accepted.status).toBe(201);
+    expect(accepted.headers.get("access-control-allow-origin")).toBe(ALLOWED_ORIGIN);
+    expect(accepted.headers.get("vary")).toBe("Origin");
+
+    const rejected = await postRaw(
+      postEnvelope("a0000002-0000-4000-8000-000000000002", { origin: "https://evil.example" }),
+    );
+
+    expect(rejected.status).toBe(400);
+    expect(rejected.headers.get("access-control-allow-origin")).toBe(ALLOWED_ORIGIN);
+    expect(rejected.headers.get("vary")).toBe("Origin");
+  });
+
+  test("does not return cors headers for a denied origin", async () => {
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor("a0000003-0000-4000-8000-000000000003")),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": "a0000003-0000-4000-8000-000000000003",
+        Origin: "http://evil.example",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(403);
+    expect(response.headers.get("access-control-allow-origin")).toBeNull();
+  });
+
   test("persists the accepted feedback row", async () => {
     const rows = await handle.db.query.feedback.findFirst({
       where: eq(feedback.eventId, EVENT_ID),

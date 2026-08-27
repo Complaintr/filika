@@ -1,13 +1,14 @@
 import { readBoundedBody } from "./body";
+import { allowOriginHeaders, isAllowedOrigin } from "./cors";
 import type { Db } from "./db/client";
 import { buildAcceptedReceipt, buildDuplicateReceipt } from "./duplicate";
 import { rejectionResponse } from "./errors";
 import { checkIdempotency } from "./idempotency";
 import { consoleLogger, type Logger } from "./logger";
-import { checkOrigin } from "./origin";
+import { checkOrigin, type OriginCheck } from "./origin";
 import { decodeJsonBody } from "./parse";
 import { persistFeedback } from "./persistence";
-import { isOriginAllowed, resolveProject } from "./project";
+import { collectAllowedOrigins, isOriginAllowed, resolveProject } from "./project";
 import { consumeProjectRateLimit } from "./rate-limiting";
 import { buildServerOwnedValues } from "./server-owned";
 import { validateEnvelope } from "./validate";
@@ -29,7 +30,26 @@ export async function ingestFeedback(
   logger: Logger = consoleLogger,
 ): Promise<Response> {
   const originCheck = checkOrigin(request);
+  const allowedOrigins = originCheck.status === "accepted" ? await collectAllowedOrigins(db) : [];
+  const corsHeaders =
+    originCheck.status === "accepted" && isAllowedOrigin(originCheck.origin, allowedOrigins)
+      ? allowOriginHeaders(request, allowedOrigins)
+      : new Headers();
+  const response = await processIngest(db, request, originCheck, logger);
 
+  for (const [name, value] of corsHeaders) {
+    response.headers.set(name, value);
+  }
+
+  return response;
+}
+
+async function processIngest(
+  db: Db,
+  request: Request,
+  originCheck: OriginCheck,
+  logger: Logger,
+): Promise<Response> {
   if (originCheck.status === "rejected") {
     return reject(logger, "denied_origin");
   }
