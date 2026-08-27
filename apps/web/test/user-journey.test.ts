@@ -4,7 +4,7 @@ import { USER_JOURNEY, USER_JOURNEY_STAGE_IDS } from "../src/foundation/user-jou
 
 describe("user-journey", () => {
   test("maps the complete failure-to-inbox journey in order", () => {
-    expect(USER_JOURNEY.map((stage) => stage.id)).toEqual(USER_JOURNEY_STAGE_IDS);
+    expect(USER_JOURNEY.map((stage) => stage.id)).toEqual([...USER_JOURNEY_STAGE_IDS]);
     expect(USER_JOURNEY.at(0)?.id).toBe("task_ready");
     expect(USER_JOURNEY.at(-1)?.id).toBe("inbox_detail");
   });

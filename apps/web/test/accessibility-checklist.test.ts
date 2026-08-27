@@ -7,7 +7,7 @@ import {
 
 describe("accessibility-checklist", () => {
   test("defines a verification step for every requirement", () => {
-    expect(ACCESSIBILITY_CHECKLIST.map((item) => item.id)).toEqual(ACCESSIBILITY_CHECK_IDS);
+    expect(ACCESSIBILITY_CHECKLIST.map((item) => item.id)).toEqual([...ACCESSIBILITY_CHECK_IDS]);
     expect(ACCESSIBILITY_CHECKLIST.every((item) => item.verification.length > 0)).toBe(true);
   });
 

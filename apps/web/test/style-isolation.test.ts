@@ -38,6 +38,6 @@ describe("style-isolation", () => {
     } as unknown as HTMLElement;
 
     expect(getOrCreateFilikaShadowRoot(host)).toBe(createdRoot);
-    expect(receivedOptions).toEqual({ mode: "open" });
+    expect(receivedOptions!).toEqual({ mode: "open" });
   });
 });
