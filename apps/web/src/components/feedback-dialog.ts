@@ -24,18 +24,18 @@ dialog {
   max-block-size: min(48rem, calc(100vh - 2rem));
   margin: auto;
   padding: 0;
-  border: 1px solid rgb(255 255 255 / 88%);
+  border: 1px solid var(--filika-dialog-border);
   border-radius: 1.5rem;
   color: var(--filika-color-text);
-  background: rgb(255 255 255 / 96%);
+  background: var(--filika-dialog-bg);
   box-shadow:
-    0 2rem 6rem rgb(15 50 48 / 24%),
-    inset 0 1px 0 #fff;
+    0 2rem 6rem rgb(0 0 0 / 32%),
+    inset 0 1px 0 var(--filika-dialog-highlight);
   backdrop-filter: saturate(180%) blur(2rem);
 }
 
 dialog::backdrop {
-  background: rgb(13 49 46 / 34%);
+  background: var(--filika-backdrop-bg);
   backdrop-filter: blur(0.75rem);
 }
 
@@ -60,17 +60,17 @@ label { font-weight: 650; }
 input, select, textarea {
   inline-size: 100%;
   padding: 0.8rem 0.9rem;
-  border: 1px solid rgb(15 118 110 / 18%);
+  border: 1px solid var(--filika-input-border);
   border-radius: 0.875rem;
   color: var(--filika-color-text);
-  background: rgb(255 255 255 / 82%);
-  box-shadow: inset 0 1px 2px rgb(15 50 48 / 5%);
+  background: var(--filika-input-bg);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 6%);
   font: inherit;
   transition:
     border-color var(--filika-motion-fast) var(--filika-motion-easing),
     box-shadow var(--filika-motion-fast) var(--filika-motion-easing);
 }
-input:hover, select:hover, textarea:hover { border-color: rgb(15 118 110 / 34%); }
+input:hover, select:hover, textarea:hover { border-color: var(--filika-color-primary); }
 textarea { min-block-size: 6.5rem; resize: vertical; }
 input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] {
   border-color: var(--filika-color-danger);
@@ -79,9 +79,9 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 .error { margin: 0; color: var(--filika-color-danger); font-size: 0.875rem; font-weight: 650; }
 .error-summary {
   padding: 0.9rem 1rem;
-  border: 1px solid rgb(159 38 51 / 12%);
+  border: 1px solid rgb(159 38 51 / 18%);
   border-radius: 1rem;
-  background: rgb(255 241 242 / 76%);
+  background: var(--filika-error-summary-bg);
 }
 .error-summary:empty { display: none; }
 .error-summary a { color: var(--filika-color-danger); }
@@ -93,7 +93,7 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
   gap: 0.75rem;
   align-items: center;
   padding: 0.75rem;
-  border: 1px solid rgb(15 118 110 / 8%);
+  border: 1px solid var(--filika-input-border);
   border-radius: 1rem;
   background: var(--filika-color-surface-muted);
 }
@@ -104,9 +104,9 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 .privacy {
   margin-block: 1.25rem;
   padding: 1.15rem;
-  border: 1px solid rgb(15 118 110 / 12%);
+  border: 1px solid var(--filika-input-border);
   border-radius: 1rem;
-  background: rgb(232 250 247 / 64%);
+  background: var(--filika-privacy-bg);
 }
 .privacy dl { display: grid; gap: 0.75rem; margin-block: 0.75rem; }
 .privacy dt { color: var(--filika-color-text-muted); font-size: 0.8rem; font-weight: 650; }
@@ -133,9 +133,9 @@ button {
   box-shadow: 0 0.5rem 1.25rem rgb(15 118 110 / 24%);
 }
 .secondary {
-  border-color: rgb(15 118 110 / 18%);
+  border-color: var(--filika-input-border);
   color: var(--filika-color-primary);
-  background: rgb(255 255 255 / 78%);
+  background: var(--filika-secondary-btn-bg);
 }
 .text-action { padding-inline: 0.25rem; border: 0; color: var(--filika-color-primary); background: transparent; text-decoration: underline; text-underline-offset: 0.2em; }
 button:active { transform: scale(0.98); }
