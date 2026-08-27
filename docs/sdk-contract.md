@@ -208,3 +208,25 @@ single optional `signal` field. Runtime input is validated despite static types.
 Only one review may be active; a concurrent manual or tool execution resolves
 `internal_error` without disturbing the existing review. User confirmation is
 mandatory for every transport, including manual review and explicit retry.
+
+## Contract changes and verification
+
+`packages/sdk/test/contracts.test.ts` snapshots tool metadata and schema, the
+envelope and field limits, the receipt, execution codes and limits, configuration,
+and lifecycle. Review snapshot diffs as public contract changes. Never update a
+snapshot simply to silence a failure. Changes require an explicit compatibility
+decision and coordinated SDK, frontend, and collector review; incompatible wire
+changes require a new schema version. Phase 1 establishes the baseline; final
+release-candidate freeze remains a later task.
+
+Run `bun run test:unit` for schema, receipt, lifecycle, and bundle checks. To
+intentionally regenerate approved snapshots, run
+`bun test packages/sdk/test/contracts.test.ts --update-snapshots`, review the
+diff, and then rerun the normal test command without that flag. SDK source,
+tests, and build configuration are included in strict `bun run typecheck`.
+
+The bundle smoke test executes the actual esbuild output in a bare JavaScript
+context, checking the single `Filika` global, lack of external imports, and lack
+of load-time DOM or transport dependencies. This is not a real browser test.
+`bun run test:browser` currently reports one existing TODO; supported-Chrome
+registration and end-to-end feedback verification remain later-phase work.

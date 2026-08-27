@@ -75,4 +75,28 @@ describe("V1 envelope", () => {
     value.feedback.reproductionSteps = [""];
     expect(validate(value)).toBe(false);
   });
+
+  test("rejects trailing line terminators in identifiers and SDK versions", () => {
+    for (const suffix of ["\n", "\r", "\u2028", "\u2029"]) {
+      expect(validate({ ...envelope(), projectKey: `demo${suffix}` })).toBe(false);
+      expect(validate({ ...envelope(), context: { sdkVersion: `0.0.0${suffix}` } })).toBe(false);
+    }
+  });
+
+  test("enforces host field bounds and counts Unicode code points", () => {
+    for (const field of ["routeLabel", "applicationRelease"] as const) {
+      const value = envelope();
+      value.context[field] = "a".repeat(FEEDBACK_LIMITS[field]);
+      expect(validate(value)).toBe(true);
+      value.context[field] += "a";
+      expect(validate(value)).toBe(false);
+    }
+    expect(validate({ ...envelope(), projectKey: "a".repeat(128) })).toBe(true);
+    expect(validate({ ...envelope(), projectKey: "a".repeat(129) })).toBe(false);
+    const value = envelope();
+    value.feedback.title = "😀".repeat(160);
+    expect(validate(value)).toBe(true);
+    value.feedback.title += "😀";
+    expect(validate(value)).toBe(false);
+  });
 });

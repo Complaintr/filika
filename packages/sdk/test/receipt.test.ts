@@ -79,3 +79,11 @@ test("success requires a receipt; failures cannot carry collector text or receip
     expect(validateOutcome(value)).toBe(false);
   }
 });
+
+test("receipt parser agrees with schema on identifier lengths", () => {
+  for (const suffix of ["\n", "\r", "\u2028", "\u2029", "a"]) {
+    const value = { ...receipt, feedbackId: receipt.feedbackId + suffix };
+    expect(validate(value)).toBe(false);
+    expect(parse(value)).toBeNull();
+  }
+});
