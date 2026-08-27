@@ -108,11 +108,11 @@ export const COLLECTOR_RESPONSE_CONTRACT = {
 } as const;
 
 export const COLLECTOR_ERROR_TO_OUTCOME = {
-  denied_origin: "collector_rejection",
+  denied_origin: "collector_rejected",
   internal_error: "internal_error",
   invalid_input: "invalid_input",
-  payload_too_large: "collector_rejection",
-  project_not_found: "collector_rejection",
+  payload_too_large: "collector_rejected",
+  project_not_found: "collector_rejected",
 } as const;
 
 export const DUPLICATE_OUTCOME = "success" as const;
