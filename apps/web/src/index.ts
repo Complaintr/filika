@@ -1,5 +1,3 @@
-import "./app.css";
-
 import { FeedbackDialog } from "./components/feedback-dialog";
 import { MaintainerInbox } from "./components/inbox";
 import type { InboxDetailViewModel, InboxListItemViewModel } from "./contracts/inbox-view-model";
