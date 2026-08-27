@@ -41,3 +41,23 @@ body limit before parsing on the server and after serialization in the SDK.
 JSON Schema does not enforce byte length. Reject ill-formed Unicode (unpaired
 surrogates) at both boundaries. Never send agent drafts until explicit user review
 and confirmation. Use one `eventId` as the `Idempotency-Key` header as well.
+
+## WebMCP tool
+
+`FEEDBACK_TOOL` is the canonical static metadata for `filika_submit_feedback`.
+Its title is **Submit feedback for review**. Input is the closed `feedback`
+object above, not the envelope. An agent cannot choose the destination, project,
+context, event ID, or server facts. Serialized input is capped at 24,576 UTF-8
+bytes before validation; execution validates even if the browser already did.
+
+Register using `document.modelContext.registerTool(tool, { signal })`, await the
+registration promise, and pass the execution options' `signal` through review
+and transport. The registration signal owns tool removal; do not use obsolete
+`navigator.modelContext` or `unregisterTool` APIs.
+
+The current [WebMCP specification](https://webmachinelearning.github.io/webmcp/)
+defines `readOnlyHint` and `untrustedContentHint`. Both are `false`: confirmed
+feedback writes state, while output consists only of locally reconstructed,
+validated receipts and closed outcome codes. These are hints, not authorization.
+The title, description, schema, and annotations must not contain project names,
+host configuration, report content, collector messages, or other dynamic text.
