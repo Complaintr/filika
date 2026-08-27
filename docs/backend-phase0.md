@@ -70,3 +70,94 @@ design must include, and the verification tasks that will prove the control.
   by size limits, rate limits, and retention rather than by authentication.
 - Stored-XSS protection depends on the inbox rendering every value as text and
   on regression fixtures staying in place.
+
+## 2. Data lifecycle
+
+This section drafts the lifecycle for every stored record: project records,
+feedback records, rate-limit identifiers, and logs. It defines the states,
+the retention window, and the cleanup contract that later phases implement.
+
+### 2.1 Record types and states
+
+**Project records** (`project`)
+
+| Field intent | Ownership | Notes |
+| --- | --- | --- |
+| Public project key | Server-seeded | Human-readable key the SDK configures; not a secret |
+| Allowed origins | Server-seeded | Exact-match allowlist for browser ingestion |
+| Display name | Server-seeded | Shown in the dialog and inbox |
+| Retention window | Server-seeded | 24 hours for the demo |
+
+State machine: `seeded` → `active` → `retired`. Projects are seeded locally for
+the challenge demo and have no public creation endpoint.
+
+**Feedback records** (`feedback`)
+
+State machine:
+
+```
+received (validated)
+   │
+   ▼
+accepted (persisted) ──► read (listed/detailed in inbox)
+   │                          │
+   └────────── 24h ────────────┴──► expired ──► deleted (cleanup)
+```
+
+| State | Meaning | Transition |
+| --- | --- | --- |
+| `received` | Payload passed validation, before persistence | → `accepted` on successful transactional insert |
+| `accepted` | Stored with unique `(project_id, event_id)` | → `duplicate` on idempotency hit; → `expired` after retention |
+| `duplicate` | A retry matched an existing accepted record | Returns the original stored receipt; no new row |
+| `read` | Exposed through read-only inbox queries | No write path from inbox |
+| `expired` | Retention window elapsed | → `deleted` by the cleanup command |
+| `deleted` | Removed by the cleanup command | Terminal |
+
+**Rate-limit identifiers**
+
+| Type | Purpose | Lifecycle |
+| --- | --- | --- |
+| Project counter | Bounded per-project submission volume | Atomic increment on ingest; windowed; durable |
+| Request fingerprint | Keyed abuse identifier for a source without storing raw IP | Expires with feedback retention |
+
+State machine: `active` → `expired` → `deleted`. Cleanup removes rate-limit
+identifiers in the same pass as expired feedback so identifiers never outlive
+the retention window they bound.
+
+**Logs**
+
+- Structured records of validation outcomes, error categories, and request
+  identifiers.
+- Never contain full report bodies, raw IP addresses, tokens, or unapproved
+  headers.
+- No long-term retention requirement beyond the operational window; they are
+  not treated as a data store.
+
+### 2.2 Retention policy
+
+- Demo feedback is retained for **24 hours** from acceptance, then removed.
+- The cleanup command is repeatable and idempotent; it deletes only feedback
+  that has exceeded the retention window and never touches active records.
+- Rate-limit identifiers expire on the same schedule so they cannot be used to
+  correlate activity beyond the retention window.
+
+### 2.3 Cleanup contract
+
+- `db:cleanup` removes expired feedback and expired rate-limit identifiers in
+  one transactional pass.
+- Running cleanup twice is harmless; the second run deletes nothing new.
+- Cleanup must not delete non-expired feedback, and must not delete projects.
+
+### 2.4 Deletion semantics
+
+- Deletion is a hard delete. The demo has no backup requirement; the data
+  lifecycle is a bounded, ephemeral sink by design.
+
+### 2.5 Design notes
+
+- The `project` table is a stable anchor; feedback, rate limits, and logs all
+  reference it through the opaque internal project ID, which the inbox never
+  exposes.
+- The lifecycle intentionally provides no update or delete path from the
+  public interface; the inbox is strictly read-only.
+
