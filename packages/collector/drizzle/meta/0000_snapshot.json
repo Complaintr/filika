@@ -1,5 +1,5 @@
 {
-  "id": "5f43bb9e-1af2-4b2e-99c7-0fc548188529",
+  "id": "3e73f7aa-9549-4245-8e71-99e1898e56ea",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -273,7 +273,13 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.feedback_kind": {
+      "name": "feedback_kind",
+      "schema": "public",
+      "values": ["bug", "blocked_task", "confusing_behavior", "idea"]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

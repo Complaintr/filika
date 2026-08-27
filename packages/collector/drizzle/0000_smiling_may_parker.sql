@@ -1,3 +1,4 @@
+CREATE TYPE "public"."feedback_kind" AS ENUM('bug', 'blocked_task', 'confusing_behavior', 'idea');--> statement-breakpoint
 CREATE TABLE "feedback" (
 	"application_release" text,
 	"description" text NOT NULL,
