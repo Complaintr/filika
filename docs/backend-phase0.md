@@ -306,3 +306,46 @@ user-safe failure message without exposing collector internals.
 - Every rejection and acceptance is logged as a bounded, sanitized record
   (validation outcome, category, identifiers only).
 
+## 5. Server-derived and untrusted fields
+
+This section lists which fields the collector derives server-side and which
+fields arrive from the client and must remain untrusted. The distinction is the
+backbone of the trust boundary: client values are validated, bounded, and
+stored as data, but never used to describe origin, source, time, or identity.
+
+### 5.1 Server-derived fields
+
+| Field | Derivation | Notes |
+| --- | --- | --- |
+| Request origin | From the validated `Origin` request header | Never taken from the body; the basis of origin policy |
+| Source | Fixed value `web_sdk_unverified` | Marks that the report was not authenticated; not client-settable |
+| Feedback ID | Server-generated UUID | Issued at persistence time |
+| Receipt timestamp | Server clock at acceptance | Also used as the retention anchor |
+| Project identity | Resolved from the project key lookup | Internal ID never exposed to the public API or inbox |
+| Rate-limit decision | Server-side counter check | Applied before persistence |
+| Retention window | From the resolved project record | Shown in the dialog and privacy copy |
+
+### 5.2 Client-supplied fields treated as untrusted data
+
+| Field | Validation | Why it stays untrusted |
+| --- | --- | --- |
+| `projectKey` | Format bound; used only to resolve the project | Not a credential; public lookup key |
+| `eventId` | UUID format; must equal `Idempotency-Key` | Opaque idempotency key; uniqueness enforced by the constraint, not by trust in the client |
+| `kind` | Bounded enum | Agent-authored |
+| `title` | Bounded length | Agent-authored |
+| `description` | Bounded length | Agent-authored |
+| `expectedBehavior` | Bounded length | Agent-authored |
+| `reproductionSteps` | Bounded length | Agent-authored |
+| Optional context items | Bounded list, bounded item length, closed shape | Host-supplied and agent-supplied |
+| `routeLabel`, `applicationRelease` | Static, bounded strings | Optional host configuration, used as display metadata only |
+
+### 5.3 Client claims that are rejected or ignored
+
+- Any body field claiming origin, source, timestamp, identity, or role is
+  rejected by the closed schema; unknown fields fail validation wholesale.
+- No client value is ever echoed back as an instruction or interpolated into
+  tool metadata, error text, or receipt fields.
+- The receipt is reconstructed exclusively from server-derived fields; client
+  text that would be passed toward the agent is revalidated under the
+  receipt-construction rules so collector text cannot become agent input.
+
