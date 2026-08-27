@@ -2,11 +2,11 @@ import { type BuildOptions, build } from "esbuild";
 
 export const SDK_BUILD_OPTIONS = {
   absWorkingDir: import.meta.dir,
-  entryPoints: ["src/index.ts"],
+  entryPoints: ["src/browser.ts"],
   outfile: "dist/filika.js",
   bundle: true,
   format: "iife",
-  globalName: "Filika",
+  define: { __FILIKA_DEVELOPMENT__: "false" },
   platform: "browser",
   target: "es2022",
   splitting: false,

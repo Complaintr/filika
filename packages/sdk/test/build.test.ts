@@ -20,5 +20,9 @@ test("builds one standalone classic script with a Filika global and no external 
   expect(runInNewContext("Filika.version", context)).toBe(version);
   expect(runInNewContext("Filika.FEEDBACK_TOOL.name", context)).toBe("filika_submit_feedback");
   expect(runInNewContext("typeof Filika.parseReceipt", context)).toBe("function");
-  expect(runInNewContext("typeof Filika.init", context)).toBe("undefined");
+  expect(runInNewContext("typeof Filika.init", context)).toBe("function");
+  expect(runInNewContext("Filika.status.state", context)).toBe("uninitialized");
+  const first = context.Filika;
+  runInNewContext(output.text, context, { timeout: 1000 });
+  expect(context.Filika).toBe(first);
 });
