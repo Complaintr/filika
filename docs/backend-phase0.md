@@ -218,3 +218,91 @@ bun run db:cleanup --db filika_test # verify idempotent cleanup in tests
 Tests assert on `filika_test` state after every scenario (accepted, rejected,
 duplicate, rate-limited) and never depend on residue from a previous run.
 
+## 4. Collector request sequence
+
+This section drafts the end-to-end request sequence for
+`POST /api/v1/feedback`, from the CORS preflight through validation,
+persistence, duplicate resolution, and receipt generation. Error categories
+map to the frozen SDK outcome contract so the dialog can react deterministically.
+
+### 4.1 Sequence
+
+```
+Browser SDK                        Collector (server)                 PostgreSQL
+    |  OPTIONS /api/v1/feedback       |                                  |
+    |  Origin: https://host.example   |                                  |
+    |-------------------------------->| 1. Preflight: validate Origin,    |
+    |                                 |    allowed methods and headers;   |
+    |                                 |    respond with exact allow-origin |
+    |                                 |    and Vary: Origin               |
+    |  Access-Control-Allow-*         |                                  |
+    |<--------------------------------|                                  |
+    |  POST /api/v1/feedback          |                                  |
+    |  Origin, Content-Type:          |                                  |
+    |    application/json,            |                                  |
+    |  Idempotency-Key: <eventId>     |                                  |
+    |-------------------------------->| 2. Read Origin header            |
+    |                                 | 3. Reject missing/null/denied     |
+    |                                 |    origin before ingest          |
+    |                                 | 4. Enforce body-size bound       |
+    |                                 |    before parsing                |
+    |                                 | 5. Enforce strict content type   |
+    |                                 | 6. Parse JSON in a bounded way   |
+    |                                 | 7. Require Idempotency-Key to    |
+    |                                 |    equal eventId                 |
+    |                                 | 8. Validate V1 envelope (Zod):   |
+    |                                 |    sizes, required fields,       |
+    |                                 |    unknown-field rejection       |
+    |                                 | 9. Resolve project by key        |
+    |                                 |10. Atomic durable rate-limit     |
+    |                                 |    check                         |
+    |                                 |11. Transactional insert with     |
+    |                                 |    unique (project_id, event_id) |
+    |                                 |   ├─ new row: committed          |
+    |                                 |   └─ unique violation: fetch the |
+    |                                 |      stored receipt, mark        |
+    |                                 |      duplicate                   |
+    |                                 |12. Build receipt from            |
+    |                                 |    server-derived fields only    |
+    |  HTTP 201 / 200 + receipt       |                                  |
+    |<--------------------------------|                                  |
+```
+
+### 4.2 Response contract
+
+| Outcome | HTTP status | Body |
+| --- | --- | --- |
+| Accepted | `201 Created` | Receipt with server-derived fields |
+| Duplicate retry | `200 OK` | Original stored receipt with `duplicate: true` |
+| Invalid input | `400 Bad Request` | Error category + bounded message |
+| Denied/missing origin | `403 Forbidden` | Error category + bounded message |
+| Payload too large | `413 Content Too Large` | Error category |
+| Project not found | `400 Bad Request` | Error category + bounded message |
+| Internal error | `500 Internal Server Error` | Generic bounded message |
+
+Responses never echo the submitted report body and never include internal
+identifiers, rate-limit details, or collector-internal messages.
+
+### 4.3 Error categories to SDK outcomes
+
+| Collector error category | SDK outcome |
+| --- | --- |
+| `invalid_input` | `invalid_input` |
+| `denied_origin` | `collector_rejection` |
+| `payload_too_large` | `collector_rejection` |
+| `project_not_found` | `collector_rejection` |
+| `internal_error` | `internal_error` |
+| duplicate retry | `success` with `duplicate: true` |
+
+The mapping keeps the SDK contract frozen and lets the dialog render a bounded,
+user-safe failure message without exposing collector internals.
+
+### 4.4 Design notes
+
+- Origin is consumed from the request header only and is validated before any
+  body work; a denied request is rejected with no persistence attempt.
+- Idempotency and persistence are one transaction: the unique
+  `(project_id, event_id)` constraint is the source of truth for duplicates.
+- Every rejection and acceptance is logged as a bounded, sanitized record
+  (validation outcome, category, identifiers only).
+
