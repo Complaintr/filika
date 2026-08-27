@@ -138,6 +138,13 @@ describe("P0-FE-04 original design tokens", () => {
     expect(FILIKA_DESIGN_TOKENS.motion.reducedDuration).toBe("0ms");
     expect(FILIKA_TOKEN_CSS).toContain("prefers-reduced-motion: reduce");
   });
+
+  test("supports dark color scheme tokens with high contrast", () => {
+    expect(FILIKA_TOKEN_CSS).toContain("prefers-color-scheme: dark");
+    expect(FILIKA_TOKEN_CSS).toContain('data-theme="dark"');
+    expect(contrastRatio("#f4f4f5", "#18181b")).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio("#042f2e", "#14b8a6")).toBeGreaterThanOrEqual(4.5);
+  });
 });
 
 describe("P0-FE-05 accessibility checklist", () => {
