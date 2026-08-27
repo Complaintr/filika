@@ -65,11 +65,14 @@ export function parseReceipt(raw: string, expectedEventId: string): FilikaReceip
       !RECEIPT_SCHEMA.required.every((key) => Object.hasOwn(record, key)) ||
       record.schemaVersion !== 1 ||
       typeof record.eventId !== "string" ||
+      record.eventId.length !== 36 ||
       !new RegExp(UUID_V4_PATTERN).test(record.eventId) ||
       record.eventId !== expectedEventId ||
       typeof record.feedbackId !== "string" ||
+      record.feedbackId.length !== 36 ||
       !new RegExp(UUID_V4_PATTERN).test(record.feedbackId) ||
       typeof record.receivedAt !== "string" ||
+      record.receivedAt.length !== 24 ||
       !new RegExp(RECEIPT_TIMESTAMP_PATTERN).test(record.receivedAt) ||
       new Date(record.receivedAt).toISOString() !== record.receivedAt ||
       typeof record.duplicate !== "boolean"

@@ -1,12 +1,35 @@
 import { abortScope, withAbort } from "./abort";
 import { FEEDBACK_LIMITS } from "./envelope";
+import type { SubmissionTransport } from "./execution";
 import { EXECUTION_LIMITS } from "./outcomes";
+import { type FilikaExecutionOutcome, parseReceipt } from "./receipt";
 import { type PreparedSubmission, submissionHeaders, withinByteLimit } from "./submission";
 
 export type Fetcher = (input: string, init: RequestInit) => Promise<Response>;
 export type HttpResult =
   | { status: number; body: string }
   | { code: "aborted" | "invalid_input" | "outcome_unknown" };
+
+export function collectorOutcome(response: HttpResult, eventId: string): FilikaExecutionOutcome {
+  if ("code" in response) return { code: response.code };
+  if (response.status === 201 || response.status === 200) {
+    const receipt = parseReceipt(response.body, eventId);
+    if (receipt && receipt.duplicate === (response.status === 200))
+      return { code: "success", receipt };
+    return { code: "outcome_unknown" };
+  }
+  // These documented statuses reject before persistence. Never forward error text.
+  if ([400, 403, 413].includes(response.status)) return { code: "collector_rejected" };
+  return { code: "outcome_unknown" };
+}
+
+export function createTransport(fetcher?: Fetcher, timeoutMs?: number): SubmissionTransport {
+  return async (session, submission, signal) =>
+    collectorOutcome(
+      await requestFeedback(session.config.endpoint, submission, signal, fetcher, timeoutMs),
+      submission.eventId,
+    );
+}
 
 export async function requestFeedback(
   endpoint: string,
