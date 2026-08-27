@@ -2,6 +2,7 @@ import { buildPreflightResponse } from "./cors";
 import { createDb, type Db } from "./db/client";
 import { project } from "./db/schema";
 import { FEEDBACK_ENDPOINT } from "./endpoint-contract";
+import { ingestFeedback } from "./ingest";
 
 export const COLLECTOR_DEFAULT_PORT = 8787 as const;
 
@@ -27,7 +28,7 @@ export function createFetchHandler(db: Db): (request: Request) => Promise<Respon
     }
 
     if (request.method === "POST" && url.pathname === FEEDBACK_ENDPOINT) {
-      return new Response("Not implemented.", { status: 501 });
+      return ingestFeedback(db, request);
     }
 
     return new Response("Not found.", { status: 404 });
