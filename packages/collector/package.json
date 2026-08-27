@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "db:generate": "drizzle-kit generate",
+    "db:cleanup": "bun run src/db/cleanup.ts",
     "db:migrate": "bun run src/db/migrate.ts",
     "db:reset": "bun run src/db/reset.ts",
     "db:seed": "bun run src/db/seed.ts",

@@ -20,6 +20,7 @@
     "dev:webmcp": "bun --port 4173 apps/web/src/index.html",
     "dev:collector": "bun run packages/collector/src/server.ts",
     "db:migrate": "bun run --filter @filika/collector db:migrate",
+    "db:cleanup": "bun run --filter @filika/collector db:cleanup",
     "db:reset": "bun run --filter @filika/collector db:reset",
     "db:seed": "bun run --filter @filika/collector db:seed",
     "install:frozen": "bun install --frozen-lockfile",
