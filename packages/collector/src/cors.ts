@@ -4,6 +4,16 @@ export function isAllowedOrigin(origin: string, allowedOrigins: readonly string[
   return allowedOrigins.includes(origin);
 }
 
+export function allowOriginHeaders(request: Request, allowedOrigins: readonly string[]): Headers {
+  const origin = request.headers.get("origin");
+
+  if (origin !== null && isAllowedOrigin(origin, allowedOrigins)) {
+    return new Headers({ "access-control-allow-origin": origin, vary: "Origin" });
+  }
+
+  return new Headers();
+}
+
 export function buildPreflightResponse(
   request: Request,
   allowedOrigins: readonly string[],

@@ -1,7 +1,9 @@
-import { buildPreflightResponse } from "./cors";
+import { allowOriginHeaders, buildPreflightResponse } from "./cors";
 import { createDb, type Db } from "./db/client";
 import { project } from "./db/schema";
-import { FEEDBACK_ENDPOINT } from "./endpoint-contract";
+import { FEEDBACK_ENDPOINT, INBOX_DETAIL_ENDPOINT, INBOX_LIST_ENDPOINT } from "./endpoint-contract";
+import { getInboxFeedback, listInbox } from "./inbox";
+import { INBOX_PAGE_SIZE_DEFAULT, type InboxListQuery } from "./inbox-contract";
 import { ingestFeedback } from "./ingest";
 
 export const COLLECTOR_DEFAULT_PORT = 8787 as const;
@@ -17,6 +19,17 @@ export async function collectAllowedOrigins(db: Db): Promise<string[]> {
   return [...new Set(rows.flatMap((row) => row.allowedOrigins))];
 }
 
+function parseListQuery(url: URL): InboxListQuery {
+  const rawLimit = url.searchParams.get("limit");
+  const parsedLimit = rawLimit === null ? Number.NaN : Number.parseInt(rawLimit, 10);
+  const limit = Number.isFinite(parsedLimit) ? parsedLimit : INBOX_PAGE_SIZE_DEFAULT;
+
+  return {
+    cursor: url.searchParams.get("cursor"),
+    limit,
+  };
+}
+
 export function createFetchHandler(db: Db): (request: Request) => Promise<Response> {
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
@@ -29,6 +42,27 @@ export function createFetchHandler(db: Db): (request: Request) => Promise<Respon
 
     if (request.method === "POST" && url.pathname === FEEDBACK_ENDPOINT) {
       return ingestFeedback(db, request);
+    }
+
+    if (request.method === "GET" && url.pathname === INBOX_LIST_ENDPOINT) {
+      const allowedOrigins = await collectAllowedOrigins(db);
+      const headers = allowOriginHeaders(request, allowedOrigins);
+      const result = await listInbox(db, parseListQuery(url));
+
+      return Response.json(result, { headers });
+    }
+
+    if (request.method === "GET" && url.pathname.startsWith(INBOX_DETAIL_ENDPOINT)) {
+      const allowedOrigins = await collectAllowedOrigins(db);
+      const headers = allowOriginHeaders(request, allowedOrigins);
+      const feedbackId = url.pathname.slice(INBOX_DETAIL_ENDPOINT.length);
+      const record = await getInboxFeedback(db, feedbackId);
+
+      if (record === null) {
+        return new Response(null, { headers, status: 404 });
+      }
+
+      return Response.json({ feedback: record }, { headers });
     }
 
     return new Response("Not found.", { status: 404 });
