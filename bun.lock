@@ -16,6 +16,10 @@
         "@filika/sdk": "workspace:*",
       },
     },
+    "packages/collector": {
+      "name": "@filika/collector",
+      "version": "0.0.0",
+    },
     "packages/sdk": {
       "name": "@filika/sdk",
       "version": "0.0.0",
@@ -46,6 +50,8 @@
     "@biomejs/cli-win32-arm64": ["@biomejs/cli-win32-arm64@2.5.10", "", { "os": "win32", "cpu": "arm64" }, "sha512-pxAbxduPO4xq/Cvgaa2lOrs9BB0hEXmmDqfMNP4ZOffGOkUrD1/QGw9UAMpFQpX2P8MqTIIRuQKcmetum4Oa6A=="],
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.5.10", "", { "os": "win32", "cpu": "x64" }, "sha512-M+2dgBsl3lXRiTfgPVc2p3anS4Tocojke4rzFLScZ2Y/wmF+36dRb1iHCLiyGqOzQGyTplZH1HnEYviiAqi3nA=="],
+
+    "@filika/collector": ["@filika/collector@workspace:packages/collector"],
 
     "@filika/e2e": ["@filika/e2e@workspace:tests/e2e"],
 
