@@ -3,6 +3,7 @@ import type { Db } from "./db/client";
 import { buildAcceptedReceipt, buildDuplicateReceipt } from "./duplicate";
 import { rejectionResponse } from "./errors";
 import { checkIdempotency } from "./idempotency";
+import { consoleLogger, type Logger } from "./logger";
 import { checkOrigin } from "./origin";
 import { decodeJsonBody } from "./parse";
 import { persistFeedback } from "./persistence";
@@ -11,49 +12,64 @@ import { consumeProjectRateLimit } from "./rate-limiting";
 import { buildServerOwnedValues } from "./server-owned";
 import { validateEnvelope } from "./validate";
 
-export async function ingestFeedback(db: Db, request: Request): Promise<Response> {
+function reject(logger: Logger, category: Parameters<typeof rejectionResponse>[0]): Response {
+  logger.log({
+    category,
+    eventId: null,
+    projectKey: null,
+    type: "ingest_rejected",
+  });
+
+  return rejectionResponse(category);
+}
+
+export async function ingestFeedback(
+  db: Db,
+  request: Request,
+  logger: Logger = consoleLogger,
+): Promise<Response> {
   const originCheck = checkOrigin(request);
 
   if (originCheck.status === "rejected") {
-    return rejectionResponse("denied_origin");
+    return reject(logger, "denied_origin");
   }
 
   const body = await readBoundedBody(request);
 
   if (!body.ok) {
-    return rejectionResponse("payload_too_large");
+    return reject(logger, "payload_too_large");
   }
 
   const decoded = decodeJsonBody(body.bytes, request.headers.get("content-type"));
 
   if (!decoded.ok) {
-    return rejectionResponse("invalid_input");
+    return reject(logger, "invalid_input");
   }
 
   if (!checkIdempotency(decoded.value, request)) {
-    return rejectionResponse("invalid_input");
+    return reject(logger, "invalid_input");
   }
 
   const validated = validateEnvelope(decoded.value);
 
   if (!validated.ok) {
-    return rejectionResponse("invalid_input");
+    return reject(logger, "invalid_input");
   }
 
   const resolvedProject = await resolveProject(db, validated.envelope.projectKey);
 
   if (resolvedProject === null) {
-    return rejectionResponse("project_not_found");
+    return reject(logger, "project_not_found");
   }
 
   if (!isOriginAllowed(originCheck.origin, resolvedProject.allowedOrigins)) {
-    return rejectionResponse("denied_origin");
+    return reject(logger, "denied_origin");
   }
 
   const rateLimit = await consumeProjectRateLimit(db, resolvedProject.id, new Date());
 
   if (!rateLimit.allowed) {
-    return rejectionResponse("rate_limited");
+    return reject(logger, "rate_limited");
   }
 
   const serverValues = buildServerOwnedValues(new Date(), originCheck.origin);
@@ -68,11 +84,28 @@ export async function ingestFeedback(db: Db, request: Request): Promise<Response
   }).catch(() => null);
 
   if (persisted === null) {
-    return rejectionResponse("internal_error");
+    return reject(logger, "internal_error");
   }
 
   const stored = persisted.feedback;
   const receivedAt = stored.receiptTimestamp.toISOString();
+
+  if (persisted.outcome === "duplicate") {
+    logger.log({
+      eventId: stored.eventId,
+      feedbackId: stored.id,
+      projectKey: validated.envelope.projectKey,
+      type: "ingest_duplicate",
+    });
+  } else {
+    logger.log({
+      feedbackId: stored.id,
+      projectKey: validated.envelope.projectKey,
+      source: "web_sdk_unverified",
+      type: "ingest_accepted",
+    });
+  }
+
   const receipt =
     persisted.outcome === "created"
       ? buildAcceptedReceipt(stored.eventId, stored.id, receivedAt)
