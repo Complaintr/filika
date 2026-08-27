@@ -17,17 +17,17 @@ const FEEDBACK_ROW: Feedback = {
   expectedBehavior: "The draft should be saved.",
   id: "9f8e7d6c-5b4a-4321-9876-123456789abc",
   kind: "bug",
-  origin: "https://demo.example",
+  origin: "http://localhost:4173",
   projectId: "c0ffee00-0000-0000-0000-000000000001",
   receiptTimestamp: new Date("2026-08-27T18:00:00.000Z"),
   reproductionSteps: ["Open the page", "Click Save"],
   routeLabel: "feedback",
-  sdkVersion: "0.0.1",
+  sdkVersion: "1.0.0",
   source: "web_sdk_unverified",
   title: "Save button is unresponsive",
 };
 
-describe("P1-BE-05 read-only inbox query contracts", () => {
+describe("P2-BE-12 read-only inbox query contracts", () => {
   test("keeps the inbox read-only", () => {
     expect(INBOX_READ_ONLY).toBe(true);
   });
@@ -49,27 +49,33 @@ describe("P1-BE-05 read-only inbox query contracts", () => {
   });
 
   test("projects only approved public-protocol fields", () => {
-    const item = toInboxItem(FEEDBACK_ROW);
+    const item = toInboxItem(FEEDBACK_ROW, 24);
 
     expect(item.feedbackId).toBe(FEEDBACK_ROW.id);
-    expect(item.eventId).toBe(FEEDBACK_ROW.eventId);
     expect(item.kind).toBe("bug");
     expect(item.title).toBe(FEEDBACK_ROW.title);
     expect(item.description).toBe(FEEDBACK_ROW.description);
     expect(item.expectedBehavior).toBe(FEEDBACK_ROW.expectedBehavior);
     expect(item.reproductionSteps).toEqual(["Open the page", "Click Save"]);
-    expect(item.sdkVersion).toBe("0.0.1");
-    expect(item.origin).toBe(FEEDBACK_ROW.origin);
-    expect(item.source).toBe("web_sdk_unverified");
     expect(item.routeLabel).toBe("feedback");
     expect(item.applicationRelease).toBe("1.2.0");
-    expect(item.receiptTimestamp).toBe("2026-08-27T18:00:00.000Z");
+  });
+
+  test("exposes the server-derived facts", () => {
+    const item = toInboxItem(FEEDBACK_ROW, 24);
+
+    expect(item.receivedAt).toBe("2026-08-27T18:00:00.000Z");
+    expect(item.expiresAt).toBe("2026-08-28T18:00:00.000Z");
+    expect(item.requestOrigin).toBe("http://localhost:4173");
+    expect(item.source).toBe("web_sdk_unverified");
   });
 
   test("never exposes the internal project ID or rate-limit data", () => {
-    const item = toInboxItem(FEEDBACK_ROW);
+    const item = toInboxItem(FEEDBACK_ROW, 24);
 
     expect(item).not.toHaveProperty("projectId");
+    expect(item).not.toHaveProperty("eventId");
+    expect(item).not.toHaveProperty("sdkVersion");
     expect(item).not.toHaveProperty("windowKey");
     expect(item).not.toHaveProperty("count");
   });
