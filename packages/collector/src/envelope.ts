@@ -57,25 +57,6 @@ const contextSchema = z
   })
   .strict();
 
-const LONE_SURROGATE_PATTERN =
-  /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
-
-export function hasLoneSurrogates(value: unknown): boolean {
-  if (typeof value === "string") {
-    return LONE_SURROGATE_PATTERN.test(value);
-  }
-
-  if (Array.isArray(value)) {
-    return value.some(hasLoneSurrogates);
-  }
-
-  if (value !== null && typeof value === "object") {
-    return Object.values(value).some(hasLoneSurrogates);
-  }
-
-  return false;
-}
-
 export const FILIKA_FEEDBACK_ENVELOPE_V1 = z
   .object({
     schemaVersion: z.literal(1),
@@ -84,14 +65,6 @@ export const FILIKA_FEEDBACK_ENVELOPE_V1 = z
     feedback: feedbackSchema,
     context: contextSchema,
   })
-  .strict()
-  .superRefine((value, context) => {
-    if (hasLoneSurrogates(value)) {
-      context.addIssue({
-        code: "custom",
-        message: "Ill-formed Unicode is not allowed.",
-      });
-    }
-  });
+  .strict();
 
 export type FilikaFeedbackEnvelopeV1 = z.infer<typeof FILIKA_FEEDBACK_ENVELOPE_V1>;

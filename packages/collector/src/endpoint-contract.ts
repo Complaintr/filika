@@ -4,8 +4,6 @@ import {
 } from "./foundation/collector-sequence";
 
 export const FEEDBACK_ENDPOINT = "/api/v1/feedback" as const;
-export const INBOX_LIST_ENDPOINT = "/api/v1/inbox" as const;
-export const INBOX_DETAIL_ENDPOINT = "/api/v1/inbox/" as const;
 export const FEEDBACK_ENDPOINT_METHODS = ["POST", "OPTIONS"] as const;
 export const FEEDBACK_CONTENT_TYPE = "application/json" as const;
 export const FEEDBACK_MAX_BODY_BYTES = 65_536 as const;
@@ -18,7 +16,6 @@ export const FEEDBACK_ERROR_CATEGORIES = [
   "denied_origin",
   "payload_too_large",
   "project_not_found",
-  "rate_limited",
   "internal_error",
 ] as const;
 

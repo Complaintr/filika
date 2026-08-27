@@ -1,5 +1,7 @@
 import { integer, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
+import { FEEDBACK_KINDS } from "../envelope";
+
 export const PROJECT_TABLE_NAME = "project";
 export const FEEDBACK_TABLE_NAME = "feedback";
 export const RATE_LIMIT_TABLE_NAME = "rate_limit";
@@ -14,12 +16,7 @@ export const RATE_LIMIT_UNIQUE_CONSTRAINT = {
   name: "rate_limit_project_window_unique",
 } as const;
 
-export const feedbackKind = pgEnum("feedback_kind", [
-  "bug",
-  "blocked_task",
-  "confusing_behavior",
-  "idea",
-]);
+const feedbackKind = pgEnum("feedback_kind", FEEDBACK_KINDS);
 
 export const project = pgTable(PROJECT_TABLE_NAME, {
   allowedOrigins: text("allowed_origins").array().notNull(),

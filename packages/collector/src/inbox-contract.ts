@@ -5,25 +5,21 @@ export const INBOX_PAGE_SIZE_DEFAULT = 25 as const;
 export const INBOX_PAGE_SIZE_MAX = 50 as const;
 export const INBOX_READ_ONLY = true as const;
 
-export interface InboxFeedbackRecord {
+export interface InboxFeedbackItem {
   applicationRelease: string | null;
   description: string;
+  eventId: string;
   expectedBehavior: string | null;
-  expiresAt: string;
   feedbackId: string;
   kind: FeedbackKind;
-  receivedAt: string;
+  origin: string;
+  receiptTimestamp: string;
   reproductionSteps: readonly string[] | null;
-  requestOrigin: string;
   routeLabel: string | null;
-  source: "web_sdk_unverified";
+  sdkVersion: string;
+  source: string;
   title: string;
 }
-
-export type InboxListItemViewModel = Pick<
-  InboxFeedbackRecord,
-  "feedbackId" | "kind" | "receivedAt" | "requestOrigin" | "routeLabel" | "title"
->;
 
 export interface InboxListQuery {
   cursor: string | null;
@@ -31,12 +27,12 @@ export interface InboxListQuery {
 }
 
 export interface InboxListResult {
-  items: readonly InboxListItemViewModel[];
+  items: readonly InboxFeedbackItem[];
   nextCursor: string | null;
 }
 
 export interface InboxDetailResult {
-  feedback: InboxFeedbackRecord;
+  feedback: InboxFeedbackItem;
 }
 
 export function isBoundedPageSize(limit: number): boolean {
@@ -55,21 +51,20 @@ export function boundPageSize(limit: number): number {
   return limit;
 }
 
-export function toInboxItem(row: Feedback, retentionHours: number): InboxFeedbackRecord {
-  const receivedAt = row.receiptTimestamp.toISOString();
-
+export function toInboxItem(row: Feedback): InboxFeedbackItem {
   return {
     applicationRelease: row.applicationRelease,
     description: row.description,
+    eventId: row.eventId,
     expectedBehavior: row.expectedBehavior,
-    expiresAt: new Date(row.receiptTimestamp.getTime() + retentionHours * 3_600_000).toISOString(),
     feedbackId: row.id,
     kind: row.kind,
-    receivedAt,
+    origin: row.origin,
+    receiptTimestamp: row.receiptTimestamp.toISOString(),
     reproductionSteps: row.reproductionSteps,
-    requestOrigin: row.origin,
     routeLabel: row.routeLabel,
-    source: "web_sdk_unverified",
+    sdkVersion: row.sdkVersion,
+    source: row.source,
     title: row.title,
   };
 }

@@ -1,15 +1,16 @@
+import { UNVERIFIED_SOURCE } from "./foundation/field-trust";
+
 export interface StoredReceiptFacts {
-  eventId: string;
   feedbackId: string;
-  receivedAt: string;
+  receiptTimestamp: string;
 }
 
 export interface FeedbackReceipt {
-  schemaVersion: 1;
-  eventId: string;
-  feedbackId: string;
-  receivedAt: string;
   duplicate: boolean;
+  feedbackId: string;
+  receiptTimestamp: string;
+  retentionHours: number;
+  source: string;
 }
 
 export const DUPLICATE_RECEIPT_BEHAVIOR = {
@@ -18,26 +19,15 @@ export const DUPLICATE_RECEIPT_BEHAVIOR = {
   returnsOriginalValues: true,
 } as const;
 
-export function buildAcceptedReceipt(
-  eventId: string,
-  feedbackId: string,
-  receivedAt: string,
+export function buildDuplicateReceipt(
+  stored: StoredReceiptFacts,
+  retentionHours: number,
 ): FeedbackReceipt {
   return {
-    schemaVersion: 1,
-    eventId,
-    feedbackId,
-    receivedAt,
-    duplicate: false,
-  };
-}
-
-export function buildDuplicateReceipt(stored: StoredReceiptFacts): FeedbackReceipt {
-  return {
-    schemaVersion: 1,
-    eventId: stored.eventId,
-    feedbackId: stored.feedbackId,
-    receivedAt: stored.receivedAt,
     duplicate: true,
+    feedbackId: stored.feedbackId,
+    receiptTimestamp: stored.receiptTimestamp,
+    retentionHours,
+    source: UNVERIFIED_SOURCE,
   };
 }
