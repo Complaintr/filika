@@ -64,6 +64,72 @@ test("waits for registration acceptance before reporting ready", async () => {
   expect(await pending).toEqual({ state: "ready" });
 });
 
+test("registration failures expose only closed diagnostics and abort owned registration", async () => {
+  for (const [name, diagnostic] of [
+    ["InvalidStateError", "invalid_state"],
+    ["SecurityError", "security_error"],
+    ["NotAllowedError", "not_allowed"],
+    ["UnexpectedError", "unknown_error"],
+  ] as const) {
+    for (const asyncFailure of [false, true]) {
+      const controller = new AbortController();
+      const error = new DOMException("private details", name);
+      const result = await registerFeedbackTool(
+        {
+          modelContext: {
+            registerTool() {
+              if (asyncFailure) return Promise.reject(error);
+              throw error;
+            },
+          },
+        },
+        controller,
+        async () => ({ code: "cancelled" }),
+      );
+      expect(result).toEqual({ state: "registration_rejected", diagnostic });
+      expect(controller.signal.aborted).toBe(true);
+    }
+  }
+  expect(
+    await registerFeedbackTool(
+      {
+        get modelContext() {
+          throw {
+            get name() {
+              throw new Error("private");
+            },
+          };
+        },
+      },
+      new AbortController(),
+      async () => ({ code: "cancelled" }),
+    ),
+  ).toEqual({ state: "registration_rejected", diagnostic: "unknown_error" });
+});
+
+test("registration timeout and disposal settle even when the browser never settles", async () => {
+  const gate = Promise.withResolvers<void>();
+  const controller = new AbortController();
+  expect(
+    await registerFeedbackTool(
+      { modelContext: { registerTool: () => gate.promise } },
+      controller,
+      async () => ({ code: "cancelled" }),
+      5,
+    ),
+  ).toEqual({ state: "registration_rejected", diagnostic: "registration_timeout" });
+  expect(controller.signal.aborted).toBe(true);
+  gate.reject(new Error("late failure"));
+  const disposing = new AbortController();
+  const pending = registerFeedbackTool(
+    { modelContext: { registerTool: () => new Promise(() => {}) } },
+    disposing,
+    async () => ({ code: "cancelled" }),
+  );
+  disposing.abort();
+  expect(await pending).toEqual({ state: "disposed" });
+});
+
 test("feature detection catches both document and method getter failures", () => {
   const error = new DOMException("private", "SecurityError");
   for (const document of [
