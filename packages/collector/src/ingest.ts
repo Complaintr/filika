@@ -1,10 +1,13 @@
 import { readBoundedBody } from "./body";
 import type { Db } from "./db/client";
+import { buildAcceptedReceipt, buildDuplicateReceipt } from "./duplicate";
 import { rejectionResponse } from "./errors";
 import { checkIdempotency } from "./idempotency";
 import { checkOrigin } from "./origin";
 import { decodeJsonBody } from "./parse";
+import { persistFeedback } from "./persistence";
 import { isOriginAllowed, resolveProject } from "./project";
+import { buildServerOwnedValues } from "./server-owned";
 import { validateEnvelope } from "./validate";
 
 export async function ingestFeedback(db: Db, request: Request): Promise<Response> {
@@ -46,5 +49,33 @@ export async function ingestFeedback(db: Db, request: Request): Promise<Response
     return rejectionResponse("denied_origin");
   }
 
-  return new Response("Not implemented.", { status: 501 });
+  const serverValues = buildServerOwnedValues(new Date(), originCheck.origin);
+  const persisted = await persistFeedback(db, {
+    context: validated.envelope.context,
+    eventId: validated.envelope.eventId,
+    feedback: validated.envelope.feedback,
+    origin: originCheck.origin,
+    projectId: resolvedProject.id,
+    receivedAt: serverValues.receivedAt,
+    source: serverValues.source,
+  }).catch(() => null);
+
+  if (persisted === null) {
+    return rejectionResponse("internal_error");
+  }
+
+  const stored = persisted.feedback;
+  const receivedAt = stored.receiptTimestamp.toISOString();
+  const receipt =
+    persisted.outcome === "created"
+      ? buildAcceptedReceipt(stored.eventId, stored.id, receivedAt)
+      : buildDuplicateReceipt({
+          eventId: stored.eventId,
+          feedbackId: stored.id,
+          receivedAt,
+        });
+
+  return Response.json(receipt, {
+    status: persisted.outcome === "created" ? 201 : 200,
+  });
 }
