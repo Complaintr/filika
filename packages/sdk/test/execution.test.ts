@@ -79,3 +79,57 @@ test("abort after dispatch is unknown and overlapping review is rejected", async
   expect(await pending).toEqual({ code: "outcome_unknown" });
   expect(signal.aborted).toBe(true);
 });
+
+test("explicit retry reuses exact confirmed bytes and UUID without automatic resubmission", async () => {
+  const sent: { eventId: string; body: string }[] = [];
+  let generated = 0;
+  let reviews = 0;
+  const engine = createExecution({
+    review: async (request) => {
+      reviews++;
+      if (reviews === 1) return confirm(request);
+      if (reviews === 2) expect(request.retry?.eventId).toBe(sent[0]?.eventId);
+      else expect(request.retry).toBeUndefined();
+      if (request.retry) request.retry.feedback.title = "UI mutation must not alter retry";
+      return { kind: "retry" };
+    },
+    transmit: async (_session, submission) => {
+      sent.push(submission);
+      return { code: "outcome_unknown" };
+    },
+    randomUUID: () => {
+      generated++;
+      return "12345678-1234-4234-8234-123456789abc";
+    },
+  });
+  const current = session();
+  expect(await engine.execute(current, draft)).toEqual({ code: "outcome_unknown" });
+  expect(sent).toHaveLength(1);
+  expect(await engine.execute(current, null)).toEqual({ code: "outcome_unknown" });
+  expect(sent).toHaveLength(2);
+  expect(sent[0]).toEqual(sent[1]);
+  expect(generated).toBe(1);
+  engine.clear();
+  expect(await engine.execute(current, null)).toEqual({ code: "invalid_input" });
+  expect(sent).toHaveLength(2);
+});
+
+test("confirming an edited report creates a new event instead of mutating the retained event", async () => {
+  const ids: string[] = [];
+  const engine = createExecution({
+    review: async (request) => ({
+      kind: "confirmed",
+      feedback: { ...draft, title: request.retry ? "Edited report" : draft.title },
+      context: request.context,
+    }),
+    transmit: async (_session, submission) => {
+      ids.push(submission.eventId);
+      return { code: "outcome_unknown" };
+    },
+  });
+  const current = session();
+  await engine.execute(current, draft);
+  await engine.execute(current, null);
+  expect(ids).toHaveLength(2);
+  expect(ids[0]).not.toBe(ids[1]);
+});

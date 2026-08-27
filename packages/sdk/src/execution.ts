@@ -1,6 +1,10 @@
 import { abortScope, withAbort } from "./abort";
 import { createContext, reviewedContext } from "./context";
-import type { FilikaFeedbackContextV1, FilikaFeedbackDraftV1 } from "./envelope";
+import type {
+  FilikaFeedbackContextV1,
+  FilikaFeedbackDraftV1,
+  FilikaFeedbackEnvelopeV1,
+} from "./envelope";
 import { EXECUTION_LIMITS } from "./outcomes";
 import type { FilikaExecutionOutcome } from "./receipt";
 import type { RuntimeSession } from "./runtime";
@@ -13,6 +17,11 @@ export interface ReviewRequest {
   readonly projectKey: string;
   readonly collectorOrigin: string;
   readonly signal: AbortSignal;
+  readonly retry?: {
+    readonly eventId: string;
+    readonly feedback: FilikaFeedbackDraftV1;
+    readonly context: FilikaFeedbackContextV1;
+  };
 }
 
 export type ReviewAdapter = (request: ReviewRequest) => Promise<unknown>;
@@ -31,6 +40,7 @@ export interface ExecutionDependencies {
 
 export function createExecution(dependencies: ExecutionDependencies) {
   let active: object | null = null;
+  let retained: { session: RuntimeSession; submission: PreparedSubmission } | null = null;
   async function execute(
     session: RuntimeSession,
     input: unknown,
@@ -45,9 +55,13 @@ export function createExecution(dependencies: ExecutionDependencies) {
     const scope = abortScope(callerSignal ? [session.signal, callerSignal] : [session.signal]);
     let expired = false;
     let dispatched = false;
+    let submission: PreparedSubmission | null = null;
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
       const originalContext = createContext(session.config);
+      const retry = retained?.session === session ? retained.submission : null;
+      // This JSON was produced locally after review; give the UI a detached copy.
+      const retryEnvelope = retry ? (JSON.parse(retry.body) as FilikaFeedbackEnvelopeV1) : null;
       timer = setTimeout(() => {
         expired = true;
         scope.controller.abort();
@@ -59,30 +73,47 @@ export function createExecution(dependencies: ExecutionDependencies) {
           projectKey: session.config.projectKey,
           collectorOrigin: new URL(session.config.endpoint).origin,
           signal: scope.controller.signal,
+          ...(retry && retryEnvelope
+            ? {
+                retry: {
+                  eventId: retry.eventId,
+                  feedback: retryEnvelope.feedback,
+                  context: retryEnvelope.context,
+                },
+              }
+            : {}),
         }),
       );
       clearTimeout(timer);
       if (scope.controller.signal.aborted) return { code: expired ? "timeout" : "aborted" };
       const cancelled = closedRecord(response, ["kind"]);
       if (cancelled?.kind === "cancelled") return { code: "cancelled" };
-      const decision = closedRecord(response, ["kind", "feedback", "context"]);
-      if (decision?.kind !== "confirmed") return { code: "invalid_input" };
-      const feedback = parseDraft(decision.feedback);
-      const context = reviewedContext(decision.context, originalContext);
-      if (!feedback || !context) return { code: "invalid_input" };
-      const submission = prepareSubmission(
-        session.config,
-        feedback,
-        context,
-        dependencies.randomUUID,
-      );
+      if (cancelled?.kind === "retry") {
+        if (!retry) return { code: "invalid_input" };
+        submission = retry;
+      } else {
+        const decision = closedRecord(response, ["kind", "feedback", "context"]);
+        if (decision?.kind !== "confirmed") return { code: "invalid_input" };
+        const feedback = parseDraft(decision.feedback);
+        const context = reviewedContext(decision.context, originalContext);
+        if (!feedback || !context) return { code: "invalid_input" };
+        submission = prepareSubmission(session.config, feedback, context, dependencies.randomUUID);
+      }
       if (!submission) return { code: "internal_error" };
-      return await withAbort(scope.controller.signal, () => {
+      const outgoing = submission;
+      const outcome = await withAbort(scope.controller.signal, () => {
         dispatched = true;
-        return dependencies.transmit(session, submission, scope.controller.signal);
+        return dependencies.transmit(session, outgoing, scope.controller.signal);
       });
+      if (active === token && !session.signal.aborted)
+        retained = outcome.code === "outcome_unknown" ? { session, submission } : null;
+      return outcome;
     } catch {
-      if (dispatched) return { code: "outcome_unknown" };
+      if (dispatched) {
+        if (submission && active === token && !session.signal.aborted)
+          retained = { session, submission };
+        return { code: "outcome_unknown" };
+      }
       if (scope.controller.signal.aborted) return { code: expired ? "timeout" : "aborted" };
       return { code: "internal_error" };
     } finally {
@@ -96,6 +127,7 @@ export function createExecution(dependencies: ExecutionDependencies) {
     execute,
     clear() {
       active = null;
+      retained = null;
     },
   };
 }
