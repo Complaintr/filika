@@ -50,6 +50,7 @@ describe("P1-BE-04 feedback endpoint contract", () => {
       "denied_origin",
       "payload_too_large",
       "project_not_found",
+      "rate_limited",
       "internal_error",
     ]);
   });

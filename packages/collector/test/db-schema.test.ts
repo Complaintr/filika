@@ -5,12 +5,14 @@ import {
   FEEDBACK_TABLE_NAME,
   FEEDBACK_UNIQUE_CONSTRAINT,
   feedback,
+  feedbackKind,
   PROJECT_TABLE_NAME,
   project,
   RATE_LIMIT_TABLE_NAME,
   RATE_LIMIT_UNIQUE_CONSTRAINT,
   rateLimit,
 } from "../src/db/schema";
+import { FEEDBACK_KINDS } from "../src/envelope";
 
 describe("P1-BE-02 drizzle tables", () => {
   test("defines the project table with its columns", () => {
@@ -70,5 +72,9 @@ describe("P1-BE-02 drizzle tables", () => {
     const source = columns.source;
 
     expect(source).toBeDefined();
+  });
+
+  test("keeps the feedback kind enum aligned with the envelope contract", () => {
+    expect(feedbackKind.enumValues).toEqual(FEEDBACK_KINDS);
   });
 });
