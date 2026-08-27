@@ -387,3 +387,42 @@ The matrix expands in later phases with malformed JSON, invalid UTF, unknown
 fields, per-field and total-size limits, concurrency, and preflight variants
 without changing the frozen protocol.
 
+## 7. WebMCP spike review record
+
+This section records the review of the localhost WebMCP spike for unwanted data
+collection and network behavior. The spike exists to prove local registration
+and inspection of a harmless test tool; it is not the SDK and must not be
+confused with the future `filika_submit_feedback` tool.
+
+### 7.1 Scope reviewed
+
+| File | Role |
+| --- | --- |
+| `apps/web/src/webmcp-test-tool.ts` | Defines the test tool, its closed empty schema, and its execute behavior |
+| `apps/web/src/index.ts` | Registers the tool and renders bounded registration status |
+| `apps/web/src/index.html` | Host page shell with a bounded status line and invocation counter |
+| `docs/webmcp-local-testing.md` | Documents local inspection steps |
+
+### 7.2 Findings
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Page data collection | None | The tool has an empty input schema (`properties: {}`, `additionalProperties: false`) and reads no page content; the page script reads only its own status/counter elements |
+| Network behavior | None | `execute` returns a static string and makes no network requests; registration and abort use only in-page signals |
+| Credentials or ambient access | None | No cookies, storage, clipboard, or credential APIs are touched; the page sets `referrer no-referrer` |
+| Bounded failures | Pass | Unsupported and registration-failure paths render bounded messages and keep the host page usable |
+| Unintended persistence | None | No state is written anywhere beyond the in-page counter |
+
+### 7.3 Conclusion
+
+No unwanted data collection or network behavior was found in the localhost
+spike. The spike is safe to keep as a local inspection page.
+
+### 7.4 Follow-ups
+
+- The spike tool must remain separate from the SDK tool and must not be
+  exported or bundled into `packages/sdk`.
+- When the SDK tool is implemented, re-run this review against the SDK
+  registration path with the WebMCP Inspector as a separate verification path.
+- No code changes are required in this phase.
+
