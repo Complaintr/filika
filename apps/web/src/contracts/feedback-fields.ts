@@ -1,15 +1,31 @@
-export const REPORT_FIELD_IDS = [
+export const AGENT_AUTHORED_REPORT_FIELD_IDS = [
   "kind",
   "title",
   "description",
   "expectedBehavior",
   "reproductionSteps",
-  "routeLabel",
-  "applicationRelease",
+] as const;
+
+export const HOST_CONTEXT_REPORT_FIELD_IDS = ["routeLabel", "applicationRelease"] as const;
+
+export const REPORT_FIELD_IDS = [
+  ...AGENT_AUTHORED_REPORT_FIELD_IDS,
+  ...HOST_CONTEXT_REPORT_FIELD_IDS,
 ] as const;
 
 export type ReportFieldId = (typeof REPORT_FIELD_IDS)[number];
 export type FeedbackDraft = Record<ReportFieldId, string | null>;
+
+export const REQUIRED_REPORT_FIELD_IDS = ["kind", "title", "description"] as const;
+export type RequiredReportFieldId = (typeof REQUIRED_REPORT_FIELD_IDS)[number];
+
+export const APPROVED_PUBLIC_FEEDBACK_FIELD_IDS = REPORT_FIELD_IDS;
+export type ApprovedPublicFeedbackFieldId = (typeof APPROVED_PUBLIC_FEEDBACK_FIELD_IDS)[number];
+export type ApprovedPublicFeedbackFields = {
+  [Field in ApprovedPublicFeedbackFieldId]: Field extends RequiredReportFieldId
+    ? string
+    : string | null;
+};
 
 export interface ReportFieldContract {
   accessibleDescription: string;
