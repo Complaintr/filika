@@ -9,7 +9,7 @@ test("builds one standalone classic script with a Filika global and no external 
   expect(result.outputFiles).toHaveLength(1);
   const output = result.outputFiles?.[0];
   if (!output) throw new Error("Expected one browser bundle");
-  expect(output.path.endsWith("/dist/filika.js")).toBe(true);
+  expect(output.path.replaceAll("\\", "/").endsWith("/dist/filika.js")).toBe(true);
   for (const metadata of Object.values(result.metafile?.outputs ?? {})) {
     expect(metadata.imports).toEqual([]);
   }
