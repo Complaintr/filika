@@ -1,7 +1,8 @@
 # Filika SDK V1 Contract
 
-This is the Phase 1 integration contract. Runtime review, registration, and
-transport are Phase 2 work. The SDK exports the TypeScript types and JSON Schemas;
+This is the Phase 1 integration contract, now implemented by the Phase 2 SDK core.
+See [runtime integration](sdk-runtime.md) for the frontend adapter boundary.
+The SDK exports the TypeScript types and JSON Schemas;
 the collector must independently validate the same contract at its trust boundary.
 TypeScript types alone do not validate input.
 
@@ -93,7 +94,7 @@ The script initialization mapping is fixed:
 | `applicationRelease` | `data-application-release` |
 
 Missing optional attributes are omitted; supplied empty strings are invalid.
-The future `Filika.init(config)` and script initialization share this contract.
+`Filika.init(config)` and script initialization share this contract.
 
 ## Execution outcomes
 
@@ -162,10 +163,10 @@ direct JSON result object.
 
 ## SDK lifecycle
 
-`FilikaPublicApi` defines the future global runtime methods: `init(config)`,
+`FilikaPublicApi` defines the global runtime methods: `init(config)`,
 `open({ signal }?)`, `dispose()`, a read-only `status` snapshot, and `version`.
-The Phase 1 bundle exposes contracts; it does not yet implement these methods or
-register a tool. The transition table is exported as `LIFECYCLE_TRANSITIONS` for
+The bundle implements these methods and registers the tool after valid
+initialization. The transition table is exported as `LIFECYCLE_TRANSITIONS` for
 implementers and tests. Execution state is separate from initialization state.
 
 | Situation | Required behavior |
@@ -227,6 +228,6 @@ tests, and build configuration are included in strict `bun run typecheck`.
 
 The bundle smoke test executes the actual esbuild output in a bare JavaScript
 context, checking the single `Filika` global, lack of external imports, and lack
-of load-time DOM or transport dependencies. This is not a real browser test.
+of unconfigured load-time DOM or transport dependencies. This is not a real browser test.
 `bun run test:browser` currently reports one existing TODO; supported-Chrome
 registration and end-to-end feedback verification remain later-phase work.

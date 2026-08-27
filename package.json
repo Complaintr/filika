@@ -19,6 +19,7 @@
     "format:check": "biome format .",
     "dev:webmcp": "bun --port 4173 apps/web/src/index.html",
     "dev:collector": "bun run packages/collector/src/server.ts",
+    "dev:sdk-smoke": "bun run --filter @filika/sdk build && bun tests/e2e/src/sdk-smoke-server.ts",
     "db:migrate": "bun run --filter @filika/collector db:migrate",
     "db:cleanup": "bun run --filter @filika/collector db:cleanup",
     "db:reset": "bun run --filter @filika/collector db:reset",
