@@ -16,14 +16,14 @@ export const FILIKA_DESIGN_TOKENS = {
     width: "3px",
   },
   motion: {
-    durationFast: "120ms",
-    durationNormal: "180ms",
-    easingStandard: "cubic-bezier(0.2, 0, 0, 1)",
+    durationFast: "160ms",
+    durationNormal: "240ms",
+    easingStandard: "cubic-bezier(0.22, 1, 0.36, 1)",
     reducedDuration: "0ms",
   },
   radius: {
-    control: "0.625rem",
-    panel: "1rem",
+    control: "0.875rem",
+    panel: "1.5rem",
     pill: "999px",
   },
   spacing: {
@@ -36,7 +36,7 @@ export const FILIKA_DESIGN_TOKENS = {
   typography: {
     body: "1rem",
     family:
-      'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, ui-sans-serif, system-ui, sans-serif',
     heading: "1.5rem",
     lineHeight: "1.5",
     small: "0.875rem",
