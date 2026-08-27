@@ -161,3 +161,60 @@ the retention window they bound.
 - The lifecycle intentionally provides no update or delete path from the
   public interface; the inbox is strictly read-only.
 
+## 3. Local PostgreSQL workflow
+
+This section defines the local PostgreSQL workflow: the databases used, the
+test-isolation strategy, and the command names that later phases implement. It
+defines the contract only; the actual Drizzle schema, migration files, and
+commands belong to the Phase 2 collector work.
+
+### 3.1 Databases
+
+| Database | Purpose | Mutated by |
+| --- | --- | --- |
+| `filika` | Local development data for the demo and inbox | Migrations, seed, cleanup, application writes |
+| `filika_test` | Isolated test database | Tests only |
+
+The test database never overlaps with development data. Tests create or reset
+`filika_test`, apply migrations, and seed it as needed; they never read or
+write `filika`.
+
+### 3.2 Planned commands
+
+| Command | Behavior |
+| --- | --- |
+| `bun run db:migrate` | Apply pending migrations to the configured database |
+| `bun run db:seed` | Seed the challenge demo project, its allowed localhost origins, and the retention window |
+| `bun run db:cleanup` | Remove expired feedback and expired rate-limit identifiers in one pass |
+| `bun run db:reset` | Drop and recreate the schema, then migrate and seed, for deterministic repeated runs |
+
+Commands resolve the target database from local configuration only. Migration
+and seed commands default to `filika`; test tooling sets `filika_test`.
+
+### 3.3 Migration rules
+
+- Migrations are versioned, ordered, append-only files.
+- An applied migration is never edited; corrections are new migrations.
+- Migrations apply cleanly to an empty database and produce the expected
+  constraints, including the unique `(project_id, event_id)` index.
+- `db:reset` exists for deterministic browser and API test runs and is the
+  documented reset path; there is no backup workflow.
+
+### 3.4 Configuration
+
+- Database connection is configured through local environment placeholders
+  only, with no provider-specific secrets or credentials committed.
+- The default local endpoint and port are documented in the local development
+  guide; origin matching covers the documented development ports.
+
+### 3.5 Test isolation flow
+
+```
+bun run db:reset --db filika_test   # deterministic baseline
+# run API/browser tests against filika_test
+bun run db:cleanup --db filika_test # verify idempotent cleanup in tests
+```
+
+Tests assert on `filika_test` state after every scenario (accepted, rejected,
+duplicate, rate-limited) and never depend on residue from a previous run.
+
