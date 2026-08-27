@@ -1,6 +1,6 @@
 :root {
-  color: #17211b;
-  background: #f3f7f4;
+  color: #123330;
+  background: #d9f7f2;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
@@ -13,6 +13,10 @@
 body {
   min-block-size: 100vh;
   margin: 0;
+  background:
+    radial-gradient(circle at 8% 12%, rgb(45 212 191 / 28%), transparent 30rem),
+    linear-gradient(145deg, #c9f5ef 0%, #effcf9 48%, #bdece7 100%);
+  background-attachment: fixed;
 }
 
 button,
@@ -24,7 +28,7 @@ textarea {
 
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #643cff;
+  outline: 3px solid #0e7490;
   outline-offset: 3px;
 }
 
@@ -34,12 +38,12 @@ a:focus-visible {
   justify-content: space-between;
   min-block-size: 4.5rem;
   padding: 0.75rem clamp(1rem, 4vw, 3rem);
-  border-block-end: 1px solid #c9d4cd;
+  border-block-end: 1px solid #91d5cc;
   background: #fff;
 }
 
 .brand {
-  color: #145c3a;
+  color: #0f766e;
   font-size: 1.25rem;
   font-weight: 750;
   letter-spacing: -0.03em;
@@ -54,7 +58,7 @@ a:focus-visible {
 .text-button {
   padding: 0.5rem 0.75rem;
   border: 0;
-  color: #145c3a;
+  color: #0f766e;
   background: transparent;
   font-weight: 700;
   text-decoration: underline;
@@ -63,7 +67,7 @@ a:focus-visible {
 }
 
 .site-nav button[aria-current="page"] {
-  color: #17211b;
+  color: #123330;
   text-decoration-thickness: 0.2em;
 }
 
@@ -84,13 +88,13 @@ main {
 
 .lede {
   max-inline-size: 48rem;
-  color: #536159;
+  color: #476966;
   font-size: 1.125rem;
 }
 
 .eyebrow {
   margin: 0;
-  color: #145c3a;
+  color: #0f766e;
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.11em;
@@ -108,7 +112,7 @@ main {
 .state-panel,
 .inbox-row,
 .detail-group {
-  border: 1px solid #c9d4cd;
+  border: 1px solid #91d5cc;
   border-radius: 1rem;
   background: #fff;
 }
@@ -138,12 +142,12 @@ main {
 
 .button-primary {
   color: #fff;
-  background: #145c3a;
+  background: #0f766e;
 }
 
 .button-secondary {
-  border-color: #145c3a;
-  color: #145c3a;
+  border-color: #0f766e;
+  color: #0f766e;
   background: #fff;
 }
 
@@ -161,7 +165,7 @@ main {
 
 .status-line,
 .muted {
-  color: #536159;
+  color: #476966;
 }
 
 .inbox-list {
@@ -184,7 +188,7 @@ main {
 }
 
 .mono {
-  color: #536159;
+  color: #476966;
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 0.8rem;
 }
@@ -206,7 +210,7 @@ main {
 }
 
 .detail-field dt {
-  color: #536159;
+  color: #476966;
   font-weight: 700;
 }
 
