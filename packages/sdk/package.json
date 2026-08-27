@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "bun run build.ts",
+    "build:development": "bun run build.ts --development",
     "typecheck": "tsc --project tsconfig.json"
   }
 }

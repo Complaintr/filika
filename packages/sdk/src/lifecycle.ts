@@ -35,7 +35,7 @@ export interface FilikaOpenOptions {
   signal?: AbortSignal;
 }
 
-/** Phase 2 runtime surface; Phase 1 exports contracts without starting a runtime. */
+/** Public runtime surface shared by the script global and module factory. */
 export interface FilikaPublicApi {
   readonly version: string;
   readonly status: Readonly<FilikaStatus>;
