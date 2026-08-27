@@ -159,3 +159,52 @@ closed failure object. If a future UI needs readable copy, use local static
 strings selected by code. A WebMCP text-result adapter, if used, serializes only
 this reconstructed result, never collector text. The V1 contract itself is the
 direct JSON result object.
+
+## SDK lifecycle
+
+`FilikaPublicApi` defines the future global runtime methods: `init(config)`,
+`open({ signal }?)`, `dispose()`, a read-only `status` snapshot, and `version`.
+The Phase 1 bundle exposes contracts; it does not yet implement these methods or
+register a tool. The transition table is exported as `LIFECYCLE_TRANSITIONS` for
+implementers and tests. Execution state is separate from initialization state.
+
+| Situation | Required behavior |
+| --- | --- |
+| Before initialization | `uninitialized`; no DOM or network side effects |
+| Invalid configuration | `invalid_configuration`; resolve init with that code; do not register or display a button |
+| Valid initialization | Copy validated configuration, allocate lifecycle controller, enter `initializing`, feature-detect `document.modelContext.registerTool` |
+| Successful registration | Await registration, enter `ready`, resolve init with `initialized` |
+| Unsupported browser | Enter `unsupported_browser`, resolve init with `initialized`; manual review remains available |
+| Registration rejection/deadline | Abort registration, enter `registration_rejected` with a closed diagnostic, resolve init with `initialized`; manual review remains available |
+| Same configuration while initializing | Return the same pending init promise; do not register twice or create extra UI |
+| Same configuration after initialization | Resolve `already_initialized` with current status; do not retry failed registration automatically |
+| Different configuration while live | Resolve `configuration_conflict` with unchanged status; caller must dispose before changing configuration |
+| Duplicate script load | Preserve the existing compatible global instance and its in-flight work; never overwrite another owner's global or tool |
+| Disposal | Abort registration and executions, close review, remove owned UI/listeners/timers, clear config and drafts, enter `disposed`; repeat calls are safe |
+| Initialization after disposal | Start a fresh generation; old promises cannot change its state |
+
+Configuration equality compares the four copied primitive fields, independent of
+property order. Failed validation with no live instance permits a corrected init;
+invalid reinitialization while live returns `invalid_configuration` without
+changing the live status. `status` must not expose mutable internal objects.
+Disposal during initialization resolves the pending call with `disposed` and the
+disposed status, even if an old registration promise later resolves.
+
+Registration diagnostics map `InvalidStateError` to `invalid_state`,
+`SecurityError` to `security_error`, `NotAllowedError` to `not_allowed`, deadline
+expiry to `registration_timeout`, and all other failures to `unknown_error`.
+Do not expose raw exception messages. An error inspecting the API is a registration
+rejection, not a host-page exception. Own registration through its AbortSignal;
+never remove or replace a tool registered by another owner. Awaited errors,
+synchronous throws, and late rejections must all be handled without unhandled
+promise rejections or breaking the host page.
+
+`open()` uses the same review and transmission path as tool execution, with an
+empty manual draft. It works in `ready`, `unsupported_browser`, and
+`registration_rejected`. It resolves `internal_error` before initialization or
+during initialization, `invalid_input` for invalid configuration/options, and
+`aborted` after disposal or for a pre-aborted signal. Options are closed to the
+single optional `signal` field. Runtime input is validated despite static types.
+Only one review may be active; a concurrent manual or tool execution resolves
+`internal_error` without disturbing the existing review. User confirmation is
+mandatory for every transport, including manual review and explicit retry.
