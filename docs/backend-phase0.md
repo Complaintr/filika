@@ -349,3 +349,41 @@ stored as data, but never used to describe origin, source, time, or identity.
   text that would be passed toward the agent is revalidated under the
   receipt-construction rules so collector text cannot become agent input.
 
+## 6. Abuse-control test matrix
+
+This section defines the first abuse-control test matrix. It fixes the expected
+behavior for the six baseline scenarios; later phases turn each row into an
+automated API and database test and extend the matrix.
+
+Columns: scenario, request characteristics, expected HTTP status, error
+category, log behavior, and expected database state.
+
+| # | Scenario | Request characteristics | HTTP status | Error category | Log behavior | DB state |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | Missing origin | `POST /api/v1/feedback` with no `Origin` header | `403` | `denied_origin` | Outcome + category, no body content | No row written |
+| 2 | `null` origin | `Origin: null` | `403` | `denied_origin` | Outcome + category, no body content | No row written |
+| 3 | Denied origin | `Origin` from a host not on the project allowlist | `403` | `denied_origin` | Outcome + category, origin role only | No row written |
+| 4 | Oversized body | Body over the documented bound (including a bound+1 case) | `413` | `payload_too_large` | Rejection before parse; size category only | No row written |
+| 5 | Invalid project key | Well-formed request with an unknown or malformed `projectKey` | `400` | `project_not_found` | Outcome + category, no body content | No row written |
+| 6 | Repeated event ID | Same `eventId` and `Idempotency-Key` resubmitted after an accepted row | `200` | (duplicate) | Outcome + identifiers only | Original row unchanged; no second row |
+
+### 6.1 Cross-cutting assertions
+
+- Every rejected scenario produces a bounded response and never echoes report
+  content back to the client.
+- Logs for every scenario contain no full report body, raw IP, token, or
+  unapproved header.
+- The `null` and missing-origin rows confirm rejection happens before any
+  parsing or persistence work.
+- The oversized-body row must hold even when the runtime would otherwise accept
+  the request, confirming the bound is enforced before JSON parsing.
+- The repeated-event-ID row confirms idempotency is atomic under the unique
+  constraint and that the duplicate receipt carries the original server-derived
+  values and `duplicate: true`.
+
+### 6.2 Follow-up scope
+
+The matrix expands in later phases with malformed JSON, invalid UTF, unknown
+fields, per-field and total-size limits, concurrency, and preflight variants
+without changing the frozen protocol.
+
