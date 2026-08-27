@@ -10,5 +10,8 @@
   },
   "dependencies": {
     "@filika/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "happy-dom": "^20.11.12"
   }
 }
