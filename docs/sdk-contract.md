@@ -61,3 +61,36 @@ feedback writes state, while output consists only of locally reconstructed,
 validated receipts and closed outcome codes. These are hints, not authorization.
 The title, description, schema, and annotations must not contain project names,
 host configuration, report content, collector messages, or other dynamic text.
+
+## Public configuration
+
+`FilikaConfig` and `CONFIG_SCHEMA` define the closed public configuration:
+required `projectKey` and `endpoint`, optional `routeLabel` and
+`applicationRelease`. Labels use the envelope limits. Values are fixed strings,
+not callbacks, templates, DOM selectors, or per-user values. Read and copy them
+once during initialization; later caller mutation must not change the destination
+or inject context. The endpoint is configuration only, never outgoing context.
+
+The production endpoint must be an absolute HTTPS URL of at most 2,048 characters.
+Validate using both the schema and the platform URL parser. Reject credentials,
+query strings, fragments, backslashes, whitespace, and malformed authorities.
+Do not follow collector redirects. Never derive the endpoint from agent input.
+The project key is public and must not be treated as an authentication secret.
+
+Phase 2 development builds may additionally accept HTTP only when the parsed
+hostname is exactly `localhost`, `127.0.0.1`, or `[::1]`. Reject lookalikes and
+subdomains. This exception is a build policy, not an `allowHttp` public option;
+production builds use `CONFIG_SCHEMA` unchanged. All other URL restrictions
+remain in force. Production permits HTTPS localhost as well.
+
+The script initialization mapping is fixed:
+
+| Configuration | Script attribute |
+| --- | --- |
+| `projectKey` | `data-project-key` |
+| `endpoint` | `data-endpoint` |
+| `routeLabel` | `data-route-label` |
+| `applicationRelease` | `data-application-release` |
+
+Missing optional attributes are omitted; supplied empty strings are invalid.
+The future `Filika.init(config)` and script initialization share this contract.
