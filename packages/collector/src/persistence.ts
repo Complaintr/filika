@@ -47,47 +47,36 @@ export function buildFeedbackInsert(input: PersistFeedbackInput): FeedbackInsert
     title: input.feedback.title,
   };
 }
-
 export type PersistResult =
   | { feedback: Feedback; outcome: "created" }
   | { feedback: Feedback; outcome: "duplicate" };
-
-function isUniqueViolation(error: unknown): boolean {
-  return (
-    typeof error === "object" && error !== null && (error as { code?: unknown }).code === "23505"
-  );
-}
 
 export async function persistFeedback(db: Db, input: PersistFeedbackInput): Promise<PersistResult> {
   const values = buildFeedbackInsert(input);
 
   return db.transaction(async (transaction) => {
-    try {
-      const rows = await transaction.insert(feedback).values(values).returning();
-      const created = rows[0];
+    const inserted = await transaction
+      .insert(feedback)
+      .values(values)
+      .onConflictDoNothing()
+      .returning();
+    const created = inserted[0];
 
-      if (created === undefined) {
-        throw new Error("Feedback insert returned no row.");
-      }
-
+    if (created !== undefined) {
       return { feedback: created, outcome: "created" };
-    } catch (error) {
-      if (!isUniqueViolation(error)) {
-        throw error;
-      }
-
-      const existing = await transaction
-        .select()
-        .from(feedback)
-        .where(and(eq(feedback.projectId, values.projectId), eq(feedback.eventId, values.eventId)))
-        .limit(1);
-      const stored = existing[0];
-
-      if (stored === undefined) {
-        throw new Error("Duplicate flagged but no stored feedback found.");
-      }
-
-      return { feedback: stored, outcome: "duplicate" };
     }
+
+    const existing = await transaction
+      .select()
+      .from(feedback)
+      .where(and(eq(feedback.projectId, values.projectId), eq(feedback.eventId, values.eventId)))
+      .limit(1);
+    const stored = existing[0];
+
+    if (stored === undefined) {
+      throw new Error("Duplicate flagged but no stored feedback found.");
+    }
+
+    return { feedback: stored, outcome: "duplicate" };
   });
 }

@@ -30,7 +30,7 @@ export async function consumeProjectRateLimit(
 ): Promise<RateLimitConsumeResult> {
   const start = windowStartFor(now);
   const key = windowKey(projectId, start);
-  const expiresAt = windowExpiresAt(start);
+  const expiresAt = windowExpiresAt(start).toISOString();
 
   const result = (await db.execute(sql`
     INSERT INTO rate_limit (id, project_id, window_key, count, expires_at)
