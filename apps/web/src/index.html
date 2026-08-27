@@ -26,7 +26,20 @@
         <button id="nav-demo" type="button">Demo</button>
         <button id="nav-inbox" type="button">Inbox</button>
       </nav>
-      <p id="webmcp-status" class="mono" role="status">Checking WebMCP support...</p>
+      <div class="header-actions">
+        <p id="webmcp-status" class="mono" role="status">Checking WebMCP support...</p>
+        <div id="theme-switcher" class="theme-switcher" role="radiogroup" aria-label="Color theme">
+          <button type="button" class="theme-btn" data-theme-value="light" aria-label="Light theme" title="Light theme">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+          </button>
+          <button type="button" class="theme-btn" data-theme-value="dark" aria-label="Dark theme" title="Dark theme">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+          </button>
+          <button type="button" class="theme-btn" data-theme-value="system" aria-label="System theme" title="System theme">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
+          </button>
+        </div>
+      </div>
     </header>
     <main id="app-content"></main>
     <div id="filika-feedback-root"></div>
