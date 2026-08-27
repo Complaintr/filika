@@ -24,26 +24,32 @@ dialog {
   max-block-size: min(48rem, calc(100vh - 2rem));
   margin: auto;
   padding: 0;
-  border: 1px solid var(--filika-color-border);
-  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 88%);
+  border-radius: 1.5rem;
   color: var(--filika-color-text);
-  background: var(--filika-color-surface);
-  box-shadow: 0 1.5rem 5rem rgb(23 33 27 / 24%);
+  background: rgb(255 255 255 / 96%);
+  box-shadow:
+    0 2rem 6rem rgb(15 50 48 / 24%),
+    inset 0 1px 0 #fff;
+  backdrop-filter: saturate(180%) blur(2rem);
 }
 
-dialog::backdrop { background: rgb(10 22 15 / 58%); }
+dialog::backdrop {
+  background: rgb(13 49 46 / 34%);
+  backdrop-filter: blur(0.75rem);
+}
 
-.surface { padding: clamp(1.25rem, 4vw, 2rem); }
+.surface { padding: clamp(1.5rem, 5vw, 2.5rem); }
 .eyebrow {
   margin: 0;
   color: var(--filika-color-primary);
   font-size: 0.75rem;
-  font-weight: 750;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-h2 { margin: 0.25rem 0 0.5rem; font-size: 1.5rem; line-height: 1.2; }
+h2 { margin: 0.3rem 0 0.6rem; font-size: 1.75rem; line-height: 1.14; letter-spacing: -0.035em; }
 h3 { margin-block: 1.5rem 0.75rem; font-size: 1rem; }
 p { margin-block: 0.5rem; }
 .muted, .help { color: var(--filika-color-text-muted); }
@@ -53,13 +59,18 @@ p { margin-block: 0.5rem; }
 label { font-weight: 650; }
 input, select, textarea {
   inline-size: 100%;
-  padding: 0.7rem 0.75rem;
-  border: 1px solid var(--filika-color-border);
-  border-radius: 0.625rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgb(15 118 110 / 18%);
+  border-radius: 0.875rem;
   color: var(--filika-color-text);
-  background: var(--filika-color-surface);
+  background: rgb(255 255 255 / 82%);
+  box-shadow: inset 0 1px 2px rgb(15 50 48 / 5%);
   font: inherit;
+  transition:
+    border-color var(--filika-motion-fast) var(--filika-motion-easing),
+    box-shadow var(--filika-motion-fast) var(--filika-motion-easing);
 }
+input:hover, select:hover, textarea:hover { border-color: rgb(15 118 110 / 34%); }
 textarea { min-block-size: 6.5rem; resize: vertical; }
 input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] {
   border-color: var(--filika-color-danger);
@@ -67,9 +78,10 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 }
 .error { margin: 0; color: var(--filika-color-danger); font-size: 0.875rem; font-weight: 650; }
 .error-summary {
-  padding: 0.75rem 1rem;
-  border-inline-start: 0.3rem solid var(--filika-color-danger);
-  background: #fff1f2;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgb(159 38 51 / 12%);
+  border-radius: 1rem;
+  background: rgb(255 241 242 / 76%);
 }
 .error-summary:empty { display: none; }
 .error-summary a { color: var(--filika-color-danger); }
@@ -81,7 +93,8 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
   gap: 0.75rem;
   align-items: center;
   padding: 0.75rem;
-  border-radius: 0.625rem;
+  border: 1px solid rgb(15 118 110 / 8%);
+  border-radius: 1rem;
   background: var(--filika-color-surface-muted);
 }
 .context-item dt, .review-item dt, .receipt-item dt { color: var(--filika-color-text-muted); font-size: 0.8rem; font-weight: 650; }
@@ -90,9 +103,10 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 
 .privacy {
   margin-block: 1.25rem;
-  padding: 1rem;
-  border: 1px solid var(--filika-color-border);
-  border-radius: 0.625rem;
+  padding: 1.15rem;
+  border: 1px solid rgb(15 118 110 / 12%);
+  border-radius: 1rem;
+  background: rgb(232 250 247 / 64%);
 }
 .privacy dl { display: grid; gap: 0.75rem; margin-block: 0.75rem; }
 .privacy dt { color: var(--filika-color-text-muted); font-size: 0.8rem; font-weight: 650; }
@@ -102,16 +116,29 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-block-start: 1.5rem; }
 button {
   min-block-size: 2.75rem;
-  padding: 0.65rem 1rem;
+  padding: 0.7rem 1.1rem;
   border: 1px solid transparent;
-  border-radius: 0.625rem;
+  border-radius: 999px;
   font: inherit;
-  font-weight: 700;
+  font-weight: 650;
   cursor: pointer;
+  transition:
+    transform var(--filika-motion-fast) var(--filika-motion-easing),
+    box-shadow var(--filika-motion-fast) var(--filika-motion-easing),
+    background var(--filika-motion-fast) var(--filika-motion-easing);
 }
-.primary { color: var(--filika-color-on-primary); background: var(--filika-color-primary); }
-.secondary { border-color: var(--filika-color-primary); color: var(--filika-color-primary); background: var(--filika-color-surface); }
+.primary {
+  color: var(--filika-color-on-primary);
+  background: var(--filika-color-primary);
+  box-shadow: 0 0.5rem 1.25rem rgb(15 118 110 / 24%);
+}
+.secondary {
+  border-color: rgb(15 118 110 / 18%);
+  color: var(--filika-color-primary);
+  background: rgb(255 255 255 / 78%);
+}
 .text-action { padding-inline: 0.25rem; border: 0; color: var(--filika-color-primary); background: transparent; text-decoration: underline; text-underline-offset: 0.2em; }
+button:active { transform: scale(0.98); }
 button:disabled { cursor: wait; opacity: 0.6; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
   outline: var(--filika-focus-width) solid var(--filika-color-focus);
