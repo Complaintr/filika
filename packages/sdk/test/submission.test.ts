@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { version } from "../src";
 import { createContext, reviewedContext } from "../src/context";
+import { parseDraft, prepareSubmission, submissionHeaders } from "../src/submission";
 
 test("context contains only SDK version and fixed optional host labels", () => {
   const config = {
@@ -21,6 +22,53 @@ test("context contains only SDK version and fixed optional host labels", () => {
     sdkVersion: version,
   });
   expect(Object.isFrozen(createContext(config))).toBe(true);
+});
+
+const config = { projectKey: "demo", endpoint: "https://collector.example" };
+const draft = { kind: "bug", title: "Save failed", description: "The save action failed." };
+const eventId = "12345678-1234-4234-8234-123456789abc";
+
+test("generates one UUID and uses it for the envelope and Idempotency-Key", () => {
+  let generated = 0;
+  const prepared = prepareSubmission(config, draft, createContext(config), () => {
+    generated++;
+    return eventId;
+  });
+  if (!prepared) throw new Error("Expected submission");
+  expect(generated).toBe(1);
+  expect(JSON.parse(prepared.body).eventId).toBe(eventId);
+  expect(submissionHeaders(prepared)).toEqual({
+    "Content-Type": "application/json",
+    "Idempotency-Key": eventId,
+  });
+  expect(Object.isFrozen(prepared)).toBe(true);
+  expect(prepareSubmission(config, draft, createContext(config), () => "bad-id")).toBeNull();
+});
+
+test("validates untrusted drafts before creating a transport envelope", () => {
+  for (const patch of [
+    { eventId },
+    { title: " " },
+    { description: "\ud800" },
+    { kind: "other" },
+    { expectedBehavior: null },
+    { reproductionSteps: [" "] },
+    { reproductionSteps: Array(11).fill("step") },
+  ]) {
+    expect(parseDraft({ ...draft, ...patch })).toBeNull();
+  }
+  const source = { ...draft, reproductionSteps: ["Click Save"] };
+  const copy = parseDraft(source);
+  source.reproductionSteps.push("changed");
+  expect(copy?.reproductionSteps).toEqual(["Click Save"]);
+  expect(
+    parseDraft({
+      ...draft,
+      description: "😀".repeat(4000),
+      expectedBehavior: "😀".repeat(2000),
+      reproductionSteps: ["😀".repeat(500)],
+    }),
+  ).toBeNull();
 });
 
 test("review can remove optional context without changing SDK or host-owned values", () => {
