@@ -1,6 +1,70 @@
 :root {
-  color: #1d1d1f;
-  background-color: #f5f5f7;
+  color-scheme: light dark;
+  --bg-page: #f8fafc;
+  --bg-gradient-1: radial-gradient(at 50% 0%, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.6) 60%);
+  --bg-gradient-2: radial-gradient(at 15% 15%, rgba(204, 251, 241, 0.4) 0px, transparent 40vw);
+  --bg-gradient-3: radial-gradient(at 85% 85%, rgba(204, 251, 241, 0.3) 0px, transparent 45vw);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --card-bg: rgba(255, 255, 255, 0.88);
+  --card-border: rgba(0, 0, 0, 0.08);
+  --card-border-hover: rgba(13, 148, 136, 0.35);
+  --card-shadow:
+    0 4px 20px -2px rgba(0, 0, 0, 0.04),
+    0 2px 6px -1px rgba(0, 0, 0, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  --card-shadow-hover:
+    0 20px 40px -8px rgba(0, 0, 0, 0.08),
+    0 6px 14px -3px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  --header-bg: rgba(255, 255, 255, 0.82);
+  --header-border: rgba(0, 0, 0, 0.08);
+  --header-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.04),
+    0 2px 6px rgba(0, 0, 0, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --nav-bg: rgba(120, 120, 128, 0.08);
+  --nav-btn-color: #64748b;
+  --nav-btn-hover-color: #0f172a;
+  --nav-active-bg: #ffffff;
+  --nav-active-color: #0f172a;
+  --nav-active-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  --brand-color: #0f172a;
+  --primary-color: #0d9488;
+  --primary-hover: #0f766e;
+  --primary-btn-text: #ffffff;
+  --primary-btn-shadow:
+    0 3px 12px rgba(13, 148, 136, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  --primary-btn-shadow-hover:
+    0 6px 18px rgba(13, 148, 136, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  --secondary-btn-bg: rgba(13, 148, 136, 0.08);
+  --secondary-btn-border: rgba(13, 148, 136, 0.18);
+  --secondary-btn-color: #0d9488;
+  --secondary-btn-hover-bg: rgba(13, 148, 136, 0.14);
+  --secondary-btn-hover-border: rgba(13, 148, 136, 0.32);
+  --secondary-btn-hover-color: #0f766e;
+  --eyebrow-bg: #e6f7f5;
+  --eyebrow-border: rgba(13, 148, 136, 0.18);
+  --eyebrow-color: #0d9488;
+  --status-bg: rgba(255, 255, 255, 0.75);
+  --status-border: rgba(0, 0, 0, 0.08);
+  --status-color: #475569;
+  --mono-color: #0d9488;
+  --failure-bg: #fef2f2;
+  --failure-border: rgba(239, 68, 68, 0.22);
+  --failure-color: #b91c1c;
+  --detail-border: #f1f5f9;
+  --toggle-btn-bg: rgba(120, 120, 128, 0.08);
+  --toggle-btn-border: rgba(0, 0, 0, 0.08);
+  --toggle-btn-color: #64748b;
+  --toggle-btn-hover-bg: rgba(120, 120, 128, 0.16);
+  --toggle-btn-hover-color: #0f172a;
+
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Plus Jakarta Sans", Inter,
     ui-sans-serif, system-ui, sans-serif;
@@ -10,6 +74,136 @@
   text-rendering: optimizeLegibility;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-page: #09090b;
+    --bg-gradient-1: radial-gradient(at 50% 0%, rgba(24, 24, 27, 0.85) 0%, rgba(9, 9, 11, 0.98) 65%);
+    --bg-gradient-2: radial-gradient(at 15% 15%, rgba(20, 184, 166, 0.14) 0px, transparent 40vw);
+    --bg-gradient-3: radial-gradient(at 85% 85%, rgba(45, 212, 191, 0.09) 0px, transparent 45vw);
+    --text-main: #f4f4f5;
+    --text-muted: #a1a1aa;
+    --card-bg: rgba(24, 24, 27, 0.72);
+    --card-border: rgba(255, 255, 255, 0.09);
+    --card-border-hover: rgba(45, 212, 191, 0.45);
+    --card-shadow:
+      0 10px 30px -5px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --card-shadow-hover:
+      0 20px 40px -10px rgba(0, 0, 0, 0.7),
+      0 0 24px rgba(20, 184, 166, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    --header-bg: rgba(18, 18, 20, 0.82);
+    --header-border: rgba(255, 255, 255, 0.1);
+    --header-shadow:
+      0 12px 32px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    --nav-bg: rgba(255, 255, 255, 0.06);
+    --nav-btn-color: #a1a1aa;
+    --nav-btn-hover-color: #f4f4f5;
+    --nav-active-bg: rgba(255, 255, 255, 0.14);
+    --nav-active-color: #ffffff;
+    --nav-active-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    --brand-color: #f4f4f5;
+    --primary-color: #14b8a6;
+    --primary-hover: #2dd4bf;
+    --primary-btn-text: #042f2e;
+    --primary-btn-shadow:
+      0 3px 14px rgba(20, 184, 166, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    --primary-btn-shadow-hover:
+      0 5px 20px rgba(45, 212, 191, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    --secondary-btn-bg: rgba(20, 184, 166, 0.12);
+    --secondary-btn-border: rgba(45, 212, 191, 0.25);
+    --secondary-btn-color: #2dd4bf;
+    --secondary-btn-hover-bg: rgba(20, 184, 166, 0.2);
+    --secondary-btn-hover-border: rgba(45, 212, 191, 0.45);
+    --secondary-btn-hover-color: #5eead4;
+    --eyebrow-bg: rgba(20, 184, 166, 0.12);
+    --eyebrow-border: rgba(45, 212, 191, 0.25);
+    --eyebrow-color: #2dd4bf;
+    --status-bg: rgba(24, 24, 27, 0.85);
+    --status-border: rgba(255, 255, 255, 0.08);
+    --status-color: #a1a1aa;
+    --mono-color: #2dd4bf;
+    --failure-bg: rgba(239, 68, 68, 0.12);
+    --failure-border: rgba(248, 113, 113, 0.28);
+    --failure-color: #fca5a5;
+    --detail-border: rgba(255, 255, 255, 0.08);
+    --toggle-btn-bg: rgba(255, 255, 255, 0.08);
+    --toggle-btn-border: rgba(255, 255, 255, 0.1);
+    --toggle-btn-color: #a1a1aa;
+    --toggle-btn-hover-bg: rgba(255, 255, 255, 0.15);
+    --toggle-btn-hover-color: #ffffff;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg-page: #09090b;
+  --bg-gradient-1: radial-gradient(at 50% 0%, rgba(24, 24, 27, 0.85) 0%, rgba(9, 9, 11, 0.98) 65%);
+  --bg-gradient-2: radial-gradient(at 15% 15%, rgba(20, 184, 166, 0.14) 0px, transparent 40vw);
+  --bg-gradient-3: radial-gradient(at 85% 85%, rgba(45, 212, 191, 0.09) 0px, transparent 45vw);
+  --text-main: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --card-bg: rgba(24, 24, 27, 0.72);
+  --card-border: rgba(255, 255, 255, 0.09);
+  --card-border-hover: rgba(45, 212, 191, 0.45);
+  --card-shadow:
+    0 10px 30px -5px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --card-shadow-hover:
+    0 20px 40px -10px rgba(0, 0, 0, 0.7),
+    0 0 24px rgba(20, 184, 166, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --header-bg: rgba(18, 18, 20, 0.82);
+  --header-border: rgba(255, 255, 255, 0.1);
+  --header-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --nav-bg: rgba(255, 255, 255, 0.06);
+  --nav-btn-color: #a1a1aa;
+  --nav-btn-hover-color: #f4f4f5;
+  --nav-active-bg: rgba(255, 255, 255, 0.14);
+  --nav-active-color: #ffffff;
+  --nav-active-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  --brand-color: #f4f4f5;
+  --primary-color: #14b8a6;
+  --primary-hover: #2dd4bf;
+  --primary-btn-text: #042f2e;
+  --primary-btn-shadow:
+    0 3px 14px rgba(20, 184, 166, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  --primary-btn-shadow-hover:
+    0 5px 20px rgba(45, 212, 191, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  --secondary-btn-bg: rgba(20, 184, 166, 0.12);
+  --secondary-btn-border: rgba(45, 212, 191, 0.25);
+  --secondary-btn-color: #2dd4bf;
+  --secondary-btn-hover-bg: rgba(20, 184, 166, 0.2);
+  --secondary-btn-hover-border: rgba(45, 212, 191, 0.45);
+  --secondary-btn-hover-color: #5eead4;
+  --eyebrow-bg: rgba(20, 184, 166, 0.12);
+  --eyebrow-border: rgba(45, 212, 191, 0.25);
+  --eyebrow-color: #2dd4bf;
+  --status-bg: rgba(24, 24, 27, 0.85);
+  --status-border: rgba(255, 255, 255, 0.08);
+  --status-color: #a1a1aa;
+  --mono-color: #2dd4bf;
+  --failure-bg: rgba(239, 68, 68, 0.12);
+  --failure-border: rgba(248, 113, 113, 0.28);
+  --failure-color: #fca5a5;
+  --detail-border: rgba(255, 255, 255, 0.08);
+  --toggle-btn-bg: rgba(255, 255, 255, 0.08);
+  --toggle-btn-border: rgba(255, 255, 255, 0.1);
+  --toggle-btn-color: #a1a1aa;
+  --toggle-btn-hover-bg: rgba(255, 255, 255, 0.15);
+  --toggle-btn-hover-color: #ffffff;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -17,13 +211,13 @@
 body {
   min-block-size: 100vh;
   margin: 0;
-  background-color: #f5f5f7;
-  background-image:
-    radial-gradient(at 50% 0%, rgba(255, 255, 255, 0.9) 0%, rgba(245, 245, 247, 0.5) 60%),
-    radial-gradient(at 15% 15%, rgba(204, 251, 241, 0.3) 0px, transparent 40vw),
-    radial-gradient(at 85% 85%, rgba(204, 251, 241, 0.25) 0px, transparent 45vw);
+  background-color: var(--bg-page);
+  background-image: var(--bg-gradient-1), var(--bg-gradient-2), var(--bg-gradient-3);
   background-attachment: fixed;
-  color: #1d1d1f;
+  color: var(--text-main);
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
 }
 
 button,
