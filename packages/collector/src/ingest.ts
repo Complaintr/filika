@@ -1,6 +1,7 @@
 import { readBoundedBody } from "./body";
 import type { Db } from "./db/client";
 import { rejectionResponse } from "./errors";
+import { checkIdempotency } from "./idempotency";
 import { checkOrigin } from "./origin";
 import { decodeJsonBody } from "./parse";
 import { isOriginAllowed, resolveProject } from "./project";
@@ -22,6 +23,10 @@ export async function ingestFeedback(db: Db, request: Request): Promise<Response
   const decoded = decodeJsonBody(body.bytes, request.headers.get("content-type"));
 
   if (!decoded.ok) {
+    return rejectionResponse("invalid_input");
+  }
+
+  if (!checkIdempotency(decoded.value, request)) {
     return rejectionResponse("invalid_input");
   }
 
