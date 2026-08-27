@@ -94,3 +94,39 @@ The script initialization mapping is fixed:
 
 Missing optional attributes are omitted; supplied empty strings are invalid.
 The future `Filika.init(config)` and script initialization share this contract.
+
+## Execution outcomes
+
+Executions resolve exactly once to a closed result object. Failure is `{ code }`,
+without a message, stack, HTTP body, report echo, or dynamic text. Success adds
+only the validated receipt defined below. No new code may be inferred from an
+exception name or server message.
+
+| Code | Meaning |
+| --- | --- |
+| `success` | Receipt confirms acceptance; `duplicate: true` also uses this code |
+| `invalid_input` | Draft invalid before transmission |
+| `cancelled` | User canceled review before transmission |
+| `timeout` | Review deadline elapsed before transmission |
+| `aborted` | Execution signal or disposal stopped work before transmission |
+| `collector_rejected` | Documented collector rejection guarantees no acceptance |
+| `internal_error` | Local failure before transmission |
+| `outcome_unknown` | Request dispatched, but no reliable acceptance or rejection |
+
+Review expires after 120,000 ms; the request deadline is 10,000 ms, including body
+reading. Registration is bounded to 5,000 ms. An execution's result is at most
+1,024 UTF-8 bytes. Timers and abort listeners must be cleaned up on settlement.
+
+After dispatch, network timeout, signal abort, disposal, unexpected HTTP status,
+malformed or oversized receipt, connection loss, or local errors all produce
+`outcome_unknown`; aborting fetch does not undo a server write. A verified receipt
+already settled as success is not retroactively replaced by a late abort.
+`collector_rejected` is reserved for an explicit no-write response from the
+collector contract; until that contract defines one, treat responses without a
+valid success receipt as unknown. Never classify a generic HTTP 500 as rejection.
+
+No automatic retry. For an explicit outcome-unknown retry, retain the same event
+UUID and exact confirmed envelope in memory. Ask the user before retrying; use
+the same idempotency key. Editing the report creates a new submission and event
+UUID. Reload or disposal clears in-memory retry state. The UI may display
+`duplicate` for a success receipt, but it is not a separate execution code.
