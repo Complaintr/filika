@@ -1,12 +1,7 @@
-export interface ApprovedPublicFeedbackFields {
-  applicationRelease: string | null;
-  description: string;
-  expectedBehavior: string | null;
-  kind: string;
-  reproductionSteps: string | null;
-  routeLabel: string | null;
-  title: string;
-}
+import {
+  APPROVED_PUBLIC_FEEDBACK_FIELD_IDS,
+  type ApprovedPublicFeedbackFields,
+} from "./feedback-fields";
 
 export interface ServerDerivedRequestFacts {
   expiresAt: string;
@@ -15,6 +10,25 @@ export interface ServerDerivedRequestFacts {
   requestOrigin: string;
   source: "web_sdk_unverified";
 }
+
+export const SERVER_DERIVED_REQUEST_FACT_IDS = [
+  "expiresAt",
+  "feedbackId",
+  "receivedAt",
+  "requestOrigin",
+  "source",
+] as const satisfies readonly (keyof ServerDerivedRequestFacts)[];
+
+export const SERVER_FACT_PRESENTATION_SOURCES = {
+  expiresAt: ["receiptTimestamp", "retentionWindow"],
+  feedbackId: ["feedbackId"],
+  receivedAt: ["receiptTimestamp"],
+  requestOrigin: ["requestOrigin"],
+  source: ["source"],
+} as const satisfies Record<
+  keyof ServerDerivedRequestFacts,
+  readonly ("feedbackId" | "receiptTimestamp" | "requestOrigin" | "retentionWindow" | "source")[]
+>;
 
 export type InboxFeedbackRecord = ApprovedPublicFeedbackFields & ServerDerivedRequestFacts;
 
@@ -39,18 +53,8 @@ export type InboxDetailViewState =
   | { retryable: boolean; status: "error" };
 
 export const APPROVED_INBOX_SOURCE_FIELDS = [
-  "applicationRelease",
-  "description",
-  "expectedBehavior",
-  "expiresAt",
-  "feedbackId",
-  "kind",
-  "receivedAt",
-  "reproductionSteps",
-  "requestOrigin",
-  "routeLabel",
-  "source",
-  "title",
+  ...APPROVED_PUBLIC_FEEDBACK_FIELD_IDS,
+  ...SERVER_DERIVED_REQUEST_FACT_IDS,
 ] as const satisfies readonly (keyof InboxFeedbackRecord)[];
 
 export const INBOX_NON_READY_PRESENTATIONS = {
