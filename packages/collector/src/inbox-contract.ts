@@ -5,23 +5,18 @@ export const INBOX_PAGE_SIZE_DEFAULT = 25 as const;
 export const INBOX_PAGE_SIZE_MAX = 50 as const;
 export const INBOX_READ_ONLY = true as const;
 
-export interface InboxContextItem {
-  label: string;
-  value: string;
-}
-
 export interface InboxFeedbackItem {
   applicationRelease: string | null;
   description: string;
   eventId: string;
-  expectedBehavior: string;
+  expectedBehavior: string | null;
   feedbackId: string;
   kind: FeedbackKind;
-  optionalContext: readonly InboxContextItem[];
   origin: string;
   receiptTimestamp: string;
-  reproductionSteps: string;
+  reproductionSteps: readonly string[] | null;
   routeLabel: string | null;
+  sdkVersion: string;
   source: string;
   title: string;
 }
@@ -64,11 +59,11 @@ export function toInboxItem(row: Feedback): InboxFeedbackItem {
     expectedBehavior: row.expectedBehavior,
     feedbackId: row.id,
     kind: row.kind,
-    optionalContext: row.optionalContext as InboxContextItem[],
     origin: row.origin,
     receiptTimestamp: row.receiptTimestamp.toISOString(),
     reproductionSteps: row.reproductionSteps,
     routeLabel: row.routeLabel,
+    sdkVersion: row.sdkVersion,
     source: row.source,
     title: row.title,
   };

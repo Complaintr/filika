@@ -1,13 +1,4 @@
-import {
-  integer,
-  json,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  uniqueIndex,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 import { FEEDBACK_KINDS } from "../envelope";
 
@@ -42,10 +33,9 @@ export const feedback = pgTable(
     applicationRelease: text("application_release"),
     description: text("description").notNull(),
     eventId: uuid("event_id").notNull(),
-    expectedBehavior: text("expected_behavior").notNull(),
+    expectedBehavior: text("expected_behavior"),
     id: uuid("id").defaultRandom().primaryKey(),
     kind: feedbackKind("kind").notNull(),
-    optionalContext: json("optional_context").notNull(),
     origin: text("origin").notNull(),
     projectId: uuid("project_id")
       .notNull()
@@ -55,8 +45,9 @@ export const feedback = pgTable(
     })
       .notNull()
       .defaultNow(),
-    reproductionSteps: text("reproduction_steps").notNull(),
+    reproductionSteps: text("reproduction_steps").array(),
     routeLabel: text("route_label"),
+    sdkVersion: text("sdk_version").notNull(),
     source: text("source").notNull().default("web_sdk_unverified"),
     title: text("title").notNull(),
   },

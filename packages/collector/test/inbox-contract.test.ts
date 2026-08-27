@@ -17,12 +17,12 @@ const FEEDBACK_ROW: Feedback = {
   expectedBehavior: "The draft should be saved.",
   id: "9f8e7d6c-5b4a-4321-9876-123456789abc",
   kind: "bug",
-  optionalContext: [{ label: "OS", value: "macOS 15" }],
   origin: "https://demo.example",
   projectId: "c0ffee00-0000-0000-0000-000000000001",
   receiptTimestamp: new Date("2026-08-27T18:00:00.000Z"),
-  reproductionSteps: "Open the page, click Save.",
+  reproductionSteps: ["Open the page", "Click Save"],
   routeLabel: "feedback",
+  sdkVersion: "0.0.1",
   source: "web_sdk_unverified",
   title: "Save button is unresponsive",
 };
@@ -57,8 +57,8 @@ describe("P1-BE-05 read-only inbox query contracts", () => {
     expect(item.title).toBe(FEEDBACK_ROW.title);
     expect(item.description).toBe(FEEDBACK_ROW.description);
     expect(item.expectedBehavior).toBe(FEEDBACK_ROW.expectedBehavior);
-    expect(item.reproductionSteps).toBe(FEEDBACK_ROW.reproductionSteps);
-    expect(item.optionalContext).toEqual([{ label: "OS", value: "macOS 15" }]);
+    expect(item.reproductionSteps).toEqual(["Open the page", "Click Save"]);
+    expect(item.sdkVersion).toBe("0.0.1");
     expect(item.origin).toBe(FEEDBACK_ROW.origin);
     expect(item.source).toBe("web_sdk_unverified");
     expect(item.routeLabel).toBe("feedback");

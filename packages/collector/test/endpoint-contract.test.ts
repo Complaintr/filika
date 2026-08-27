@@ -66,9 +66,9 @@ describe("P1-BE-04 feedback endpoint contract", () => {
 
   test("maps error categories to the frozen SDK outcomes", () => {
     expect(COLLECTOR_ERROR_TO_OUTCOME.invalid_input).toBe("invalid_input");
-    expect(COLLECTOR_ERROR_TO_OUTCOME.denied_origin).toBe("collector_rejection");
-    expect(COLLECTOR_ERROR_TO_OUTCOME.payload_too_large).toBe("collector_rejection");
-    expect(COLLECTOR_ERROR_TO_OUTCOME.project_not_found).toBe("collector_rejection");
+    expect(COLLECTOR_ERROR_TO_OUTCOME.denied_origin).toBe("collector_rejected");
+    expect(COLLECTOR_ERROR_TO_OUTCOME.payload_too_large).toBe("collector_rejected");
+    expect(COLLECTOR_ERROR_TO_OUTCOME.project_not_found).toBe("collector_rejected");
     expect(COLLECTOR_ERROR_TO_OUTCOME.internal_error).toBe("internal_error");
   });
 });
