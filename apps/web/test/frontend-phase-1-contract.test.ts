@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+import { COLLECTOR_ERROR_TO_OUTCOME } from "../../../packages/collector/src/foundation/collector-sequence";
 import {
   type FeedbackDialogState,
   FILIKA_OPEN_INTERACTION_CONTRACT,
@@ -11,15 +12,24 @@ import {
   transitionFeedbackDialog,
 } from "../src/contracts/feedback-dialog-machine";
 import {
+  APPROVED_PUBLIC_FEEDBACK_FIELD_IDS,
   createEmptyFeedbackDraft,
   RECEIPT_VISIBLE_FIELDS,
   REPORT_FIELD_CONTRACTS,
   REPORT_FIELD_IDS,
+  REQUIRED_REPORT_FIELD_IDS,
 } from "../src/contracts/feedback-fields";
 import {
   APPROVED_INBOX_SOURCE_FIELDS,
   INBOX_NON_READY_PRESENTATIONS,
+  SERVER_DERIVED_REQUEST_FACT_IDS,
+  SERVER_FACT_PRESENTATION_SOURCES,
 } from "../src/contracts/inbox-view-model";
+import {
+  FILIKA_SUBMIT_FEEDBACK_CLARITY_REVIEW,
+  REPORT_FIELD_CLARITY_FINDINGS,
+  USER_CLARITY_REVIEW_DECISION,
+} from "../src/contracts/user-clarity-review";
 
 const completeDraft = createEmptyFeedbackDraft({
   description: "The save action did not complete.",
@@ -82,6 +92,16 @@ describe("P1-FE-01 dialog state machine", () => {
     expect(states.map((state) => state.status)).toEqual(SDK_EXECUTION_OUTCOMES);
   });
 
+  test("uses the same collector-rejection outcome as the backend boundary", () => {
+    const collectorOutcomes = new Set(Object.values(COLLECTOR_ERROR_TO_OUTCOME));
+
+    expect(collectorOutcomes).toContain("collector_rejected");
+    expect(collectorOutcomes).not.toContain("collector_rejection");
+    expect(
+      [...collectorOutcomes].every((outcome) => SDK_EXECUTION_OUTCOMES.includes(outcome)),
+    ).toBe(true);
+  });
+
   test("does not open an overlapping session", () => {
     const active = transitionFeedbackDialog(INITIAL_FEEDBACK_DIALOG_STATE, {
       draft: completeDraft,
@@ -129,6 +149,9 @@ describe("P1-FE-02 field behavior", () => {
     expect(REPORT_FIELD_CONTRACTS.reproductionSteps.removable).toBe(true);
     expect(REPORT_FIELD_CONTRACTS.routeLabel.removable).toBe(true);
     expect(REPORT_FIELD_CONTRACTS.applicationRelease.removable).toBe(true);
+    expect(
+      REPORT_FIELD_IDS.filter((field) => REPORT_FIELD_CONTRACTS[field].requiredForSubmission),
+    ).toEqual(REQUIRED_REPORT_FIELD_IDS);
   });
 
   test("keeps host context read-only but removable", () => {
@@ -167,8 +190,45 @@ describe("P1-FE-03 and P1-FE-04 interaction contracts", () => {
     expect(NATIVE_DIALOG_CONTRACT.usesShowModal).toBe(true);
     expect(NATIVE_DIALOG_CONTRACT.labelId).toBeTruthy();
     expect(NATIVE_DIALOG_CONTRACT.descriptionId).toBeTruthy();
+    expect(NATIVE_DIALOG_CONTRACT.attributes["aria-labelledby"]).toBe(
+      NATIVE_DIALOG_CONTRACT.labelId,
+    );
+    expect(NATIVE_DIALOG_CONTRACT.attributes["aria-describedby"]).toBe(
+      NATIVE_DIALOG_CONTRACT.descriptionId,
+    );
     expect(NATIVE_DIALOG_CONTRACT.focusOrder.editing.at(-1)).toBe("filika-cancel");
     expect(NATIVE_DIALOG_CONTRACT.restoreFocusToInvoker).toBe(true);
+    expect(NATIVE_DIALOG_CONTRACT.showMethod).toBe("showModal");
+  });
+
+  test("defines field-error, summary-link, live-region, and native-cancel behavior", () => {
+    expect(NATIVE_DIALOG_CONTRACT.errorPresentation.fieldUsesAriaDescribedBy).toBe(true);
+    expect(NATIVE_DIALOG_CONTRACT.errorPresentation.fieldUsesAriaInvalid).toBe(true);
+    expect(NATIVE_DIALOG_CONTRACT.errorPresentation.focusFirstInvalidField).toBe(true);
+    expect(NATIVE_DIALOG_CONTRACT.errorPresentation.summaryLinksFocusInvalidField).toBe(true);
+    expect(NATIVE_DIALOG_CONTRACT.errorPresentation.summaryRole).toBe("alert");
+    expect(NATIVE_DIALOG_CONTRACT.liveRegion).toEqual({
+      atomic: true,
+      id: "filika-feedback-status",
+      politeness: "polite",
+      role: "status",
+    });
+    expect(NATIVE_DIALOG_CONTRACT.cancelBehavior.escapeKey).toBe("dispatch_cancel");
+    expect(NATIVE_DIALOG_CONTRACT.cancelBehavior.submittingOutcome).toBe("aborted");
+    expect(NATIVE_DIALOG_CONTRACT.requiredMarkup).toContainEqual({
+      attributes: { role: "alert", tabindex: "-1" },
+      element: "div",
+      id: NATIVE_DIALOG_CONTRACT.errorPresentation.summaryId,
+    });
+    expect(NATIVE_DIALOG_CONTRACT.requiredMarkup).toContainEqual({
+      attributes: { "aria-atomic": "true", "aria-live": "polite", role: "status" },
+      element: "div",
+      id: NATIVE_DIALOG_CONTRACT.liveRegion.id,
+    });
+    expect(NATIVE_DIALOG_CONTRACT.removalControlAccessibleNames).toEqual({
+      applicationRelease: "Remove application release",
+      routeLabel: "Remove page",
+    });
   });
 
   test("keeps manual feedback available without WebMCP", () => {
@@ -178,16 +238,29 @@ describe("P1-FE-03 and P1-FE-04 interaction contracts", () => {
     expect(FILIKA_OPEN_INTERACTION_CONTRACT.concurrentCallBehavior).toContain(
       "focus_existing_dialog",
     );
+    expect(FILIKA_OPEN_INTERACTION_CONTRACT.expectedFailureBehavior).toBe(
+      "resolve_with_internal_error_outcome",
+    );
+    expect(SDK_EXECUTION_OUTCOMES).toContain("internal_error");
   });
 });
 
 describe("P1-FE-05 and P1-FE-06 inbox contracts", () => {
   test("allows only public report fields and server-derived request facts", () => {
+    expect(APPROVED_INBOX_SOURCE_FIELDS).toEqual([
+      ...APPROVED_PUBLIC_FEEDBACK_FIELD_IDS,
+      ...SERVER_DERIVED_REQUEST_FACT_IDS,
+    ]);
     expect(APPROVED_INBOX_SOURCE_FIELDS).not.toContain("pageContent");
     expect(APPROVED_INBOX_SOURCE_FIELDS).not.toContain("screenshot");
     expect(APPROVED_INBOX_SOURCE_FIELDS).not.toContain("credentials");
     expect(APPROVED_INBOX_SOURCE_FIELDS).not.toContain("browsingHistory");
     expect(APPROVED_INBOX_SOURCE_FIELDS).not.toContain("userAgent");
+    expect(SERVER_FACT_PRESENTATION_SOURCES.receivedAt).toEqual(["receiptTimestamp"]);
+    expect(SERVER_FACT_PRESENTATION_SOURCES.expiresAt).toEqual([
+      "receiptTimestamp",
+      "retentionWindow",
+    ]);
   });
 
   test("defines every required non-ready state with bounded copy", () => {
@@ -196,5 +269,34 @@ describe("P1-FE-05 and P1-FE-06 inbox contracts", () => {
     );
     expect(INBOX_NON_READY_PRESENTATIONS.error.role).toBe("alert");
     expect(INBOX_NON_READY_PRESENTATIONS.expired.body).not.toContain("description");
+  });
+});
+
+describe("P1-FE-07 user clarity review", () => {
+  test("uses clear tool copy that preserves review before transmission", () => {
+    expect(FILIKA_SUBMIT_FEEDBACK_CLARITY_REVIEW.name).toBe("filika_submit_feedback");
+    expect(FILIKA_SUBMIT_FEEDBACK_CLARITY_REVIEW.title).toBe("Draft feedback for review");
+    expect(FILIKA_SUBMIT_FEEDBACK_CLARITY_REVIEW.description).toContain("reviews and confirms");
+    expect(FILIKA_SUBMIT_FEEDBACK_CLARITY_REVIEW.reviewChecks).toEqual({
+      describesReviewBeforeSending: true,
+      distinguishesDraftingFromSubmission: true,
+      namesTheUserVisibleAction: true,
+      usesImplementationJargon: false,
+    });
+  });
+
+  test("records an approved user-facing review for every public report field", () => {
+    expect(REPORT_FIELD_CLARITY_FINDINGS.map((finding) => finding.field)).toEqual(
+      APPROVED_PUBLIC_FEEDBACK_FIELD_IDS,
+    );
+    expect(REPORT_FIELD_CLARITY_FINDINGS.every((finding) => finding.decision === "approved")).toBe(
+      true,
+    );
+    expect(USER_CLARITY_REVIEW_DECISION).toEqual({
+      approvedFieldCount: APPROVED_PUBLIC_FEEDBACK_FIELD_IDS.length,
+      decision: "approved",
+      requiresUserConfirmationBeforeSending: true,
+      reviewedFromPerspective: "person reviewing agent-authored feedback",
+    });
   });
 });
