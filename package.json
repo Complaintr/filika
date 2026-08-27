@@ -17,6 +17,7 @@
     "check:fix": "biome check --write .",
     "format": "biome format --write .",
     "format:check": "biome format .",
+    "dev": "bun run dev:webmcp",
     "dev:webmcp": "bun --port 4173 apps/web/src/index.html",
     "dev:collector": "bun run packages/collector/src/server.ts",
     "dev:sdk-smoke": "bun run --filter @filika/sdk build && bun tests/e2e/src/sdk-smoke-server.ts",
