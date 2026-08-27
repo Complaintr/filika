@@ -130,3 +130,32 @@ UUID and exact confirmed envelope in memory. Ask the user before retrying; use
 the same idempotency key. Editing the report creates a new submission and event
 UUID. Reload or disposal clears in-memory retry state. The UI may display
 `duplicate` for a success receipt, but it is not a separate execution code.
+
+## Collector receipt and safe agent output
+
+`FilikaReceiptV1` is a closed JSON object, not arbitrary collector text:
+
+| Field | Required | Constraint |
+| --- | --- | --- |
+| `schemaVersion` | Yes | Integer `1` |
+| `eventId` | Yes | Lowercase UUID v4; must equal the dispatched event ID |
+| `feedbackId` | Yes | Server-generated lowercase UUID v4 |
+| `receivedAt` | Yes | Valid UTC calendar timestamp, exactly `YYYY-MM-DDTHH:mm:ss.sssZ` (24 characters) |
+| `duplicate` | Yes | Boolean; true means the same event was previously accepted |
+
+The collector body contains this receipt directly, with no wrapper or free-text
+message. The transport must read at most 1,024 UTF-8 bytes, require JSON content
+type and a documented success status, then call `parseReceipt`. The reference
+parser checks shape, unknown fields, primitive types, timestamp round-trip, and
+event correlation. It builds a new object field by field; it never spreads the
+response or returns the raw body. JSON Schema checks timestamp syntax; the parser
+additionally rejects impossible calendar dates.
+
+Duplicate responses preserve the original `feedbackId`, `eventId`, and
+`receivedAt`; only `duplicate` changes. No report, project label, URL, server
+message, exception, or HTML can enter agent output. Return
+`{ code: "success", receipt: reconstructedReceipt }` on acceptance, otherwise a
+closed failure object. If a future UI needs readable copy, use local static
+strings selected by code. A WebMCP text-result adapter, if used, serializes only
+this reconstructed result, never collector text. The V1 contract itself is the
+direct JSON result object.
