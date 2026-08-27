@@ -14,7 +14,7 @@ const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? "postgres://localhost
 const EVENT_ID = "7f5e9c2a-9d4e-4b1c-a1f3-2b6c8d0e1a4b";
 const ALLOWED_ORIGIN = "http://localhost:4173";
 
-let server: ReturnType<typeof Bun.serve>;
+let server: ReturnType<typeof Bun.serve> | undefined;
 let baseUrl: string;
 let handle: DbHandle;
 let demoProjectId: string;
@@ -88,7 +88,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  server.stop(true);
+  server?.stop(true);
   await handle.close();
 });
 

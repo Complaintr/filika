@@ -90,7 +90,7 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Run unit tests
         env:
-          TEST_DATABASE_URL: postgres://localhost:5432/filika_test
+          TEST_DATABASE_URL: postgres://postgres@localhost:5432/filika_test
         run: bun run test:unit
 
   build:
