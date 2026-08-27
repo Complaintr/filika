@@ -88,20 +88,25 @@ export class SampleApplication {
 
     const grid = this.#document.createElement("div");
     grid.className = "demo-grid";
-    grid.append(this.#renderNormalTask(), this.#renderFailureTask());
+    grid.append(this.#renderNormalTask(), this.#renderFailureTask(), this.#renderFeedbackTask());
     section.append(grid);
 
-    const feedback = this.#document.createElement("section");
-    feedback.className = "task-card";
-    appendText(this.#document, feedback, "h2", "Share feedback");
+    this.#container.replaceChildren(section);
+  }
+
+  #renderFeedbackTask(): HTMLElement {
+    const card = this.#document.createElement("article");
+    card.className = "task-card";
+    appendText(this.#document, card, "p", "Manual fallback", "eyebrow");
+    appendText(this.#document, card, "h2", "Share feedback");
     appendText(
       this.#document,
-      feedback,
+      card,
       "p",
       "Review every report field before anything is sent.",
-      "muted",
+      "status-line",
     );
-    feedback.append(
+    card.append(
       createManualFeedbackButton(this.#document, () => {
         void this.#options.feedbackDialog.open(
           {
@@ -112,8 +117,7 @@ export class SampleApplication {
         );
       }),
     );
-    section.append(feedback);
-    this.#container.replaceChildren(section);
+    return card;
   }
 
   #renderNormalTask(): HTMLElement {
