@@ -89,6 +89,71 @@ test("registered tools and manual API share review, safe transport, and lifetime
   const execution = { signal: new AbortController().signal };
   expect((await tool.execute(draft, execution)).code).toBe("success");
   expect(await tool.execute(null, execution)).toEqual({ code: "invalid_input" });
+  expect(await Reflect.apply(tool.execute, tool, [draft, { requestUserInteraction() {} }])).toEqual(
+    { code: "invalid_input" },
+  );
   sdk.dispose();
   expect(await tool.execute(draft, execution)).toEqual({ code: "aborted" });
+});
+
+test("a review completion without claiming the event never authorizes a request", async () => {
+  const document = new EventTarget();
+  document.addEventListener(REVIEW_EVENT, (event) => {
+    const detail = (event as CustomEvent<ReviewEventDetail>).detail;
+    detail.complete({ kind: "confirmed", feedback: draft, context: detail.request.context });
+  });
+  let requests = 0;
+  const sdk = createSdk({
+    document,
+    fetch: async () => {
+      requests++;
+      throw new Error("Must not send");
+    },
+  });
+  await sdk.init(config);
+  expect(await sdk.open()).toEqual({ code: "internal_error" });
+  expect(requests).toBe(0);
+});
+
+test("manual review remains available after a registration rejection", async () => {
+  const sdk = createSdk({
+    document: {
+      modelContext: {
+        registerTool() {
+          throw new DOMException("private", "NotAllowedError");
+        },
+      },
+    },
+    review: async () => ({ kind: "cancelled" }),
+  });
+  expect((await sdk.init(config)).status).toEqual({
+    state: "registration_rejected",
+    diagnostic: "not_allowed",
+  });
+  expect(await sdk.open()).toEqual({ code: "cancelled" });
+});
+
+test("disposal during claimed review closes its signal and blocks late confirmation", async () => {
+  const document = new EventTarget();
+  const started = Promise.withResolvers<ReviewEventDetail>();
+  document.addEventListener(REVIEW_EVENT, (event) => {
+    event.preventDefault();
+    started.resolve((event as CustomEvent<ReviewEventDetail>).detail);
+  });
+  let requests = 0;
+  const sdk = createSdk({
+    document,
+    fetch: async () => {
+      requests++;
+      throw new Error("Must not send");
+    },
+  });
+  await sdk.init(config);
+  const pending = sdk.open();
+  const detail = await started.promise;
+  sdk.dispose();
+  expect(detail.request.signal.aborted).toBe(true);
+  detail.complete({ kind: "confirmed", feedback: draft, context: detail.request.context });
+  expect(await pending).toEqual({ code: "aborted" });
+  expect(requests).toBe(0);
 });

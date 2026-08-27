@@ -133,3 +133,49 @@ test("confirming an edited report creates a new event instead of mutating the re
   expect(ids).toHaveLength(2);
   expect(ids[0]).not.toBe(ids[1]);
 });
+
+test("disposal during transport cannot resurrect retry state in the next session", async () => {
+  const started = Promise.withResolvers<void>();
+  let reviews = 0;
+  const lifetime = new AbortController();
+  const engine = createExecution({
+    review: async (request) => {
+      reviews++;
+      if (reviews === 1) return confirm(request);
+      expect(request.retry).toBeUndefined();
+      return { kind: "retry" };
+    },
+    transmit: async () => {
+      started.resolve();
+      return new Promise(() => {});
+    },
+  });
+  const pending = engine.execute({ config, signal: lifetime.signal }, draft);
+  await started.promise;
+  lifetime.abort();
+  engine.clear();
+  expect(await pending).toEqual({ code: "outcome_unknown" });
+  expect(await engine.execute(session(), null)).toEqual({ code: "invalid_input" });
+});
+
+test("caller abort after dispatch retains the event for an explicitly approved retry", async () => {
+  const sent: string[] = [];
+  const started = Promise.withResolvers<void>();
+  const caller = new AbortController();
+  const current = session();
+  const engine = createExecution({
+    review: async (request) => (request.retry ? { kind: "retry" } : confirm(request)),
+    transmit: async (_session, submission) => {
+      sent.push(submission.body);
+      started.resolve();
+      return sent.length === 1 ? new Promise(() => {}) : { code: "outcome_unknown" };
+    },
+  });
+  const pending = engine.execute(current, draft, caller.signal);
+  await started.promise;
+  caller.abort();
+  expect(await pending).toEqual({ code: "outcome_unknown" });
+  expect(await engine.execute(current, null)).toEqual({ code: "outcome_unknown" });
+  expect(sent).toHaveLength(2);
+  expect(sent[0]).toBe(sent[1]);
+});

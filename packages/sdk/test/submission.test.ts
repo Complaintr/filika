@@ -71,6 +71,39 @@ test("validates untrusted drafts before creating a transport envelope", () => {
   ).toBeNull();
 });
 
+test("draft validation rejects accessors, sparse arrays, symbol fields, and serialization hooks", () => {
+  let accessed = false;
+  const steps = ["step"];
+  Object.defineProperty(steps, "0", {
+    get() {
+      accessed = true;
+      return "step";
+    },
+  });
+  for (const value of [
+    { ...draft, reproductionSteps: steps },
+    { ...draft, reproductionSteps: Array(1) },
+    { ...draft, [Symbol("extra")]: true },
+    {
+      ...draft,
+      toJSON() {
+        accessed = true;
+        return draft;
+      },
+    },
+    {
+      ...draft,
+      get title() {
+        accessed = true;
+        return "secret";
+      },
+    },
+  ]) {
+    expect(parseDraft(value)).toBeNull();
+  }
+  expect(accessed).toBe(false);
+});
+
 test("review can remove optional context without changing SDK or host-owned values", () => {
   const original = { sdkVersion: version, routeLabel: "editor" };
   expect(reviewedContext({ sdkVersion: version }, original)).toEqual({ sdkVersion: version });

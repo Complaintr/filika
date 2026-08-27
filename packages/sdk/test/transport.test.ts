@@ -119,3 +119,64 @@ test("request deadline includes body reads and pre-abort never calls fetch", asy
     ),
   ).toEqual({ code: "outcome_unknown" });
 });
+
+test("cancels rejected response bodies and responses that arrive after abort", async () => {
+  let cancelled = 0;
+  const response = () =>
+    new Response(
+      new ReadableStream<Uint8Array>({
+        cancel() {
+          cancelled++;
+        },
+      }),
+      { headers: { "Content-Type": "text/html" } },
+    );
+  expect(await requestFeedback(endpoint, submission, signal(), async () => response())).toEqual({
+    code: "outcome_unknown",
+  });
+  expect(cancelled).toBe(1);
+  const gate = Promise.withResolvers<Response>();
+  const started = Promise.withResolvers<void>();
+  const caller = new AbortController();
+  const pending = requestFeedback(endpoint, submission, caller.signal, async () => {
+    started.resolve();
+    return gate.promise;
+  });
+  await started.promise;
+  caller.abort();
+  expect(await pending).toEqual({ code: "outcome_unknown" });
+  gate.resolve(response());
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(cancelled).toBe(2);
+});
+
+test("decodes split UTF-8 chunks and enforces the byte cap independently of content length", async () => {
+  const bytes = new TextEncoder().encode('"é"');
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(bytes.slice(0, 2));
+      controller.enqueue(bytes.slice(2));
+      controller.close();
+    },
+  });
+  expect(
+    await requestFeedback(
+      endpoint,
+      submission,
+      signal(),
+      async () =>
+        new Response(stream, { headers: { "Content-Type": 'application/json; charset="UTF-8"' } }),
+    ),
+  ).toEqual({ status: 200, body: '"é"' });
+  expect(
+    await requestFeedback(
+      endpoint,
+      submission,
+      signal(),
+      async () =>
+        new Response(`"${"é".repeat(600)}"`, {
+          headers: { "Content-Type": "application/json", "Content-Length": "2" },
+        }),
+    ),
+  ).toEqual({ code: "outcome_unknown" });
+});

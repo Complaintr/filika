@@ -44,6 +44,7 @@ export async function requestFeedback(
   const scope = abortScope([signal]);
   const timer = setTimeout(() => scope.controller.abort(), timeoutMs);
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+  let responseBody: ReadableStream<Uint8Array> | null = null;
   try {
     return await withAbort(scope.controller.signal, async () => {
       const response = await fetcher(endpoint, {
@@ -58,7 +59,11 @@ export async function requestFeedback(
         body: submission.body,
         signal: scope.controller.signal,
       });
-      if (scope.controller.signal.aborted) throw new Error("Request stopped");
+      responseBody = response.body;
+      if (scope.controller.signal.aborted) {
+        void responseBody?.cancel().catch(() => {});
+        throw new Error("Request stopped");
+      }
       if (
         !/^application\/json(?:\s*;\s*charset=(?:utf-8|"utf-8"))?$/iu.test(
           response.headers.get("Content-Type")?.trim() ?? "",
@@ -95,9 +100,15 @@ export async function requestFeedback(
     clearTimeout(timer);
     scope.controller.abort();
     scope.cleanup();
-    if (reader) {
-      void reader.cancel().catch(() => {});
-      reader.releaseLock();
+    try {
+      if (reader) {
+        void reader.cancel().catch(() => {});
+        reader.releaseLock();
+      } else if (responseBody) {
+        void (responseBody as ReadableStream<Uint8Array>).cancel().catch(() => {});
+      }
+    } catch {
+      /* Cancellation/cleanup must not replace the closed result. */
     }
   }
 }
