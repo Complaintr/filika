@@ -918,6 +918,46 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
 
     expect(rows).toHaveLength(1);
   });
+
+  test("migrations apply to an empty database and produce the expected constraints", async () => {
+    const ddl = postgres(TEST_DATABASE_URL, { prepare: false });
+
+    try {
+      await ddl.unsafe("DROP SCHEMA IF EXISTS public CASCADE");
+      await ddl.unsafe("DROP SCHEMA IF EXISTS drizzle CASCADE");
+      await ddl.unsafe("CREATE SCHEMA public");
+
+      const fresh = createDb(TEST_DATABASE_URL);
+
+      await migrate(fresh.db, { migrationsFolder: `${import.meta.dir}/../drizzle` });
+      await fresh.close();
+
+      const indexes = await ddl.unsafe<{ indexdef: string }[]>(
+        "SELECT indexdef FROM pg_indexes WHERE schemaname = 'public'",
+      );
+      const indexDefs = indexes.map((row) => row.indexdef).join("\n");
+
+      expect(indexDefs).toMatch(/feedback_project_event_unique/);
+      expect(indexDefs).toMatch(/rate_limit_project_window_unique/);
+      expect(indexDefs).toMatch(/project_project_key_unique/);
+
+      const enumRows = await ddl.unsafe<{ typname: string }[]>(
+        "SELECT typname FROM pg_type WHERE typname = 'feedback_kind'",
+      );
+
+      expect(enumRows.length).toBeGreaterThan(0);
+
+      const foreignKeys = await ddl.unsafe<{ conname: string }[]>(
+        "SELECT conname FROM pg_constraint WHERE contype = 'f' AND connamespace = 'public'::regnamespace",
+      );
+      const fkNames = foreignKeys.map((row) => row.conname).join(" ");
+
+      expect(fkNames).toMatch(/feedback_project_id_project_id_fk/);
+      expect(fkNames).toMatch(/rate_limit_project_id_project_id_fk/);
+    } finally {
+      await ddl.end();
+    }
+  });
 });
 
 function matrixRequest(scenario: AbuseControlScenarioId, eventId: string): Request {
