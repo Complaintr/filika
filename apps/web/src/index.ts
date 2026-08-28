@@ -12,14 +12,6 @@ type WebMcpDocument = Document & {
   readonly modelContext?: ModelContext;
 };
 
-type FilikaWindow = Window & {
-  Filika?: {
-    open(): ReturnType<FeedbackDialog["open"]>;
-    getLatestFeedbackId(): string | null;
-    showInbox(feedbackId?: string): void;
-  };
-};
-
 function getRequiredElement<T extends HTMLElement>(id: string): T {
   const element = document.getElementById(id);
   if (element === null) {
@@ -40,8 +32,6 @@ const PROJECT_KEY = "filika_demo";
 const receiptToast = new ReceiptToast(document.body);
 const inboxApi = new InboxApiService({ collectorOrigin: COLLECTOR_ORIGIN });
 
-let latestSubmittedFeedbackId: string | null = null;
-
 const collectorSubmit = createCollectorSubmit({
   collectorOrigin: COLLECTOR_ORIGIN,
   projectKey: PROJECT_KEY,
@@ -59,7 +49,6 @@ const feedbackDialog = new FeedbackDialog(dialogHost, {
   submit: async (draft, signal) => {
     const result = await collectorSubmit(draft, signal);
     if (result.outcome === "success" && result.receipt !== undefined) {
-      latestSubmittedFeedbackId = result.receipt.feedbackId;
       receiptToast.show(result.receipt);
     }
     return result;
@@ -105,17 +94,10 @@ function showInbox(targetFeedbackId?: string): void {
 demoNavigation.addEventListener("click", () => showDemo());
 inboxNavigation.addEventListener("click", () => showInbox());
 
-(window as FilikaWindow).Filika = {
-  getLatestFeedbackId: () => latestSubmittedFeedbackId,
-  open: () => feedbackDialog.open({}, "manual"),
-  showInbox: (feedbackId?: string) => showInbox(feedbackId),
-};
-
 // Bridge SDK review events (from filika_submit_feedback tool invocation)
 // to the feedback dialog. The dialog handles review UI and submission.
 installReviewAdapter(document, feedbackDialog, {
   onReceipt: (receipt) => {
-    latestSubmittedFeedbackId = receipt.feedbackId;
     receiptToast.show(receipt);
   },
 });
