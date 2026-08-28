@@ -6,6 +6,10 @@ import { runCleanup } from "../src/db/cleanup";
 import { createDb, type DbHandle } from "../src/db/client";
 import { feedback, project, rateLimit } from "../src/db/schema";
 import { DEMO_PROJECT_KEY, seedDemoProject } from "../src/db/seed";
+import {
+  ABUSE_CONTROL_MATRIX,
+  type AbuseControlScenarioId,
+} from "../src/foundation/abuse-control-matrix";
 import { windowKey } from "../src/rate-limit";
 import { consumeProjectRateLimit, windowStartFor } from "../src/rate-limiting";
 import { startCollectorServer } from "../src/server";
@@ -690,4 +694,109 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     expect(remainingFeedback).toHaveLength(1);
     expect(remainingRateLimits).toHaveLength(1);
   });
+
+  test("runs the full abuse-control matrix against the fresh database", async () => {
+    const rejected = ABUSE_CONTROL_MATRIX.filter((row) => row.errorCategory !== null);
+
+    expect(rejected.length).toBeGreaterThan(0);
+
+    for (const [index, row] of rejected.entries()) {
+      const eventId = uuidFor(index);
+      const request = matrixRequest(row.id, eventId);
+      const response = await postRaw(request);
+
+      expect(response.status, `${row.id}: expected ${row.httpStatus}`).toBe(row.httpStatus);
+      await expect(response.json(), `${row.id}: expected error body`).resolves.toEqual({
+        error: { category: row.errorCategory },
+      });
+
+      const rows = await handle.db.query.feedback.findMany({
+        where: eq(feedback.eventId, eventId),
+      });
+
+      expect(rows, `${row.id}: ${row.dbState}`).toHaveLength(0);
+    }
+  });
+
+  test("resolves the repeated-event matrix row to a single stored record", async () => {
+    const row = ABUSE_CONTROL_MATRIX.find((entry) => entry.id === "repeated_event_id");
+
+    if (row === undefined) {
+      throw new Error("Missing repeated_event_id matrix row.");
+    }
+
+    const eventId = uuidFor(9999);
+    const first = await postRaw(matrixRequest("repeated_event_id", eventId));
+    const second = await postRaw(matrixRequest("repeated_event_id", eventId));
+
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(200);
+
+    const firstReceipt = (await first.json()) as Record<string, unknown>;
+    const secondReceipt = (await second.json()) as Record<string, unknown>;
+
+    expect(secondReceipt.duplicate).toBe(true);
+    expect(secondReceipt.feedbackId).toBe(firstReceipt.feedbackId);
+
+    const rows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.eventId, eventId),
+    });
+
+    expect(rows).toHaveLength(1);
+  });
 });
+
+function matrixRequest(scenario: AbuseControlScenarioId, eventId: string): Request {
+  const base = envelopeFor(eventId);
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    "Idempotency-Key": eventId,
+    Origin: ALLOWED_ORIGIN,
+  });
+
+  switch (scenario) {
+    case "missing_origin":
+      headers.delete("Origin");
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify(base),
+        headers,
+        method: "POST",
+      });
+    case "null_origin":
+      headers.set("Origin", "null");
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify(base),
+        headers,
+        method: "POST",
+      });
+    case "denied_origin":
+      headers.set("Origin", "http://evil.example");
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify(base),
+        headers,
+        method: "POST",
+      });
+    case "oversized_body":
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify({ ...base, title: "x".repeat(70_000) }),
+        headers,
+        method: "POST",
+      });
+    case "invalid_project_key":
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify({ ...base, projectKey: "does-not-exist" }),
+        headers,
+        method: "POST",
+      });
+    case "repeated_event_id":
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify(base),
+        headers,
+        method: "POST",
+      });
+  }
+}
+
+function uuidFor(index: number): string {
+  return `00000000-0000-4000-8000-${index.toString(16).padStart(12, "0")}`;
+}
