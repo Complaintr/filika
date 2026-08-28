@@ -6,9 +6,13 @@ import { runCleanup } from "../src/db/cleanup";
 import { createDb, type DbHandle } from "../src/db/client";
 import { feedback, project, rateLimit } from "../src/db/schema";
 import { DEMO_PROJECT_KEY, seedDemoProject } from "../src/db/seed";
+import {
+  ABUSE_CONTROL_MATRIX,
+  type AbuseControlScenarioId,
+} from "../src/foundation/abuse-control-matrix";
 import { windowKey } from "../src/rate-limit";
 import { consumeProjectRateLimit, windowStartFor } from "../src/rate-limiting";
-import { startCollectorServer } from "../src/server";
+import { createFetchHandler, startCollectorServer } from "../src/server";
 
 const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/filika_test";
 
@@ -419,6 +423,7 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     const third = await consumeProjectRateLimit(handle.db, rateProject.id, now, 2);
 
     expect([first.allowed, second.allowed, third.allowed]).toEqual([true, true, false]);
+    expect([first.remaining, second.remaining, third.remaining]).toEqual([1, 0, 0]);
   });
 
   test("keeps the rate limit atomic under concurrent requests", async () => {
@@ -445,6 +450,263 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     });
 
     expect(rows[0]?.count).toBe(5);
+  });
+
+  test("runs cleanup concurrently without errors or double deletes", async () => {
+    const now = new Date();
+    const expired = new Date(now.getTime() - 25 * 3_600_000);
+
+    for (const [index, title] of ["expired a", "expired b"].entries()) {
+      await handle.db.insert(feedback).values({
+        description: "expired",
+        eventId: uuidFor(500 + index),
+        kind: "bug",
+        origin: ALLOWED_ORIGIN,
+        projectId: demoProjectId,
+        receiptTimestamp: expired,
+        sdkVersion: "1.0.0",
+        source: "web_sdk_unverified",
+        title,
+      });
+    }
+    await handle.db.insert(rateLimit).values({
+      count: 1,
+      expiresAt: new Date(now.getTime() - 1),
+      projectId: demoProjectId,
+      windowKey: "concurrent-expired",
+    });
+
+    const results = await Promise.all([
+      runCleanup(handle.db, now),
+      runCleanup(handle.db, now),
+      runCleanup(handle.db, now),
+    ]);
+
+    const deletedFeedback = results.reduce((sum, result) => sum + result.deletedFeedback, 0);
+    const deletedRateLimits = results.reduce((sum, result) => sum + result.deletedRateLimits, 0);
+
+    expect(deletedFeedback).toBe(2);
+    expect(deletedRateLimits).toBe(1);
+
+    const expiredRows = await handle.db.query.feedback.findMany({
+      where: inArray(feedback.title, ["expired a", "expired b"]),
+    });
+
+    expect(expiredRows).toHaveLength(0);
+  });
+
+  test("returns a bounded internal-error response when the database is unavailable", async () => {
+    const closedHandle = createDb(TEST_DATABASE_URL);
+    await closedHandle.close();
+    const unavailableServer = Bun.serve({
+      fetch: createFetchHandler(closedHandle.db),
+      port: 0,
+    });
+
+    try {
+      const eventId = uuidFor(700);
+      const request = new Request(`http://localhost:${unavailableServer.port}/api/v1/feedback`, {
+        body: JSON.stringify(envelopeFor(eventId)),
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": eventId,
+          Origin: ALLOWED_ORIGIN,
+        },
+        method: "POST",
+      });
+      const response = await postRaw(request);
+
+      expect(response.status).toBe(500);
+      await expect(response.json()).resolves.toEqual({
+        error: { category: "internal_error" },
+      });
+    } finally {
+      unavailableServer.stop(true);
+    }
+  });
+
+  test("keeps inbox list and detail bounded with large fixtures", async () => {
+    const now = new Date();
+    const total = 120;
+    const fixtures = Array.from({ length: total }, (_, index) => ({
+      description: `fixture ${index}`,
+      eventId: uuidFor(1000 + index),
+      kind: "idea" as const,
+      origin: ALLOWED_ORIGIN,
+      projectId: demoProjectId,
+      receiptTimestamp: new Date(now.getTime() - index * 1000),
+      sdkVersion: "1.0.0",
+      source: "web_sdk_unverified",
+      title: `fixture report ${index}`,
+    }));
+
+    await handle.db.insert(feedback).values(fixtures);
+
+    const first = await postRaw(new Request(`${baseUrl}/api/v1/inbox`, { method: "GET" }));
+    const firstBody = (await first.json()) as {
+      items: Array<Record<string, unknown>>;
+      nextCursor: string | null;
+    };
+
+    expect(firstBody.items.length).toBeLessThanOrEqual(50);
+    expect(firstBody.nextCursor).not.toBeNull();
+
+    const collected: string[] = [];
+    let cursor: string | null = null;
+
+    do {
+      const url =
+        cursor === null
+          ? `${baseUrl}/api/v1/inbox`
+          : `${baseUrl}/api/v1/inbox?cursor=${encodeURIComponent(cursor)}`;
+      const response = await postRaw(new Request(url, { method: "GET" }));
+      const body = (await response.json()) as {
+        items: Array<{ feedbackId: string }>;
+        nextCursor: string | null;
+      };
+
+      for (const item of body.items) {
+        collected.push(item.feedbackId);
+      }
+
+      cursor = body.nextCursor;
+    } while (cursor !== null);
+
+    expect(collected.length).toBeGreaterThanOrEqual(total);
+    expect(new Set(collected).size).toBe(collected.length);
+
+    const detail = await postRaw(
+      new Request(`${baseUrl}/api/v1/inbox/${collected[0]}`, { method: "GET" }),
+    );
+
+    expect(detail.status).toBe(200);
+  });
+
+  test("cleanup is repeatable and preserves non-expired feedback", async () => {
+    const now = new Date();
+    const expired = new Date(now.getTime() - 25 * 3_600_000);
+
+    await handle.db.insert(feedback).values({
+      description: "repeat expired",
+      eventId: uuidFor(600),
+      kind: "bug",
+      origin: ALLOWED_ORIGIN,
+      projectId: demoProjectId,
+      receiptTimestamp: expired,
+      sdkVersion: "1.0.0",
+      source: "web_sdk_unverified",
+      title: "repeat expired",
+    });
+    await handle.db.insert(feedback).values({
+      description: "repeat fresh",
+      eventId: uuidFor(601),
+      kind: "bug",
+      origin: ALLOWED_ORIGIN,
+      projectId: demoProjectId,
+      receiptTimestamp: now,
+      sdkVersion: "1.0.0",
+      source: "web_sdk_unverified",
+      title: "repeat fresh",
+    });
+
+    const first = await runCleanup(handle.db, now);
+    const second = await runCleanup(handle.db, now);
+
+    expect(first.deletedFeedback).toBe(1);
+    expect(second.deletedFeedback).toBe(0);
+
+    const expiredRows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.title, "repeat expired"),
+    });
+    const freshRows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.title, "repeat fresh"),
+    });
+
+    expect(expiredRows).toHaveLength(0);
+    expect(freshRows).toHaveLength(1);
+  });
+
+  test("rejects a project over its configured rate limit over http", async () => {
+    await handle.db.insert(project).values({
+      allowedOrigins: [ALLOWED_ORIGIN],
+      displayName: "HTTP rate limit",
+      projectKey: "rate-limit-http-test",
+      rateLimitMax: 3,
+      retentionHours: 24,
+    });
+
+    const responses: Response[] = [];
+
+    for (let index = 0; index < 4; index += 1) {
+      const eventId = `e0000000-0000-4000-8000-${String(index).padStart(12, "0")}`;
+      const request = postEnvelope(eventId, { projectKey: "rate-limit-http-test" });
+      responses.push(await postRaw(request));
+    }
+
+    expect(responses.slice(0, 3).map((response) => response.status)).toEqual([201, 201, 201]);
+    expect(responses[3]?.status).toBe(429);
+
+    const retryAfter = responses[3]?.headers.get("Retry-After");
+
+    expect(retryAfter).not.toBeNull();
+    expect(Number.parseInt(retryAfter ?? "", 10)).toBeGreaterThan(0);
+
+    await expect(responses[3]?.json()).resolves.toEqual({
+      error: { category: "rate_limited" },
+    });
+
+    const rejectedRows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.eventId, "e0000000-0000-4000-8000-000000000003"),
+    });
+
+    expect(rejectedRows).toHaveLength(0);
+  });
+
+  test("resets the rate-limit budget at the hour boundary", async () => {
+    const rateProject = await handle.db.query.project.findFirst({
+      where: eq(project.projectKey, "rate-limit-test"),
+    });
+
+    if (rateProject === undefined) {
+      throw new Error("Rate-limit project was not seeded.");
+    }
+
+    const hourOne = new Date("2030-01-01T18:30:00.000Z");
+    const hourTwo = new Date("2030-01-01T19:10:00.000Z");
+
+    const firstWindow = await Promise.all([
+      consumeProjectRateLimit(handle.db, rateProject.id, hourOne, 2),
+      consumeProjectRateLimit(handle.db, rateProject.id, hourOne, 2),
+      consumeProjectRateLimit(handle.db, rateProject.id, hourOne, 2),
+    ]);
+
+    expect(firstWindow.filter((result) => result.allowed)).toHaveLength(2);
+
+    const nextWindow = await consumeProjectRateLimit(handle.db, rateProject.id, hourTwo, 2);
+
+    expect(nextWindow.allowed).toBe(true);
+  });
+
+  test("rejects every request when the rate-limit budget is zero", async () => {
+    const rateProject = await handle.db.query.project.findFirst({
+      where: eq(project.projectKey, "rate-limit-test"),
+    });
+
+    if (rateProject === undefined) {
+      throw new Error("Rate-limit project was not seeded.");
+    }
+
+    const windowNow = new Date(Date.now() + 48 * 3_600_000);
+    const result = await consumeProjectRateLimit(handle.db, rateProject.id, windowNow, 0);
+
+    expect(result).toEqual({ allowed: false, remaining: 0 });
+
+    const key = windowKey(rateProject.id, windowStartFor(windowNow));
+    const rows = await handle.db.query.rateLimit.findMany({
+      where: eq(rateLimit.windowKey, key),
+    });
+
+    expect(rows).toHaveLength(0);
   });
 
   test("resolves concurrent duplicate retries to a single row", async () => {
@@ -690,4 +952,149 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     expect(remainingFeedback).toHaveLength(1);
     expect(remainingRateLimits).toHaveLength(1);
   });
+
+  test("runs the full abuse-control matrix against the fresh database", async () => {
+    const rejected = ABUSE_CONTROL_MATRIX.filter((row) => row.errorCategory !== null);
+
+    expect(rejected.length).toBeGreaterThan(0);
+
+    for (const [index, row] of rejected.entries()) {
+      const eventId = uuidFor(index);
+      const request = matrixRequest(row.id, eventId);
+      const response = await postRaw(request);
+
+      expect(response.status, `${row.id}: expected ${row.httpStatus}`).toBe(row.httpStatus);
+      await expect(response.json(), `${row.id}: expected error body`).resolves.toEqual({
+        error: { category: row.errorCategory },
+      });
+
+      const rows = await handle.db.query.feedback.findMany({
+        where: eq(feedback.eventId, eventId),
+      });
+
+      expect(rows, `${row.id}: ${row.dbState}`).toHaveLength(0);
+    }
+  });
+
+  test("resolves the repeated-event matrix row to a single stored record", async () => {
+    const row = ABUSE_CONTROL_MATRIX.find((entry) => entry.id === "repeated_event_id");
+
+    if (row === undefined) {
+      throw new Error("Missing repeated_event_id matrix row.");
+    }
+
+    const eventId = uuidFor(9999);
+    const first = await postRaw(matrixRequest("repeated_event_id", eventId));
+    const second = await postRaw(matrixRequest("repeated_event_id", eventId));
+
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(200);
+
+    const firstReceipt = (await first.json()) as Record<string, unknown>;
+    const secondReceipt = (await second.json()) as Record<string, unknown>;
+
+    expect(secondReceipt.duplicate).toBe(true);
+    expect(secondReceipt.feedbackId).toBe(firstReceipt.feedbackId);
+
+    const rows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.eventId, eventId),
+    });
+
+    expect(rows).toHaveLength(1);
+  });
+
+  test("migrations apply to an empty database and produce the expected constraints", async () => {
+    const ddl = postgres(TEST_DATABASE_URL, { prepare: false });
+
+    try {
+      await ddl.unsafe("DROP SCHEMA IF EXISTS public CASCADE");
+      await ddl.unsafe("DROP SCHEMA IF EXISTS drizzle CASCADE");
+      await ddl.unsafe("CREATE SCHEMA public");
+
+      const fresh = createDb(TEST_DATABASE_URL);
+
+      await migrate(fresh.db, { migrationsFolder: `${import.meta.dir}/../drizzle` });
+      await fresh.close();
+
+      const indexes = await ddl.unsafe<{ indexdef: string }[]>(
+        "SELECT indexdef FROM pg_indexes WHERE schemaname = 'public'",
+      );
+      const indexDefs = indexes.map((row) => row.indexdef).join("\n");
+
+      expect(indexDefs).toMatch(/feedback_project_event_unique/);
+      expect(indexDefs).toMatch(/rate_limit_project_window_unique/);
+      expect(indexDefs).toMatch(/project_project_key_unique/);
+
+      const enumRows = await ddl.unsafe<{ typname: string }[]>(
+        "SELECT typname FROM pg_type WHERE typname = 'feedback_kind'",
+      );
+
+      expect(enumRows.length).toBeGreaterThan(0);
+
+      const foreignKeys = await ddl.unsafe<{ conname: string }[]>(
+        "SELECT conname FROM pg_constraint WHERE contype = 'f' AND connamespace = 'public'::regnamespace",
+      );
+      const fkNames = foreignKeys.map((row) => row.conname).join(" ");
+
+      expect(fkNames).toMatch(/feedback_project_id_project_id_fk/);
+      expect(fkNames).toMatch(/rate_limit_project_id_project_id_fk/);
+    } finally {
+      await ddl.end();
+    }
+  });
 });
+
+function matrixRequest(scenario: AbuseControlScenarioId, eventId: string): Request {
+  const base = envelopeFor(eventId);
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    "Idempotency-Key": eventId,
+    Origin: ALLOWED_ORIGIN,
+  });
+
+  switch (scenario) {
+    case "missing_origin":
+      headers.delete("Origin");
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify(base),
+        headers,
+        method: "POST",
+      });
+    case "null_origin":
+      headers.set("Origin", "null");
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify(base),
+        headers,
+        method: "POST",
+      });
+    case "denied_origin":
+      headers.set("Origin", "http://evil.example");
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify(base),
+        headers,
+        method: "POST",
+      });
+    case "oversized_body":
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify({ ...base, title: "x".repeat(70_000) }),
+        headers,
+        method: "POST",
+      });
+    case "invalid_project_key":
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify({ ...base, projectKey: "does-not-exist" }),
+        headers,
+        method: "POST",
+      });
+    case "repeated_event_id":
+      return new Request(`${baseUrl}/api/v1/feedback`, {
+        body: JSON.stringify(base),
+        headers,
+        method: "POST",
+      });
+  }
+}
+
+function uuidFor(index: number): string {
+  return `00000000-0000-4000-8000-${index.toString(16).padStart(12, "0")}`;
+}

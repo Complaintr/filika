@@ -19,7 +19,15 @@ describe("drizzle tables", () => {
     const columns = getTableColumns(project);
 
     expect(Object.keys(columns).sort()).toEqual(
-      ["id", "projectKey", "displayName", "retentionHours", "allowedOrigins", "createdAt"].sort(),
+      [
+        "id",
+        "projectKey",
+        "displayName",
+        "rateLimitMax",
+        "retentionHours",
+        "allowedOrigins",
+        "createdAt",
+      ].sort(),
     );
     expect(PROJECT_TABLE_NAME).toBe("project");
   });

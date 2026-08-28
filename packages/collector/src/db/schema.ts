@@ -27,6 +27,7 @@ export const project = pgTable(PROJECT_TABLE_NAME, {
   displayName: text("display_name").notNull(),
   id: uuid("id").defaultRandom().primaryKey(),
   projectKey: text("project_key").notNull().unique(),
+  rateLimitMax: integer("rate_limit_max").notNull().default(100),
   retentionHours: integer("retention_hours").notNull().default(24),
 });
 

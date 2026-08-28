@@ -2,7 +2,12 @@ import { describe, expect, test } from "bun:test";
 
 import type { ClientAddressResolver } from "../src/client-address";
 import { windowKey } from "../src/rate-limit";
-import { RATE_LIMIT_WINDOW_HOURS, windowExpiresAt, windowStartFor } from "../src/rate-limiting";
+import {
+  RATE_LIMIT_WINDOW_HOURS,
+  retryAfterSeconds,
+  windowExpiresAt,
+  windowStartFor,
+} from "../src/rate-limiting";
 
 describe("atomic project rate-limit", () => {
   test("floors the window to the current hour", () => {
@@ -20,6 +25,11 @@ describe("atomic project rate-limit", () => {
     expect(windowKey("project-a", "2026-08-27T18:00:00.000Z")).toBe(
       "project-a:2026-08-27T18:00:00.000Z",
     );
+  });
+
+  test("computes retry-after seconds until the window end", () => {
+    expect(retryAfterSeconds(new Date("2026-08-27T18:30:00.000Z"))).toBe(1800);
+    expect(retryAfterSeconds(new Date("2026-08-27T18:59:59.500Z"))).toBe(1);
   });
 
   test("exposes a provider-neutral client-address resolver interface", () => {
