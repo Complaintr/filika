@@ -71,7 +71,7 @@ function createHostileDocument(advanced = false): Document {
   return doc;
 }
 
-describe("P4-FE-09 hostile CSS isolation", () => {
+describe("hostile CSS isolation", () => {
   test("shadow DOM isolates dialog structure and styles from standard hostile host CSS", async () => {
     const document = createHostileDocument(false);
     const host = document.getElementById("filika-feedback-root") as HTMLElement;

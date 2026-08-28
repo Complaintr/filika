@@ -10,7 +10,7 @@ function scenario(id: string) {
   return ABUSE_CONTROL_MATRIX.find((row) => row.id === id);
 }
 
-describe("P0-BE-06 abuse-control test matrix", () => {
+describe("abuse-control test matrix", () => {
   test("covers every baseline scenario exactly once in order", () => {
     expect(ABUSE_CONTROL_MATRIX.map((row) => row.id)).toEqual(ABUSE_CONTROL_SCENARIO_IDS);
   });

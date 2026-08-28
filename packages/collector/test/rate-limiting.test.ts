@@ -4,7 +4,7 @@ import type { ClientAddressResolver } from "../src/client-address";
 import { windowKey } from "../src/rate-limit";
 import { RATE_LIMIT_WINDOW_HOURS, windowExpiresAt, windowStartFor } from "../src/rate-limiting";
 
-describe("P2-BE-11 atomic project rate-limit", () => {
+describe("atomic project rate-limit", () => {
   test("floors the window to the current hour", () => {
     expect(windowStartFor(new Date("2026-08-27T18:23:45.123Z"))).toBe("2026-08-27T18:00:00.000Z");
   });

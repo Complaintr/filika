@@ -9,7 +9,7 @@ function setupDom() {
   return { document, window };
 }
 
-describe("P4-FE-08 privacy disclosure and data classification", () => {
+describe("privacy disclosure and data classification", () => {
   test("privacy disclosure defines accurate collected, optional, excluded, and retained categories", () => {
     const { collected, excluded, optional, retained } = FILIKA_PRIVACY_DISCLOSURE;
 

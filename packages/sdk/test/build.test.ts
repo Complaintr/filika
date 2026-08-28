@@ -2,7 +2,12 @@ import { expect, test } from "bun:test";
 import { runInNewContext } from "node:vm";
 import { build } from "esbuild";
 import { bundleSdk, SDK_BUILD_OPTIONS } from "../build";
-import { version } from "../src";
+import {
+  FEEDBACK_TOOL,
+  type FilikaExecutionOutcome,
+  type FilikaModelContextTool,
+  version,
+} from "../src";
 
 test("builds one standalone classic script with a Filika global and no external imports", async () => {
   const result = await build({ ...SDK_BUILD_OPTIONS, write: false, metafile: true });
@@ -65,5 +70,39 @@ test("production global cannot enable HTTP; development bundle accepts only loop
       context,
     );
     expect(denied.code).toBe("invalid_configuration");
+  }
+});
+
+test("both shipped bundles register exactly the frozen V1 tool contract", async () => {
+  for (const development of [false, true]) {
+    const registered: FilikaModelContextTool<FilikaExecutionOutcome>[] = [];
+    const context = {
+      URL,
+      AbortController,
+      AbortSignal,
+      setTimeout,
+      clearTimeout,
+      structuredClone,
+      document: {
+        modelContext: {
+          registerTool(tool: FilikaModelContextTool<FilikaExecutionOutcome>) {
+            registered.push(tool);
+          },
+        },
+      },
+    };
+    const bundle = await bundleSdk(development);
+    runInNewContext(new TextDecoder().decode(bundle.code), context);
+    await runInNewContext(
+      'Filika.init({projectKey:"demo",endpoint:"https://collector.example/api/v1/feedback"})',
+      context,
+    );
+    expect(registered).toHaveLength(1);
+    const tool = registered[0];
+    if (!tool) throw new Error("Expected registered tool");
+    const { execute, ...metadata } = tool;
+    expect(typeof execute).toBe("function");
+    expect(JSON.parse(JSON.stringify(metadata))).toEqual(FEEDBACK_TOOL);
+    runInNewContext("Filika.dispose()", context);
   }
 });

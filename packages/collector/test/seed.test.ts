@@ -7,10 +7,10 @@ import {
   DEMO_RETENTION_HOURS,
 } from "../src/db/seed";
 
-describe("P2-BE-02 seed data", () => {
-  test("seeds one challenge demo project", () => {
+describe("seed data", () => {
+  test("seeds one demo project", () => {
     expect(DEMO_PROJECT_KEY).toBe("filika-demo");
-    expect(DEMO_PROJECT_DISPLAY_NAME).toBe("Filika Challenge Demo");
+    expect(DEMO_PROJECT_DISPLAY_NAME).toBe("Filika Demo");
   });
 
   test("uses the 24-hour retention window", () => {

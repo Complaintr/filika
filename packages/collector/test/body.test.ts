@@ -5,7 +5,7 @@ import { FEEDBACK_MAX_BODY_BYTES } from "../src/endpoint-contract";
 
 const ENDPOINT = "http://localhost:8787/api/v1/feedback";
 
-describe("P2-BE-05 oversized body rejection", () => {
+describe("oversized body rejection", () => {
   test("rejects an oversized content-length header before reading", async () => {
     const request = new Request(ENDPOINT, {
       headers: {

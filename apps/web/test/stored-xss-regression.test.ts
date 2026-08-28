@@ -25,7 +25,7 @@ function setupDom() {
   return { document, window };
 }
 
-describe("P4-FE-06 stored-XSS regression and text rendering safety", () => {
+describe("stored-XSS regression and text rendering safety", () => {
   test("inbox list view renders adversarial payloads strictly as text without executing or parsing HTML", () => {
     const { document } = setupDom();
 

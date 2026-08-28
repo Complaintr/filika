@@ -4,7 +4,7 @@ import { buildPreflightResponse, isAllowedOrigin } from "../src/cors";
 
 const ALLOWED_ORIGINS = ["http://localhost:4173", "http://127.0.0.1:4173"];
 
-describe("P2-BE-03 cors preflight", () => {
+describe("cors preflight", () => {
   test("matches the exact allowed origin", () => {
     expect(isAllowedOrigin("http://localhost:4173", ALLOWED_ORIGINS)).toBe(true);
     expect(isAllowedOrigin("http://localhost:9999", ALLOWED_ORIGINS)).toBe(false);

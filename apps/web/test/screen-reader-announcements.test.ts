@@ -14,7 +14,7 @@ function setupDom() {
   return { document, host, window };
 }
 
-describe("P4-FE-02 screen reader, live regions, and aria associations", () => {
+describe("screen reader, live regions, and aria associations", () => {
   test("feedback dialog contains labeled dialog, describedby, and polite atomic live-region status", () => {
     const { host } = setupDom();
     const dialog = new FeedbackDialog(host, {

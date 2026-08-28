@@ -7,7 +7,7 @@ import {
   windowKey,
 } from "../src/rate-limit";
 
-describe("P1-BE-07 atomic project rate-limit behavior", () => {
+describe("atomic project rate-limit behavior", () => {
   test("allows a request below the window limit and increments atomically", () => {
     expect(evaluateWindow(0, 10)).toEqual({ allowed: true, nextCount: 1 });
     expect(evaluateWindow(9, 10)).toEqual({ allowed: true, nextCount: 10 });

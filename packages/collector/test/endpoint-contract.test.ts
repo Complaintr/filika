@@ -16,7 +16,7 @@ import {
   isOversizedBody,
 } from "../src/endpoint-contract";
 
-describe("P1-BE-04 feedback endpoint contract", () => {
+describe("feedback endpoint contract", () => {
   test("pins the endpoint path and methods", () => {
     expect(FEEDBACK_ENDPOINT).toBe("/api/v1/feedback");
     expect(FEEDBACK_ENDPOINT_METHODS).toEqual(["POST", "OPTIONS"]);

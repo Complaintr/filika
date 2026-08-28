@@ -1,6 +1,6 @@
 # Filika SDK V1 Contract
 
-This is the Phase 1 integration contract, now implemented by the Phase 2 SDK core.
+This document defines the browser SDK's V1 integration contract.
 See [runtime integration](sdk-runtime.md) for the frontend adapter boundary.
 The SDK exports the TypeScript types and JSON Schemas;
 the collector must independently validate the same contract at its trust boundary.
@@ -78,7 +78,7 @@ query strings, fragments, backslashes, whitespace, and malformed authorities.
 Do not follow collector redirects. Never derive the endpoint from agent input.
 The project key is public and must not be treated as an authentication secret.
 
-Phase 2 development builds may additionally accept HTTP only when the parsed
+Development builds additionally accept HTTP only when the parsed
 hostname is exactly `localhost`, `127.0.0.1`, or `[::1]`. Reject lookalikes and
 subdomains. This exception is a build policy, not an `allowHttp` public option;
 production builds use `CONFIG_SCHEMA` unchanged. All other URL restrictions
@@ -122,9 +122,9 @@ After dispatch, network timeout, signal abort, disposal, unexpected HTTP status,
 malformed or oversized receipt, connection loss, or local errors all produce
 `outcome_unknown`; aborting fetch does not undo a server write. A verified receipt
 already settled as success is not retroactively replaced by a late abort.
-`collector_rejected` is reserved for an explicit no-write response from the
-collector contract; until that contract defines one, treat responses without a
-valid success receipt as unknown. Never classify a generic HTTP 500 as rejection.
+`collector_rejected` is reserved for the collector's documented no-write statuses
+400, 403, 413, and 429. Other responses without a valid success receipt are
+unknown. Never classify a generic HTTP 500 as rejection.
 
 No automatic retry. For an explicit outcome-unknown retry, retain the same event
 UUID and exact confirmed envelope in memory. Ask the user before retrying; use
@@ -217,8 +217,7 @@ envelope and field limits, the receipt, execution codes and limits, configuratio
 and lifecycle. Review snapshot diffs as public contract changes. Never update a
 snapshot simply to silence a failure. Changes require an explicit compatibility
 decision and coordinated SDK, frontend, and collector review; incompatible wire
-changes require a new schema version. Phase 1 establishes the baseline; final
-release-candidate freeze remains a later task.
+changes require a new schema version.
 
 Run `bun run test:unit` for schema, receipt, lifecycle, and bundle checks. To
 intentionally regenerate approved snapshots, run
@@ -229,5 +228,6 @@ tests, and build configuration are included in strict `bun run typecheck`.
 The bundle smoke test executes the actual esbuild output in a bare JavaScript
 context, checking the single `Filika` global, lack of external imports, and lack
 of unconfigured load-time DOM or transport dependencies. This is not a real browser test.
-`bun run test:browser` currently reports one existing TODO; supported-Chrome
-registration and end-to-end feedback verification remain later-phase work.
+`bun run test:browser` checks the SDK, review dialog, and collector together.
+See [SDK verification](sdk-verification.md) for database setup, native policy
+tests, and browser compatibility limitations.

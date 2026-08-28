@@ -17,7 +17,7 @@ const BASE = {
   schemaVersion: 1,
 };
 
-describe("P4-BE-09 hostile content handling", () => {
+describe("hostile content handling", () => {
   test("treats stored-xss markup as ordinary report text", () => {
     const envelope = {
       ...BASE,

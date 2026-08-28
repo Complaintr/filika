@@ -2,13 +2,13 @@ import { describe, expect, test } from "bun:test";
 
 import { THREAT_IDS, THREATS, TRUST_BOUNDARY_RULES } from "../src/foundation/threat-model";
 
-describe("P0-BE-01 threat model", () => {
+describe("threat model", () => {
   test("lists every baseline threat exactly once in a stable order", () => {
     expect(THREATS.map((threat) => threat.id)).toEqual(THREAT_IDS);
     expect(new Set(THREAT_IDS).size).toBe(THREAT_IDS.length);
   });
 
-  test("covers all threat areas named in the task", () => {
+  test("covers ingestion, content, and privacy threats", () => {
     const titles = THREATS.map((threat) => threat.title);
 
     expect(titles).toContain("Public ingestion abuse");

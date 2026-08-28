@@ -37,7 +37,7 @@ function dispatchKey(document: Document, element: HTMLElement, key: string) {
   );
 }
 
-describe("P4-FE-01 keyboard navigation and focus management", () => {
+describe("keyboard navigation and focus management", () => {
   test("initial focus moves to first field on open, and returns to invoker on cancel and close", async () => {
     const { document, host, invokerButton } = setupDom();
     invokerButton.focus();

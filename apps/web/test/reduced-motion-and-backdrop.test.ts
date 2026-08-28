@@ -4,7 +4,7 @@ import { Window } from "happy-dom";
 import { FeedbackDialog } from "../src/components/feedback-dialog";
 import { FILIKA_DESIGN_TOKENS, FILIKA_TOKEN_CSS } from "../src/foundation/design-tokens";
 
-describe("P4-FE-04 reduced-motion behavior and backdrop isolation", () => {
+describe("reduced-motion behavior and backdrop isolation", () => {
   test("reduced motion token overrides resolve durations to 0ms", () => {
     expect(FILIKA_DESIGN_TOKENS.motion.reducedDuration).toBe("0ms");
     expect(FILIKA_TOKEN_CSS).toContain("@media (prefers-reduced-motion: reduce)");

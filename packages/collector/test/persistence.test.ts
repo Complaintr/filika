@@ -22,7 +22,7 @@ const INPUT: PersistFeedbackInput = {
   source: "web_sdk_unverified",
 };
 
-describe("P2-BE-09 transactional persistence", () => {
+describe("transactional persistence", () => {
   test("maps the envelope into the feedback row", () => {
     const values = buildFeedbackInsert(INPUT);
 

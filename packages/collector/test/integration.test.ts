@@ -110,7 +110,7 @@ afterAll(async () => {
   await handle?.close();
 });
 
-describe.skipIf(!isDbAvailable)("P2-BE-15 collector api and database tests", () => {
+describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
   test("accepts a valid envelope and returns a frozen receipt", async () => {
     const response = await postRaw(postEnvelope(EVENT_ID));
 

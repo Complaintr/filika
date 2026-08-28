@@ -31,10 +31,14 @@ export const THREATS: readonly Threat[] = [
       "Bounded body size and closed envelope schema.",
       "Per-field and total-envelope size limits.",
       "Project-level durable rate limit.",
-      "24-hour feedback retention.",
+      "Explicit cleanup of feedback older than 24 hours.",
     ],
     title: "Public ingestion abuse",
-    verification: ["P2-BE-05", "P2-BE-06", "P2-BE-11", "P2-BE-13"],
+    verification: [
+      "packages/collector/test/body.test.ts",
+      "packages/collector/test/validation.test.ts",
+      "packages/collector/test/integration.test.ts",
+    ],
   },
   {
     entryPoint: "Forged, missing, or null Origin header on the feedback request.",
@@ -47,7 +51,10 @@ export const THREATS: readonly Threat[] = [
       "Exact-match origin allowlist and Vary: Origin on responses.",
     ],
     title: "Origin spoofing",
-    verification: ["P2-BE-03", "P2-BE-04", "P4-BE-01", "P4-BE-02"],
+    verification: [
+      "packages/collector/test/cors.test.ts",
+      "packages/collector/test/origin-matrix.test.ts",
+    ],
   },
   {
     entryPoint: "Client retry or deliberate replay with the same event ID.",
@@ -61,7 +68,11 @@ export const THREATS: readonly Threat[] = [
       "Retry returns the original receipt with duplicate: true.",
     ],
     title: "Duplicate and replayed requests",
-    verification: ["P2-BE-07", "P2-BE-09", "P2-BE-10", "P3-BE-04", "P3-BE-06"],
+    verification: [
+      "packages/collector/test/idempotency.test.ts",
+      "packages/collector/test/duplicate.test.ts",
+      "packages/collector/test/integration.test.ts",
+    ],
   },
   {
     entryPoint: "Feedback content stored and later rendered in the maintainer inbox.",
@@ -75,7 +86,11 @@ export const THREATS: readonly Threat[] = [
       "The inbox route exposes no WebMCP tools.",
     ],
     title: "Stored XSS",
-    verification: ["P4-FE-06", "P4-FE-07", "P4-BE-09"],
+    verification: [
+      "apps/web/test/stored-xss-regression.test.ts",
+      "tests/e2e/specs/vertical-slice.spec.ts",
+      "packages/collector/test/abuse-content.test.ts",
+    ],
   },
   {
     entryPoint: "Malicious or hostile text inside agent-authored fields and optional context.",
@@ -88,7 +103,7 @@ export const THREATS: readonly Threat[] = [
       "Agent-authored fields are bounded and user-reviewed before transmission.",
     ],
     title: "Prompt injection",
-    verification: ["P1-TL-05", "P4-TL-02"],
+    verification: ["packages/sdk/test/receipt.test.ts", "packages/sdk/test/sdk.test.ts"],
   },
   {
     entryPoint: "Oversized, deeply nested, malformed, or invalid-UTF bodies.",
@@ -102,7 +117,11 @@ export const THREATS: readonly Threat[] = [
       "Malformed-JSON and invalid-UTF rejection paths.",
     ],
     title: "Payload abuse",
-    verification: ["P2-BE-05", "P2-BE-06", "P4-BE-03", "P4-BE-09"],
+    verification: [
+      "packages/collector/test/body.test.ts",
+      "packages/collector/test/size-limits.test.ts",
+      "packages/collector/test/abuse-content.test.ts",
+    ],
   },
   {
     entryPoint: "Users or agents paste credentials, personal data, or secrets into report fields.",
@@ -113,10 +132,14 @@ export const THREATS: readonly Threat[] = [
       "User reviews every outgoing field before transmission.",
       "Collector never logs full report bodies.",
       "Logs sanitize identifiers.",
-      "24-hour retention bounds exposure.",
+      "Synthetic data only; expired feedback requires explicit cleanup.",
     ],
     title: "Sensitive-data submission",
-    verification: ["P2-BE-14", "P4-FE-08", "P4-BE-06", "P4-BE-07"],
+    verification: [
+      "packages/collector/test/logger.test.ts",
+      "apps/web/test/privacy-disclosure.test.ts",
+      "packages/collector/test/integration.test.ts",
+    ],
   },
   {
     entryPoint: "High-volume requests spread across event IDs or project keys.",
@@ -129,7 +152,10 @@ export const THREATS: readonly Threat[] = [
       "Decisions are logged without request content.",
     ],
     title: "Rate-limit bypass",
-    verification: ["P2-BE-11", "P2-BE-13", "P4-BE-05"],
+    verification: [
+      "packages/collector/test/rate-limiting.test.ts",
+      "packages/collector/test/integration.test.ts",
+    ],
   },
 ];
 

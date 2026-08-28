@@ -17,7 +17,7 @@ const BASE = {
   schemaVersion: 1,
 };
 
-describe("P4-BE-03 size limits", () => {
+describe("size limits", () => {
   test("rejects an over-limit title", () => {
     const envelope = {
       ...BASE,

@@ -12,7 +12,7 @@ const STORED = {
   receivedAt: "2026-08-27T18:00:00.000Z",
 };
 
-describe("P2-BE-10 frozen feedback receipts", () => {
+describe("frozen feedback receipts", () => {
   test("marks the retry as duplicate and stores no new row", () => {
     expect(DUPLICATE_RECEIPT_BEHAVIOR.marksDuplicate).toBe(true);
     expect(DUPLICATE_RECEIPT_BEHAVIOR.storesNoNewRow).toBe(true);

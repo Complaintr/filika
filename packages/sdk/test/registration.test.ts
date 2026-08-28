@@ -64,6 +64,29 @@ test("waits for registration acceptance before reporting ready", async () => {
   expect(await pending).toEqual({ state: "ready" });
 });
 
+test("browser metadata mutations cannot change subsequent registrations", async () => {
+  const original = structuredClone(FEEDBACK_TOOL);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const controller = new AbortController();
+    await registerFeedbackTool(
+      {
+        modelContext: {
+          registerTool(tool: FilikaModelContextTool<FilikaExecutionOutcome>) {
+            const { execute: _execute, ...metadata } = tool;
+            expect(metadata).toEqual(original);
+            Reflect.set(tool.inputSchema.properties.title, "maxLength", 999999);
+            Reflect.set(tool.annotations, "readOnlyHint", true);
+          },
+        },
+      },
+      controller,
+      async () => ({ code: "cancelled" }),
+    );
+    controller.abort();
+  }
+  expect(FEEDBACK_TOOL).toEqual(original);
+});
+
 test("registration failures expose only closed diagnostics and abort owned registration", async () => {
   for (const [name, diagnostic] of [
     ["InvalidStateError", "invalid_state"],

@@ -27,7 +27,7 @@ const FEEDBACK_ROW: Feedback = {
   title: "Save button is unresponsive",
 };
 
-describe("P2-BE-12 read-only inbox query contracts", () => {
+describe("read-only inbox query contracts", () => {
   test("keeps the inbox read-only", () => {
     expect(INBOX_READ_ONLY).toBe(true);
   });

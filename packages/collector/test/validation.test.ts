@@ -20,7 +20,7 @@ function bytesOf(value: unknown): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(value));
 }
 
-describe("P2-BE-06 envelope and project validation", () => {
+describe("envelope and project validation", () => {
   test("requires the strict json content type", () => {
     expect(decodeJsonBody(bytesOf(VALID_ENVELOPE), null)).toEqual({
       ok: false,

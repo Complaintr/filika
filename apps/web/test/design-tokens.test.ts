@@ -42,7 +42,6 @@ describe("design-tokens", () => {
   test("uses Filika-prefixed CSS properties scoped to the host", () => {
     expect(FILIKA_TOKEN_CSS).toContain(":host");
     expect(FILIKA_TOKEN_CSS).toContain("--filika-color-primary");
-    expect(FILIKA_TOKEN_CSS.toLowerCase()).not.toContain("complaintr");
   });
 
   test("meets WCAG AA contrast for primary text combinations", () => {

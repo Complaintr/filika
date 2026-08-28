@@ -8,7 +8,7 @@ import {
   DUPLICATE_OUTCOME,
 } from "../src/foundation/collector-sequence";
 
-describe("P0-BE-04 collector request sequence", () => {
+describe("collector request sequence", () => {
   test("keeps the sequence stable and complete", () => {
     expect(COLLECTOR_SEQUENCE_STEPS.map((step) => step.id)).toEqual(COLLECTOR_SEQUENCE_STEP_IDS);
   });
