@@ -65,13 +65,63 @@ const inbox = new MaintainerInbox(content, {
   onRetry: () => void loadInboxList(),
 });
 
+let demoToolController: AbortController | null = null;
+
+async function activateDemoTools(): Promise<void> {
+  const modelContext = (document as WebMcpDocument).modelContext;
+  if (modelContext === undefined) {
+    webMcpStatus.dataset.state = "unsupported";
+    webMcpStatus.textContent = "WebMCP unavailable. Manual feedback is ready.";
+    return;
+  }
+
+  demoToolController?.abort();
+  const controller = new AbortController();
+  demoToolController = controller;
+  window.addEventListener("pagehide", () => controller.abort(), { once: true });
+
+  const tool = createSampleTaskTool(() => {
+    showDemo();
+    sampleApplication.runFailure();
+  });
+
+  try {
+    await modelContext.registerTool(tool, { signal: controller.signal });
+    if (!controller.signal.aborted) {
+      webMcpStatus.dataset.state = "registered";
+      webMcpStatus.textContent = "WebMCP demo task ready.";
+    }
+  } catch (error) {
+    if (controller.signal.aborted) {
+      return;
+    }
+    const name = error instanceof DOMException ? error.name : "UnknownError";
+    webMcpStatus.dataset.state = "failed";
+    webMcpStatus.textContent = `WebMCP registration failed: ${name}. Manual feedback is ready.`;
+  }
+}
+
+function deactivateDemoTools(): void {
+  if (demoToolController !== null) {
+    demoToolController.abort();
+    demoToolController = null;
+  }
+  const modelContext = (document as WebMcpDocument).modelContext;
+  if (modelContext !== undefined) {
+    webMcpStatus.dataset.state = "inbox_isolated";
+    webMcpStatus.textContent = "WebMCP tools disabled on maintainer inbox route.";
+  }
+}
+
 function showDemo(): void {
   demoNavigation.setAttribute("aria-current", "page");
   inboxNavigation.removeAttribute("aria-current");
   sampleApplication.render();
+  void activateDemoTools();
 }
 
 function showInbox(targetFeedbackId?: string): void {
+  deactivateDemoTools();
   inboxNavigation.setAttribute("aria-current", "page");
   demoNavigation.removeAttribute("aria-current");
   if (targetFeedbackId !== undefined) {
@@ -83,32 +133,6 @@ function showInbox(targetFeedbackId?: string): void {
 
 demoNavigation.addEventListener("click", () => showDemo());
 inboxNavigation.addEventListener("click", () => showInbox());
-
-async function registerSampleTaskTool(): Promise<void> {
-  const modelContext = (document as WebMcpDocument).modelContext;
-  if (modelContext === undefined) {
-    webMcpStatus.dataset.state = "unsupported";
-    webMcpStatus.textContent = "WebMCP unavailable. Manual feedback is ready.";
-    return;
-  }
-
-  const controller = new AbortController();
-  window.addEventListener("pagehide", () => controller.abort(), { once: true });
-  const tool = createSampleTaskTool(() => {
-    showDemo();
-    sampleApplication.runFailure();
-  });
-
-  try {
-    await modelContext.registerTool(tool, { signal: controller.signal });
-    webMcpStatus.dataset.state = "registered";
-    webMcpStatus.textContent = "WebMCP demo task ready.";
-  } catch (error) {
-    const name = error instanceof DOMException ? error.name : "UnknownError";
-    webMcpStatus.dataset.state = "failed";
-    webMcpStatus.textContent = `WebMCP registration failed: ${name}. Manual feedback is ready.`;
-  }
-}
 
 type ThemePreference = "system" | "light" | "dark";
 
@@ -167,4 +191,3 @@ function initThemeSwitcher(): void {
 
 showDemo();
 initThemeSwitcher();
-void registerSampleTaskTool();
