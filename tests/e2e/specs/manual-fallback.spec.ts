@@ -80,7 +80,9 @@ async function waitForUnsupported(page: Page): Promise<void> {
 
 async function fillManualReport(page: Page): Promise<void> {
   await page.getByLabel("Feedback type (required)", { exact: true }).selectOption("idea");
-  await page.getByLabel("Summary (required)", { exact: true }).fill("Manual journey without WebMCP");
+  await page
+    .getByLabel("Summary (required)", { exact: true })
+    .fill("Manual journey without WebMCP");
   await page
     .getByLabel("What happened? (required)", { exact: true })
     .fill("The manual path works end to end.");
@@ -102,9 +104,7 @@ test("manual button completes the full journey to the inbox detail without WebMC
     .getByRole("button", { name: "Send feedback", exact: true })
     .click();
 
-  await expect(
-    page.getByRole("heading", { name: "Feedback received", exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Feedback received", exact: true })).toBeVisible();
   expect(collector.posts()).toBe(1);
 
   await page.getByRole("button", { name: "Close", exact: true }).click();
@@ -132,9 +132,7 @@ test("Filika.open keeps the manual path complete without WebMCP", async ({ page 
     .getByRole("button", { name: "Send feedback", exact: true })
     .click();
 
-  await expect(
-    page.getByRole("heading", { name: "Feedback received", exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Feedback received", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 

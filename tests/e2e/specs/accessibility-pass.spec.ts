@@ -79,11 +79,15 @@ test("review dialog associates labels, errors, and focus across edit and confirm
 
   await expect(page.locator("#filika-feedback-status")).toHaveAttribute("role", "status");
   await expect(page.locator("#filika-feedback-status")).toHaveAttribute("aria-live", "polite");
-  await expect(page.locator("#filika-feedback-status")).toContainText("Feedback review form ready.");
+  await expect(page.locator("#filika-feedback-status")).toContainText(
+    "Feedback review form ready.",
+  );
 
   await page.getByRole("button", { name: "Review submission" }).click();
   await expect(page.locator("#filika-feedback-errors")).toHaveAttribute("role", "alert");
-  await expect(page.locator("#filika-feedback-errors")).toContainText("Check the following fields:");
+  await expect(page.locator("#filika-feedback-errors")).toContainText(
+    "Check the following fields:",
+  );
   await expect(page.locator("#filika-kind")).toHaveAttribute("aria-invalid", "true");
   await expect(page.locator("#filika-title")).toHaveAttribute("aria-invalid", "true");
   await expect(page.locator("#filika-description")).toHaveAttribute("aria-invalid", "true");
@@ -210,9 +214,7 @@ test("receipt toast and inbox surfaces keep accessible roles and names", async (
     .getByRole("button", { name: "Send feedback", exact: true })
     .click();
 
-  await expect(
-    page.getByRole("heading", { name: "Feedback received", exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Feedback received", exact: true })).toBeVisible();
   await expect(page.getByRole("dialog")).toContainText(FEEDBACK_ID);
 
   const toast = page.locator(".filika-receipt-toast");

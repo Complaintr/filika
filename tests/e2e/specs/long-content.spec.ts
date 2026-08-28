@@ -6,7 +6,9 @@ const RECEIVED_AT = "2026-08-28T19:00:00.000Z";
 const LONG_TITLE = "t".repeat(160);
 const LONG_DESCRIPTION = "d".repeat(4000);
 const LONG_EXPECTED = "e".repeat(2000);
-const LONG_STEPS = Array.from({ length: 10 }, (_, index) => `${index}${"s".repeat(289)}`).join("\n");
+const LONG_STEPS = Array.from({ length: 10 }, (_, index) => `${index}${"s".repeat(289)}`).join(
+  "\n",
+);
 
 async function routeCollectorAndInbox(page: Page): Promise<void> {
   await page.route("http://localhost:8787/**", async (route) => {
@@ -121,9 +123,7 @@ test("long but valid report content stays readable through review, receipt, and 
     .getByRole("dialog")
     .getByRole("button", { name: "Send feedback", exact: true })
     .click();
-  await expect(
-    page.getByRole("heading", { name: "Feedback received", exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Feedback received", exact: true })).toBeVisible();
   await expect(page.locator(".filika-receipt-toast")).toContainText(FEEDBACK_ID);
   await expect(page.locator(".filika-receipt-toast")).not.toContainText(LONG_TITLE);
 

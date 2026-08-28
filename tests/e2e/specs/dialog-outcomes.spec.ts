@@ -215,7 +215,9 @@ test("not accepted surface follows a documented collector rejection and recovers
   expect(posts).toBe(2);
 });
 
-test("already received surface presents a duplicate receipt from the collector", async ({ page }) => {
+test("already received surface presents a duplicate receipt from the collector", async ({
+  page,
+}) => {
   await page.route(FEEDBACK_ENDPOINT, async (route) => {
     if (route.request().method() === "OPTIONS") {
       await fulfillPreflight(route);

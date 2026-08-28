@@ -39,8 +39,7 @@ async function openFixture(page: Page, fixture: string): Promise<void> {
       configurable: true,
       value: {
         registerTool(tool: BrowserTool, options: { signal: AbortSignal }) {
-          if (tools.has(tool.name))
-            throw new DOMException("Duplicate tool", "InvalidStateError");
+          if (tools.has(tool.name)) throw new DOMException("Duplicate tool", "InvalidStateError");
           tools.set(tool.name, tool);
           options.signal.addEventListener("abort", () => tools.delete(tool.name), {
             once: true,
