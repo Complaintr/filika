@@ -9,6 +9,15 @@ export const ERROR_CATEGORY_STATUS = {
   rate_limited: 429,
 } as const satisfies Record<FeedbackErrorCategory, number>;
 
-export function rejectionResponse(category: FeedbackErrorCategory): Response {
-  return Response.json({ error: { category } }, { status: ERROR_CATEGORY_STATUS[category] });
+export function rejectionResponse(
+  category: FeedbackErrorCategory,
+  headers?: HeadersInit,
+): Response {
+  const init: ResponseInit = { status: ERROR_CATEGORY_STATUS[category] };
+
+  if (headers !== undefined) {
+    init.headers = headers;
+  }
+
+  return Response.json({ error: { category } }, init);
 }

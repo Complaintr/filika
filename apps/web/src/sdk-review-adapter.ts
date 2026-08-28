@@ -191,7 +191,7 @@ function sdkOutcomeToDialogResult(outcome: SdkPublicOutcome): SdkExecutionResult
  * 2. Adapter catches event, calls `event.preventDefault()` to claim review
  * 3. Adapter opens the FeedbackDialog with the agent's draft
  * 4. User reviews, edits, and confirms
- * 5. Dialog transitions to "submitting" → adapter's submit callback fires
+ * 5. Dialog transitions to "submitting", then the adapter's submit callback fires
  * 6. Submit callback resolves the SDK review with `{ kind: "confirmed" }`
  * 7. SDK receives the confirmed decision and transmits to the collector
  * 8. SDK returns result; adapter maps it to an `SdkExecutionResult`

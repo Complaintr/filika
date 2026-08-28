@@ -28,6 +28,7 @@ describe("ReceiptToast", () => {
     expect(element.getAttribute("aria-live")).toBe("polite");
     expect(element.dataset.duplicate).toBe("false");
     expect(element.textContent).toContain("Feedback accepted");
+    expect(element.querySelector(".toast-dismiss-btn")?.textContent).toBe("Dismiss");
     expect(element.textContent).toContain("fb_test_12345678");
     expect(element.textContent).not.toContain("Title");
     expect(element.textContent).not.toContain("Description");

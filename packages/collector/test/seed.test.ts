@@ -4,6 +4,7 @@ import {
   DEMO_ALLOWED_ORIGINS,
   DEMO_PROJECT_DISPLAY_NAME,
   DEMO_PROJECT_KEY,
+  DEMO_RATE_LIMIT_MAX,
   DEMO_RETENTION_HOURS,
 } from "../src/db/seed";
 
@@ -15,6 +16,10 @@ describe("seed data", () => {
 
   test("uses the 24-hour retention window", () => {
     expect(DEMO_RETENTION_HOURS).toBe(24);
+  });
+
+  test("uses the default project rate limit", () => {
+    expect(DEMO_RATE_LIMIT_MAX).toBe(100);
   });
 
   test("allows the documented localhost origins", () => {

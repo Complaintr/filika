@@ -6,6 +6,7 @@ import { project } from "./schema";
 export const DEMO_PROJECT_KEY = "filika-demo" as const;
 export const DEMO_PROJECT_DISPLAY_NAME = "Filika Demo" as const;
 export const DEMO_RETENTION_HOURS = 24 as const;
+export const DEMO_RATE_LIMIT_MAX = 100 as const;
 export const DEMO_ALLOWED_ORIGINS = ["http://localhost:4173", "http://127.0.0.1:4173"] as const;
 
 export async function seedDemoProject(handle: DbHandle): Promise<boolean> {
@@ -22,6 +23,7 @@ export async function seedDemoProject(handle: DbHandle): Promise<boolean> {
         allowedOrigins: [...DEMO_ALLOWED_ORIGINS],
         displayName: DEMO_PROJECT_DISPLAY_NAME,
         projectKey: key,
+        rateLimitMax: DEMO_RATE_LIMIT_MAX,
         retentionHours: DEMO_RETENTION_HOURS,
       });
       seededAny = true;

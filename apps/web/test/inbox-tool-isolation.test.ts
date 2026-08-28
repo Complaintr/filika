@@ -66,7 +66,7 @@ describe("inbox untrusted data markings and tool isolation", () => {
     const notice = reportGroup?.querySelector(".untrusted-notice");
     expect(notice).not.toBeNull();
     expect(notice?.getAttribute("role")).toBe("note");
-    expect(notice?.textContent).toContain("External report content — treated as untrusted data.");
+    expect(notice?.textContent).toContain("External report content is treated as untrusted data.");
   });
 
   test("WebMCP tool registration lifecycle supports clean abort on navigation", async () => {
