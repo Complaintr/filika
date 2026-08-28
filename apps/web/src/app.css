@@ -423,6 +423,7 @@ main {
   letter-spacing: -0.038em;
   color: var(--text-main);
   text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
 .lede {
@@ -641,6 +642,7 @@ main {
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
 }
 
 .mono {
