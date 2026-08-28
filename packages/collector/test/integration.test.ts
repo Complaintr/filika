@@ -478,6 +478,31 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     expect(rejectedRows).toHaveLength(0);
   });
 
+  test("resets the rate-limit budget at the hour boundary", async () => {
+    const rateProject = await handle.db.query.project.findFirst({
+      where: eq(project.projectKey, "rate-limit-test"),
+    });
+
+    if (rateProject === undefined) {
+      throw new Error("Rate-limit project was not seeded.");
+    }
+
+    const hourOne = new Date("2030-01-01T18:30:00.000Z");
+    const hourTwo = new Date("2030-01-01T19:10:00.000Z");
+
+    const firstWindow = await Promise.all([
+      consumeProjectRateLimit(handle.db, rateProject.id, hourOne, 2),
+      consumeProjectRateLimit(handle.db, rateProject.id, hourOne, 2),
+      consumeProjectRateLimit(handle.db, rateProject.id, hourOne, 2),
+    ]);
+
+    expect(firstWindow.filter((result) => result.allowed)).toHaveLength(2);
+
+    const nextWindow = await consumeProjectRateLimit(handle.db, rateProject.id, hourTwo, 2);
+
+    expect(nextWindow.allowed).toBe(true);
+  });
+
   test("resolves concurrent duplicate retries to a single row", async () => {
     const eventId = "d1111111-0000-4000-8000-000000000001";
     const attempts = 8;
