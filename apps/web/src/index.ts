@@ -9,12 +9,6 @@ type WebMcpDocument = Document & {
   readonly modelContext?: ModelContext;
 };
 
-type FilikaWindow = Window & {
-  Filika?: {
-    open(): ReturnType<FeedbackDialog["open"]>;
-  };
-};
-
 const sampleFeedback: readonly InboxDetailViewModel[] = [
   {
     applicationRelease: "demo-2026.08",
@@ -130,10 +124,6 @@ function showInbox(): void {
 
 demoNavigation.addEventListener("click", showDemo);
 inboxNavigation.addEventListener("click", showInbox);
-
-(window as FilikaWindow).Filika = {
-  open: () => feedbackDialog.open({}, "manual"),
-};
 
 async function registerSampleTaskTool(): Promise<void> {
   const modelContext = (document as WebMcpDocument).modelContext;

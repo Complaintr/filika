@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bun build src/index.html --outdir dist --target browser",
-    "dev": "bun --port 4173 src/index.html",
+    "build": "bun run build.ts",
+    "dev": "bun run server.ts",
     "typecheck": "tsc --project tsconfig.json"
   },
   "dependencies": {
