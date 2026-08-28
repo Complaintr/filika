@@ -581,6 +581,50 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     expect(detail.status).toBe(200);
   });
 
+  test("cleanup is repeatable and preserves non-expired feedback", async () => {
+    const now = new Date();
+    const expired = new Date(now.getTime() - 25 * 3_600_000);
+
+    await handle.db.insert(feedback).values({
+      description: "repeat expired",
+      eventId: uuidFor(600),
+      kind: "bug",
+      origin: ALLOWED_ORIGIN,
+      projectId: demoProjectId,
+      receiptTimestamp: expired,
+      sdkVersion: "1.0.0",
+      source: "web_sdk_unverified",
+      title: "repeat expired",
+    });
+    await handle.db.insert(feedback).values({
+      description: "repeat fresh",
+      eventId: uuidFor(601),
+      kind: "bug",
+      origin: ALLOWED_ORIGIN,
+      projectId: demoProjectId,
+      receiptTimestamp: now,
+      sdkVersion: "1.0.0",
+      source: "web_sdk_unverified",
+      title: "repeat fresh",
+    });
+
+    const first = await runCleanup(handle.db, now);
+    const second = await runCleanup(handle.db, now);
+
+    expect(first.deletedFeedback).toBe(1);
+    expect(second.deletedFeedback).toBe(0);
+
+    const expiredRows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.title, "repeat expired"),
+    });
+    const freshRows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.title, "repeat fresh"),
+    });
+
+    expect(expiredRows).toHaveLength(0);
+    expect(freshRows).toHaveLength(1);
+  });
+
   test("resolves concurrent duplicate retries to a single row", async () => {
     const eventId = "d1111111-0000-4000-8000-000000000001";
     const attempts = 8;
