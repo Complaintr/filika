@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { tmpdir } from "node:os";
+import { join, sep } from "node:path";
+import { pathToFileURL } from "node:url";
 import { browserDatabaseCommand, browserDatabaseCwd } from "./database";
 
 describe("browser database command", () => {
@@ -10,10 +13,12 @@ describe("browser database command", () => {
     ]);
   });
 
-  test("converts the repository URL to a platform-native working directory", () => {
-    const cwd = browserDatabaseCwd(import.meta.url);
+  for (const name of ["candidate-check", "checkout with spaces"]) {
+    test(`resolves the repository directory independently of its name: ${name}`, () => {
+      const root = join(tmpdir(), name);
+      const moduleUrl = pathToFileURL(join(root, "tests", "e2e", "database.ts"));
 
-    expect(cwd).not.toMatch(/^\/[A-Za-z]:\//);
-    expect(cwd).toMatch(/[\\/]filika[\\/]?$/);
-  });
+      expect(browserDatabaseCwd(moduleUrl.href)).toBe(`${root}${sep}`);
+    });
+  }
 });
