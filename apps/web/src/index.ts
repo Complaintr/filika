@@ -1,5 +1,6 @@
 import { FeedbackDialog } from "./components/feedback-dialog";
 import { MaintainerInbox } from "./components/inbox";
+import { ReceiptToast } from "./components/receipt-toast";
 import type { InboxDetailViewModel, InboxListItemViewModel } from "./contracts/inbox-view-model";
 import { SampleApplication } from "./sample-app";
 import { createSampleTaskTool } from "./sample-task-tool";
@@ -56,7 +57,6 @@ function getRequiredElement<T extends HTMLElement>(id: string): T {
   return element as T;
 }
 
-
 const content = getRequiredElement<HTMLElement>("app-content");
 const dialogHost = getRequiredElement<HTMLElement>("filika-feedback-root");
 const demoNavigation = getRequiredElement<HTMLButtonElement>("nav-demo");
@@ -65,6 +65,8 @@ const webMcpStatus = getRequiredElement<HTMLElement>("webmcp-status");
 
 const COLLECTOR_ORIGIN = "http://localhost:8787";
 const PROJECT_KEY = "filika_demo";
+
+const receiptToast = new ReceiptToast(document.body);
 
 const collectorSubmit = createCollectorSubmit({
   collectorOrigin: COLLECTOR_ORIGIN,
@@ -80,7 +82,13 @@ const feedbackDialog = new FeedbackDialog(dialogHost, {
     projectName: "Filika local demo",
     retentionSummary: "Demo feedback is retained for up to 24 hours.",
   },
-  submit: collectorSubmit,
+  submit: async (draft, signal) => {
+    const result = await collectorSubmit(draft, signal);
+    if (result.outcome === "success" && result.receipt !== undefined) {
+      receiptToast.show(result.receipt);
+    }
+    return result;
+  },
 });
 
 const sampleApplication = new SampleApplication(content, { feedbackDialog });
@@ -126,7 +134,9 @@ inboxNavigation.addEventListener("click", showInbox);
 
 // Bridge SDK review events (from filika_submit_feedback tool invocation)
 // to the feedback dialog. The dialog handles review UI and submission.
-installReviewAdapter(document, feedbackDialog);
+installReviewAdapter(document, feedbackDialog, {
+  onReceipt: (receipt) => receiptToast.show(receipt),
+});
 
 async function registerSampleTaskTool(): Promise<void> {
   const modelContext = (document as WebMcpDocument).modelContext;
