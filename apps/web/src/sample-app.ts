@@ -1,4 +1,5 @@
 import { createManualFeedbackButton } from "./components/feedback-dialog";
+import { renderPrivacyNotice } from "./foundation/privacy-notice";
 import {
   INITIAL_SAMPLE_FAILURE_STATE,
   SAMPLE_FAILURE_VISIBLE_STATES,
@@ -89,7 +90,7 @@ export class SampleApplication {
     const grid = this.#document.createElement("div");
     grid.className = "demo-grid";
     grid.append(this.#renderNormalTask(), this.#renderFailureTask(), this.#renderFeedbackTask());
-    section.append(grid);
+    section.append(grid, renderPrivacyNotice(this.#document));
 
     this.#container.replaceChildren(section);
   }
