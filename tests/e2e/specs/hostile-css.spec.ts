@@ -10,6 +10,7 @@ declare global {
   interface Window {
     Filika: FilikaPublicApi;
     filikaTest: {
+      abort(): void;
       invoke(name: string, input: unknown): void;
       names(): string[];
       outcome: Promise<unknown> | null;
@@ -48,6 +49,7 @@ async function openFixture(page: Page, fixture: string): Promise<void> {
       },
     });
     window.filikaTest = {
+      abort: () => execution.abort(),
       invoke(name, input) {
         const tool = tools.get(name);
         if (!tool) throw new Error("Tool missing");
