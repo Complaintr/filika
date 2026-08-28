@@ -165,15 +165,17 @@ describe("P2-BE-15 collector api and database tests", () => {
     expect(first.status).toBe(200);
 
     const receipt = (await first.json()) as Record<string, unknown>;
-    const originalFeedbackId = receipt.feedbackId;
 
     const rows = await handle.db.query.feedback.findMany({
       where: eq(feedback.eventId, EVENT_ID),
     });
+    const stored = rows[0];
 
     expect(rows).toHaveLength(1);
     expect(receipt.duplicate).toBe(true);
-    expect(String(originalFeedbackId)).toMatch(
+    expect(receipt.feedbackId).toBe(stored?.id);
+    expect(receipt.receivedAt).toBe(stored?.receiptTimestamp.toISOString());
+    expect(String(receipt.feedbackId)).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     );
   });
