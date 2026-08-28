@@ -123,6 +123,7 @@ After testing, `docker stop filika-demo-db` discards the disposable container da
 
 ## Documentation
 
+- [WebMCP fit, evaluation method, and known limitations](docs/challenge.md)
 - [Local development](docs/development.md)
 - [Local demo setup and expected journey](docs/local-demo.md)
 - [Local WebMCP testing](docs/webmcp-local-testing.md)
