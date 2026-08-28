@@ -33,7 +33,7 @@ test("boots beside the read-only public SDK global", async () => {
     <div id="filika-feedback-root"></div>
   `;
 
-  const publicSdk = Object.freeze({ open: () => Promise.resolve() });
+  const publicSdk = Object.freeze({ open: () => Promise.resolve(), status: { state: "ready" } });
   Object.defineProperty(browserWindow, "Filika", {
     enumerable: true,
     value: publicSdk,

@@ -7,7 +7,7 @@ import {
   UNVERIFIED_SOURCE,
 } from "../src/foundation/field-trust";
 
-describe("P0-BE-05 field trust classification", () => {
+describe("field trust classification", () => {
   test("derives every server-owned field server-side", () => {
     expect(SERVER_DERIVED_FIELDS.map((field) => field.field)).toEqual([
       "requestOrigin",

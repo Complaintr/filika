@@ -2,12 +2,15 @@
 
 Playwright runs the local application on port 4173 and the real collector on
 port 8787 against an explicitly configured local `filika_e2e` PostgreSQL database.
-The five database-backed scenarios cover edited/confirmed persistence through the inbox read
-APIs, lost-response duplicate retry, cancel/abort, manual fallback, and review
-expiration. Four frontend scenarios additionally cover live inbox navigation,
-manual/cancel flows, duplicate retry, and hostile CSS with intercepted responses.
-The native dialog and SDK bundle are real; `document.modelContext`
-is a small test double, not certification of native Chrome WebMCP support.
+Database-backed scenarios cover reviewed persistence, duplicate retry,
+cancellation, manual fallback, and review expiration. Additional scenarios
+exercise inbox navigation and isolation, keyboard interaction, hostile CSS,
+registration failures, and requests made before confirmation.
+
+The native dialog and SDK bundle are real. Most tool invocation tests use a small
+`document.modelContext` double. A separate native Chromium test verifies
+`Permissions-Policy: tools=()`; see [SDK verification](../../docs/sdk-verification.md)
+for its compatibility requirements and skip behavior.
 
 Follow the [local demo guide](../../docs/local-demo.md#browser-verification) to
 install Chromium, set `E2E_DATABASE_URL`, and run:

@@ -1,4 +1,5 @@
-import { expect, test } from "bun:test";
+import { expect, spyOn, test } from "bun:test";
+import { withAbort } from "../src/abort";
 import { createExecution, type ReviewRequest } from "../src/execution";
 import type { RuntimeSession } from "../src/runtime";
 
@@ -11,6 +12,27 @@ const confirm = async (request: ReviewRequest) => ({
   kind: "confirmed",
   feedback: request.draft,
   context: request.context,
+});
+
+test("abort removes its listener even if an adapter never settles, and consumes late rejection", async () => {
+  const caller = new AbortController();
+  const removed = spyOn(caller.signal, "removeEventListener");
+  const started = Promise.withResolvers<void>();
+  const gate = Promise.withResolvers<void>();
+  try {
+    const pending = withAbort(caller.signal, () => {
+      started.resolve();
+      return gate.promise;
+    });
+    await started.promise;
+    caller.abort();
+    await expect(pending).rejects.toThrow("Operation stopped");
+    expect(removed).toHaveBeenCalledTimes(1);
+    gate.reject(new Error("Late private adapter failure"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  } finally {
+    removed.mockRestore();
+  }
 });
 
 test("review requires explicit confirmation and revalidation before transport", async () => {

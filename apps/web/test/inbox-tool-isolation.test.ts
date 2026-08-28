@@ -9,7 +9,7 @@ function setupDom() {
   return { document, window };
 }
 
-describe("P4-FE-07 inbox untrusted data markings and tool isolation", () => {
+describe("inbox untrusted data markings and tool isolation", () => {
   test("inbox list view has data-untrusted attribute set", () => {
     const { document } = setupDom();
     const section = renderInboxList(

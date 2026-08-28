@@ -8,7 +8,7 @@ import {
   transitionFeedback,
 } from "../src/foundation/data-lifecycle";
 
-describe("P0-BE-02 feedback data lifecycle", () => {
+describe("feedback data lifecycle", () => {
   test("orders the lifecycle states received to deleted", () => {
     expect(FEEDBACK_LIFECYCLE_STATES).toEqual([
       "received",

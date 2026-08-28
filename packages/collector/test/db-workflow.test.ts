@@ -8,7 +8,7 @@ import {
   TEST_ISOLATION,
 } from "../src/foundation/db-workflow";
 
-describe("P0-BE-03 local postgres workflow", () => {
+describe("local postgres workflow", () => {
   test("separates the development database from the test database", () => {
     expect(DB_WORKFLOW_DATABASES.map((database) => database.name)).toEqual([
       "filika",

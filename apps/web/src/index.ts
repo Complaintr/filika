@@ -39,6 +39,19 @@ const receiptToast = new ReceiptToast(document.body, {
 const inboxApi = new InboxApiService({ collectorOrigin: COLLECTOR_ORIGIN });
 
 const api = window.Filika;
+// Capture the same fixed script configuration once for explicit reinitialization
+// after leaving the isolated inbox. The public SDK validates it again at init.
+const sdkScript = document.getElementById("filika-sdk");
+const sdkConfig = {
+  projectKey: sdkScript?.getAttribute("data-project-key") ?? "",
+  endpoint: sdkScript?.getAttribute("data-endpoint") ?? "",
+  ...(sdkScript?.hasAttribute("data-route-label")
+    ? { routeLabel: sdkScript.getAttribute("data-route-label") ?? "" }
+    : {}),
+  ...(sdkScript?.hasAttribute("data-application-release")
+    ? { applicationRelease: sdkScript.getAttribute("data-application-release") ?? "" }
+    : {}),
+};
 const integration = connectSdkDialog(dialogHost, api, {
   onReceipt: (receipt) => receiptToast.show(receipt),
 });
@@ -47,16 +60,20 @@ const sampleApplication = new SampleApplication(content, {
   feedbackDialog: { open: () => api.open() },
 });
 
+let navigation = 0;
+
 async function loadInboxList(): Promise<void> {
+  const currentNavigation = ++navigation;
   inbox.showList({ status: "loading" });
   const state = await inboxApi.fetchList();
-  inbox.showList(state);
+  if (navigation === currentNavigation) inbox.showList(state);
 }
 
 async function loadInboxDetail(feedbackId: string): Promise<void> {
+  const currentNavigation = ++navigation;
   inbox.showDetail({ status: "loading" });
   const state = await inboxApi.fetchDetail(feedbackId);
-  inbox.showDetail(state);
+  if (navigation === currentNavigation) inbox.showDetail(state);
 }
 
 const inbox = new MaintainerInbox(content, {
@@ -102,6 +119,7 @@ async function activateDemoTools(): Promise<void> {
 }
 
 function deactivateDemoTools(): void {
+  api.dispose();
   if (demoToolController !== null) {
     demoToolController.abort();
     demoToolController = null;
@@ -114,6 +132,8 @@ function deactivateDemoTools(): void {
 }
 
 function showDemo(): void {
+  navigation++;
+  if (api.status.state === "disposed") void api.init(sdkConfig);
   demoNavigation.setAttribute("aria-current", "page");
   inboxNavigation.removeAttribute("aria-current");
   sampleApplication.render();

@@ -27,7 +27,6 @@ const draft = {
 };
 
 async function openDemo(page: Page, supported = true) {
-  await page.route("https://fonts.**/*", (route) => route.abort());
   await page.addInitScript((supported) => {
     type Tool = {
       name: string;
@@ -72,6 +71,76 @@ async function invokeFeedback(page: Page) {
   await page.evaluate((input) => window.filikaTest.invoke("filika_submit_feedback", input), draft);
   await expect(page.getByRole("dialog")).toBeVisible();
 }
+
+test("local demo makes no external requests before feedback confirmation", async ({ page }) => {
+  const external: string[] = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).origin !== "http://localhost:4173") external.push(request.url());
+  });
+  await openDemo(page);
+  await page.evaluate(() => document.fonts.ready);
+  await invokeFeedback(page);
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  expect(external).toEqual([]);
+});
+
+test("inbox removes all tools and returning to the demo restores feedback review", async ({
+  page,
+}) => {
+  await openDemo(page);
+  await expect
+    .poll(() => page.evaluate(() => window.filikaTest.names().sort()))
+    .toEqual(["filika_demo_save_draft", "filika_submit_feedback"]);
+  await page.getByRole("button", { name: "Inbox", exact: true }).click();
+  await expect.poll(() => page.evaluate(() => window.filikaTest.names())).toEqual([]);
+  expect(await page.evaluate(() => window.Filika.open())).toEqual({ code: "aborted" });
+  await page.getByRole("button", { name: "Demo", exact: true }).click();
+  await expect
+    .poll(() => page.evaluate(() => window.filikaTest.names().sort()))
+    .toEqual(["filika_demo_save_draft", "filika_submit_feedback"]);
+  await invokeFeedback(page);
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  expect(await page.evaluate(() => window.filikaTest.outcome)).toEqual({ code: "cancelled" });
+  await page.getByRole("button", { name: "Close", exact: true }).click();
+  await page.evaluate(() => {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      document.getElementById("nav-inbox")?.click();
+      document.getElementById("nav-demo")?.click();
+    }
+    document.getElementById("nav-inbox")?.click();
+  });
+  await expect.poll(() => page.evaluate(() => window.filikaTest.names())).toEqual([]);
+  expect(await page.evaluate(() => window.Filika.status.state)).toBe("disposed");
+});
+
+test("late inbox data cannot render after demo tools are reactivated", async ({ page }) => {
+  const started = Promise.withResolvers<void>();
+  const release = Promise.withResolvers<void>();
+  await page.route("http://localhost:8787/api/v1/inbox*", async (route) => {
+    started.resolve();
+    await release.promise;
+    await route.fulfill({
+      contentType: "application/json",
+      headers: {
+        "Access-Control-Allow-Origin": "http://localhost:4173",
+      },
+      body: JSON.stringify({ items: [], nextCursor: null }),
+    });
+  });
+  await openDemo(page);
+  await page.getByRole("button", { name: "Inbox", exact: true }).click();
+  await started.promise;
+  await page.getByRole("button", { name: "Demo", exact: true }).click();
+  const response = page.waitForResponse("http://localhost:8787/api/v1/inbox*");
+  release.resolve();
+  await (await response).finished();
+  await expect.poll(() => page.evaluate(() => window.Filika.status.state)).toBe("ready");
+  await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
+  await expect(
+    page.getByRole("heading", { name: "A small task with a useful failure." }),
+  ).toBeVisible();
+  await expect(page.locator('[data-view="inbox-list"]')).toHaveCount(0);
+});
 
 test("sample failure -> reviewed tool submission -> real persisted inbox record", async ({
   page,

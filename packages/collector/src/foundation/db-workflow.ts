@@ -28,8 +28,7 @@ export const DB_COMMANDS: readonly DbCommand[] = [
     name: "db:migrate",
   },
   {
-    behavior:
-      "Seed the challenge demo project, its allowed localhost origins, and the retention window.",
+    behavior: "Seed the demo project, its allowed localhost origins, and the retention window.",
     name: "db:seed",
   },
   {

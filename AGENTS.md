@@ -10,6 +10,7 @@ Repository areas:
 
 - `apps/web`: demo application and maintainer inbox.
 - `packages/sdk`: browser SDK and public protocol.
+- `packages/collector`: feedback API and PostgreSQL persistence.
 - `tests/e2e`: browser-level integration tests.
 
 ## Working Rules
@@ -20,7 +21,9 @@ Repository areas:
 - Keep changes focused on the requested behavior and preserve unrelated work.
 - Add or update tests in the same pull request as behavior changes.
 - Do not copy code, assets, prose, schemas, tests, or private history from
-  Complaintr or another non-permitted source.
+  another project without permission.
+- Keep private plans, task identifiers, staffing notes, and agent session logs
+  out of tracked files, commit messages, and pull request descriptions.
 - Do not add accounts, billing, analytics, an AI provider, deployment config, or
   new external services unless the task explicitly requires them.
 

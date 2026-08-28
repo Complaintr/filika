@@ -4,7 +4,7 @@ import { createDb, type DbHandle } from "./client";
 import { project } from "./schema";
 
 export const DEMO_PROJECT_KEY = "filika-demo" as const;
-export const DEMO_PROJECT_DISPLAY_NAME = "Filika Challenge Demo" as const;
+export const DEMO_PROJECT_DISPLAY_NAME = "Filika Demo" as const;
 export const DEMO_RETENTION_HOURS = 24 as const;
 export const DEMO_ALLOWED_ORIGINS = ["http://localhost:4173", "http://127.0.0.1:4173"] as const;
 

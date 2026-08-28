@@ -1,9 +1,9 @@
 # SDK Runtime Integration
 
-The Phase 2 SDK core implements script bootstrap, configuration validation,
+The browser SDK implements script bootstrap, configuration validation,
 WebMCP registration, review gating, transport, receipts, retry, and disposal.
-The native review dialog and manual button belong to the frontend track; they
-are not bundled here. Without a review adapter, execution fails with
+The native review dialog and manual button are provided by the application and
+are not bundled with the SDK. Without a review adapter, execution fails with
 `internal_error` and does not transmit. No collector server is started by the SDK.
 
 ## Script and manual API
@@ -79,12 +79,13 @@ required. A 201 response must have `duplicate: false`; a 200 response must have
 The collector's documented pre-persistence statuses 400, 403, 413, and 429 map to
 `collector_rejected` without forwarding their body text. HTTP 500, unexpected
 statuses, malformed receipts, stream errors, timeout, or abort after dispatch
-produce `outcome_unknown`. The SDK does not adopt older collector helper fields
-such as `receiptTimestamp`, `retentionHours`, or `source` in its receipt. Those
-helpers must be adapted to the V1 wire receipt during collector integration.
+produce `outcome_unknown`. Internal collector fields such as `receiptTimestamp`,
+`retentionHours`, or `source` are not part of the wire receipt.
 
 The collector currently has a 65,536-byte early body-size helper while the V1
 envelope limit is 32,768 bytes. The SDK enforces the stricter V1 limit. The
 collector's schema counts UTF-16 units for some fields; the SDK follows the
-frozen Unicode code-point contract. These collector alignment items remain
-backend integration work; the SDK does not widen its contract to match them.
+Unicode code-point contract. A report near a string limit that contains
+supplementary Unicode characters can therefore pass SDK validation and still be
+rejected by the collector. The SDK does not widen its contract to match these
+collector limits.

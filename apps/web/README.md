@@ -5,8 +5,8 @@ review dialog, and the read-only maintainer inbox.
 
 Frontend journey, state, wireframe, design-token, accessibility, sample-failure,
 and style-isolation foundations are defined in `src/foundation`.
-Frontend behavior contracts are defined in `src/contracts`. The Phase 2
-components consume those contracts. The sample app now connects the real SDK to
+Frontend behavior contracts are defined in `src/contracts` and consumed by the
+components. The sample app connects the SDK to
 the dialog and collector; receipt notifications open the exact record in the live inbox.
 See the [local demo guide](../../docs/local-demo.md) for database setup, collector
 startup, script attributes, and the exact end-to-end journey.

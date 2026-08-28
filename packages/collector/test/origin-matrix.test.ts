@@ -5,7 +5,7 @@ import { isOriginAllowed } from "../src/project";
 
 const ALLOWED = ["http://localhost:4173"];
 
-describe("P4-BE-01 origin matrix", () => {
+describe("origin matrix", () => {
   test("accepts an exact origin match", () => {
     const origin = parseOriginHeader("http://localhost:4173");
 

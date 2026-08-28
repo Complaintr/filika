@@ -14,7 +14,7 @@ import {
 } from "../src/db/schema";
 import { FEEDBACK_KINDS } from "../src/envelope";
 
-describe("P1-BE-02 drizzle tables", () => {
+describe("drizzle tables", () => {
   test("defines the project table with its columns", () => {
     const columns = getTableColumns(project);
 

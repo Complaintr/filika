@@ -102,7 +102,7 @@ export function renderInboxList(
     document,
     section,
     "p",
-    "Read-only reports accepted during the 24-hour demo retention window.",
+    "Public, read-only demo reports. Records older than 24 hours remain until a maintainer runs cleanup.",
     "lede",
   );
 

@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { CLEANUP_COMMAND_NAME, cleanupDeadline } from "../src/db/cleanup";
 import { FEEDBACK_RETENTION_HOURS } from "../src/foundation/data-lifecycle";
 
-describe("P2-BE-13 retention cleanup command", () => {
+describe("retention cleanup command", () => {
   test("deletes feedback older than the 24-hour window", () => {
     const now = new Date("2026-08-27T18:00:00.000Z");
 

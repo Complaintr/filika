@@ -5,7 +5,7 @@ import { LOG_RETENTION_POLICY } from "../src/db/cleanup";
 import { FEEDBACK_RETENTION_HOURS, RETENTION_POLICY } from "../src/foundation/data-lifecycle";
 import { RATE_LIMIT_WINDOW_HOURS, windowExpiresAt } from "../src/rate-limiting";
 
-describe("P4-BE-07 retention expiry policy", () => {
+describe("retention expiry policy", () => {
   test("expires feedback after 24 hours", () => {
     expect(FEEDBACK_RETENTION_HOURS).toBe(24);
     expect(RETENTION_POLICY.feedbackHours).toBe(24);

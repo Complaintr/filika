@@ -4,7 +4,7 @@ import { checkIdempotency, readEventId } from "../src/idempotency";
 
 const EVENT_ID = "7f5e9c2a-9d4e-4b1c-a1f3-2b6c8d0e1a4b";
 
-describe("P2-BE-07 idempotency key", () => {
+describe("idempotency key", () => {
   test("reads the event id from a parsed body object", () => {
     expect(readEventId({ eventId: EVENT_ID })).toBe(EVENT_ID);
   });

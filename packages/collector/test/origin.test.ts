@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { checkOrigin, parseOriginHeader } from "../src/origin";
 
-describe("P2-BE-04 origin validation", () => {
+describe("origin validation", () => {
   test("accepts a well-formed http origin", () => {
     expect(parseOriginHeader("http://localhost:4173")).toBe("http://localhost:4173");
   });

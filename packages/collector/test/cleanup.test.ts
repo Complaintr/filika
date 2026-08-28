@@ -11,7 +11,7 @@ import {
 
 const NOW = new Date("2026-08-27T18:00:00.000Z");
 
-describe("P1-BE-07 retention cleanup contract", () => {
+describe("retention cleanup contract", () => {
   test("removes feedback after the 24-hour retention window", () => {
     const withinWindow = new Date(NOW.getTime() - 23 * 60 * 60 * 1000);
     const expired = new Date(NOW.getTime() - 25 * 60 * 60 * 1000);

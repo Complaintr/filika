@@ -16,7 +16,7 @@ const BASE = {
   schemaVersion: 1,
 };
 
-describe("P4-BE-04 body-supplied server claims", () => {
+describe("body-supplied server claims", () => {
   test("rejects every top-level body-supplied server claim", () => {
     for (const field of [
       "origin",

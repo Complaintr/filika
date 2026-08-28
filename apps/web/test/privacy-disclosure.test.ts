@@ -9,7 +9,7 @@ function setupDom() {
   return { document, window };
 }
 
-describe("P4-FE-08 privacy disclosure and data classification", () => {
+describe("privacy disclosure and data classification", () => {
   test("privacy disclosure defines accurate collected, optional, excluded, and retained categories", () => {
     const { collected, excluded, optional, retained } = FILIKA_PRIVACY_DISCLOSURE;
 
@@ -23,7 +23,7 @@ describe("P4-FE-08 privacy disclosure and data classification", () => {
     expect(optional.items.some((i) => i.includes("route label"))).toBe(true);
     expect(optional.items.some((i) => i.includes("application release"))).toBe(true);
 
-    expect(excluded.title).toContain("Excluded");
+    expect(excluded.title).toContain("not collected automatically");
     expect(excluded.items.some((i) => i.includes("Passwords") || i.includes("credentials"))).toBe(
       true,
     );
@@ -53,7 +53,17 @@ describe("P4-FE-08 privacy disclosure and data classification", () => {
     const cardHeadings = Array.from(cards).map((c) => c.querySelector("h3")?.textContent);
     expect(cardHeadings).toContain("Collected data");
     expect(cardHeadings).toContain("Optional data");
-    expect(cardHeadings).toContain("Excluded data (never collected)");
+    expect(cardHeadings).toContain("Data not collected automatically");
     expect(cardHeadings).toContain("Retained data and cleanup");
+  });
+
+  test("privacy copy describes manual cleanup, public access, and user-supplied secrets honestly", () => {
+    const { document } = setupDom();
+    const text = renderPrivacyNotice(document).textContent ?? "";
+    expect(text).toContain("bun run db:cleanup");
+    expect(text).toContain("No automatic cleanup scheduler");
+    expect(text).toContain("public inbox until cleanup runs");
+    expect(text).toContain("Do not include secrets or personal data");
+    expect(text).not.toMatch(/maximum of 24|automated purge|never collected|Strictly blocked/i);
   });
 });

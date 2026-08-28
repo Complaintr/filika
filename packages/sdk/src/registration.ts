@@ -31,6 +31,8 @@ export async function registerFeedbackTool(
   try {
     if (controller.signal.aborted) return { state: "disposed" };
     const detected = detectModelContext(document);
+    // A native getter may synchronously trigger disposal during detection.
+    if (controller.signal.aborted) return { state: "disposed" };
     if (detected.state === "unsupported_browser") return detected;
     if (detected.state === "registration_rejected") throw detected.error;
     const aborted = new Promise<never>((_, reject) => {

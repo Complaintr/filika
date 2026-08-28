@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { allowOriginHeaders } from "../src/cors";
 import { decodeCursor, encodeCursor } from "../src/inbox";
 
-describe("P2-BE-12 inbox queries", () => {
+describe("inbox queries", () => {
   test("encodes and decodes a composite cursor", () => {
     const cursor = encodeCursor("2026-08-27T18:00:00.000Z", "9f8e7d6c-5b4a-4321-9876-123456789abc");
 

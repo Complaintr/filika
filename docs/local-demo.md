@@ -106,7 +106,13 @@ Use synthetic data only. Reviewed feedback, SDK version, and any remaining stati
 host labels are submitted. The collector derives the request origin, receipt
 identity/time, and unverified source. No page content, screenshots, browsing
 history, or credentials are collected by the feedback flow. The existing
-privacy-link destination is still a frontend placeholder.
+privacy link opens the demo's data-handling notice. The page uses local/system
+font fallbacks without fetching external fonts. Reports are public and remain
+stored and accessible until a maintainer runs cleanup after the 24-hour threshold.
+
+Opening the inbox disposes both demo tools and the feedback SDK registration.
+Returning to the demo reinitializes the SDK using the captured public script
+configuration. Late inbox responses cannot render after demo tools reactivate.
 
 ## Browser verification
 
@@ -127,14 +133,15 @@ seeds it. Run it before each repeated suite to clear test records and rate limit
 `E2E_DATABASE_URL` must name that database on a loopback host without query
 parameters. It never falls back to `DATABASE_URL`.
 
-The five database-backed tests cover confirmed persistence, explicit duplicate retry after a
+Database-backed tests cover confirmed persistence, explicit duplicate retry after a
 lost response, cancel/abort without transmission, manual fallback, and review
 expiration. Only `document.modelContext` is replaced by a small test double;
 the retry test additionally drops one real collector response after persistence.
-Four additional frontend browser tests cover receipt-to-inbox navigation,
-manual/cancel flows, duplicate retry, and hostile CSS using intercepted collector
-responses. Both suites run with the same managed local servers. These tests do
-not certify native Chrome WebMCP or agent tool selection.
+Additional browser tests cover receipt-to-inbox navigation, tool isolation,
+keyboard interaction, and hostile CSS. Registration tests cover bounded failures
+and native `Permissions-Policy: tools=()` enforcement. The suites use the same
+managed local servers. Native policy enforcement does not certify native tool
+execution or agent selection; see [SDK verification](sdk-verification.md).
 
 CI installs Chromium and system dependencies, migrates/seeds a fresh PostgreSQL
 service database, runs the suite, and runs retention cleanup even after failure.

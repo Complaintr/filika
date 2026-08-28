@@ -39,7 +39,7 @@ function contrastRatio(hex1: string, hex2: string): number {
   return (brightest + 0.05) / (darkest + 0.05);
 }
 
-describe("P4-FE-03 visible focus and contrast in every UI state", () => {
+describe("visible focus and contrast in every UI state", () => {
   test("light theme design tokens meet WCAG AA contrast standards (>= 4.5:1)", () => {
     const surface = FILIKA_DESIGN_TOKENS.color.surface; // #ffffff
     const text = FILIKA_DESIGN_TOKENS.color.text; // #123330

@@ -1,8 +1,14 @@
 import { expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import { runInNewContext } from "node:vm";
 import { build } from "esbuild";
-import { bundleSdk, SDK_BUILD_OPTIONS } from "../build";
-import { version } from "../src";
+import { assertSdkInputs, bundleSdk, SDK_BUILD_OPTIONS } from "../build";
+import {
+  FEEDBACK_TOOL,
+  type FilikaExecutionOutcome,
+  type FilikaModelContextTool,
+  version,
+} from "../src";
 
 test("builds one standalone classic script with a Filika global and no external imports", async () => {
   const result = await build({ ...SDK_BUILD_OPTIONS, write: false, metafile: true });
@@ -41,6 +47,37 @@ test("minified bundle and metadata are deterministic without absolute paths or t
   expect(first.code.byteLength).toBeLessThan(unminified.outputFiles?.[0]?.contents.byteLength ?? 0);
 });
 
+test("both bundle modes emit reproducible SRI matching the exact bytes", async () => {
+  const integrities: string[] = [];
+  for (const development of [false, true]) {
+    const first = await bundleSdk(development);
+    const second = await bundleSdk(development);
+    const expected = `sha384-${createHash("sha384").update(first.code).digest("base64")}`;
+    expect(first.metadata.integrity).toBe(expected);
+    expect(first.metadata).toEqual(second.metadata);
+    expect(first.code).toEqual(second.code);
+    const changed = new Uint8Array(first.code);
+    changed[0] = (changed[0] ?? 0) ^ 1;
+    expect(`sha384-${createHash("sha384").update(changed).digest("base64")}`).not.toBe(expected);
+    integrities.push(expected);
+  }
+  expect(integrities[0]).not.toBe(integrities[1]);
+});
+
+test("dependency audit rejects third-party, workspace, and runtime-shim bundle inputs", () => {
+  expect(() => assertSdkInputs(["src/browser.ts", "src/abort.ts", "package.json"])).not.toThrow();
+  for (const input of [
+    "../../node_modules/zod/index.js",
+    "node_modules/ajv/index.js",
+    "../collector/src/index.ts",
+    "../../apps/web/src/index.ts",
+    "src/../../private.ts",
+    "/absolute/path.ts",
+    "<runtime-shim>",
+  ])
+    expect(() => assertSdkInputs(["src/browser.ts", input])).toThrow("only SDK source");
+});
+
 test("production global cannot enable HTTP; development bundle accepts only loopback", async () => {
   for (const development of [false, true]) {
     const bundle = await bundleSdk(development);
@@ -65,5 +102,39 @@ test("production global cannot enable HTTP; development bundle accepts only loop
       context,
     );
     expect(denied.code).toBe("invalid_configuration");
+  }
+});
+
+test("both shipped bundles register exactly the frozen V1 tool contract", async () => {
+  for (const development of [false, true]) {
+    const registered: FilikaModelContextTool<FilikaExecutionOutcome>[] = [];
+    const context = {
+      URL,
+      AbortController,
+      AbortSignal,
+      setTimeout,
+      clearTimeout,
+      structuredClone,
+      document: {
+        modelContext: {
+          registerTool(tool: FilikaModelContextTool<FilikaExecutionOutcome>) {
+            registered.push(tool);
+          },
+        },
+      },
+    };
+    const bundle = await bundleSdk(development);
+    runInNewContext(new TextDecoder().decode(bundle.code), context);
+    await runInNewContext(
+      'Filika.init({projectKey:"demo",endpoint:"https://collector.example/api/v1/feedback"})',
+      context,
+    );
+    expect(registered).toHaveLength(1);
+    const tool = registered[0];
+    if (!tool) throw new Error("Expected registered tool");
+    const { execute, ...metadata } = tool;
+    expect(typeof execute).toBe("function");
+    expect(JSON.parse(JSON.stringify(metadata))).toEqual(FEEDBACK_TOOL);
+    runInNewContext("Filika.dispose()", context);
   }
 });

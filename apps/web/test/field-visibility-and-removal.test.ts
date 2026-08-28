@@ -19,7 +19,7 @@ function dispatchInput(document: Document, element: HTMLElement) {
   element.dispatchEvent(new view.Event("input", { bubbles: true }));
 }
 
-describe("P4-FE-05 field visibility, editing, and removal before submission", () => {
+describe("field visibility, editing, and removal before submission", () => {
   test("all authored and host fields are visible and editable/removable in editing view", () => {
     const { host } = setupDom();
     const dialog = new FeedbackDialog(host, {

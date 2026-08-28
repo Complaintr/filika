@@ -16,6 +16,7 @@ export const FILIKA_PRIVACY_DISCLOSURE: PrivacyDisclosure = {
     items: [
       "Feedback report content: kind, title, and description.",
       "SDK version from fixed client configuration.",
+      "Project key, protocol version, and a generated event ID for duplicate detection.",
       "Server-derived request facts: request origin, received timestamp, and feedback ID.",
       "Source label identifying unverified web SDK submissions.",
     ],
@@ -29,9 +30,9 @@ export const FILIKA_PRIVACY_DISCLOSURE: PrivacyDisclosure = {
     ],
   },
   excluded: {
-    title: "Excluded data (never collected)",
+    title: "Data not collected automatically",
     items: [
-      "Passwords, access tokens, API keys, or credentials.",
+      "Passwords, access tokens, API keys, or credentials are not read automatically. Do not include secrets or personal data in your report.",
       "Browser cookies, session storage, or local storage data.",
       "Browsing history, full DOM contents, or ambient page text.",
       "Screenshots, audio, video, or location information.",
@@ -40,8 +41,9 @@ export const FILIKA_PRIVACY_DISCLOSURE: PrivacyDisclosure = {
   retained: {
     title: "Retained data and cleanup",
     items: [
-      "Demo feedback is retained for a maximum of 24 hours.",
-      "Automated database cleanup purges expired records periodically.",
+      "Demo feedback becomes eligible for deletion after 24 hours.",
+      "A maintainer must run bun run db:cleanup to delete expired records. No automatic cleanup scheduler is configured.",
+      "Feedback remains stored and accessible through the public inbox until cleanup runs. Use synthetic data only.",
       "No permanent analytics or third-party tracking identifiers are stored.",
     ],
   },
@@ -67,14 +69,14 @@ export function renderPrivacyNotice(document: Document): HTMLElement {
   const lede = document.createElement("p");
   lede.className = "lede";
   lede.textContent =
-    "Filika operates on a strict zero-ambient-data policy. Every outgoing field is presented for your review before transmission.";
+    "Review the report and optional context before sending. The SDK does not capture ambient page data. Reports in this demo are public; use synthetic data only.";
 
   const trustBadges = document.createElement("div");
   trustBadges.className = "privacy-trust-badges";
   const badges = [
     "Zero ambient telemetry",
     "Explicit user review",
-    "24h automated purge",
+    "Cleanup after 24h",
     "No cookies or DOM capture",
   ];
   for (const label of badges) {
@@ -97,8 +99,8 @@ export function renderPrivacyNotice(document: Document): HTMLElement {
   }> = [
     { key: "collected", category: FILIKA_PRIVACY_DISCLOSURE.collected, tag: "Report payload" },
     { key: "optional", category: FILIKA_PRIVACY_DISCLOSURE.optional, tag: "User editable" },
-    { key: "excluded", category: FILIKA_PRIVACY_DISCLOSURE.excluded, tag: "Strictly blocked" },
-    { key: "retained", category: FILIKA_PRIVACY_DISCLOSURE.retained, tag: "Auto-purged" },
+    { key: "excluded", category: FILIKA_PRIVACY_DISCLOSURE.excluded, tag: "No automatic capture" },
+    { key: "retained", category: FILIKA_PRIVACY_DISCLOSURE.retained, tag: "Maintainer cleanup" },
   ];
 
   for (const { key, category, tag } of categories) {

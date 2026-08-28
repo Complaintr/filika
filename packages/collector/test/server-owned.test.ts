@@ -13,7 +13,7 @@ import {
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-describe("P2-BE-08 server-owned values", () => {
+describe("server-owned values", () => {
   test("derives the request origin from the header only", () => {
     expect(deriveOrigin("https://demo.example")).toBe("https://demo.example");
     expect(deriveOrigin(null)).toBeNull();

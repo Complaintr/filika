@@ -24,7 +24,7 @@ function assertLogSafe(event: IngestLogEvent): void {
   }
 }
 
-describe("P2-BE-14 structured validation logging", () => {
+describe("structured validation logging", () => {
   test("records a rejected outcome without report content", () => {
     const event: IngestLogEvent = {
       category: "denied_origin",

@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { ERROR_CATEGORY_STATUS, rejectionResponse } from "../src/errors";
 
-describe("P2-BE-04 rejection responses", () => {
+describe("rejection responses", () => {
   test("maps every error category to a bounded status", () => {
     expect(ERROR_CATEGORY_STATUS.invalid_input).toBe(400);
     expect(ERROR_CATEGORY_STATUS.denied_origin).toBe(403);

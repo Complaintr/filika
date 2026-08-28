@@ -26,7 +26,7 @@ const VALID_ENVELOPE = {
   },
 };
 
-describe("P1-BE-01 v1 feedback envelope schema", () => {
+describe("v1 feedback envelope schema", () => {
   test("accepts a complete valid envelope", () => {
     const result = FILIKA_FEEDBACK_ENVELOPE_V1.safeParse(VALID_ENVELOPE);
 

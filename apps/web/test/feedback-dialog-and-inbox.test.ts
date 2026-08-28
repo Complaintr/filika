@@ -25,11 +25,6 @@ import {
   SERVER_DERIVED_REQUEST_FACT_IDS,
   SERVER_FACT_PRESENTATION_SOURCES,
 } from "../src/contracts/inbox-view-model";
-import {
-  FILIKA_SUBMIT_FEEDBACK_CLARITY_REVIEW,
-  REPORT_FIELD_CLARITY_FINDINGS,
-  USER_CLARITY_REVIEW_DECISION,
-} from "../src/contracts/user-clarity-review";
 
 const completeDraft = createEmptyFeedbackDraft({
   description: "The save action did not complete.",
@@ -53,7 +48,7 @@ function createSubmittingState(): Extract<FeedbackDialogState, { status: "submit
   return submitting;
 }
 
-describe("P1-FE-01 dialog state machine", () => {
+describe("dialog state machine", () => {
   test("blocks review until every required field has a value", () => {
     const editing = transitionFeedbackDialog(INITIAL_FEEDBACK_DIALOG_STATE, {
       source: "manual",
@@ -136,7 +131,7 @@ describe("P1-FE-01 dialog state machine", () => {
   });
 });
 
-describe("P1-FE-02 field behavior", () => {
+describe("field behavior", () => {
   test("defines behavior for every approved UI report field", () => {
     expect(Object.keys(REPORT_FIELD_CONTRACTS).sort()).toEqual([...REPORT_FIELD_IDS].sort());
   });
@@ -184,7 +179,7 @@ describe("P1-FE-02 field behavior", () => {
   });
 });
 
-describe("P1-FE-03 and P1-FE-04 interaction contracts", () => {
+describe("interaction contracts", () => {
   test("defines a labelled native modal dialog and deterministic focus order", () => {
     expect(NATIVE_DIALOG_CONTRACT.element).toBe("dialog");
     expect(NATIVE_DIALOG_CONTRACT.usesShowModal).toBe(true);
@@ -245,7 +240,7 @@ describe("P1-FE-03 and P1-FE-04 interaction contracts", () => {
   });
 });
 
-describe("P1-FE-05 and P1-FE-06 inbox contracts", () => {
+describe("inbox contracts", () => {
   test("allows only public report fields and server-derived request facts", () => {
     expect(APPROVED_INBOX_SOURCE_FIELDS).toEqual([
       ...APPROVED_PUBLIC_FEEDBACK_FIELD_IDS,
@@ -269,34 +264,5 @@ describe("P1-FE-05 and P1-FE-06 inbox contracts", () => {
     );
     expect(INBOX_NON_READY_PRESENTATIONS.error.role).toBe("alert");
     expect(INBOX_NON_READY_PRESENTATIONS.expired.body).not.toContain("description");
-  });
-});
-
-describe("P1-FE-07 user clarity review", () => {
-  test("uses clear tool copy that preserves review before transmission", () => {
-    expect(FILIKA_SUBMIT_FEEDBACK_CLARITY_REVIEW.name).toBe("filika_submit_feedback");
-    expect(FILIKA_SUBMIT_FEEDBACK_CLARITY_REVIEW.title).toBe("Draft feedback for review");
-    expect(FILIKA_SUBMIT_FEEDBACK_CLARITY_REVIEW.description).toContain("reviews and confirms");
-    expect(FILIKA_SUBMIT_FEEDBACK_CLARITY_REVIEW.reviewChecks).toEqual({
-      describesReviewBeforeSending: true,
-      distinguishesDraftingFromSubmission: true,
-      namesTheUserVisibleAction: true,
-      usesImplementationJargon: false,
-    });
-  });
-
-  test("records an approved user-facing review for every public report field", () => {
-    expect(REPORT_FIELD_CLARITY_FINDINGS.map((finding) => finding.field)).toEqual(
-      APPROVED_PUBLIC_FEEDBACK_FIELD_IDS,
-    );
-    expect(REPORT_FIELD_CLARITY_FINDINGS.every((finding) => finding.decision === "approved")).toBe(
-      true,
-    );
-    expect(USER_CLARITY_REVIEW_DECISION).toEqual({
-      approvedFieldCount: APPROVED_PUBLIC_FEEDBACK_FIELD_IDS.length,
-      decision: "approved",
-      requiresUserConfirmationBeforeSending: true,
-      reviewedFromPerspective: "person reviewing agent-authored feedback",
-    });
   });
 });

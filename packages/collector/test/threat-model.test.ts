@@ -2,13 +2,13 @@ import { describe, expect, test } from "bun:test";
 
 import { THREAT_IDS, THREATS, TRUST_BOUNDARY_RULES } from "../src/foundation/threat-model";
 
-describe("P0-BE-01 threat model", () => {
+describe("threat model", () => {
   test("lists every baseline threat exactly once in a stable order", () => {
     expect(THREATS.map((threat) => threat.id)).toEqual(THREAT_IDS);
     expect(new Set(THREAT_IDS).size).toBe(THREAT_IDS.length);
   });
 
-  test("covers all threat areas named in the task", () => {
+  test("covers ingestion, content, and privacy threats", () => {
     const titles = THREATS.map((threat) => threat.title);
 
     expect(titles).toContain("Public ingestion abuse");
@@ -21,10 +21,13 @@ describe("P0-BE-01 threat model", () => {
     expect(titles).toContain("Rate-limit bypass");
   });
 
-  test("gives every threat at least one mitigation and one verification", () => {
+  test("links every threat to mitigations and existing verification tests", async () => {
     for (const threat of THREATS) {
       expect(threat.mitigations.length).toBeGreaterThan(0);
       expect(threat.verification.length).toBeGreaterThan(0);
+      for (const file of threat.verification) {
+        expect(await Bun.file(new URL(`../../../${file}`, import.meta.url)).exists()).toBe(true);
+      }
     }
   });
 

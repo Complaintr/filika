@@ -20,14 +20,26 @@ export function abortScope(signals: readonly AbortSignal[]) {
 export function withAbort<T>(signal: AbortSignal, operation: () => Promise<T>): Promise<T> {
   if (signal.aborted) return Promise.reject(new Error("Operation stopped"));
   return new Promise<T>((resolve, reject) => {
-    const stop = () => reject(new Error("Operation stopped"));
+    const cleanup = () => signal.removeEventListener("abort", stop);
+    const stop = () => {
+      cleanup();
+      reject(new Error("Operation stopped"));
+    };
     signal.addEventListener("abort", stop, { once: true });
     Promise.resolve()
       .then(() => {
         if (signal.aborted) throw new Error("Operation stopped");
         return operation();
       })
-      .then(resolve, reject)
-      .finally(() => signal.removeEventListener("abort", stop));
+      .then(
+        (value) => {
+          cleanup();
+          resolve(value);
+        },
+        (error: unknown) => {
+          cleanup();
+          reject(error);
+        },
+      );
   });
 }
