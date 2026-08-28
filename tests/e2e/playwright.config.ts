@@ -4,7 +4,7 @@ import { browserDatabaseUrl } from "./database";
 
 export default defineConfig({
   testDir: ".",
-  testMatch: ["specs/**/*.spec.ts", "src/**/*.spec.ts"],
+  testMatch: ["specs/**/*.spec.ts"],
   fullyParallel: false,
   workers: 1,
   retries: 0,

@@ -131,12 +131,12 @@ export function showSettings(
   collectorHeader.append(element("h2", "", "Collector connection"), icon("globe"));
   const info = element("div", "connection-info");
   info.append(
-    element("p", "", "Your workspace reads reports through the Filika web server."),
+    element("p", "", "Your workspace reads reports from the collector API on this server."),
     element("code", "endpoint", "/api/v1/inbox"),
     element(
       "p",
       "muted small",
-      "Set FILIKA_COLLECTOR_ORIGIN on the web server to change the upstream collector. The default is http://localhost:8787.",
+      "The collector runs in the same Next.js server. DATABASE_URL in .env points at PostgreSQL.",
     ),
   );
   const connectionStatus = element("p", "small muted", "Checking the collector…");

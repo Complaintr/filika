@@ -26,7 +26,7 @@ This starts PostgreSQL 16 on `localhost:55432` and stores data in a Docker volum
 Run `docker compose ps db` and wait for the status to show **healthy** before
 continuing. The database credentials are for local development only.
 
-### 2. Configure and start the API
+### 2. Configure the database
 
 Create your local environment file from the example:
 
@@ -40,20 +40,17 @@ database URL differs, edit `.env` first.
 ```sh
 bun run db:migrate
 bun run db:seed
-bun run dev:collector
 ```
 
-Leave this terminal running. The API listens on port **8787**.
-
 ### 3. Start the workspace
-
-In a second terminal:
 
 ```sh
 bun run dev
 ```
 
-Open [localhost:4173](http://localhost:4173). Restart this command after source
+Next.js serves both the workspace UI and the collector API on
+[localhost:4173](http://localhost:4173). The feedback endpoint, complaints inbox,
+and dashboard all live under `/api/v1/`. Restart this command after source
 changes; the development server does not hot reload.
 
 ## Your workspace
@@ -73,11 +70,11 @@ density in this browser's local storage. These preferences do not change collect
 projects, retention rules, or other browsers. The page also checks the collector
 connection and explains data boundaries.
 
-The web server forwards only the workspace's read endpoints to
-`FILIKA_COLLECTOR_ORIGIN` (default `http://localhost:8787`). Set this value in `.env`
-and restart the web server if your collector runs elsewhere. It must be an HTTP(S)
-origin, without credentials or a path. Browser requests stay on the web origin;
-no collector address is taken from report content or browser storage.
+The Next.js server serves the workspace UI and the collector API from the same
+origin (`localhost:4173`). The collector's ingest pipeline, origin allowlist, and
+rate limiting run in the API route handlers; `DATABASE_URL` in `.env` points at
+the local PostgreSQL database. Browser requests stay on the web origin; no
+collector address is taken from report content or browser storage.
 
 The demo page is no longer mounted. The workspace never loads or registers the
 feedback SDK or WebMCP tools. The SDK and its user-review dialog remain available
@@ -91,7 +88,7 @@ information. Retention is configured per project (24 hours for the local seed).
 Expired records remain in lists and aggregate counts until `bun run db:cleanup`
 removes them; their detail view displays an expiration notice.
 
-To stop, press `Ctrl+C` in both terminals and run `docker compose down`.
+To stop, press `Ctrl+C` in the terminal and run `docker compose down`.
 Database data is preserved. Use `docker compose down -v` only when you want to
 delete it as well.
 
