@@ -3,8 +3,8 @@ dist/
 apps/web/public/
 apps/web/src/filika.js
 coverage/
-playwright-report/
 test-results/
+playwright-report/
 *.tsbuildinfo
 .DS_Store
 filika-plan.md

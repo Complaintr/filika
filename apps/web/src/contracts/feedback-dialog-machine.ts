@@ -200,7 +200,10 @@ export function transitionFeedbackDialog(
     return { ...state, status: "editing" };
   }
 
-  if (state.status === "collector_rejected" && event.type === "EDIT") {
+  if (
+    (state.status === "collector_rejected" || state.status === "timeout") &&
+    event.type === "EDIT"
+  ) {
     return { ...state, issues: [], status: "editing" };
   }
 

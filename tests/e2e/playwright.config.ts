@@ -1,23 +1,29 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "@playwright/test";
+import { browserDatabaseUrl } from "./database";
 
 export default defineConfig({
-  expect: { timeout: 5_000 },
+  testDir: ".",
+  testMatch: ["specs/**/*.spec.ts", "src/**/*.spec.ts"],
   fullyParallel: false,
-  reporter: "line",
+  workers: 1,
   retries: 0,
-  testDir: "./src",
+  forbidOnly: Boolean(process.env.CI),
   timeout: 30_000,
-  use: {
-    baseURL: "http://localhost:4173",
-    channel: "chrome",
-    headless: true,
-    trace: "retain-on-failure",
-  },
-  webServer: {
-    command: "bun run dev:webmcp",
-    cwd: "../../",
-    reuseExistingServer: true,
-    timeout: 30_000,
-    url: "http://localhost:4173",
-  },
+  use: { baseURL: "http://localhost:4173", browserName: "chromium", trace: "retain-on-failure" },
+  webServer: [
+    {
+      command: "bun run dev:webmcp",
+      cwd: fileURLToPath(new URL("../..", import.meta.url)),
+      url: "http://localhost:4173",
+      reuseExistingServer: false,
+    },
+    {
+      command: "bun run dev:collector",
+      cwd: fileURLToPath(new URL("../..", import.meta.url)),
+      url: "http://localhost:8787/api/v1/inbox",
+      env: { DATABASE_URL: browserDatabaseUrl() },
+      reuseExistingServer: false,
+    },
+  ],
 });

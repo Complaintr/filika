@@ -58,9 +58,11 @@ bun run test:unit
 bun run build
 ```
 
-The browser command currently runs an explicit placeholder. It will be replaced
-when automated localhost Chrome testing is added:
+The browser command runs Playwright against the real SDK, dialog, and collector.
+Prepare a dedicated local `filika_e2e` database and install Chromium as described
+in the [local demo guide](local-demo.md), then run:
 
 ```sh
+bun run test:browser:prepare
 bun run test:browser
 ```

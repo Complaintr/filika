@@ -1,10 +1,9 @@
-import { FeedbackDialog } from "./components/feedback-dialog";
+import type { FilikaPublicApi } from "@filika/sdk";
 import { MaintainerInbox } from "./components/inbox";
 import { ReceiptToast } from "./components/receipt-toast";
 import { SampleApplication } from "./sample-app";
 import { createSampleTaskTool } from "./sample-task-tool";
-import { installReviewAdapter, type SdkPublicOutcome } from "./sdk-review-adapter";
-import { createCollectorSubmit } from "./services/collector-submit";
+import { connectSdkDialog } from "./sdk-dialog";
 import { InboxApiService } from "./services/inbox-api";
 import type { ModelContext } from "./webmcp-test-tool";
 
@@ -12,11 +11,11 @@ type WebMcpDocument = Document & {
   readonly modelContext?: ModelContext;
 };
 
-type SdkWindow = Window & {
-  readonly Filika?: {
-    open(): Promise<SdkPublicOutcome>;
-  };
-};
+declare global {
+  interface Window {
+    Filika: FilikaPublicApi;
+  }
+}
 
 function getRequiredElement<T extends HTMLElement>(id: string): T {
   const element = document.getElementById(id);
@@ -33,37 +32,20 @@ const inboxNavigation = getRequiredElement<HTMLButtonElement>("nav-inbox");
 const webMcpStatus = getRequiredElement<HTMLElement>("webmcp-status");
 
 const COLLECTOR_ORIGIN = "http://localhost:8787";
-const PROJECT_KEY = "filika_demo";
 
 const receiptToast = new ReceiptToast(document.body, {
   onViewInbox: (feedbackId) => showInbox(feedbackId),
 });
 const inboxApi = new InboxApiService({ collectorOrigin: COLLECTOR_ORIGIN });
 
-const collectorSubmit = createCollectorSubmit({
-  collectorOrigin: COLLECTOR_ORIGIN,
-  projectKey: PROJECT_KEY,
-  routeLabel: "Sample task",
-  applicationRelease: "demo-2026.08",
+const api = window.Filika;
+const integration = connectSdkDialog(dialogHost, api, {
+  onReceipt: (receipt) => receiptToast.show(receipt),
 });
-
-const feedbackDialog = new FeedbackDialog(dialogHost, {
-  identity: {
-    collectorOrigin: COLLECTOR_ORIGIN,
-    privacyUrl: "#privacy",
-    projectName: "Filika local demo",
-    retentionSummary: "Demo feedback is retained for up to 24 hours.",
-  },
-  submit: async (draft, signal) => {
-    const result = await collectorSubmit(draft, signal);
-    if (result.outcome === "success" && result.receipt !== undefined) {
-      receiptToast.show(result.receipt);
-    }
-    return result;
-  },
+window.addEventListener("pagehide", () => integration.dispose(), { once: true });
+const sampleApplication = new SampleApplication(content, {
+  feedbackDialog: { open: () => api.open() },
 });
-
-const sampleApplication = new SampleApplication(content, { feedbackDialog });
 
 async function loadInboxList(): Promise<void> {
   inbox.showList({ status: "loading" });
@@ -101,18 +83,6 @@ function showInbox(targetFeedbackId?: string): void {
 
 demoNavigation.addEventListener("click", () => showDemo());
 inboxNavigation.addEventListener("click", () => showInbox());
-
-// Bridge SDK review events (from filika_submit_feedback tool invocation)
-// to the feedback dialog. The dialog handles review UI and submission.
-installReviewAdapter(document, feedbackDialog, {
-  onReceipt: (receipt) => {
-    receiptToast.show(receipt);
-  },
-  retry: () => {
-    const sdk = (window as SdkWindow).Filika;
-    return sdk?.open() ?? Promise.resolve({ code: "internal_error" });
-  },
-});
 
 async function registerSampleTaskTool(): Promise<void> {
   const modelContext = (document as WebMcpDocument).modelContext;

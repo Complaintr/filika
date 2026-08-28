@@ -19,10 +19,6 @@ declare global {
   interface Window {
     __filikaExecution?: Promise<{ code: string; receipt?: BrowserReceipt }>;
     __filikaTools: Record<string, BrowserTool>;
-    Filika?: {
-      open(): Promise<{ code: string; receipt?: BrowserReceipt }>;
-      readonly status: { state: string };
-    };
   }
 }
 

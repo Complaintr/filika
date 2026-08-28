@@ -47,7 +47,11 @@ the user's action. Never confirm automatically or on behalf of the user.
 Decisions are closed objects. `feedback` is revalidated; context may only remove
 optional host labels, not change values or the SDK version. The request contains
 the draft (`null` for manual review), context, public project key, collector
-origin, and an AbortSignal. If a previous submission is uncertain, `request.retry`
+origin, and an AbortSignal. `request.abort()` stops that execution, and
+`request.outcome` resolves to its closed SDK result after lifecycle cleanup.
+These are in-process UI hooks, not additions to the frozen wire protocol.
+The demo adapter uses this promise to render the same outcome returned to the
+tool caller. If a previous submission is uncertain, `request.retry`
 also contains a detached copy of its approved report, context, and event ID for
 display. A retry sends the exact previously confirmed bytes and the same UUID;
 editing and confirming creates a new UUID. No storage, automatic retry, or page
@@ -57,7 +61,11 @@ The UI must close review and remove event handlers when the request signal
 aborts, including cancellation, the 120-second review deadline, and disposal.
 The SDK also settles if an adapter ignores abort. A `complete` call after abort
 has no effect. Frontend result presentation consumes the returned closed result;
-receipt messages must be static local copy, never collector text.
+receipt messages must be static local copy, never collector text. An abort after
+dispatch may mean the collector persisted the request, so the UI must wait for
+the SDK outcome rather than claiming that nothing was sent. Review expiration
+requires a new review/confirmation; only an uncertain, previously confirmed
+submission may use the immediate explicit Retry action.
 
 ## Collector boundary
 
@@ -68,7 +76,7 @@ Bodies are capped at 1,024 bytes and decoded as strict UTF-8. JSON content type 
 required. A 201 response must have `duplicate: false`; a 200 response must have
 `duplicate: true`. Both must match the exact [V1 receipt](sdk-contract.md).
 
-The collector's documented pre-persistence statuses 400, 403, and 413 map to
+The collector's documented pre-persistence statuses 400, 403, 413, and 429 map to
 `collector_rejected` without forwarding their body text. HTTP 500, unexpected
 statuses, malformed receipts, stream errors, timeout, or abort after dispatch
 produce `outcome_unknown`. The SDK does not adopt older collector helper fields

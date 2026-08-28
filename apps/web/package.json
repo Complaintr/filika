@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "copy-sdk": "bun scripts/copy-sdk.ts",
-    "build": "bun run --filter @filika/sdk build:development && bun build src/index.html --outdir dist --target browser && bun scripts/copy-sdk.ts",
-    "dev": "bun run --filter @filika/sdk build:development && bun dev-server.ts",
+    "build": "bun run build.ts",
+    "dev": "bun run server.ts",
     "typecheck": "tsc --project tsconfig.json"
   },
   "dependencies": {

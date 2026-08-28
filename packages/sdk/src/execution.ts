@@ -18,6 +18,9 @@ export interface ReviewRequest {
   readonly projectKey: string;
   readonly collectorOrigin: string;
   readonly signal: AbortSignal;
+  /** Internal UI bridge only; never serialized into tool metadata or wire data. */
+  readonly outcome: Promise<FilikaExecutionOutcome>;
+  abort(): void;
   readonly retry?: {
     readonly eventId: string;
     readonly feedback: FilikaFeedbackDraftV1;
@@ -42,9 +45,10 @@ export interface ExecutionDependencies {
 export function createExecution(dependencies: ExecutionDependencies) {
   let active: object | null = null;
   let retained: { session: RuntimeSession; submission: PreparedSubmission } | null = null;
-  async function execute(
+  async function run(
     session: RuntimeSession,
     input: unknown,
+    finalOutcome: Promise<FilikaExecutionOutcome>,
     callerSignal?: AbortSignal,
   ): Promise<FilikaExecutionOutcome> {
     if (session.signal.aborted || callerSignal?.aborted) return { code: "aborted" };
@@ -79,6 +83,8 @@ export function createExecution(dependencies: ExecutionDependencies) {
           projectKey: session.config.projectKey,
           collectorOrigin: new URL(session.config.endpoint).origin,
           signal: scope.controller.signal,
+          outcome: finalOutcome,
+          abort: () => scope.controller.abort(),
           ...(retry && retryEnvelope
             ? {
                 retry: {
@@ -133,7 +139,15 @@ export function createExecution(dependencies: ExecutionDependencies) {
     }
   }
   return {
-    execute,
+    async execute(session: RuntimeSession, input: unknown, signal?: AbortSignal) {
+      let settle: (value: FilikaExecutionOutcome) => void = () => {};
+      const outcome = new Promise<FilikaExecutionOutcome>((resolve) => {
+        settle = resolve;
+      });
+      const result = await run(session, input, outcome, signal);
+      settle(result);
+      return result;
+    },
     clear() {
       active = null;
       retained = null;

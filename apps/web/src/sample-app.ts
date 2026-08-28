@@ -1,4 +1,4 @@
-import { createManualFeedbackButton, type FeedbackDialog } from "./components/feedback-dialog";
+import { createManualFeedbackButton } from "./components/feedback-dialog";
 import {
   INITIAL_SAMPLE_FAILURE_STATE,
   SAMPLE_FAILURE_VISIBLE_STATES,
@@ -7,7 +7,7 @@ import {
 } from "./foundation/sample-failure";
 
 export interface SampleApplicationOptions {
-  feedbackDialog: FeedbackDialog;
+  feedbackDialog: { open(): Promise<unknown> };
   onFailureStateChange?(state: SampleFailureState): void;
 }
 
@@ -108,13 +108,7 @@ export class SampleApplication {
     );
     card.append(
       createManualFeedbackButton(this.#document, () => {
-        void this.#options.feedbackDialog.open(
-          {
-            applicationRelease: "demo-2026.08",
-            routeLabel: "Sample task",
-          },
-          "manual",
-        );
+        void this.#options.feedbackDialog.open();
       }),
     );
     return card;

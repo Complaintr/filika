@@ -231,7 +231,7 @@ describe("feedback-dialog-flows", () => {
     expect(dialog.state.status).toBe("closed");
   });
 
-  test("retries across timeout, internal_error, and outcome_unknown states", async () => {
+  test("requires fresh confirmation after timeout and retries uncertain outcomes", async () => {
     const document = createDocument();
     let attempt = 0;
 
@@ -264,14 +264,17 @@ describe("feedback-dialog-flows", () => {
     clickButton(shadow, "filika-confirm");
     await Promise.resolve();
 
-    expect(shadow?.getElementById("filika-feedback-title")?.textContent).toBe(
-      "Submission timed out",
-    );
+    expect(shadow?.getElementById("filika-feedback-title")?.textContent).toBe("Review timed out");
     const retryBtn1 = shadow?.getElementById("filika-outcome-primary") as HTMLButtonElement;
-    expect(retryBtn1.textContent).toBe("Retry");
+    expect(retryBtn1.textContent).toBe("Edit report");
 
-    // Retry attempt 2 -> internal_error
+    // Review expiration must not bypass a new confirmation.
     retryBtn1.click();
+    expect(dialog.state.status).toBe("editing");
+    expect(attempt).toBe(1);
+    clickButton(shadow, "filika-review");
+    expect(attempt).toBe(1);
+    clickButton(shadow, "filika-confirm");
     await Promise.resolve();
     expect(shadow?.getElementById("filika-feedback-title")?.textContent).toBe(
       "Something went wrong",
