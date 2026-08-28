@@ -116,3 +116,34 @@ test("manual button completes the full journey to the inbox detail without WebMC
   await expect(page.locator('[data-view="inbox-detail"]')).toContainText(FEEDBACK_ID);
   await expect(page.getByRole("heading", { name: "Report content" })).toBeVisible();
 });
+
+test("Filika.open keeps the manual path complete without WebMCP", async ({ page }) => {
+  const collector = await routeCollectorAndInbox(page);
+
+  await page.goto("/");
+  await waitForUnsupported(page);
+
+  const outcome = page.evaluate(() => window.Filika.open());
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await fillManualReport(page);
+  await page.getByRole("button", { name: "Review submission" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Send feedback", exact: true })
+    .click();
+
+  await expect(
+    page.getByRole("heading", { name: "Feedback received", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+
+  expect(collector.posts()).toBe(1);
+  expect(await outcome).toEqual({
+    code: "success",
+    receipt: expect.objectContaining({ duplicate: false, feedbackId: FEEDBACK_ID }),
+  });
+  await expect(page.locator("#webmcp-status")).toContainText(
+    "WebMCP unavailable. Manual feedback is ready.",
+  );
+});
