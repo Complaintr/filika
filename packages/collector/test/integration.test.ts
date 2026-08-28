@@ -6,7 +6,8 @@ import { runCleanup } from "../src/db/cleanup";
 import { createDb, type DbHandle } from "../src/db/client";
 import { feedback, project, rateLimit } from "../src/db/schema";
 import { DEMO_PROJECT_KEY, seedDemoProject } from "../src/db/seed";
-import { consumeProjectRateLimit } from "../src/rate-limiting";
+import { windowKey } from "../src/rate-limit";
+import { consumeProjectRateLimit, windowStartFor } from "../src/rate-limiting";
 import { startCollectorServer } from "../src/server";
 
 const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/filika_test";
@@ -401,6 +402,32 @@ describe("P2-BE-15 collector api and database tests", () => {
     const third = await consumeProjectRateLimit(handle.db, rateProject.id, now, 2);
 
     expect([first.allowed, second.allowed, third.allowed]).toEqual([true, true, false]);
+  });
+
+  test("keeps the rate limit atomic under concurrent requests", async () => {
+    const rateProject = await handle.db.query.project.findFirst({
+      where: eq(project.projectKey, "rate-limit-test"),
+    });
+
+    if (rateProject === undefined) {
+      throw new Error("Rate-limit project was not seeded.");
+    }
+
+    const windowNow = new Date(Date.now() + 24 * 3_600_000);
+    const results = await Promise.all(
+      Array.from({ length: 10 }, () =>
+        consumeProjectRateLimit(handle.db, rateProject.id, windowNow, 5),
+      ),
+    );
+
+    expect(results.filter((result) => result.allowed)).toHaveLength(5);
+
+    const key = windowKey(rateProject.id, windowStartFor(windowNow));
+    const rows = await handle.db.query.rateLimit.findMany({
+      where: eq(rateLimit.windowKey, key),
+    });
+
+    expect(rows[0]?.count).toBe(5);
   });
 
   test("resolves concurrent duplicate retries to a single row", async () => {
