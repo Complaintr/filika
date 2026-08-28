@@ -51,4 +51,54 @@ describe("P2-BE-03 cors preflight", () => {
     expect(response.status).toBe(204);
     expect(response.headers.get("access-control-allow-origin")).toBeNull();
   });
+
+  test("advertises only the allowed preflight methods", () => {
+    for (const method of ["POST", "OPTIONS", "DELETE", "PUT", "GET"]) {
+      const response = buildPreflightResponse(
+        new Request("http://localhost:8787/api/v1/feedback", {
+          headers: {
+            "Access-Control-Request-Method": method,
+            Origin: "http://localhost:4173",
+          },
+          method: "OPTIONS",
+        }),
+        ALLOWED_ORIGINS,
+      );
+
+      expect(response.headers.get("access-control-allow-methods")).toBe("POST, OPTIONS");
+    }
+  });
+
+  test("advertises only the allowed preflight headers", () => {
+    const response = buildPreflightResponse(
+      new Request("http://localhost:8787/api/v1/feedback", {
+        headers: {
+          "Access-Control-Request-Headers": "Content-Type, Idempotency-Key, Authorization",
+          Origin: "http://localhost:4173",
+        },
+        method: "OPTIONS",
+      }),
+      ALLOWED_ORIGINS,
+    );
+
+    const allowed = response.headers.get("access-control-allow-headers")?.split(", ") ?? [];
+
+    expect(allowed).toEqual(["Content-Type", "Idempotency-Key"]);
+    expect(allowed).not.toContain("Authorization");
+  });
+
+  test("keeps the vary header on every allowed preflight", () => {
+    for (const origin of ALLOWED_ORIGINS) {
+      const response = buildPreflightResponse(
+        new Request("http://localhost:8787/api/v1/feedback", {
+          headers: { Origin: origin },
+          method: "OPTIONS",
+        }),
+        ALLOWED_ORIGINS,
+      );
+
+      expect(response.headers.get("vary")).toBe("Origin");
+      expect(response.headers.get("access-control-allow-origin")).toBe(origin);
+    }
+  });
 });
