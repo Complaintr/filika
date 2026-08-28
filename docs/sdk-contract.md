@@ -212,6 +212,14 @@ mandatory for every transport, including manual review and explicit retry.
 
 ## Contract changes and verification
 
+The SDK-owned V1 definitions are frozen in
+[`releases/v1-protocol.json`](../releases/v1-protocol.json), with the exact checksum
+and tested source revision in the [candidate manifest](../releases/candidate-manifest.json).
+The contract suite verifies both exported definitions and artifact integrity.
+This identifies the frozen SDK contract; it does not certify native execution
+or resolve the collector's documented Unicode-limit discrepancy. See
+[release candidate artifacts](release-candidate.md) for scope and open gates.
+
 `packages/sdk/test/contracts.test.ts` snapshots tool metadata and schema, the
 envelope and field limits, the receipt, execution codes and limits, configuration,
 and lifecycle. Review snapshot diffs as public contract changes. Never update a
