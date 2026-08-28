@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { InboxDetailState, InboxDetailShell } from "../src/workspace/inbox-view";
+import { InboxDetailShell, InboxDetailState } from "../src/workspace/inbox-view";
 import { renderReact } from "./helpers/render-react";
 
 describe("inbox untrusted data markings and tool isolation", () => {
@@ -29,11 +29,13 @@ describe("inbox untrusted data markings and tool isolation", () => {
       </InboxDetailShell>,
     );
 
-    expect(result.container.querySelector('[data-view="inbox-detail"]')?.getAttribute("data-untrusted")).toBe(
-      "true",
-    );
+    expect(
+      result.container.querySelector('[data-view="inbox-detail"]')?.getAttribute("data-untrusted"),
+    ).toBe("true");
 
-    const reportGroup = result.container.querySelector("section.detail-group[data-untrusted='true']");
+    const reportGroup = result.container.querySelector(
+      "section.detail-group[data-untrusted='true']",
+    );
     expect(reportGroup).not.toBeNull();
     expect(reportGroup?.querySelector("h2")?.textContent).toBe("Report content");
 

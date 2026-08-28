@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { InboxListItemViewModel } from "@/contracts/inbox-view-model";
 import { fetchComplaints } from "@/services/workspace-api";
-import { formatDate, kindBadgeClass, kindLabels } from "@/workspace/dom";
 import { useConnection } from "@/workspace/connection";
+import { formatDate, kindBadgeClass, kindLabels } from "@/workspace/dom";
 
 interface ComplaintQuery {
   cursor: string | null;
@@ -61,7 +61,11 @@ export default function ComplaintsPage() {
 
   function reset(next: Partial<ComplaintQuery>) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    const merged: ComplaintQuery = { cursor: null, kind: next.kind ?? "", search: next.search ?? "" };
+    const merged: ComplaintQuery = {
+      cursor: null,
+      kind: next.kind ?? "",
+      search: next.search ?? "",
+    };
     historyRef.current = [];
     setPage(1);
     setQuery(merged);
@@ -251,7 +255,12 @@ export default function ComplaintsPage() {
             <button className="button" type="button" disabled={page === 1} onClick={goBack}>
               Previous
             </button>
-            <button className="button" type="button" disabled={nextCursor === null} onClick={goForward}>
+            <button
+              className="button"
+              type="button"
+              disabled={nextCursor === null}
+              onClick={goForward}
+            >
               Next
             </button>
           </div>

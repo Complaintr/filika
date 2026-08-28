@@ -1,8 +1,8 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { InboxApiService } from "@/services/inbox-api";
 import type { InboxDetailViewState } from "@/contracts/inbox-view-model";
+import { InboxApiService } from "@/services/inbox-api";
 import { InboxDetailShell, InboxDetailState } from "@/workspace/inbox-view";
 
 const api = new InboxApiService({ collectorOrigin: "" });

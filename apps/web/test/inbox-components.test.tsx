@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import type { InboxDetailViewState, InboxListViewState } from "../src/contracts/inbox-view-model";
-import { InboxDetailShell, InboxDetailState, InboxList, InboxStatePanel } from "../src/workspace/inbox-view";
+import {
+  InboxDetailShell,
+  InboxDetailState,
+  InboxList,
+  InboxStatePanel,
+} from "../src/workspace/inbox-view";
 import { renderReact } from "./helpers/render-react";
 
 const sampleItem = {
@@ -38,7 +43,9 @@ describe("inbox-components", () => {
   });
 
   test("separates authored, host-supplied, and server-derived detail fields", async () => {
-    const result = await renderReact(<InboxDetailState state={{ feedback: sampleFeedback, status: "ready" }} />);
+    const result = await renderReact(
+      <InboxDetailState state={{ feedback: sampleFeedback, status: "ready" }} />,
+    );
     const headings = [...result.container.querySelectorAll("h2")].map((h) => h.textContent);
     expect(headings).toEqual(["Report content", "Page context", "Receipt details"]);
     expect(result.container.textContent).toContain("web_sdk_unverified");

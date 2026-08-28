@@ -1,11 +1,11 @@
 "use client";
 
-import { Home, MessageCircle, Settings, type LucideIcon } from "lucide-react";
+import { Home, type LucideIcon, MessageCircle, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import BottomNavBar from "@/components/ui/bottom-nav-bar";
-import { connectionLabel, ConnectionProvider, useConnection } from "./connection";
-import { readPreferences, type Preferences } from "./preferences";
+import { ConnectionProvider, connectionLabel, useConnection } from "./connection";
+import { type Preferences, readPreferences } from "./preferences";
 
 const NAV_ITEMS: readonly { href: string; icon: LucideIcon; label: string }[] = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
@@ -69,7 +69,9 @@ function ShellBody({ children }: WorkspaceShellProps) {
               /
             </span>
             <a className="workspace-switcher" href="/settings">
-              <span className="workspace-avatar">{preferences.workspaceName.slice(0, 1).toUpperCase()}</span>
+              <span className="workspace-avatar">
+                {preferences.workspaceName.slice(0, 1).toUpperCase()}
+              </span>
               <span className="workspace-copy">
                 <strong className="">{preferences.workspaceName}</strong>
                 <span className="muted small">Local workspace</span>

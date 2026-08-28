@@ -1,6 +1,10 @@
 "use client";
 
-import type { InboxDetailViewState, InboxDetailViewModel, InboxListItemViewModel } from "@/contracts/inbox-view-model";
+import type {
+  InboxDetailViewModel,
+  InboxDetailViewState,
+  InboxListItemViewModel,
+} from "@/contracts/inbox-view-model";
 
 export function DetailField({ label, value }: { label: string; value: string | null }) {
   if (value === null || value === "") return null;
@@ -53,7 +57,7 @@ export function InboxDetailShell({
   kind,
 }: {
   children: React.ReactNode;
-  kind?: string;
+  kind: string | undefined;
 }) {
   return (
     <div className="page-section" data-view="inbox-detail" data-untrusted="true">
@@ -78,12 +82,14 @@ export function InboxList({ items }: { items: readonly InboxListItemViewModel[] 
               <p className="eyebrow">{item.kind}</p>
               <h2>{item.title}</h2>
               <p className="muted">
-                {item.routeLabel ?? "No page label"} |{" "}
-                {new Date(item.receivedAt).toLocaleString()}
+                {item.routeLabel ?? "No page label"} | {new Date(item.receivedAt).toLocaleString()}
               </p>
               <p className="mono">{item.requestOrigin}</p>
             </div>
-            <a className="button button-secondary" href={`/complaints/${encodeURIComponent(item.feedbackId)}`}>
+            <a
+              className="button button-secondary"
+              href={`/complaints/${encodeURIComponent(item.feedbackId)}`}
+            >
               View feedback
             </a>
           </article>
@@ -118,12 +124,25 @@ export function InboxStatePanel({
 export function InboxDetailState({ state }: { state: InboxDetailViewState }) {
   if (state.status === "ready") return <InboxDetailReady feedback={state.feedback} />;
   if (state.status === "error") {
-    return <InboxStatePanel role="alert" state="error" heading="Unable to load feedback" body="Feedback could not be loaded. Try again." />;
+    return (
+      <InboxStatePanel
+        role="alert"
+        state="error"
+        heading="Unable to load feedback"
+        body="Feedback could not be loaded. Try again."
+      />
+    );
   }
   const copy = {
-    expired: { heading: "Feedback expired", body: "This feedback is no longer available because its retention period ended." },
+    expired: {
+      heading: "Feedback expired",
+      body: "This feedback is no longer available because its retention period ended.",
+    },
     loading: { heading: "Loading", body: "Loading feedback..." },
-    not_found: { heading: "Feedback not found", body: "The feedback may have been removed or the address may be incorrect." },
+    not_found: {
+      heading: "Feedback not found",
+      body: "The feedback may have been removed or the address may be incorrect.",
+    },
   }[state.status];
   return (
     <InboxStatePanel role="status" state={state.status} heading={copy.heading} body={copy.body}>

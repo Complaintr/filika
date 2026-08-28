@@ -37,7 +37,9 @@ describe("long-content", () => {
 
   test("renders long report content without shortening it in the inbox detail", async () => {
     const result = await renderReact(<InboxDetailState state={{ feedback, status: "ready" }} />);
-    const values = [...result.container.querySelectorAll("dd")].map((item) => item.textContent ?? "");
+    const values = [...result.container.querySelectorAll("dd")].map(
+      (item) => item.textContent ?? "",
+    );
     expect(values).toContain(longDescription);
     expect(values).toContain(longSteps);
     await result.close();
@@ -63,9 +65,7 @@ describe("long-content", () => {
   });
 
   test("non-ready inbox states keep their copy intact", async () => {
-    const result = await renderReact(
-      <InboxDetailState state={{ status: "not_found" }} />,
-    );
+    const result = await renderReact(<InboxDetailState state={{ status: "not_found" }} />);
     expect(result.container.textContent).toContain(
       "The feedback may have been removed or the address may be incorrect.",
     );

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchDashboard } from "@/services/workspace-api";
-import { DEFAULT_PREFERENCES, savePreferences, type Preferences } from "@/workspace/preferences";
 import { useConnection } from "@/workspace/connection";
+import { DEFAULT_PREFERENCES, type Preferences, savePreferences } from "@/workspace/preferences";
 
 export default function SettingsPage() {
   const { reportConnection } = useConnection();
@@ -14,14 +14,11 @@ export default function SettingsPage() {
   const [saveStatus, setSaveStatus] = useState("");
   const [checkStatus, setCheckStatus] = useState("Checking the collector…");
   const [checking, setChecking] = useState(false);
+  const checkingRef = useRef(false);
 
-  useEffect(() => {
-    void checkConnection();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function checkConnection() {
-    if (checking) return;
+  const checkConnection = useCallback(async () => {
+    if (checkingRef.current) return;
+    checkingRef.current = true;
     setChecking(true);
     setCheckStatus("Checking the collector…");
     try {
@@ -32,9 +29,14 @@ export default function SettingsPage() {
       reportConnection(false);
       setCheckStatus("Could not connect. Check the collector address and database.");
     } finally {
+      checkingRef.current = false;
       setChecking(false);
     }
-  }
+  }, [reportConnection]);
+
+  useEffect(() => {
+    void checkConnection();
+  }, [checkConnection]);
 
   function restoreDefaults() {
     setName(DEFAULT_PREFERENCES.workspaceName);
@@ -55,7 +57,9 @@ export default function SettingsPage() {
       density,
     };
     if (!savePreferences(next)) {
-      setSaveStatus("Your browser could not save these settings. Allow local storage and try again.");
+      setSaveStatus(
+        "Your browser could not save these settings. Allow local storage and try again.",
+      );
       return;
     }
     setPreferences(next);
@@ -119,7 +123,9 @@ export default function SettingsPage() {
                 id="table-density"
                 className="select"
                 value={density}
-                onChange={(event) => setDensity(event.target.value === "compact" ? "compact" : "comfortable")}
+                onChange={(event) =>
+                  setDensity(event.target.value === "compact" ? "compact" : "comfortable")
+                }
               >
                 <option value="comfortable">Comfortable</option>
                 <option value="compact">Compact</option>
@@ -128,9 +134,11 @@ export default function SettingsPage() {
             <div className="setting-row">
               <div>
                 <span className="setting-label">Appearance</span>
-                <p className="muted small">Filika&apos;s light workspace, in white, blue, and gray.</p>
+                <p className="muted small">
+                  Filika&apos;s light workspace, in white, blue, and gray.
+                </p>
               </div>
-              <div className="palette-preview" aria-label="White, blue, and gray theme">
+              <div className="palette-preview" role="img" aria-label="White, blue, and gray theme">
                 <span className="swatch swatch-white" />
                 <span className="swatch swatch-blue" />
                 <span className="swatch swatch-gray" />
@@ -167,7 +175,12 @@ export default function SettingsPage() {
               <p className="small muted" role="status">
                 {checkStatus}
               </p>
-              <button className="button" type="button" onClick={() => void checkConnection()} disabled={checking}>
+              <button
+                className="button"
+                type="button"
+                onClick={() => void checkConnection()}
+                disabled={checking}
+              >
                 <RefreshIcon />
                 Check connection
               </button>

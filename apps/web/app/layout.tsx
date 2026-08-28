@@ -3,8 +3,7 @@ import { WorkspaceShell } from "@/workspace/workspace-shell";
 
 export const metadata: Metadata = {
   title: "Dashboard · Filika",
-  description:
-    "Your Filika workspace for reviewing complaints and understanding product feedback.",
+  description: "Your Filika workspace for reviewing complaints and understanding product feedback.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

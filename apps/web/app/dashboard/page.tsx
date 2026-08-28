@@ -2,14 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  fetchComplaints,
-  fetchDashboard,
   type ComplaintPage,
   type DashboardData,
+  fetchComplaints,
+  fetchDashboard,
 } from "@/services/workspace-api";
-import { kindLabels } from "@/workspace/dom";
-import { formatDate } from "@/workspace/dom";
 import { useConnection } from "@/workspace/connection";
+import { formatDate, kindLabels } from "@/workspace/dom";
 
 type RangeDays = 7 | 30 | 90;
 
@@ -69,12 +68,7 @@ function DashboardChart({ data }: { data: DashboardData }) {
           return (
             <g key={index}>
               <line x1="40" x2="750" y1={y} y2={y} className="chart-grid" />
-              <text
-                x="28"
-                y={y + 4}
-                textAnchor="end"
-                className="chart-label"
-              >
+              <text x="28" y={y + 4} textAnchor="end" className="chart-label">
                 {Math.round((maximum * (4 - index)) / 4)}
               </text>
             </g>
@@ -146,16 +140,24 @@ function ComplaintTable({ items }: { items: ComplaintPage["items"] }) {
           {items.map((item) => (
             <tr key={item.feedbackId}>
               <td className="complaint-title">
-                <a className="complaint-link" href={`/complaints/${encodeURIComponent(item.feedbackId)}`}>
+                <a
+                  className="complaint-link"
+                  href={`/complaints/${encodeURIComponent(item.feedbackId)}`}
+                >
                   {item.title}
                 </a>
                 <span className="complaint-origin">{item.requestOrigin}</span>
               </td>
               <td>
-                <span className={`kind-badge kind-${item.kind}`}>{kindLabels[item.kind] ?? "Other"}</span>
+                <span className={`kind-badge kind-${item.kind}`}>
+                  {kindLabels[item.kind] ?? "Other"}
+                </span>
               </td>
               <td className="date-cell">
-                <time dateTime={item.receivedAt} title={new Date(item.receivedAt).toLocaleString("en")}>
+                <time
+                  dateTime={item.receivedAt}
+                  title={new Date(item.receivedAt).toLocaleString("en")}
+                >
                   {formatDate(item.receivedAt)}
                 </time>
               </td>
@@ -242,7 +244,10 @@ export default function DashboardPage() {
         {error ? (
           <DashboardError onRetry={() => load(days)} />
         ) : data === null ? (
-          <StatePanel title="Loading your dashboard" body="Reading complaint activity from the collector." />
+          <StatePanel
+            title="Loading your dashboard"
+            body="Reading complaint activity from the collector."
+          />
         ) : (
           <>
             <div className="stats-grid">
@@ -311,7 +316,10 @@ export default function DashboardPage() {
                   <span className="muted small">Most recently received · all dates</span>
                 </div>
                 {recent === null ? (
-                  <StatePanel title="Loading recent reports" body="Fetching the latest complaints." />
+                  <StatePanel
+                    title="Loading recent reports"
+                    body="Fetching the latest complaints."
+                  />
                 ) : recent.length === 0 ? (
                   <StatePanel
                     title="No complaints yet"
@@ -339,7 +347,7 @@ export default function DashboardPage() {
                 ) : (
                   <ol className="route-list">
                     {data.routes.map((route, index) => (
-                      <li key={`${route.label ?? "none"}-${index}`}>
+                      <li key={route.label ?? `unlabeled-${route.count}`}>
                         <span className="route-rank mono">{index + 1}</span>
                         <span className="route-name">{route.label ?? "No page label"}</span>
                         <strong className="mono">{route.count}</strong>
@@ -351,8 +359,8 @@ export default function DashboardPage() {
             </div>
             <div className="dashboard-footer">
               <span>
-                Updated {data ? formatDate(data.generatedAt) : ""} · Counts include retained records in this
-                period.
+                Updated {data ? formatDate(data.generatedAt) : ""} · Counts include retained records
+                in this period.
               </span>
               <a className="text-link" href="/settings">
                 Workspace settings
