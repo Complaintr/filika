@@ -1,0 +1,135 @@
+.bottom-nav {
+  --nav-item-size: 40px;
+  --nav-label-space: 80px;
+  --nav-gap: 4px;
+  --nav-padding: 5px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--nav-gap);
+  /* Three routes: 120px controls + 80px label + 8px gaps + 12px shell. */
+  inline-size: calc(
+    var(--nav-items) *
+    var(--nav-item-size) +
+    var(--nav-label-space) +
+    (var(--nav-items) - 1) *
+    var(--nav-gap) +
+    2 *
+    var(--nav-padding) +
+    2px
+  );
+  max-inline-size: calc(100vw - 32px);
+  block-size: calc(var(--nav-item-size) + 2 * var(--nav-padding) + 2px);
+  padding: var(--nav-padding);
+  border: 1px solid #e0e5ed;
+  border-radius: 28px;
+  background: var(--card);
+  box-shadow:
+    0 8px 24px rgb(37 48 71 / 8%),
+    0 2px 4px rgb(37 48 71 / 4%);
+  overflow: visible;
+  isolation: isolate;
+}
+
+.bottom-nav--fixed {
+  position: fixed;
+  z-index: 30;
+  inset-inline-start: 50%;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+}
+
+.bottom-nav-item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  flex: 0 0 var(--nav-item-size);
+  min-inline-size: var(--nav-item-size);
+  block-size: var(--nav-item-size);
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: transparent;
+  color: #738097;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 140ms ease-out,
+    color 140ms ease-out;
+}
+
+.bottom-nav-item:hover {
+  background: #f3f5f9;
+  color: #465a78;
+}
+
+.bottom-nav-item[data-active="true"] {
+  background: #edf2ff;
+  color: #3563e9;
+}
+
+.bottom-nav-item:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.bottom-nav-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 var(--nav-item-size);
+  inline-size: var(--nav-item-size);
+  block-size: var(--nav-item-size);
+}
+
+.bottom-nav-icon svg {
+  display: block;
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+.bottom-nav-label {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+.bottom-nav-label > span {
+  display: block;
+  padding-inline-end: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: -0.1px;
+  user-select: none;
+}
+
+.bottom-nav-item[data-active="true"] .bottom-nav-label {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .bottom-nav--fixed {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  /* The six-item example becomes icon-only; Filika's three routes keep labels. */
+  .bottom-nav[data-many-items="true"] {
+    --nav-label-space: 0px;
+  }
+  .bottom-nav[data-many-items="true"] .bottom-nav-label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav-item,
+  .bottom-nav-label {
+    transition: none;
+  }
+}

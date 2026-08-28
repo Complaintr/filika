@@ -26,7 +26,7 @@ dialog {
   margin: auto;
   padding: 0;
   border: 1px solid var(--filika-dialog-border);
-  border-radius: 24px;
+  border-radius: 12px;
   color: var(--filika-color-text);
   background: var(--filika-dialog-bg);
   font-family: ${FILIKA_DESIGN_TOKENS.typography.family};
@@ -37,7 +37,7 @@ dialog {
   box-shadow:
     0 32px 96px rgb(0 0 0 / 32%),
     inset 0 1px 0 var(--filika-dialog-highlight);
-  backdrop-filter: saturate(180%) blur(32px);
+  backdrop-filter: none;
 }
 
 dialog::backdrop {
@@ -67,7 +67,7 @@ input, select, textarea {
   inline-size: 100%;
   padding: 12.8px 14.4px;
   border: 1px solid var(--filika-input-border);
-  border-radius: 14px;
+  border-radius: 8px;
   color: var(--filika-color-text);
   background: var(--filika-input-bg);
   box-shadow: inset 0 1px 2px rgb(0 0 0 / 6%);
@@ -86,7 +86,7 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 .error-summary {
   padding: 14.4px 16px;
   border: 1px solid rgb(159 38 51 / 18%);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--filika-error-summary-bg);
 }
 .error-summary:empty { display: none; }
@@ -100,7 +100,7 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
   align-items: center;
   padding: 12px;
   border: 1px solid var(--filika-input-border);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--filika-color-surface-muted);
 }
 .context-item dt, .review-item dt, .receipt-item dt { color: var(--filika-color-text-muted); font-size: 12.8px; font-weight: 650; }
@@ -111,7 +111,7 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
   margin-block: 20px;
   padding: 18.4px;
   border: 1px solid var(--filika-input-border);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--filika-privacy-bg);
 }
 .privacy dl { display: grid; gap: 12px; margin-block: 12px; }
@@ -124,7 +124,7 @@ button {
   min-block-size: 44px;
   padding: 11.2px 17.6px;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: 8px;
   font: inherit;
   font-weight: 650;
   cursor: pointer;
@@ -136,7 +136,7 @@ button {
 .primary {
   color: var(--filika-color-on-primary);
   background: var(--filika-color-primary);
-  box-shadow: 0 8px 20px rgb(15 118 110 / 24%);
+  box-shadow: 0 8px 20px rgb(53 99 233 / 16%);
 }
 .secondary {
   border-color: var(--filika-input-border);

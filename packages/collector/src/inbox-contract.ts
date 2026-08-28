@@ -28,6 +28,8 @@ export type InboxListItemViewModel = Pick<
 export interface InboxListQuery {
   cursor: string | null;
   limit: number;
+  search?: string;
+  kind?: FeedbackKind;
 }
 
 export interface InboxListResult {

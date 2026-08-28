@@ -97,12 +97,12 @@ export function renderInboxList(
   section.dataset.view = "inbox-list";
   section.dataset.untrusted = "true";
   appendText(document, section, "p", "Maintainer workspace", "eyebrow");
-  appendText(document, section, "h1", "Feedback inbox");
+  appendText(document, section, "h1", "All complaints");
   appendText(
     document,
     section,
     "p",
-    "Public, read-only demo reports. Records older than 24 hours remain until a maintainer runs cleanup.",
+    "Read-only reports. Records remain until a maintainer runs retention cleanup.",
     "lede",
   );
 
@@ -168,7 +168,7 @@ function renderReadyDetail(document: Document, feedback: InboxDetailViewModel): 
   appendDetailField(document, authoredList, "Expected behavior", feedback.expectedBehavior);
   appendDetailField(document, authoredList, "Steps to reproduce", feedback.reproductionSteps);
 
-  const context = createDetailGroup(document, "Host-supplied context");
+  const context = createDetailGroup(document, "Page context");
   const contextList = context.querySelector("dl");
   if (contextList === null) {
     throw new Error("Missing host context list.");
@@ -176,7 +176,7 @@ function renderReadyDetail(document: Document, feedback: InboxDetailViewModel): 
   appendDetailField(document, contextList, "Page", feedback.routeLabel);
   appendDetailField(document, contextList, "Application release", feedback.applicationRelease);
 
-  const facts = createDetailGroup(document, "Server-derived facts");
+  const facts = createDetailGroup(document, "Receipt details");
   const factsList = facts.querySelector("dl");
   if (factsList === null) {
     throw new Error("Missing server facts list.");
@@ -203,11 +203,11 @@ export function renderInboxDetail(
 
   const nav = document.createElement("div");
   nav.className = "inbox-detail-nav";
-  nav.append(createAction(document, "Back to inbox", callbacks.onBack, "text-button"));
+  nav.append(createAction(document, "← All complaints", callbacks.onBack, "text-button"));
 
   if (state.status !== "ready") {
     section.append(nav);
-    appendText(document, section, "h1", "Feedback detail");
+    appendText(document, section, "h1", "Complaint details");
     section.append(renderNonReadyState(document, state.status, callbacks.onRetry));
     if (state.status === "expired") {
       appendText(document, section, "p", `Expired at ${state.expiredAt}`, "muted");

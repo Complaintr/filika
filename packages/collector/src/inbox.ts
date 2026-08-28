@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 
 import type { Db } from "./db/client";
 import { feedback, project } from "./db/schema";
@@ -62,7 +62,19 @@ export async function listInbox(db: Db, query: InboxListQuery): Promise<InboxLis
     .select({ feedback, retentionHours: project.retentionHours })
     .from(feedback)
     .innerJoin(project, eq(feedback.projectId, project.id))
-    .where(cursorCondition)
+    .where(
+      and(
+        cursorCondition,
+        query.kind === undefined ? undefined : eq(feedback.kind, query.kind),
+        query.search
+          ? or(
+              ilike(feedback.title, `%${query.search.replace(/[\\%_]/g, "\\$&")}%`),
+              ilike(feedback.routeLabel, `%${query.search.replace(/[\\%_]/g, "\\$&")}%`),
+              ilike(feedback.origin, `%${query.search.replace(/[\\%_]/g, "\\$&")}%`),
+            )
+          : undefined,
+      ),
+    )
     .orderBy(desc(feedback.receiptTimestamp), desc(feedback.id))
     .limit(limit + 1);
 

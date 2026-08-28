@@ -1,0 +1,37 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "../app.css" layer(base);
+@import "../components/ui/bottom-nav-bar.css" layer(components);
+@import "tailwindcss/utilities.css" layer(utilities);
+@source "../components";
+@source "../workspace";
+
+/* Keep the existing pages' native styles; no global Tailwind preflight reset. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  /* Scope shadcn tokens so --muted retains its existing meaning on legacy pages. */
+  .filika-ui {
+    --background: #f7f8fa;
+    --foreground: #253047;
+    --card: #ffffff;
+    --card-foreground: #253047;
+    --primary: #3563e9;
+    --primary-foreground: #ffffff;
+    --muted: #f1f4fa;
+    --muted-foreground: #707b8e;
+    --border: #e5e8ee;
+    --ring: #3563e9;
+  }
+}

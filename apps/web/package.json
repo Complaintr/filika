@@ -10,12 +10,22 @@
     "typecheck": "tsc --project tsconfig.json"
   },
   "dependencies": {
-    "@filika/sdk": "workspace:*"
+    "@filika/sdk": "workspace:*",
+    "clsx": "^2.1.1",
+    "framer-motion": "^13.1.1",
+    "lucide-react": "^1.35.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
-    "happy-dom": "^20.11.12"
+    "@tailwindcss/cli": "^4.3.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "happy-dom": "^20.11.12",
+    "tailwindcss": "^4.3.3"
   },
-  "description": "Filika local demo, native review dialog, and maintainer inbox",
+  "description": "Filika dashboard, complaints workspace, and native review dialog",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

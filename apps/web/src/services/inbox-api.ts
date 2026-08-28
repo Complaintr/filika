@@ -14,6 +14,7 @@ import type {
   InboxListItemViewModel,
   InboxListViewState,
 } from "../contracts/inbox-view-model";
+import { readBoundedJson } from "./response";
 
 const INBOX_LIST_ENDPOINT = "/api/v1/inbox";
 const INBOX_DETAIL_ENDPOINT_PREFIX = "/api/v1/inbox/";
@@ -78,13 +79,29 @@ function validateDetailFeedback(raw: unknown): InboxDetailViewModel | null {
     }
   }
 
+  if (
+    !["bug", "blocked_task", "confusing_behavior", "idea"].includes(String(raw.kind)) ||
+    raw.source !== "web_sdk_unverified" ||
+    String(raw.title).length > 160 ||
+    String(raw.description).length > 4000 ||
+    !Number.isFinite(Date.parse(String(raw.receivedAt))) ||
+    !Number.isFinite(Date.parse(String(raw.expiresAt)))
+  )
+    return null;
+
   // Ensure reproductionSteps is either string or null (or string array normalized)
   let reproductionSteps: string | null = null;
   if (typeof raw.reproductionSteps === "string") {
     reproductionSteps = raw.reproductionSteps;
   } else if (Array.isArray(raw.reproductionSteps)) {
+    if (
+      raw.reproductionSteps.length > 10 ||
+      raw.reproductionSteps.some((step: unknown) => typeof step !== "string" || step.length > 500)
+    )
+      return null;
     reproductionSteps = raw.reproductionSteps.join("\n");
   }
+  if (reproductionSteps !== null && reproductionSteps.length > 5010) return null;
 
   return {
     applicationRelease: typeof raw.applicationRelease === "string" ? raw.applicationRelease : null,
@@ -118,17 +135,18 @@ export class InboxApiService {
       const init: RequestInit = {
         headers: { Accept: "application/json" },
         method: "GET",
+        signal:
+          signal === undefined
+            ? AbortSignal.timeout(10_000)
+            : AbortSignal.any([signal, AbortSignal.timeout(10_000)]),
       };
-      if (signal !== undefined) {
-        init.signal = signal;
-      }
       const response = await this.#fetch(url, init);
 
       if (!response.ok) {
         return { retryable: true, status: "error" };
       }
 
-      const data: unknown = await response.json();
+      const data: unknown = await readBoundedJson(response);
       if (!isPlainObject(data) || !Array.isArray(data.items)) {
         return { retryable: true, status: "error" };
       }
@@ -158,10 +176,11 @@ export class InboxApiService {
       const init: RequestInit = {
         headers: { Accept: "application/json" },
         method: "GET",
+        signal:
+          signal === undefined
+            ? AbortSignal.timeout(10_000)
+            : AbortSignal.any([signal, AbortSignal.timeout(10_000)]),
       };
-      if (signal !== undefined) {
-        init.signal = signal;
-      }
       const response = await this.#fetch(url, init);
 
       if (response.status === 404) {
@@ -172,7 +191,7 @@ export class InboxApiService {
         return { retryable: true, status: "error" };
       }
 
-      const data: unknown = await response.json();
+      const data: unknown = await readBoundedJson(response);
       if (!isPlainObject(data) || !isPlainObject(data.feedback)) {
         return { retryable: true, status: "error" };
       }

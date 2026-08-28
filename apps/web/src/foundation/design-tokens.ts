@@ -1,15 +1,15 @@
 export const FILIKA_DESIGN_TOKENS = {
   color: {
-    accent: "#2dd4bf",
-    border: "#91d5cc",
+    accent: "#668af2",
+    border: "#e5e8ee",
     danger: "#9f2633",
-    focus: "#0e7490",
+    focus: "#3563e9",
     onPrimary: "#ffffff",
-    primary: "#0f766e",
+    primary: "#3563e9",
     surface: "#ffffff",
-    surfaceMuted: "#e8faf7",
-    text: "#123330",
-    textMuted: "#476966",
+    surfaceMuted: "#f7f8fa",
+    text: "#253047",
+    textMuted: "#707b8e",
   },
   focus: {
     offset: "3px",
@@ -22,8 +22,8 @@ export const FILIKA_DESIGN_TOKENS = {
     reducedDuration: "0ms",
   },
   radius: {
-    control: "14px",
-    panel: "24px",
+    control: "8px",
+    panel: "12px",
     pill: "999px",
   },
   spacing: {
@@ -35,8 +35,7 @@ export const FILIKA_DESIGN_TOKENS = {
   },
   typography: {
     body: "16px",
-    family:
-      '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, ui-sans-serif, system-ui, sans-serif',
+    family: '"Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif',
     heading: "24px",
     lineHeight: "1.5",
     small: "14px",
@@ -62,89 +61,19 @@ export const FILIKA_TOKEN_CSS = `
   --filika-motion-fast: ${FILIKA_DESIGN_TOKENS.motion.durationFast};
   --filika-motion-normal: ${FILIKA_DESIGN_TOKENS.motion.durationNormal};
   --filika-motion-easing: ${FILIKA_DESIGN_TOKENS.motion.easingStandard};
-  --filika-dialog-bg: rgb(255 255 255 / 96%);
-  --filika-dialog-border: rgb(255 255 255 / 88%);
+  --filika-dialog-bg: #ffffff;
+  --filika-dialog-border: #e5e8ee;
   --filika-dialog-highlight: #ffffff;
-  --filika-backdrop-bg: rgb(13 49 46 / 34%);
+  --filika-backdrop-bg: rgb(37 48 71 / 30%);
   --filika-input-bg: rgb(255 255 255 / 82%);
-  --filika-input-border: rgb(15 118 110 / 18%);
-  --filika-privacy-bg: rgb(232 250 247 / 64%);
+  --filika-input-border: #dfe4ed;
+  --filika-privacy-bg: #edf2ff;
   --filika-error-summary-bg: rgb(255 241 242 / 76%);
   --filika-secondary-btn-bg: rgb(255 255 255 / 78%);
   color: var(--filika-color-text);
-  color-scheme: light dark;
+  color-scheme: light;
   font-family: ${FILIKA_DESIGN_TOKENS.typography.family};
   line-height: ${FILIKA_DESIGN_TOKENS.typography.lineHeight};
-}
-
-@media (prefers-color-scheme: dark) {
-  :host {
-    --filika-color-surface: #18181b;
-    --filika-color-surface-muted: #27272a;
-    --filika-color-text: #f4f4f5;
-    --filika-color-text-muted: #a1a1aa;
-    --filika-color-border: #3f3f46;
-    --filika-color-accent: #2dd4bf;
-    --filika-color-primary: #14b8a6;
-    --filika-color-on-primary: #042f2e;
-    --filika-color-focus: #2dd4bf;
-    --filika-color-danger: #f87171;
-    --filika-dialog-bg: rgba(24, 24, 27, 0.96);
-    --filika-dialog-border: rgba(255, 255, 255, 0.12);
-    --filika-dialog-highlight: rgba(255, 255, 255, 0.08);
-    --filika-backdrop-bg: rgba(0, 0, 0, 0.65);
-    --filika-input-bg: rgba(39, 39, 42, 0.7);
-    --filika-input-border: rgba(255, 255, 255, 0.14);
-    --filika-privacy-bg: rgba(20, 184, 166, 0.1);
-    --filika-error-summary-bg: rgba(239, 68, 68, 0.16);
-    --filika-secondary-btn-bg: rgba(39, 39, 42, 0.8);
-  }
-}
-
-:host-context([data-theme="dark"]),
-:host([data-theme="dark"]) {
-  --filika-color-surface: #18181b;
-  --filika-color-surface-muted: #27272a;
-  --filika-color-text: #f4f4f5;
-  --filika-color-text-muted: #a1a1aa;
-  --filika-color-border: #3f3f46;
-  --filika-color-accent: #2dd4bf;
-  --filika-color-primary: #14b8a6;
-  --filika-color-on-primary: #042f2e;
-  --filika-color-focus: #2dd4bf;
-  --filika-color-danger: #f87171;
-  --filika-dialog-bg: rgba(24, 24, 27, 0.96);
-  --filika-dialog-border: rgba(255, 255, 255, 0.12);
-  --filika-dialog-highlight: rgba(255, 255, 255, 0.08);
-  --filika-backdrop-bg: rgba(0, 0, 0, 0.65);
-  --filika-input-bg: rgba(39, 39, 42, 0.7);
-  --filika-input-border: rgba(255, 255, 255, 0.14);
-  --filika-privacy-bg: rgba(20, 184, 166, 0.1);
-  --filika-error-summary-bg: rgba(239, 68, 68, 0.16);
-  --filika-secondary-btn-bg: rgba(39, 39, 42, 0.8);
-}
-
-:host-context([data-theme="light"]),
-:host([data-theme="light"]) {
-  --filika-color-surface: ${FILIKA_DESIGN_TOKENS.color.surface};
-  --filika-color-surface-muted: ${FILIKA_DESIGN_TOKENS.color.surfaceMuted};
-  --filika-color-text: ${FILIKA_DESIGN_TOKENS.color.text};
-  --filika-color-text-muted: ${FILIKA_DESIGN_TOKENS.color.textMuted};
-  --filika-color-border: ${FILIKA_DESIGN_TOKENS.color.border};
-  --filika-color-accent: ${FILIKA_DESIGN_TOKENS.color.accent};
-  --filika-color-primary: ${FILIKA_DESIGN_TOKENS.color.primary};
-  --filika-color-on-primary: ${FILIKA_DESIGN_TOKENS.color.onPrimary};
-  --filika-color-focus: ${FILIKA_DESIGN_TOKENS.color.focus};
-  --filika-color-danger: ${FILIKA_DESIGN_TOKENS.color.danger};
-  --filika-dialog-bg: rgb(255 255 255 / 96%);
-  --filika-dialog-border: rgb(255 255 255 / 88%);
-  --filika-dialog-highlight: #ffffff;
-  --filika-backdrop-bg: rgb(13 49 46 / 34%);
-  --filika-input-bg: rgb(255 255 255 / 82%);
-  --filika-input-border: rgb(15 118 110 / 18%);
-  --filika-privacy-bg: rgb(232 250 247 / 64%);
-  --filika-error-summary-bg: rgb(255 241 242 / 76%);
-  --filika-secondary-btn-bg: rgb(255 255 255 / 78%);
 }
 
 @media (prefers-reduced-motion: reduce) {

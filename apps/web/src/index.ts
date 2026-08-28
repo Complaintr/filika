@@ -1,211 +1,132 @@
-import type { FilikaPublicApi } from "@filika/sdk";
-import { MaintainerInbox } from "./components/inbox";
-import { ReceiptToast } from "./components/receipt-toast";
-import { SampleApplication } from "./sample-app";
-import { createSampleTaskTool } from "./sample-task-tool";
-import { connectSdkDialog } from "./sdk-dialog";
-import { InboxApiService } from "./services/inbox-api";
-import type { ModelContext } from "./webmcp-test-tool";
+import { mountBottomNavigation } from "./workspace/bottom-navigation";
+import { showComplaintDetail, showComplaints } from "./workspace/complaints";
+import { showDashboard } from "./workspace/dashboard";
+import { button, element, icon, link } from "./workspace/dom";
+import { readPreferences, type Preferences } from "./workspace/preferences";
+import { showSettings } from "./workspace/settings";
 
-type WebMcpDocument = Document & {
-  readonly modelContext?: ModelContext;
-};
+const root = document.getElementById("app");
+if (!root) throw new Error("Missing workspace root.");
 
-declare global {
-  interface Window {
-    Filika: FilikaPublicApi;
+let preferences = readPreferences();
+let routeController = new AbortController();
+const shell = element("div", "workspace-shell");
+const brand = link("", "/dashboard", "brand");
+const mark = element("span", "brand-mark");
+// Filika's sail is drawn locally rather than using an imported brand asset.
+mark.append(
+  element("span", "sail-main"),
+  element("span", "sail-small"),
+  element("span", "sail-hull"),
+);
+brand.append(mark, element("span", "", "filika"));
+const workspace = link("", "/settings", "workspace-switcher");
+const initial = element("span", "workspace-avatar", "W");
+const workspaceCopy = element("span", "workspace-copy");
+const workspaceName = element("strong", "", preferences.workspaceName);
+workspaceCopy.append(workspaceName, element("span", "muted small", "Local workspace"));
+workspace.append(initial, workspaceCopy, icon("chevron"));
+const navHost = element("div", "navigation-root");
+const connectionLabel = element("span", "", "Checking connection");
+const connectionIndicator = element("span", "connection-dot");
+const connectionBox = element("div", "connection-status");
+connectionBox.setAttribute("role", "status");
+connectionBox.append(connectionIndicator, connectionLabel);
+const topbar = element("header", "topbar");
+const topbarInner = element("div", "topbar-inner");
+const identity = element("div", "workspace-identity");
+const separator = element("span", "identity-separator", "/");
+separator.setAttribute("aria-hidden", "true");
+identity.append(brand, separator, workspace);
+const topActions = element("div", "topbar-actions");
+const refresh = button("Refresh", () => renderRoute(false), "button button-quiet", "refresh");
+const settingsLink = link("", "/settings", "topbar-avatar");
+settingsLink.setAttribute("aria-label", "Workspace settings");
+settingsLink.append(icon("settings"));
+topActions.append(connectionBox, refresh, settingsLink);
+topbarInner.append(identity, topActions);
+topbar.append(topbarInner);
+const content = element("main", "workspace-content");
+content.id = "app-content";
+content.tabIndex = -1;
+shell.append(topbar, content, navHost);
+root.replaceChildren(shell);
+const updateNavigation = mountBottomNavigation(navHost);
+
+function applyPreferences(value: Preferences): void {
+  preferences = value;
+  workspaceName.textContent = value.workspaceName;
+  initial.textContent = value.workspaceName.slice(0, 1).toUpperCase();
+  document.documentElement.dataset.density = value.density;
+}
+
+function navigate(path: string): void {
+  history.pushState({ from: location.pathname + location.search }, "", path);
+  renderRoute(true);
+}
+
+function renderRoute(focus: boolean): void {
+  routeController.abort();
+  routeController = new AbortController();
+  const signal = routeController.signal;
+  const path = location.pathname.replace(/\/+$/, "") || "/";
+  if (path === "/") history.replaceState(null, "", "/dashboard");
+  const section = path.startsWith("/complaints")
+    ? "/complaints"
+    : path === "/settings"
+      ? "/settings"
+      : "/dashboard";
+  const title =
+    section === "/complaints"
+      ? "All complaints"
+      : section === "/settings"
+        ? "Settings"
+        : "Dashboard";
+  document.title = `${title} · Filika`;
+  updateNavigation(section);
+  content.replaceChildren();
+  const connection = (connected: boolean) => {
+    if (signal.aborted) return;
+    connectionBox.dataset.state = connected ? "connected" : "offline";
+    connectionLabel.textContent = connected ? "Collector connected" : "Collector unavailable";
+  };
+  if (section === "/settings")
+    showSettings(content, preferences, signal, applyPreferences, connection);
+  else if (path.startsWith("/complaints/"))
+    showComplaintDetail(content, path.slice("/complaints/".length), signal, navigate, connection);
+  else if (section === "/complaints") showComplaints(content, signal, connection);
+  else showDashboard(content, preferences, signal, connection);
+  if (focus) {
+    content.focus({ preventScroll: true });
+    window.scrollTo({ top: 0 });
   }
 }
 
-function getRequiredElement<T extends HTMLElement>(id: string): T {
-  const element = document.getElementById(id);
-  if (element === null) {
-    throw new Error(`Missing required element: ${id}`);
-  }
-  return element as T;
-}
-
-const content = getRequiredElement<HTMLElement>("app-content");
-const dialogHost = getRequiredElement<HTMLElement>("filika-feedback-root");
-const demoNavigation = getRequiredElement<HTMLButtonElement>("nav-demo");
-const inboxNavigation = getRequiredElement<HTMLButtonElement>("nav-inbox");
-const webMcpStatus = getRequiredElement<HTMLElement>("webmcp-status");
-
-const COLLECTOR_ORIGIN = "http://localhost:8787";
-
-const receiptToast = new ReceiptToast(document.body, {
-  onViewInbox: (feedbackId) => showInbox(feedbackId),
-});
-const inboxApi = new InboxApiService({ collectorOrigin: COLLECTOR_ORIGIN });
-
-const api = window.Filika;
-// Capture the same fixed script configuration once for explicit reinitialization
-// after leaving the isolated inbox. The public SDK validates it again at init.
-const sdkScript = document.getElementById("filika-sdk");
-const sdkConfig = {
-  projectKey: sdkScript?.getAttribute("data-project-key") ?? "",
-  endpoint: sdkScript?.getAttribute("data-endpoint") ?? "",
-  ...(sdkScript?.hasAttribute("data-route-label")
-    ? { routeLabel: sdkScript.getAttribute("data-route-label") ?? "" }
-    : {}),
-  ...(sdkScript?.hasAttribute("data-application-release")
-    ? { applicationRelease: sdkScript.getAttribute("data-application-release") ?? "" }
-    : {}),
-};
-const integration = connectSdkDialog(dialogHost, api, {
-  onReceipt: (receipt) => receiptToast.show(receipt),
-});
-window.addEventListener("pagehide", () => integration.dispose(), { once: true });
-const sampleApplication = new SampleApplication(content, {
-  feedbackDialog: { open: () => api.open() },
-});
-
-let navigation = 0;
-
-async function loadInboxList(): Promise<void> {
-  const currentNavigation = ++navigation;
-  inbox.showList({ status: "loading" });
-  const state = await inboxApi.fetchList();
-  if (navigation === currentNavigation) inbox.showList(state);
-}
-
-async function loadInboxDetail(feedbackId: string): Promise<void> {
-  const currentNavigation = ++navigation;
-  inbox.showDetail({ status: "loading" });
-  const state = await inboxApi.fetchDetail(feedbackId);
-  if (navigation === currentNavigation) inbox.showDetail(state);
-}
-
-const inbox = new MaintainerInbox(content, {
-  onBack: () => void loadInboxList(),
-  onOpen: (feedbackId) => void loadInboxDetail(feedbackId),
-  onRetry: () => void loadInboxList(),
-});
-
-let demoToolController: AbortController | null = null;
-
-async function activateDemoTools(): Promise<void> {
-  const modelContext = (document as WebMcpDocument).modelContext;
-  if (modelContext === undefined) {
-    webMcpStatus.dataset.state = "unsupported";
-    webMcpStatus.textContent = "WebMCP unavailable. Manual feedback is ready.";
+document.addEventListener("click", (event) => {
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  )
     return;
-  }
-
-  demoToolController?.abort();
-  const controller = new AbortController();
-  demoToolController = controller;
-  window.addEventListener("pagehide", () => controller.abort(), { once: true });
-
-  const tool = createSampleTaskTool(() => {
-    showDemo();
-    sampleApplication.runFailure();
-  });
-
-  try {
-    await modelContext.registerTool(tool, { signal: controller.signal });
-    if (!controller.signal.aborted) {
-      webMcpStatus.dataset.state = "registered";
-      webMcpStatus.textContent = "WebMCP demo task ready.";
-    }
-  } catch (error) {
-    if (controller.signal.aborted) {
-      return;
-    }
-    const name = error instanceof DOMException ? error.name : "UnknownError";
-    webMcpStatus.dataset.state = "failed";
-    webMcpStatus.textContent = `WebMCP registration failed: ${name}. Manual feedback is ready.`;
-  }
-}
-
-function deactivateDemoTools(): void {
-  api.dispose();
-  if (demoToolController !== null) {
-    demoToolController.abort();
-    demoToolController = null;
-  }
-  const modelContext = (document as WebMcpDocument).modelContext;
-  if (modelContext !== undefined) {
-    webMcpStatus.dataset.state = "inbox_isolated";
-    webMcpStatus.textContent = "WebMCP tools disabled on maintainer inbox route.";
-  }
-}
-
-function showDemo(): void {
-  navigation++;
-  if (api.status.state === "disposed") void api.init(sdkConfig);
-  demoNavigation.setAttribute("aria-current", "page");
-  inboxNavigation.removeAttribute("aria-current");
-  sampleApplication.render();
-  void activateDemoTools();
-}
-
-function showInbox(targetFeedbackId?: string): void {
-  deactivateDemoTools();
-  inboxNavigation.setAttribute("aria-current", "page");
-  demoNavigation.removeAttribute("aria-current");
-  if (targetFeedbackId !== undefined) {
-    void loadInboxDetail(targetFeedbackId);
-  } else {
-    void loadInboxList();
-  }
-}
-
-demoNavigation.addEventListener("click", () => showDemo());
-inboxNavigation.addEventListener("click", () => showInbox());
-
-type ThemePreference = "system" | "light" | "dark";
-
-function initThemeSwitcher(): void {
-  const switcher = document.getElementById("theme-switcher");
-  if (!(switcher instanceof HTMLElement)) {
+  const anchor = event.target instanceof Element ? event.target.closest("a") : null;
+  if (!anchor || anchor.target || anchor.hasAttribute("download")) return;
+  const url = new URL(anchor.href);
+  if (
+    url.origin !== location.origin ||
+    !/^\/(dashboard|complaints(?:\/[^/]+)?|settings)$/.test(url.pathname)
+  )
     return;
-  }
-
-  const inputs = switcher.querySelectorAll<HTMLInputElement>(".theme-input");
-
-  function getStoredTheme(): ThemePreference {
-    try {
-      const stored = localStorage.getItem("filika-theme");
-      if (stored === "light" || stored === "dark" || stored === "system") {
-        return stored;
-      }
-    } catch {
-      // Ignored
-    }
-    return "system";
-  }
-
-  function applyTheme(pref: ThemePreference): void {
-    if (pref === "system") {
-      delete document.documentElement.dataset.theme;
-    } else {
-      document.documentElement.dataset.theme = pref;
-    }
-
-    for (const input of inputs) {
-      input.checked = input.dataset.themeValue === pref;
-    }
-  }
-
-  let currentPref = getStoredTheme();
-  applyTheme(currentPref);
-
-  for (const input of inputs) {
-    input.addEventListener("change", () => {
-      const selected = input.dataset.themeValue as ThemePreference | undefined;
-      if (selected === "light" || selected === "dark" || selected === "system") {
-        currentPref = selected;
-        try {
-          localStorage.setItem("filika-theme", selected);
-        } catch {
-          // Ignored
-        }
-        applyTheme(currentPref);
-      }
-    });
-  }
-}
-
-showDemo();
-initThemeSwitcher();
+  event.preventDefault();
+  navigate(url.pathname + url.search);
+});
+window.addEventListener("popstate", () => renderRoute(true));
+window.addEventListener("pagehide", () => routeController.abort());
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) renderRoute(false);
+});
+applyPreferences(preferences);
+renderRoute(false);
