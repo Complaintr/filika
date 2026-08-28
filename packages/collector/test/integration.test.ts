@@ -308,6 +308,14 @@ describe("P2-BE-15 collector api and database tests", () => {
     await expect(response.json()).resolves.toEqual({ error: { category: "invalid_input" } });
   });
 
+  test("rejects a body-supplied server claim over http", async () => {
+    const eventId = "c7777777-0000-4000-8000-000000000007";
+    const response = await postRaw(postEnvelope(eventId, { origin: "https://claimed.example" }));
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: { category: "invalid_input" } });
+  });
+
   test("rejects an oversized body before parsing", async () => {
     const eventId = "a3333333-0000-4000-8000-000000000003";
     const request = new Request(`${baseUrl}/api/v1/feedback`, {
