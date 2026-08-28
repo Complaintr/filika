@@ -172,3 +172,25 @@ test("feature detection catches both document and method getter failures", () =>
     expect(detectModelContext(document)).toEqual({ state: "registration_rejected", error });
   }
 });
+
+test("disposal during feature detection never invokes registration", async () => {
+  const controller = new AbortController();
+  let calls = 0;
+  expect(
+    await registerFeedbackTool(
+      {
+        get modelContext() {
+          controller.abort();
+          return {
+            registerTool() {
+              calls++;
+            },
+          };
+        },
+      },
+      controller,
+      async () => ({ code: "cancelled" }),
+    ),
+  ).toEqual({ state: "disposed" });
+  expect(calls).toBe(0);
+});

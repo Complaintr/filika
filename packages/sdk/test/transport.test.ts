@@ -120,6 +120,34 @@ test("request deadline includes body reads and pre-abort never calls fetch", asy
   ).toEqual({ code: "outcome_unknown" });
 });
 
+test("caller abort cancels an in-flight reader and releases its stream lock", async () => {
+  const caller = new AbortController();
+  const reading = Promise.withResolvers<void>();
+  let cancellations = 0;
+  let networkSignal: AbortSignal | null | undefined;
+  const stream = new ReadableStream<Uint8Array>(
+    {
+      pull() {
+        reading.resolve();
+      },
+      cancel() {
+        cancellations++;
+      },
+    },
+    { highWaterMark: 0 },
+  );
+  const pending = requestFeedback(endpoint, submission, caller.signal, async (_url, init) => {
+    networkSignal = init.signal;
+    return new Response(stream, { headers: { "Content-Type": "application/json" } });
+  });
+  await reading.promise;
+  caller.abort();
+  expect(await pending).toEqual({ code: "outcome_unknown" });
+  expect(networkSignal?.aborted).toBe(true);
+  expect(cancellations).toBe(1);
+  expect(stream.locked).toBe(false);
+});
+
 test("cancels rejected response bodies and responses that arrive after abort", async () => {
   let cancelled = 0;
   const response = () =>
