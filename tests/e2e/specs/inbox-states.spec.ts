@@ -71,3 +71,24 @@ test("inbox shows the load failure surface and recovers through retry", async ({
   await expect(page.getByRole("list")).toHaveAccessibleName("Accepted feedback");
   expect(attempts).toBe(2);
 });
+
+test("inbox detail shows the not found surface and returns to the list", async ({ page }) => {
+  await page.route(`${INBOX_BASE}*`, async (route) => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (pathname === "/api/v1/inbox") {
+      await fulfillJson(route, 200, { items: [listItem], nextCursor: null });
+      return;
+    }
+    await fulfillJson(route, 404, { code: "not_found" });
+  });
+
+  await openInbox(page);
+  await page.getByRole("button", { name: "View feedback" }).click();
+
+  await expect(page.getByRole("heading", { name: "Feedback detail" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Feedback not found" })).toBeVisible();
+  await expect(page.locator('[data-state="not_found"]')).toHaveAttribute("role", "status");
+
+  await page.getByRole("button", { name: "Back to inbox" }).click();
+  await expect(page.getByRole("heading", { name: "Sample save failed" })).toBeVisible();
+});
