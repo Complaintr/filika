@@ -54,10 +54,10 @@ function createDialog(
 describe("feedback-dialog-flows", () => {
   test("edits authored fields, validates, confirms, and verifies success receipt", async () => {
     const document = createDocument();
-    let submittedDraft: FeedbackDraft | null = null;
+    const captured = { draft: null as FeedbackDraft | null };
 
     const { dialog, host } = createDialog(document, (draft) => {
-      submittedDraft = draft;
+      captured.draft = draft;
       return Promise.resolve({
         outcome: "success",
         receipt: {
@@ -110,9 +110,9 @@ describe("feedback-dialog-flows", () => {
       expect(result.receipt.duplicate).toBe(false);
     }
 
-    expect(submittedDraft?.title).toBe("Updated edited title");
-    expect(submittedDraft?.description).toBe("Updated description of the observed defect");
-    expect(submittedDraft?.expectedBehavior).toBe("Should save draft smoothly");
+    expect(captured.draft?.title).toBe("Updated edited title");
+    expect(captured.draft?.description).toBe("Updated description of the observed defect");
+    expect(captured.draft?.expectedBehavior).toBe("Should save draft smoothly");
 
     // Verify receipt rendered in dialog
     expect(shadow?.textContent).toContain("Feedback received");
@@ -125,10 +125,10 @@ describe("feedback-dialog-flows", () => {
 
   test("removes context fields and verifies they are omitted from submission", async () => {
     const document = createDocument();
-    let submittedDraft: FeedbackDraft | null = null;
+    const captured = { draft: null as FeedbackDraft | null };
 
     const { dialog, host } = createDialog(document, (draft) => {
-      submittedDraft = draft;
+      captured.draft = draft;
       return Promise.resolve({
         outcome: "success",
         receipt: {
@@ -172,8 +172,8 @@ describe("feedback-dialog-flows", () => {
 
     await Promise.resolve();
 
-    expect(submittedDraft?.routeLabel).toBeNull();
-    expect(submittedDraft?.applicationRelease).toBeNull();
+    expect(captured.draft?.routeLabel).toBeNull();
+    expect(captured.draft?.applicationRelease).toBeNull();
   });
 
   test("handles cancellation from editing and confirmation states", async () => {

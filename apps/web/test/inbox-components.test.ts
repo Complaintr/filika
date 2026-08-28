@@ -86,17 +86,19 @@ describe("inbox-components", () => {
     expect(
       listStates.map(
         (state) =>
-          renderInboxList(document, state, { onOpen: () => {}, onRetry: () => {} }).querySelector(
-            ".state-panel",
-          )?.dataset.state,
+          renderInboxList(document, state, {
+            onOpen: () => {},
+            onRetry: () => {},
+          }).querySelector<HTMLElement>(".state-panel")?.dataset.state,
       ),
     ).toEqual(["loading", "empty", "error"]);
     expect(
       detailStates.map(
         (state) =>
-          renderInboxDetail(document, state, { onBack: () => {}, onRetry: () => {} }).querySelector(
-            ".state-panel",
-          )?.dataset.state,
+          renderInboxDetail(document, state, {
+            onBack: () => {},
+            onRetry: () => {},
+          }).querySelector<HTMLElement>(".state-panel")?.dataset.state,
       ),
     ).toEqual(["loading", "not_found", "expired", "error"]);
   });
