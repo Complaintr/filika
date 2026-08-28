@@ -447,6 +447,37 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     expect(rows[0]?.count).toBe(5);
   });
 
+  test("rejects a project over its configured rate limit over http", async () => {
+    await handle.db.insert(project).values({
+      allowedOrigins: [ALLOWED_ORIGIN],
+      displayName: "HTTP rate limit",
+      projectKey: "rate-limit-http-test",
+      rateLimitMax: 3,
+      retentionHours: 24,
+    });
+
+    const responses: Response[] = [];
+
+    for (let index = 0; index < 4; index += 1) {
+      const eventId = `e0000000-0000-4000-8000-${String(index).padStart(12, "0")}`;
+      const request = postEnvelope(eventId, { projectKey: "rate-limit-http-test" });
+      responses.push(await postRaw(request));
+    }
+
+    expect(responses.slice(0, 3).map((response) => response.status)).toEqual([201, 201, 201]);
+    expect(responses[3]?.status).toBe(429);
+
+    await expect(responses[3]?.json()).resolves.toEqual({
+      error: { category: "rate_limited" },
+    });
+
+    const rejectedRows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.eventId, "e0000000-0000-4000-8000-000000000003"),
+    });
+
+    expect(rejectedRows).toHaveLength(0);
+  });
+
   test("resolves concurrent duplicate retries to a single row", async () => {
     const eventId = "d1111111-0000-4000-8000-000000000001";
     const attempts = 8;
