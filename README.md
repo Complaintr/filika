@@ -5,7 +5,7 @@ browser tool and presenting it in a read-only maintainer inbox.
 
 The local demo connects the standalone SDK, native review dialog, and PostgreSQL
 collector. Playwright verifies reviewed submission and persistence through the
-real read APIs. The inbox UI still uses frontend preview data.
+real read APIs and opens the matching record in the live inbox UI.
 
 ## Repository layout
 

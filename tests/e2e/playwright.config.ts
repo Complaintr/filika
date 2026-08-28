@@ -1,8 +1,10 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "@playwright/test";
 import { browserDatabaseUrl } from "./database";
 
 export default defineConfig({
-  testDir: "./specs",
+  testDir: ".",
+  testMatch: ["specs/**/*.spec.ts", "src/**/*.spec.ts"],
   fullyParallel: false,
   workers: 1,
   retries: 0,
@@ -12,13 +14,13 @@ export default defineConfig({
   webServer: [
     {
       command: "bun run dev:webmcp",
-      cwd: "../..",
+      cwd: fileURLToPath(new URL("../..", import.meta.url)),
       url: "http://localhost:4173",
       reuseExistingServer: false,
     },
     {
       command: "bun run dev:collector",
-      cwd: "../..",
+      cwd: fileURLToPath(new URL("../..", import.meta.url)),
       url: "http://localhost:8787/api/v1/inbox",
       env: { DATABASE_URL: browserDatabaseUrl() },
       reuseExistingServer: false,

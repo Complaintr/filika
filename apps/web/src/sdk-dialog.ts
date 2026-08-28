@@ -6,7 +6,7 @@ import type {
   ReviewRequest,
 } from "@filika/sdk";
 import { FeedbackDialog } from "./components/feedback-dialog";
-import type { SdkExecutionResult } from "./contracts/feedback-dialog-machine";
+import type { ReceiptViewModel, SdkExecutionResult } from "./contracts/feedback-dialog-machine";
 import type { FeedbackDraft } from "./contracts/feedback-fields";
 
 export function dialogResult(result: FilikaExecutionOutcome): SdkExecutionResult {
@@ -56,7 +56,11 @@ export function confirmedDecision(
 }
 
 /** The UI makes decisions; only the public SDK owns validation, identity and transport. */
-export function connectSdkDialog(host: HTMLElement, api: FilikaPublicApi) {
+export function connectSdkDialog(
+  host: HTMLElement,
+  api: FilikaPublicApi,
+  callbacks: { onReceipt?(receipt: ReceiptViewModel): void } = {},
+) {
   const document = host.ownerDocument;
   let current: ReviewEventDetail | null = null;
   let submitted = false;
@@ -66,6 +70,17 @@ export function connectSdkDialog(host: HTMLElement, api: FilikaPublicApi) {
     retry: boolean;
     original: FilikaFeedbackDraftV1 | null;
   } | null = null;
+  function present(result: FilikaExecutionOutcome): SdkExecutionResult {
+    const view = dialogResult(result);
+    if (view.outcome === "success") {
+      try {
+        callbacks.onReceipt?.(view.receipt);
+      } catch {
+        // Presentation failures must not change a confirmed collector outcome.
+      }
+    }
+    return view;
+  }
   const dialog = new FeedbackDialog(host, {
     identity: {
       collectorOrigin: "http://localhost:8787",
@@ -85,7 +100,7 @@ export function connectSdkDialog(host: HTMLElement, api: FilikaPublicApi) {
         try {
           const result = await api.open({ signal });
           lastOutcome = result.code;
-          return dialogResult(result);
+          return present(result);
         } finally {
           pending = null;
         }
@@ -99,7 +114,7 @@ export function connectSdkDialog(host: HTMLElement, api: FilikaPublicApi) {
       try {
         const result = await detail.request.outcome;
         lastOutcome = result.code;
-        return dialogResult(result);
+        return present(result);
       } finally {
         signal.removeEventListener("abort", stop);
       }

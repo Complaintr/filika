@@ -1,5 +1,7 @@
 node_modules/
 dist/
+apps/web/public/
+apps/web/src/filika.js
 coverage/
 test-results/
 playwright-report/

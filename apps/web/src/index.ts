@@ -1,9 +1,10 @@
 import type { FilikaPublicApi } from "@filika/sdk";
 import { MaintainerInbox } from "./components/inbox";
-import type { InboxDetailViewModel, InboxListItemViewModel } from "./contracts/inbox-view-model";
+import { ReceiptToast } from "./components/receipt-toast";
 import { SampleApplication } from "./sample-app";
 import { createSampleTaskTool } from "./sample-task-tool";
 import { connectSdkDialog } from "./sdk-dialog";
+import { InboxApiService } from "./services/inbox-api";
 import type { ModelContext } from "./webmcp-test-tool";
 
 type WebMcpDocument = Document & {
@@ -15,37 +16,6 @@ declare global {
     Filika: FilikaPublicApi;
   }
 }
-
-const sampleFeedback: readonly InboxDetailViewModel[] = [
-  {
-    applicationRelease: "demo-2026.08",
-    description: "Saving the sample draft always ends with the visible conflict message.",
-    expectedBehavior: "The draft should save or explain how to resolve the conflict.",
-    expiresAt: "2026-08-28T18:30:00.000Z",
-    feedbackId: "fb_demo_7f31",
-    kind: "bug",
-    receivedAt: "2026-08-27T18:30:00.000Z",
-    reproductionSteps: "Open the sample task, run the save task, and observe the failure panel.",
-    requestOrigin: "http://localhost:4173",
-    routeLabel: "Sample task",
-    source: "web_sdk_unverified",
-    title: "Sample draft cannot be saved",
-  },
-  {
-    applicationRelease: null,
-    description: "The confirmation copy could explain the retention window more directly.",
-    expectedBehavior: null,
-    expiresAt: "2026-08-28T17:15:00.000Z",
-    feedbackId: "fb_demo_2a94",
-    kind: "idea",
-    receivedAt: "2026-08-27T17:15:00.000Z",
-    reproductionSteps: null,
-    requestOrigin: "http://localhost:4173",
-    routeLabel: "Feedback review",
-    source: "web_sdk_unverified",
-    title: "Clarify retention before confirmation",
-  },
-];
 
 function getRequiredElement<T extends HTMLElement>(id: string): T {
   const element = document.getElementById(id);
@@ -61,31 +31,38 @@ const demoNavigation = getRequiredElement<HTMLButtonElement>("nav-demo");
 const inboxNavigation = getRequiredElement<HTMLButtonElement>("nav-inbox");
 const webMcpStatus = getRequiredElement<HTMLElement>("webmcp-status");
 
+const COLLECTOR_ORIGIN = "http://localhost:8787";
+
+const receiptToast = new ReceiptToast(document.body, {
+  onViewInbox: (feedbackId) => showInbox(feedbackId),
+});
+const inboxApi = new InboxApiService({ collectorOrigin: COLLECTOR_ORIGIN });
+
 const api = window.Filika;
-const integration = connectSdkDialog(dialogHost, api);
+const integration = connectSdkDialog(dialogHost, api, {
+  onReceipt: (receipt) => receiptToast.show(receipt),
+});
 window.addEventListener("pagehide", () => integration.dispose(), { once: true });
 const sampleApplication = new SampleApplication(content, {
   feedbackDialog: { open: () => api.open() },
 });
-const listItems: readonly InboxListItemViewModel[] = sampleFeedback.map(
-  ({ feedbackId, kind, receivedAt, requestOrigin, routeLabel, title }) => ({
-    feedbackId,
-    kind,
-    receivedAt,
-    requestOrigin,
-    routeLabel,
-    title,
-  }),
-);
+
+async function loadInboxList(): Promise<void> {
+  inbox.showList({ status: "loading" });
+  const state = await inboxApi.fetchList();
+  inbox.showList(state);
+}
+
+async function loadInboxDetail(feedbackId: string): Promise<void> {
+  inbox.showDetail({ status: "loading" });
+  const state = await inboxApi.fetchDetail(feedbackId);
+  inbox.showDetail(state);
+}
+
 const inbox = new MaintainerInbox(content, {
-  onBack: () => inbox.showList({ items: listItems, status: "ready" }),
-  onOpen: (feedbackId) => {
-    const feedback = sampleFeedback.find((item) => item.feedbackId === feedbackId);
-    inbox.showDetail(
-      feedback === undefined ? { status: "not_found" } : { feedback, status: "ready" },
-    );
-  },
-  onRetry: () => inbox.showList({ items: listItems, status: "ready" }),
+  onBack: () => void loadInboxList(),
+  onOpen: (feedbackId) => void loadInboxDetail(feedbackId),
+  onRetry: () => void loadInboxList(),
 });
 
 function showDemo(): void {
@@ -94,14 +71,18 @@ function showDemo(): void {
   sampleApplication.render();
 }
 
-function showInbox(): void {
+function showInbox(targetFeedbackId?: string): void {
   inboxNavigation.setAttribute("aria-current", "page");
   demoNavigation.removeAttribute("aria-current");
-  inbox.showList({ items: listItems, status: "ready" });
+  if (targetFeedbackId !== undefined) {
+    void loadInboxDetail(targetFeedbackId);
+  } else {
+    void loadInboxList();
+  }
 }
 
-demoNavigation.addEventListener("click", showDemo);
-inboxNavigation.addEventListener("click", showInbox);
+demoNavigation.addEventListener("click", () => showDemo());
+inboxNavigation.addEventListener("click", () => showInbox());
 
 async function registerSampleTaskTool(): Promise<void> {
   const modelContext = (document as WebMcpDocument).modelContext;

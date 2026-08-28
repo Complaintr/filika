@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { runCleanup } from "../src/db/cleanup";
@@ -89,7 +89,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   server?.stop(true);
-  await handle.close();
+  await handle?.close();
 });
 
 describe("P2-BE-15 collector api and database tests", () => {
@@ -165,15 +165,17 @@ describe("P2-BE-15 collector api and database tests", () => {
     expect(first.status).toBe(200);
 
     const receipt = (await first.json()) as Record<string, unknown>;
-    const originalFeedbackId = receipt.feedbackId;
 
     const rows = await handle.db.query.feedback.findMany({
       where: eq(feedback.eventId, EVENT_ID),
     });
+    const stored = rows[0];
 
     expect(rows).toHaveLength(1);
     expect(receipt.duplicate).toBe(true);
-    expect(String(originalFeedbackId)).toMatch(
+    expect(receipt.feedbackId).toBe(stored?.id);
+    expect(receipt.receivedAt).toBe(stored?.receiptTimestamp.toISOString());
+    expect(String(receipt.feedbackId)).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     );
   });
@@ -201,6 +203,39 @@ describe("P2-BE-15 collector api and database tests", () => {
         "Content-Type": "application/json",
         "Idempotency-Key": eventId,
         Origin: "http://evil.example",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toEqual({ error: { category: "denied_origin" } });
+  });
+
+  test("accepts the documented 127.0.0.1 dev origin", async () => {
+    const eventId = "c1111111-0000-4000-8000-000000000001";
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor(eventId)),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": eventId,
+        Origin: "http://127.0.0.1:4173",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(201);
+  });
+
+  test("rejects an origin outside the documented dev ports", async () => {
+    const eventId = "c2222222-0000-4000-8000-000000000002";
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor(eventId)),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": eventId,
+        Origin: "http://localhost:5173",
       },
       method: "POST",
     });
@@ -297,6 +332,63 @@ describe("P2-BE-15 collector api and database tests", () => {
     expect([first.allowed, second.allowed, third.allowed]).toEqual([true, true, false]);
   });
 
+  test("resolves concurrent duplicate retries to a single row", async () => {
+    const eventId = "d1111111-0000-4000-8000-000000000001";
+    const attempts = 8;
+    const responses = await Promise.all(
+      Array.from({ length: attempts }, () => postRaw(postEnvelope(eventId))),
+    );
+    const statuses = responses.map((response) => response.status).sort((a, b) => a - b);
+    const receipts = (await Promise.all(responses.map((response) => response.json()))) as Array<
+      Record<string, unknown>
+    >;
+
+    expect(statuses.filter((status) => status === 201)).toHaveLength(1);
+    expect(statuses.filter((status) => status === 200)).toHaveLength(attempts - 1);
+    expect(new Set(receipts.map((receipt) => receipt.feedbackId)).size).toBe(1);
+
+    const rows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.eventId, eventId),
+    });
+
+    expect(rows).toHaveLength(1);
+  });
+
+  test("accepts concurrent distinct submissions", async () => {
+    const eventIds = [
+      "d2222222-0000-4000-8000-000000000002",
+      "d3333333-0000-4000-8000-000000000003",
+      "d4444444-0000-4000-8000-000000000004",
+      "d5555555-0000-4000-8000-000000000005",
+      "d6666666-0000-4000-8000-000000000006",
+    ];
+    const responses = await Promise.all(eventIds.map((eventId) => postRaw(postEnvelope(eventId))));
+
+    expect(responses.map((response) => response.status)).toEqual(
+      Array.from({ length: eventIds.length }, () => 201),
+    );
+
+    const rows = await handle.db.query.feedback.findMany({
+      where: inArray(feedback.eventId, eventIds),
+    });
+
+    expect(rows).toHaveLength(eventIds.length);
+  });
+
+  test("seeds the demo project idempotently for repeated runs", async () => {
+    const before = await handle.db.query.project.findMany({
+      where: eq(project.projectKey, DEMO_PROJECT_KEY),
+    });
+    const created = await seedDemoProject(handle);
+    const after = await handle.db.query.project.findMany({
+      where: eq(project.projectKey, DEMO_PROJECT_KEY),
+    });
+
+    expect(before).toHaveLength(1);
+    expect(created).toBe(false);
+    expect(after).toHaveLength(1);
+  });
+
   test("lists and details feedback through the read-only inbox", async () => {
     const listResponse = await postRaw(new Request(`${baseUrl}/api/v1/inbox`, { method: "GET" }));
     const list = (await listResponse.json()) as {
@@ -322,6 +414,47 @@ describe("P2-BE-15 collector api and database tests", () => {
     expect(detail.feedback.feedbackId).toBe(feedbackId);
     expect(typeof detail.feedback.expiresAt).toBe("string");
     expect(detail.feedback.source).toBe("web_sdk_unverified");
+  });
+
+  test("never exposes internal identifiers in inbox responses", async () => {
+    const listResponse = await postRaw(new Request(`${baseUrl}/api/v1/inbox`, { method: "GET" }));
+    const list = (await listResponse.json()) as {
+      items: Array<Record<string, unknown>>;
+      nextCursor: string | null;
+    };
+    const firstItem = list.items[0] ?? {};
+
+    for (const forbidden of ["projectId", "windowKey", "count", "sdkVersion", "eventId", "id"]) {
+      expect(firstItem).not.toHaveProperty(forbidden);
+    }
+
+    const feedbackId = firstItem.feedbackId as string;
+    const detailResponse = await postRaw(
+      new Request(`${baseUrl}/api/v1/inbox/${feedbackId}`, { method: "GET" }),
+    );
+    const detail = (await detailResponse.json()) as { feedback: Record<string, unknown> };
+    const record = detail.feedback;
+
+    expect(Object.keys(record).sort()).toEqual(
+      [
+        "applicationRelease",
+        "description",
+        "expectedBehavior",
+        "expiresAt",
+        "feedbackId",
+        "kind",
+        "receivedAt",
+        "reproductionSteps",
+        "requestOrigin",
+        "routeLabel",
+        "source",
+        "title",
+      ].sort(),
+    );
+
+    for (const forbidden of ["projectId", "windowKey", "count", "sdkVersion", "eventId", "id"]) {
+      expect(record).not.toHaveProperty(forbidden);
+    }
   });
 
   test("returns 404 for an unknown inbox detail", async () => {

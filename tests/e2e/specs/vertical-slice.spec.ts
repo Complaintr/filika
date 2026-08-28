@@ -130,6 +130,13 @@ test("sample failure -> reviewed tool submission -> real persisted inbox record"
   expect((await list.json()).items).toEqual(
     expect.arrayContaining([expect.objectContaining({ feedbackId: result.receipt.feedbackId })]),
   );
+  await expect(page.locator(".filika-receipt-toast")).toContainText(result.receipt.feedbackId);
+  await page.getByRole("button", { name: "Close", exact: true }).click();
+  await page.getByRole("button", { name: "View in inbox", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Reviewed sample save conflict", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator("main")).toContainText(result.receipt.feedbackId);
   expect(errors).toEqual([]);
 });
 

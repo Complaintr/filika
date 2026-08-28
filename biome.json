@@ -15,8 +15,10 @@
       "!!**/node_modules",
       "!!**/dist",
       "!!**/coverage",
+      "!!**/playwright-report",
+      "!!**/public",
       "!!**/test-results",
-      "!!**/playwright-report"
+      "!!apps/web/src/filika.js"
     ]
   },
   "formatter": {

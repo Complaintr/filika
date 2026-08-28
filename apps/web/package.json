@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "copy-sdk": "bun scripts/copy-sdk.ts",
     "build": "bun run build.ts",
     "dev": "bun run server.ts",
     "typecheck": "tsc --project tsconfig.json"

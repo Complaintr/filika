@@ -85,9 +85,10 @@ separate `packages/sdk/dist/filika.js` production build still requires HTTPS.
    ```
 
 Replace `FEEDBACK_ID` with the displayed receipt ID. The automated vertical slice
-checks both APIs against real persistence. The demo's **Inbox** navigation still
-shows the frontend's synthetic preview records; connecting that UI to the read
-APIs is the separate frontend integration track. It is not evidence of storage.
+checks both APIs against real persistence and opens the accepted record in the
+live inbox. Close the receipt dialog and click **View in inbox** in the receipt
+notification to open that exact record. The **Inbox** navigation loads the live
+list from the collector.
 
 Synthetic tool input:
 
@@ -126,11 +127,14 @@ seeds it. Run it before each repeated suite to clear test records and rate limit
 `E2E_DATABASE_URL` must name that database on a loopback host without query
 parameters. It never falls back to `DATABASE_URL`.
 
-The five tests cover confirmed persistence, explicit duplicate retry after a
+The five database-backed tests cover confirmed persistence, explicit duplicate retry after a
 lost response, cancel/abort without transmission, manual fallback, and review
 expiration. Only `document.modelContext` is replaced by a small test double;
 the retry test additionally drops one real collector response after persistence.
-These tests do not certify native Chrome WebMCP or agent tool selection.
+Four additional frontend browser tests cover receipt-to-inbox navigation,
+manual/cancel flows, duplicate retry, and hostile CSS using intercepted collector
+responses. Both suites run with the same managed local servers. These tests do
+not certify native Chrome WebMCP or agent tool selection.
 
 CI installs Chromium and system dependencies, migrates/seeds a fresh PostgreSQL
 service database, runs the suite, and runs retention cleanup even after failure.

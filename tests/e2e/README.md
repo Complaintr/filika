@@ -2,9 +2,11 @@
 
 Playwright runs the local application on port 4173 and the real collector on
 port 8787 against an explicitly configured local `filika_e2e` PostgreSQL database.
-The five scenarios cover edited/confirmed persistence through the inbox read
+The five database-backed scenarios cover edited/confirmed persistence through the inbox read
 APIs, lost-response duplicate retry, cancel/abort, manual fallback, and review
-expiration. The native dialog and SDK bundle are real; `document.modelContext`
+expiration. Four frontend scenarios additionally cover live inbox navigation,
+manual/cancel flows, duplicate retry, and hostile CSS with intercepted responses.
+The native dialog and SDK bundle are real; `document.modelContext`
 is a small test double, not certification of native Chrome WebMCP support.
 
 Follow the [local demo guide](../../docs/local-demo.md#browser-verification) to

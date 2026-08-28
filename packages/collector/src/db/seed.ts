@@ -9,22 +9,26 @@ export const DEMO_RETENTION_HOURS = 24 as const;
 export const DEMO_ALLOWED_ORIGINS = ["http://localhost:4173", "http://127.0.0.1:4173"] as const;
 
 export async function seedDemoProject(handle: DbHandle): Promise<boolean> {
-  const existing = await handle.db.query.project.findFirst({
-    where: eq(project.projectKey, DEMO_PROJECT_KEY),
-  });
+  const keysToSeed = [DEMO_PROJECT_KEY, "filika_demo"];
+  let seededAny = false;
 
-  if (existing !== undefined) {
-    return false;
+  for (const key of keysToSeed) {
+    const existing = await handle.db.query.project.findFirst({
+      where: eq(project.projectKey, key),
+    });
+
+    if (existing === undefined) {
+      await handle.db.insert(project).values({
+        allowedOrigins: [...DEMO_ALLOWED_ORIGINS],
+        displayName: DEMO_PROJECT_DISPLAY_NAME,
+        projectKey: key,
+        retentionHours: DEMO_RETENTION_HOURS,
+      });
+      seededAny = true;
+    }
   }
 
-  await handle.db.insert(project).values({
-    allowedOrigins: [...DEMO_ALLOWED_ORIGINS],
-    displayName: DEMO_PROJECT_DISPLAY_NAME,
-    projectKey: DEMO_PROJECT_KEY,
-    retentionHours: DEMO_RETENTION_HOURS,
-  });
-
-  return true;
+  return seededAny;
 }
 
 if (import.meta.main) {
