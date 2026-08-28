@@ -200,9 +200,13 @@ export function renderInboxDetail(
   section.className = "page-section";
   section.dataset.view = "inbox-detail";
   section.dataset.untrusted = "true";
-  section.append(createAction(document, "Back to inbox", callbacks.onBack, "text-button"));
+
+  const nav = document.createElement("div");
+  nav.className = "inbox-detail-nav";
+  nav.append(createAction(document, "Back to inbox", callbacks.onBack, "text-button"));
 
   if (state.status !== "ready") {
+    section.append(nav);
     appendText(document, section, "h1", "Feedback detail");
     section.append(renderNonReadyState(document, state.status, callbacks.onRetry));
     if (state.status === "expired") {
@@ -211,7 +215,8 @@ export function renderInboxDetail(
     return section;
   }
 
-  appendText(document, section, "p", state.feedback.kind, "eyebrow");
+  appendText(document, nav, "p", state.feedback.kind, "eyebrow");
+  section.append(nav);
   appendText(document, section, "h1", state.feedback.title);
   section.append(renderReadyDetail(document, state.feedback));
   return section;
