@@ -565,6 +565,59 @@ describe("P2-BE-15 collector api and database tests", () => {
     expect(response.status).toBe(404);
   });
 
+  test("stores xss-like content as plain text", async () => {
+    const eventId = "e1111111-0000-4000-8000-000000000001";
+    const xssTitle = "<script>alert(1)</script>";
+    const response = await postRaw(
+      postEnvelope(eventId, {
+        feedback: { ...envelopeFor(eventId).feedback, title: xssTitle },
+      }),
+    );
+
+    expect(response.status).toBe(201);
+
+    const receipt = (await response.json()) as Record<string, unknown>;
+    const detail = await postRaw(
+      new Request(`${baseUrl}/api/v1/inbox/${receipt.feedbackId}`, { method: "GET" }),
+    );
+    const detailBody = (await detail.json()) as { feedback: { title: string } };
+
+    expect(detailBody.feedback.title).toBe(xssTitle);
+  });
+
+  test("rejects malformed json over http", async () => {
+    const response = await postRaw(
+      new Request(`${baseUrl}/api/v1/feedback`, {
+        body: '{"schemaVersion":',
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": "e2222222-0000-4000-8000-000000000002",
+          Origin: ALLOWED_ORIGIN,
+        },
+        method: "POST",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: { category: "invalid_input" } });
+  });
+
+  test("rejects invalid utf-8 over http", async () => {
+    const response = await postRaw(
+      new Request(`${baseUrl}/api/v1/feedback`, {
+        body: new Uint8Array([0x7b, 0xc3, 0x28, 0x7d]),
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": "e3333333-0000-4000-8000-000000000003",
+          Origin: ALLOWED_ORIGIN,
+        },
+        method: "POST",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+  });
+
   test("cleanup removes only expired feedback and rate limits", async () => {
     const now = new Date();
     const expired = new Date(now.getTime() - 25 * 3_600_000);
