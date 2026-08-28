@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { FEEDBACK_TOOL, type FilikaExecutionOutcome, type FilikaModelContextTool } from "../src";
 import { detectModelContext } from "../src/model-context";
-import { registerFeedbackTool } from "../src/registration";
+import { registerFeedbackTool, registrationDiagnostic } from "../src/registration";
 
 test("detects only document.modelContext.registerTool, without legacy or ambient reads", () => {
   for (const value of [
@@ -193,4 +193,41 @@ test("disposal during feature detection never invokes registration", async () =>
     ),
   ).toEqual({ state: "disposed" });
   expect(calls).toBe(0);
+});
+
+test("diagnostics ignore primitives, hostile accessors, oversized names, and error messages", () => {
+  for (const error of [
+    null,
+    undefined,
+    "SecurityError",
+    42,
+    { name: "SecurityError".repeat(10000) },
+    {
+      name: {
+        toString() {
+          throw new Error("Must not coerce");
+        },
+      },
+    },
+    new Proxy(
+      {},
+      {
+        get() {
+          throw new Error("Private proxy failure");
+        },
+      },
+    ),
+  ])
+    expect(registrationDiagnostic(error)).toBe("unknown_error");
+  expect(
+    registrationDiagnostic({
+      name: "NotAllowedError",
+      get message() {
+        throw new Error("Must not read message");
+      },
+      get stack() {
+        throw new Error("Must not read stack");
+      },
+    }),
+  ).toBe("not_allowed");
 });
