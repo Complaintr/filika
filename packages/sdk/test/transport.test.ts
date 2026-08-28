@@ -41,7 +41,7 @@ test("collector adapter reconstructs correlated receipts and checks success/dupl
 });
 
 test("documented rejection statuses map to a closed code without collector text", () => {
-  for (const status of [400, 403, 413]) {
+  for (const status of [400, 403, 413, 429]) {
     expect(
       collectorOutcome({ status, body: '{"message":"private or malicious"}' }, submission.eventId),
     ).toEqual({ code: "collector_rejected" });

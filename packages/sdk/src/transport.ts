@@ -19,7 +19,7 @@ export function collectorOutcome(response: HttpResult, eventId: string): FilikaE
     return { code: "outcome_unknown" };
   }
   // These documented statuses reject before persistence. Never forward error text.
-  if ([400, 403, 413].includes(response.status)) return { code: "collector_rejected" };
+  if ([400, 403, 413, 429].includes(response.status)) return { code: "collector_rejected" };
   return { code: "outcome_unknown" };
 }
 
