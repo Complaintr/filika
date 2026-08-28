@@ -174,3 +174,7 @@ bun run build
 ```
 
 Run these checks before stopping the database container.
+
+## Related guides
+
+- [Local demo rehearsal](demo-rehearsal.md)
