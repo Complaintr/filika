@@ -35,6 +35,10 @@ export async function consumeProjectRateLimit(
   now: Date,
   maxPerWindow: number = PROJECT_RATE_LIMIT_DEFAULT_MAX,
 ): Promise<RateLimitConsumeResult> {
+  if (maxPerWindow < 1) {
+    return { allowed: false, remaining: 0 };
+  }
+
   const start = windowStartFor(now);
   const key = windowKey(projectId, start);
   const expiresAt = windowExpiresAt(start).toISOString();
