@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import inventory from "../../../docs/dependency-licenses.json";
+import inventory from "../../../releases/dependency-licenses.json";
 
 function record(value: unknown): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {

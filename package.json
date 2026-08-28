@@ -26,10 +26,10 @@
     "db:reset": "bun run --filter @filika/collector db:reset",
     "db:seed": "bun run --filter @filika/collector db:seed",
     "install:frozen": "bun install --frozen-lockfile",
-    "lint": "biome lint .",
+    "lint": "biome check . && bun run typecheck",
     "test:browser": "playwright test --config tests/e2e/playwright.config.ts",
     "test:browser:prepare": "bun run tests/e2e/database.ts reset",
-    "test:unit": "bun test apps packages --pass-with-no-tests",
+    "test:unit": "bun test",
     "typecheck": "bun run --filter '*' typecheck"
   },
   "devDependencies": {
