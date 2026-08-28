@@ -89,7 +89,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   server?.stop(true);
-  await handle.close();
+  await handle?.close();
 });
 
 describe("P2-BE-15 collector api and database tests", () => {

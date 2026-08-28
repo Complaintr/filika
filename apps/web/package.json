@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bun build src/index.html --outdir dist --target browser",
-    "dev": "bun --port 4173 src/index.html",
+    "copy-sdk": "bun scripts/copy-sdk.ts",
+    "build": "bun run --filter @filika/sdk build:development && bun build src/index.html --outdir dist --target browser && bun scripts/copy-sdk.ts",
+    "dev": "bun run --filter @filika/sdk build:development && bun dev-server.ts",
     "typecheck": "tsc --project tsconfig.json"
   },
   "dependencies": {

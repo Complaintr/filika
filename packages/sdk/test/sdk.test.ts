@@ -28,11 +28,16 @@ const accepted = (eventId: string) =>
 test("public manual API uses review in unsupported browsers and honors init/dispose status", async () => {
   const document = new EventTarget();
   let requests = 0;
+  const page = { outcome: null as Promise<FilikaExecutionOutcome> | null };
   document.addEventListener(REVIEW_EVENT, (event) => {
     const detail = (event as CustomEvent<ReviewEventDetail>).detail;
     event.preventDefault();
     expect(detail.request.draft).toBeNull();
-    detail.complete({ kind: "confirmed", feedback: draft, context: detail.request.context });
+    page.outcome = detail.complete({
+      kind: "confirmed",
+      feedback: draft,
+      context: detail.request.context,
+    });
   });
   const sdk = createSdk({
     document,
@@ -44,7 +49,10 @@ test("public manual API uses review in unsupported browsers and honors init/disp
   });
   expect(await sdk.open()).toEqual({ code: "internal_error" });
   expect((await sdk.init(config)).status.state).toBe("unsupported_browser");
-  expect((await sdk.open()).code).toBe("success");
+  const result = await sdk.open();
+  expect(result.code).toBe("success");
+  if (page.outcome === null) throw new Error("Expected the page outcome promise");
+  expect(await page.outcome).toEqual(result);
   expect(requests).toBe(1);
   sdk.dispose();
   expect(sdk.status.state).toBe("disposed");

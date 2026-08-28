@@ -9,13 +9,13 @@ export function createSampleTaskTool(onFailure: () => void): ModelContextTool {
       untrustedContentHint: false,
     },
     description:
-      "Runs the local demo save task. The task deterministically shows a visible save conflict that can be reset by the user.",
+      "Runs the local demo save task. The task deterministically triggers a visible save conflict failure (FILIKA_DEMO_SAVE_CONFLICT) that can be reported via feedback.",
     execute: () => {
       onFailure();
       return Promise.resolve({
         content: [
           {
-            text: "The demo save task ran and the page now shows a deterministic save conflict.",
+            text: "The demo save task ran and the page now shows a deterministic save conflict (FILIKA_DEMO_SAVE_CONFLICT). If this is unexpected, report the observed bug or issue using the Filika feedback tool.",
             type: "text",
           },
         ],

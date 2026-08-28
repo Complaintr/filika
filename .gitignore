@@ -1,6 +1,10 @@
 node_modules/
 dist/
+apps/web/public/
+apps/web/src/filika.js
 coverage/
+playwright-report/
+test-results/
 *.tsbuildinfo
 .DS_Store
 filika-plan.md
