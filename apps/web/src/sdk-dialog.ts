@@ -1,5 +1,6 @@
 import type {
   FilikaExecutionOutcome,
+  FilikaFeedbackDraftV1,
   FilikaPublicApi,
   ReviewEventDetail,
   ReviewRequest,
@@ -26,7 +27,15 @@ export function reviewDraft(request: ReviewRequest): Partial<FeedbackDraft> {
   };
 }
 
-export function confirmedDecision(draft: FeedbackDraft, request: ReviewRequest): unknown {
+export function confirmedDecision(
+  draft: FeedbackDraft,
+  request: ReviewRequest,
+  original: FilikaFeedbackDraftV1 | null = request.draft,
+): unknown {
+  const steps =
+    draft.reproductionSteps === original?.reproductionSteps?.join("\n")
+      ? original.reproductionSteps
+      : draft.reproductionSteps?.split("\n").filter((step) => step.trim() !== "");
   return {
     kind: "confirmed",
     feedback: {
@@ -34,9 +43,7 @@ export function confirmedDecision(draft: FeedbackDraft, request: ReviewRequest):
       title: draft.title,
       description: draft.description,
       ...(draft.expectedBehavior ? { expectedBehavior: draft.expectedBehavior } : {}),
-      ...(draft.reproductionSteps
-        ? { reproductionSteps: draft.reproductionSteps.split("\n") }
-        : {}),
+      ...(steps && steps.length > 0 ? { reproductionSteps: steps } : {}),
     },
     context: {
       sdkVersion: request.context.sdkVersion,
@@ -54,7 +61,11 @@ export function connectSdkDialog(host: HTMLElement, api: FilikaPublicApi) {
   let current: ReviewEventDetail | null = null;
   let submitted = false;
   let lastOutcome: FilikaExecutionOutcome["code"] | null = null;
-  let pending: { draft: FeedbackDraft; retry: boolean } | null = null;
+  let pending: {
+    draft: FeedbackDraft;
+    retry: boolean;
+    original: FilikaFeedbackDraftV1 | null;
+  } | null = null;
   const dialog = new FeedbackDialog(host, {
     identity: {
       collectorOrigin: "http://localhost:8787",
@@ -66,7 +77,11 @@ export function connectSdkDialog(host: HTMLElement, api: FilikaPublicApi) {
     async submit(draft, signal) {
       if (!current) return { outcome: "internal_error" };
       if (submitted) {
-        pending = { draft, retry: lastOutcome === "outcome_unknown" };
+        pending = {
+          draft,
+          retry: lastOutcome === "outcome_unknown",
+          original: current.request.draft,
+        };
         try {
           const result = await api.open({ signal });
           lastOutcome = result.code;
@@ -98,9 +113,9 @@ export function connectSdkDialog(host: HTMLElement, api: FilikaPublicApi) {
     current = detail;
     if (pending) {
       detail.complete(
-        pending.retry && detail.request.retry
+        pending.retry
           ? { kind: "retry" }
-          : confirmedDecision(pending.draft, detail.request),
+          : confirmedDecision(pending.draft, detail.request, pending.original),
       );
       return;
     }
@@ -111,6 +126,7 @@ export function connectSdkDialog(host: HTMLElement, api: FilikaPublicApi) {
       collectorOrigin: detail.request.collectorOrigin,
       privacyUrl: "/#privacy",
       projectName: detail.request.projectKey,
+      sdkVersion: detail.request.context.sdkVersion,
       retentionSummary: "Demo feedback is retained for up to 24 hours.",
     });
     void dialog
@@ -121,6 +137,7 @@ export function connectSdkDialog(host: HTMLElement, api: FilikaPublicApi) {
     void detail.request.outcome.then((result) => {
       if (current !== detail) return;
       lastOutcome = result.code;
+      submitted = true;
       dialog.resolveReview(dialogResult(result));
     });
   }

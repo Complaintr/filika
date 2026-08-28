@@ -8,6 +8,7 @@ import {
 import {
   AGENT_AUTHORED_REPORT_FIELD_IDS,
   type FeedbackDraft,
+  HOST_CONTEXT_REPORT_FIELD_IDS,
   REPORT_FIELD_CONTRACTS,
   type ReportFieldId,
 } from "../contracts/feedback-fields";
@@ -157,6 +158,7 @@ export interface FeedbackDialogIdentity {
   privacyUrl: string;
   projectName: string;
   retentionSummary: string;
+  sdkVersion?: string;
 }
 
 export interface FeedbackDialogOptions {
@@ -187,8 +189,8 @@ const outcomeCopy = {
     heading: "Submission status unknown",
   },
   timeout: {
-    body: "The collector did not respond in time.",
-    heading: "Submission timed out",
+    body: "The review period ended before this feedback was sent.",
+    heading: "Review timed out",
   },
 } as const;
 
@@ -655,7 +657,7 @@ export class FeedbackDialog {
     );
     const list = this.#document.createElement("dl");
     list.className = "review-list";
-    for (const field of AGENT_AUTHORED_REPORT_FIELD_IDS) {
+    for (const field of [...AGENT_AUTHORED_REPORT_FIELD_IDS, ...HOST_CONTEXT_REPORT_FIELD_IDS]) {
       const value = this.#state.draft[field];
       if (value === null || value === "") {
         continue;
@@ -694,6 +696,7 @@ export class FeedbackDialog {
       ["Project", this.#options.identity.projectName],
       ["Collector", this.#options.identity.collectorOrigin],
       ["Retention", this.#options.identity.retentionSummary],
+      ["SDK version", this.#options.identity.sdkVersion ?? "Not supplied"],
     ] as const) {
       const item = this.#document.createElement("div");
       appendText(this.#document, item, "dt", label);
@@ -736,17 +739,18 @@ export class FeedbackDialog {
     if (this.#state.status !== "submitting") {
       return;
     }
-    this.#submissionController = new AbortController();
+    const controller = new AbortController();
+    this.#submissionController = controller;
     const draft = this.#state.draft;
     let result: SdkExecutionResult;
     try {
-      result = await this.#options.submit(draft, this.#submissionController.signal);
+      result = await this.#options.submit(draft, controller.signal);
     } catch {
       result = {
-        outcome: this.#submissionController.signal.aborted ? "aborted" : "internal_error",
+        outcome: controller.signal.aborted ? "aborted" : "internal_error",
       };
     }
-    if (this.#state.status !== "submitting") {
+    if (this.#state.status !== "submitting" || this.#submissionController !== controller) {
       return;
     }
     this.#state = transitionFeedbackDialog(this.#state, { result, type: "RESOLVE" });
@@ -823,18 +827,14 @@ export class FeedbackDialog {
     const actions = this.#document.createElement("div");
     actions.className = "actions";
 
-    if (status === "collector_rejected") {
+    if (status === "collector_rejected" || status === "timeout") {
       actions.append(
         createButton(this.#document, "filika-outcome-primary", "Edit report", "primary", () => {
           this.#state = transitionFeedbackDialog(this.#state, { type: "EDIT" });
           this.render();
         }),
       );
-    } else if (
-      status === "timeout" ||
-      status === "internal_error" ||
-      status === "outcome_unknown"
-    ) {
+    } else if (status === "internal_error" || status === "outcome_unknown") {
       actions.append(
         createButton(this.#document, "filika-outcome-primary", "Retry", "primary", () => {
           this.#state = transitionFeedbackDialog(this.#state, { type: "RETRY" });

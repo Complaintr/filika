@@ -68,7 +68,7 @@ Bodies are capped at 1,024 bytes and decoded as strict UTF-8. JSON content type 
 required. A 201 response must have `duplicate: false`; a 200 response must have
 `duplicate: true`. Both must match the exact [V1 receipt](sdk-contract.md).
 
-The collector's documented pre-persistence statuses 400, 403, and 413 map to
+The collector's documented pre-persistence statuses 400, 403, 413, and 429 map to
 `collector_rejected` without forwarding their body text. HTTP 500, unexpected
 statuses, malformed receipts, stream errors, timeout, or abort after dispatch
 produce `outcome_unknown`. The SDK does not adopt older collector helper fields

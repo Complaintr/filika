@@ -192,8 +192,11 @@ describe("P2-FE dialog component", () => {
     requiredElement<HTMLButtonElement>(requiredShadowRoot(host), "#filika-confirm").click();
     await Promise.resolve();
     root = requiredShadowRoot(host);
-    expect(root.textContent).toContain("Submission timed out");
+    expect(root.textContent).toContain("Review timed out");
     requiredElement<HTMLButtonElement>(root, "#filika-outcome-primary").click();
+    expect(dialog.state.status).toBe("editing");
+    requiredElement<HTMLButtonElement>(root, "#filika-review").click();
+    requiredElement<HTMLButtonElement>(root, "#filika-confirm").click();
     await Promise.resolve();
     root = requiredShadowRoot(host);
     expect(root.textContent).toContain("Submission status unknown");
