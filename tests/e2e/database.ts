@@ -17,12 +17,16 @@ export function browserDatabaseUrl(): string {
   return value;
 }
 
+export function browserDatabaseCommand(action: string, executable = process.execPath): string[] {
+  return [executable, "run", `db:${action}`];
+}
+
 if (import.meta.main) {
   const action = Bun.argv[2];
   if (!action || !["migrate", "seed", "cleanup", "reset"].includes(action)) {
     throw new Error("Expected migrate, seed, cleanup, or reset.");
   }
-  const child = Bun.spawn(["bun", "run", `db:${action}`], {
+  const child = Bun.spawn(browserDatabaseCommand(action), {
     cwd: new URL("../..", import.meta.url).pathname,
     env: { ...process.env, DATABASE_URL: browserDatabaseUrl() },
     stdout: "inherit",
