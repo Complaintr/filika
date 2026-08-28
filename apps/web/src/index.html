@@ -26,8 +26,8 @@
       </nav>
       <div class="header-actions">
         <p id="webmcp-status" class="mono" role="status">Checking WebMCP support...</p>
-        <fieldset id="theme-switcher" class="theme-switcher">
-          <legend class="visually-hidden">Color theme</legend>
+        <div id="theme-switcher" class="theme-switcher" role="radiogroup" aria-labelledby="theme-switcher-label">
+          <span id="theme-switcher-label" class="visually-hidden">Color theme</span>
           <label class="theme-option" title="Light theme">
             <input class="theme-input" type="radio" name="color-theme" value="light" data-theme-value="light" aria-label="Light theme" />
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
@@ -40,7 +40,7 @@
             <input class="theme-input" type="radio" name="color-theme" value="system" data-theme-value="system" aria-label="System theme" />
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
           </label>
-        </fieldset>
+        </div>
       </div>
     </header>
     <main id="app-content"></main>
