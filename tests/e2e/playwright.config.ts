@@ -14,7 +14,8 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "bun --cwd ../.. run dev:webmcp",
+    command: "bun run dev:webmcp",
+    cwd: "../../",
     reuseExistingServer: true,
     timeout: 30_000,
     url: "http://localhost:4173",
