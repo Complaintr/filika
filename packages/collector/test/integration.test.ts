@@ -423,6 +423,7 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     const third = await consumeProjectRateLimit(handle.db, rateProject.id, now, 2);
 
     expect([first.allowed, second.allowed, third.allowed]).toEqual([true, true, false]);
+    expect([first.remaining, second.remaining, third.remaining]).toEqual([1, 0, 0]);
   });
 
   test("keeps the rate limit atomic under concurrent requests", async () => {
@@ -623,6 +624,89 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
 
     expect(expiredRows).toHaveLength(0);
     expect(freshRows).toHaveLength(1);
+  });
+
+  test("rejects a project over its configured rate limit over http", async () => {
+    await handle.db.insert(project).values({
+      allowedOrigins: [ALLOWED_ORIGIN],
+      displayName: "HTTP rate limit",
+      projectKey: "rate-limit-http-test",
+      rateLimitMax: 3,
+      retentionHours: 24,
+    });
+
+    const responses: Response[] = [];
+
+    for (let index = 0; index < 4; index += 1) {
+      const eventId = `e0000000-0000-4000-8000-${String(index).padStart(12, "0")}`;
+      const request = postEnvelope(eventId, { projectKey: "rate-limit-http-test" });
+      responses.push(await postRaw(request));
+    }
+
+    expect(responses.slice(0, 3).map((response) => response.status)).toEqual([201, 201, 201]);
+    expect(responses[3]?.status).toBe(429);
+
+    const retryAfter = responses[3]?.headers.get("Retry-After");
+
+    expect(retryAfter).not.toBeNull();
+    expect(Number.parseInt(retryAfter ?? "", 10)).toBeGreaterThan(0);
+
+    await expect(responses[3]?.json()).resolves.toEqual({
+      error: { category: "rate_limited" },
+    });
+
+    const rejectedRows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.eventId, "e0000000-0000-4000-8000-000000000003"),
+    });
+
+    expect(rejectedRows).toHaveLength(0);
+  });
+
+  test("resets the rate-limit budget at the hour boundary", async () => {
+    const rateProject = await handle.db.query.project.findFirst({
+      where: eq(project.projectKey, "rate-limit-test"),
+    });
+
+    if (rateProject === undefined) {
+      throw new Error("Rate-limit project was not seeded.");
+    }
+
+    const hourOne = new Date("2030-01-01T18:30:00.000Z");
+    const hourTwo = new Date("2030-01-01T19:10:00.000Z");
+
+    const firstWindow = await Promise.all([
+      consumeProjectRateLimit(handle.db, rateProject.id, hourOne, 2),
+      consumeProjectRateLimit(handle.db, rateProject.id, hourOne, 2),
+      consumeProjectRateLimit(handle.db, rateProject.id, hourOne, 2),
+    ]);
+
+    expect(firstWindow.filter((result) => result.allowed)).toHaveLength(2);
+
+    const nextWindow = await consumeProjectRateLimit(handle.db, rateProject.id, hourTwo, 2);
+
+    expect(nextWindow.allowed).toBe(true);
+  });
+
+  test("rejects every request when the rate-limit budget is zero", async () => {
+    const rateProject = await handle.db.query.project.findFirst({
+      where: eq(project.projectKey, "rate-limit-test"),
+    });
+
+    if (rateProject === undefined) {
+      throw new Error("Rate-limit project was not seeded.");
+    }
+
+    const windowNow = new Date(Date.now() + 48 * 3_600_000);
+    const result = await consumeProjectRateLimit(handle.db, rateProject.id, windowNow, 0);
+
+    expect(result).toEqual({ allowed: false, remaining: 0 });
+
+    const key = windowKey(rateProject.id, windowStartFor(windowNow));
+    const rows = await handle.db.query.rateLimit.findMany({
+      where: eq(rateLimit.windowKey, key),
+    });
+
+    expect(rows).toHaveLength(0);
   });
 
   test("resolves concurrent duplicate retries to a single row", async () => {
