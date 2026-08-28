@@ -64,3 +64,10 @@ is **not run**: exact feedback metadata inspection, DevTools invocation,
 confirmation, cancellation, and disposal still require a human-accessible
 DevTools session. Native headless permissions-policy results above do not replace
 this matrix. There is no claim of native full-journey success.
+
+## Independent Inspector path
+
+The [Inspector acceptance sequence](webmcp-inspector-testing.md) is **not run**.
+The installed Inspector/version and its browser side panel have not been
+verified. Registration, invocation, cancellation, and active disposal therefore
+have no Inspector evidence. No extension, provider, or API credentials were added.
