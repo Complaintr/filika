@@ -361,11 +361,7 @@ a:focus-visible {
 .theme-switcher {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 3px;
-  border: 1px solid var(--header-border);
-  border-radius: 9999px;
-  background: var(--nav-bg);
+  gap: 0.45rem;
 }
 
 .theme-btn {
@@ -376,25 +372,21 @@ a:focus-visible {
   block-size: 1.95rem;
   padding: 0;
   border: 0;
-  border-radius: 9999px;
   color: var(--nav-btn-color);
   background: transparent;
   cursor: pointer;
   transition:
     color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .theme-btn:hover:not([aria-checked="true"]) {
   color: var(--nav-btn-hover-color);
+  transform: translateY(-1px);
 }
 
 .theme-btn[aria-checked="true"] {
-  color: var(--nav-active-color);
-  background: var(--nav-active-bg);
-  box-shadow: var(--nav-active-shadow);
+  color: var(--primary-color);
 }
 
 .theme-btn svg {
@@ -778,23 +770,18 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
-  padding: 0;
+  padding: 0.2rem 0;
   border: none;
-  border-radius: 50%;
   color: var(--text-muted);
   background: transparent;
   cursor: pointer;
-  font-size: 0.85rem;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
+  font-size: 0.8rem;
+  font-weight: 650;
+  transition: color 0.15s ease;
 }
 
 .toast-dismiss-btn:hover {
   color: var(--text-main);
-  background: rgba(0, 0, 0, 0.06);
 }
 
 .toast-facts {

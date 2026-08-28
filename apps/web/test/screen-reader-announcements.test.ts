@@ -200,6 +200,7 @@ describe("screen reader, live regions, and aria associations", () => {
 
     const dismissBtn = toastEl.querySelector(".toast-dismiss-btn");
     expect(dismissBtn?.getAttribute("aria-label")).toBe("Dismiss notification");
+    expect(dismissBtn?.textContent).toBe("Dismiss");
 
     toast.dismiss();
     expect(toast.isVisible).toBe(false);
