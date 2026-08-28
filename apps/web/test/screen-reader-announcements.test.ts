@@ -78,7 +78,7 @@ describe("P4-FE-02 screen reader, live regions, and aria associations", () => {
 
   test("live region announces confirmation, submitting, and success states", async () => {
     const { host } = setupDom();
-    let resolveSubmit: (res: unknown) => void;
+    let resolveSubmit: (res: unknown) => void = () => {};
     const submitPromise = new Promise((resolve) => {
       resolveSubmit = resolve;
     });

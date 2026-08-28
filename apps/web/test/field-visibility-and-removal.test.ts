@@ -81,7 +81,7 @@ describe("P4-FE-05 field visibility, editing, and removal before submission", ()
 
   test("removing host context fields excludes them from confirmation and submitted draft", async () => {
     const { host } = setupDom();
-    let submittedDraft: FeedbackDraft | null = null;
+    const resultHolder: { submittedDraft: FeedbackDraft | null } = { submittedDraft: null };
 
     const dialog = new FeedbackDialog(host, {
       identity: {
@@ -91,7 +91,7 @@ describe("P4-FE-05 field visibility, editing, and removal before submission", ()
         retentionSummary: "24h retention",
       },
       submit: (draft) => {
-        submittedDraft = draft;
+        resultHolder.submittedDraft = draft;
         return Promise.resolve({
           outcome: "success",
           receipt: {
@@ -139,14 +139,14 @@ describe("P4-FE-05 field visibility, editing, and removal before submission", ()
     confirmBtn.click();
     await Promise.resolve();
 
-    expect(submittedDraft?.routeLabel).toBeNull();
-    expect(submittedDraft?.applicationRelease).toBe("v1.5.0");
-    expect(submittedDraft?.title).toBe("Dashboard statistics failed to load");
+    expect(resultHolder.submittedDraft?.routeLabel).toBeNull();
+    expect(resultHolder.submittedDraft?.applicationRelease).toBe("v1.5.0");
+    expect(resultHolder.submittedDraft?.title).toBe("Dashboard statistics failed to load");
   });
 
   test("editing from confirmation view allows changing values and returning to confirm", async () => {
     const { document, host } = setupDom();
-    let submittedDraft: FeedbackDraft | null = null;
+    const secondResultHolder: { submittedDraft: FeedbackDraft | null } = { submittedDraft: null };
 
     const dialog = new FeedbackDialog(host, {
       identity: {
@@ -156,7 +156,7 @@ describe("P4-FE-05 field visibility, editing, and removal before submission", ()
         retentionSummary: "24h retention",
       },
       submit: (draft) => {
-        submittedDraft = draft;
+        secondResultHolder.submittedDraft = draft;
         return Promise.resolve({
           outcome: "success",
           receipt: {
@@ -205,6 +205,6 @@ describe("P4-FE-05 field visibility, editing, and removal before submission", ()
     confirmBtn.click();
     await Promise.resolve();
 
-    expect(submittedDraft?.title).toBe("Corrected title");
+    expect(secondResultHolder.submittedDraft?.title).toBe("Corrected title");
   });
 });

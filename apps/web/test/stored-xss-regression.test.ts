@@ -77,7 +77,7 @@ describe("P4-FE-06 stored-XSS regression and text rendering safety", () => {
             reproductionSteps: payload,
             requestOrigin: payload,
             routeLabel: payload,
-            source: payload,
+            source: "web_sdk_unverified",
             title: payload,
           },
           status: "ready",

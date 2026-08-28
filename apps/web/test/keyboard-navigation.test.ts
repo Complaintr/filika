@@ -98,7 +98,9 @@ describe("P4-FE-01 keyboard navigation and focus management", () => {
 
     // Dialog remains in editing with issues
     expect(dialog.state.status).toBe("editing");
-    expect(dialog.state.issues.length).toBeGreaterThan(0);
+    if (dialog.state.status === "editing") {
+      expect(dialog.state.issues.length).toBeGreaterThan(0);
+    }
 
     // Error summary is rendered with role="alert"
     const errorSummary = shadow?.getElementById("filika-feedback-errors");
@@ -118,7 +120,7 @@ describe("P4-FE-01 keyboard navigation and focus management", () => {
     const { document, host, invokerButton } = setupDom();
     invokerButton.focus();
 
-    let submittedPayload: FeedbackDraft | null = null;
+    const submissionHolder: { submittedPayload: FeedbackDraft | null } = { submittedPayload: null };
     const dialog = new FeedbackDialog(host, {
       identity: {
         collectorOrigin: "http://localhost:8787",
@@ -127,7 +129,7 @@ describe("P4-FE-01 keyboard navigation and focus management", () => {
         retentionSummary: "24h retention",
       },
       submit: (draft) => {
-        submittedPayload = draft;
+        submissionHolder.submittedPayload = draft;
         return Promise.resolve({
           outcome: "success",
           receipt: {
@@ -174,9 +176,9 @@ describe("P4-FE-01 keyboard navigation and focus management", () => {
     await Promise.resolve();
 
     expect(dialog.state.status).toBe("success");
-    expect(submittedPayload?.title).toBe("Updated title via keyboard");
-    expect(submittedPayload?.routeLabel).toBeNull();
-    expect(submittedPayload?.applicationRelease).toBe("v1.0.0");
+    expect(submissionHolder.submittedPayload?.title).toBe("Updated title via keyboard");
+    expect(submissionHolder.submittedPayload?.routeLabel).toBeNull();
+    expect(submissionHolder.submittedPayload?.applicationRelease).toBe("v1.0.0");
 
     // Close from success
     const closeBtn = shadow?.getElementById("filika-close") as HTMLButtonElement;
