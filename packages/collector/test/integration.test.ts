@@ -210,6 +210,39 @@ describe("P2-BE-15 collector api and database tests", () => {
     await expect(response.json()).resolves.toEqual({ error: { category: "denied_origin" } });
   });
 
+  test("accepts the documented 127.0.0.1 dev origin", async () => {
+    const eventId = "c1111111-0000-4000-8000-000000000001";
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor(eventId)),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": eventId,
+        Origin: "http://127.0.0.1:4173",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(201);
+  });
+
+  test("rejects an origin outside the documented dev ports", async () => {
+    const eventId = "c2222222-0000-4000-8000-000000000002";
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor(eventId)),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": eventId,
+        Origin: "http://localhost:5173",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toEqual({ error: { category: "denied_origin" } });
+  });
+
   test("rejects an oversized body before parsing", async () => {
     const eventId = "a3333333-0000-4000-8000-000000000003";
     const request = new Request(`${baseUrl}/api/v1/feedback`, {
