@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 /** Never fall back to the developer's demo database for browser tests. */
 export function browserDatabaseUrl(): string {
   const value = process.env.E2E_DATABASE_URL;
@@ -17,13 +19,21 @@ export function browserDatabaseUrl(): string {
   return value;
 }
 
+export function browserDatabaseCommand(action: string, executable = process.execPath): string[] {
+  return [executable, "run", `db:${action}`];
+}
+
+export function browserDatabaseCwd(moduleUrl = import.meta.url): string {
+  return fileURLToPath(new URL("../..", moduleUrl));
+}
+
 if (import.meta.main) {
   const action = Bun.argv[2];
   if (!action || !["migrate", "seed", "cleanup", "reset"].includes(action)) {
     throw new Error("Expected migrate, seed, cleanup, or reset.");
   }
-  const child = Bun.spawn(["bun", "run", `db:${action}`], {
-    cwd: new URL("../..", import.meta.url).pathname,
+  const child = Bun.spawn(browserDatabaseCommand(action), {
+    cwd: browserDatabaseCwd(),
     env: { ...process.env, DATABASE_URL: browserDatabaseUrl() },
     stdout: "inherit",
     stderr: "inherit",

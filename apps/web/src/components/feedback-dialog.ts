@@ -12,7 +12,7 @@ import {
   REPORT_FIELD_CONTRACTS,
   type ReportFieldId,
 } from "../contracts/feedback-fields";
-import { FILIKA_TOKEN_CSS } from "../foundation/design-tokens";
+import { FILIKA_DESIGN_TOKENS, FILIKA_TOKEN_CSS } from "../foundation/design-tokens";
 import { getOrCreateFilikaShadowRoot } from "../foundation/style-isolation";
 
 const DIALOG_STYLES = `
@@ -21,48 +21,53 @@ ${FILIKA_TOKEN_CSS}
 * { box-sizing: border-box; }
 
 dialog {
-  inline-size: min(42rem, calc(100vw - 2rem));
-  max-block-size: min(48rem, calc(100vh - 2rem));
+  inline-size: min(672px, calc(100vw - 32px));
+  max-block-size: min(768px, calc(100vh - 32px));
   margin: auto;
   padding: 0;
   border: 1px solid var(--filika-dialog-border);
-  border-radius: 1.5rem;
+  border-radius: 24px;
   color: var(--filika-color-text);
   background: var(--filika-dialog-bg);
+  font-family: ${FILIKA_DESIGN_TOKENS.typography.family};
+  font-size: 16px;
+  line-height: 1.5;
+  pointer-events: auto;
+  user-select: auto;
   box-shadow:
-    0 2rem 6rem rgb(0 0 0 / 32%),
+    0 32px 96px rgb(0 0 0 / 32%),
     inset 0 1px 0 var(--filika-dialog-highlight);
-  backdrop-filter: saturate(180%) blur(2rem);
+  backdrop-filter: saturate(180%) blur(32px);
 }
 
 dialog::backdrop {
   background: var(--filika-backdrop-bg);
-  backdrop-filter: blur(0.75rem);
+  backdrop-filter: blur(12px);
 }
 
-.surface { padding: clamp(1.5rem, 5vw, 2.5rem); }
+.surface { padding: clamp(24px, 5vw, 40px); }
 .eyebrow {
   margin: 0;
   color: var(--filika-color-primary);
-  font-size: 0.75rem;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-h2 { margin: 0.3rem 0 0.6rem; font-size: 1.75rem; line-height: 1.14; letter-spacing: -0.035em; }
-h3 { margin-block: 1.5rem 0.75rem; font-size: 1rem; }
-p { margin-block: 0.5rem; }
+h2 { margin: 4.8px 0 9.6px; font-size: 28px; line-height: 1.14; letter-spacing: -0.035em; }
+h3 { margin-block: 24px 12px; font-size: 16px; }
+p { margin-block: 8px; }
 .muted, .help { color: var(--filika-color-text-muted); }
-.help { margin-block-start: 0.25rem; font-size: 0.875rem; }
+.help { margin-block-start: 4px; font-size: 14px; }
 
-.field { display: grid; gap: 0.4rem; margin-block: 1rem; }
+.field { display: grid; gap: 6.4px; margin-block: 16px; }
 label { font-weight: 650; }
 input, select, textarea {
   inline-size: 100%;
-  padding: 0.8rem 0.9rem;
+  padding: 12.8px 14.4px;
   border: 1px solid var(--filika-input-border);
-  border-radius: 0.875rem;
+  border-radius: 14px;
   color: var(--filika-color-text);
   background: var(--filika-input-bg);
   box-shadow: inset 0 1px 2px rgb(0 0 0 / 6%);
@@ -72,52 +77,52 @@ input, select, textarea {
     box-shadow var(--filika-motion-fast) var(--filika-motion-easing);
 }
 input:hover, select:hover, textarea:hover { border-color: var(--filika-color-primary); }
-textarea { min-block-size: 6.5rem; resize: vertical; }
+textarea { min-block-size: 104px; resize: vertical; }
 input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] {
   border-color: var(--filika-color-danger);
   box-shadow: 0 0 0 1px var(--filika-color-danger);
 }
-.error { margin: 0; color: var(--filika-color-danger); font-size: 0.875rem; font-weight: 650; }
+.error { margin: 0; color: var(--filika-color-danger); font-size: 14px; font-weight: 650; }
 .error-summary {
-  padding: 0.9rem 1rem;
+  padding: 14.4px 16px;
   border: 1px solid rgb(159 38 51 / 18%);
-  border-radius: 1rem;
+  border-radius: 16px;
   background: var(--filika-error-summary-bg);
 }
 .error-summary:empty { display: none; }
 .error-summary a { color: var(--filika-color-danger); }
 
-.context-list, .review-list, .receipt-list { display: grid; gap: 0.5rem; margin: 0; padding: 0; }
+.context-list, .review-list, .receipt-list { display: grid; gap: 8px; margin: 0; padding: 0; }
 .context-item, .review-item, .receipt-item {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 0.75rem;
+  gap: 12px;
   align-items: center;
-  padding: 0.75rem;
+  padding: 12px;
   border: 1px solid var(--filika-input-border);
-  border-radius: 1rem;
+  border-radius: 16px;
   background: var(--filika-color-surface-muted);
 }
-.context-item dt, .review-item dt, .receipt-item dt { color: var(--filika-color-text-muted); font-size: 0.8rem; font-weight: 650; }
-.context-item dd, .review-item dd, .receipt-item dd { margin: 0.2rem 0 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.context-item dt, .review-item dt, .receipt-item dt { color: var(--filika-color-text-muted); font-size: 12.8px; font-weight: 650; }
+.context-item dd, .review-item dd, .receipt-item dd { margin: 3.2px 0 0; overflow-wrap: anywhere; white-space: pre-wrap; }
 .review-item, .receipt-item { grid-template-columns: 1fr; }
 
 .privacy {
-  margin-block: 1.25rem;
-  padding: 1.15rem;
+  margin-block: 20px;
+  padding: 18.4px;
   border: 1px solid var(--filika-input-border);
-  border-radius: 1rem;
+  border-radius: 16px;
   background: var(--filika-privacy-bg);
 }
-.privacy dl { display: grid; gap: 0.75rem; margin-block: 0.75rem; }
-.privacy dt { color: var(--filika-color-text-muted); font-size: 0.8rem; font-weight: 650; }
-.privacy dd { margin: 0.15rem 0 0; overflow-wrap: anywhere; }
+.privacy dl { display: grid; gap: 12px; margin-block: 12px; }
+.privacy dt { color: var(--filika-color-text-muted); font-size: 12.8px; font-weight: 650; }
+.privacy dd { margin: 2.4px 0 0; overflow-wrap: anywhere; }
 .privacy a { color: var(--filika-color-primary); font-weight: 650; }
 
-.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-block-start: 1.5rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-block-start: 24px; }
 button {
-  min-block-size: 2.75rem;
-  padding: 0.7rem 1.1rem;
+  min-block-size: 44px;
+  padding: 11.2px 17.6px;
   border: 1px solid transparent;
   border-radius: 999px;
   font: inherit;
@@ -131,21 +136,21 @@ button {
 .primary {
   color: var(--filika-color-on-primary);
   background: var(--filika-color-primary);
-  box-shadow: 0 0.5rem 1.25rem rgb(15 118 110 / 24%);
+  box-shadow: 0 8px 20px rgb(15 118 110 / 24%);
 }
 .secondary {
   border-color: var(--filika-input-border);
   color: var(--filika-color-primary);
   background: var(--filika-secondary-btn-bg);
 }
-.text-action { padding-inline: 0.25rem; border: 0; color: var(--filika-color-primary); background: transparent; text-decoration: underline; text-underline-offset: 0.2em; }
+.text-action { padding-inline: 4px; border: 0; color: var(--filika-color-primary); background: transparent; text-decoration: underline; text-underline-offset: 0.2em; }
 button:active { transform: scale(0.98); }
 button:disabled { cursor: wait; opacity: 0.6; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
   outline: var(--filika-focus-width) solid var(--filika-color-focus);
   outline-offset: var(--filika-focus-offset);
 }
-.spinner { inline-size: 1rem; block-size: 1rem; border: 0.15rem solid currentColor; border-inline-end-color: transparent; border-radius: 50%; animation: spin var(--filika-motion-normal) linear infinite; }
+.spinner { inline-size: 16px; block-size: 16px; border: 2.4px solid currentColor; border-inline-end-color: transparent; border-radius: 50%; animation: spin var(--filika-motion-normal) linear infinite; }
 @keyframes spin { to { transform: rotate(1turn); } }
 
 .sr-only, #filika-feedback-status {

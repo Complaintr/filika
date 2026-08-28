@@ -64,9 +64,9 @@ test("validates untrusted drafts before creating a transport envelope", () => {
   expect(
     parseDraft({
       ...draft,
-      description: "😀".repeat(4000),
-      expectedBehavior: "😀".repeat(2000),
-      reproductionSteps: ["😀".repeat(500)],
+      description: String.fromCodePoint(0x1f600).repeat(4000),
+      expectedBehavior: String.fromCodePoint(0x1f600).repeat(2000),
+      reproductionSteps: [String.fromCodePoint(0x1f600).repeat(500)],
     }),
   ).toBeNull();
 });

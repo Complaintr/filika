@@ -28,10 +28,10 @@ if (!existsSync(PUBLIC_DIR)) {
 }
 
 copyFileSync(sourceFile, publicDest);
-console.log(`Copied SDK bundle → ${publicDest}`);
+console.log(`Copied SDK bundle to ${publicDest}`);
 
 if (existsSync(DIST_DIR)) {
   const distDest = join(DIST_DIR, "filika.js");
   copyFileSync(sourceFile, distDest);
-  console.log(`Copied SDK bundle → ${distDest}`);
+  console.log(`Copied SDK bundle to ${distDest}`);
 }

@@ -191,6 +191,17 @@
   box-sizing: border-box;
 }
 
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 body {
   min-block-size: 100vh;
   margin: 0;
@@ -308,12 +319,21 @@ a:focus-visible {
 }
 
 .text-button {
-  padding: 0.45rem 0.95rem;
-  margin-block-end: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 2rem;
+  padding: 0.35rem 0.85rem;
   border: 1px solid var(--card-border);
+  border-radius: 9999px;
   color: var(--primary-color);
   background: var(--card-bg);
   box-shadow: var(--card-shadow);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  box-sizing: border-box;
 }
 
 .text-button:hover {
@@ -359,6 +379,7 @@ a:focus-visible {
 }
 
 .theme-switcher {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 2px;
@@ -368,7 +389,7 @@ a:focus-visible {
   background: var(--nav-bg);
 }
 
-.theme-btn {
+.theme-option {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -387,17 +408,24 @@ a:focus-visible {
     box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.theme-btn:hover:not([aria-checked="true"]) {
+.theme-input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+}
+
+.theme-option:hover:not(:has(.theme-input:checked)) {
   color: var(--nav-btn-hover-color);
 }
 
-.theme-btn[aria-checked="true"] {
+.theme-option:has(.theme-input:checked) {
   color: var(--nav-active-color);
   background: var(--nav-active-bg);
   box-shadow: var(--nav-active-shadow);
 }
 
-.theme-btn svg {
+.theme-option svg {
   inline-size: 1rem;
   block-size: 1rem;
   fill: none;
@@ -405,6 +433,11 @@ a:focus-visible {
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.theme-option:has(.theme-input:focus-visible) {
+  outline: 3px solid #007775;
+  outline-offset: 3px;
 }
 
 main {
@@ -423,6 +456,7 @@ main {
   letter-spacing: -0.038em;
   color: var(--text-main);
   text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
 .lede {
@@ -437,18 +471,23 @@ main {
 .eyebrow {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   width: fit-content;
+  min-block-size: 2rem;
+  vertical-align: middle;
   margin: 0 0 0.85rem;
-  padding: 0.28rem 0.8rem;
+  padding: 0.35rem 0.85rem;
   border: 1px solid var(--eyebrow-border);
   border-radius: 9999px;
   color: var(--eyebrow-color);
   background: var(--eyebrow-bg);
-  font-size: 0.725rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 .demo-grid {
@@ -641,12 +680,27 @@ main {
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
 }
 
 .mono {
   color: var(--mono-color);
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 0.8rem;
+}
+
+.inbox-detail-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-block-end: 1rem;
+}
+
+.inbox-detail-nav .text-button,
+.inbox-detail-nav .eyebrow {
+  margin: 0;
+  min-block-size: 2rem;
+  box-sizing: border-box;
 }
 
 .detail-group {
@@ -776,23 +830,18 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
-  padding: 0;
+  padding: 0.2rem 0;
   border: none;
-  border-radius: 50%;
   color: var(--text-muted);
   background: transparent;
   cursor: pointer;
-  font-size: 0.85rem;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
+  font-size: 0.8rem;
+  font-weight: 650;
+  transition: color 0.15s ease;
 }
 
 .toast-dismiss-btn:hover {
   color: var(--text-main);
-  background: rgba(0, 0, 0, 0.06);
 }
 
 .toast-facts {

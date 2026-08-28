@@ -59,7 +59,7 @@ export class ReceiptToast {
     dismissBtn.type = "button";
     dismissBtn.className = "toast-dismiss-btn";
     dismissBtn.setAttribute("aria-label", "Dismiss notification");
-    dismissBtn.textContent = "✕";
+    dismissBtn.textContent = "Dismiss";
     dismissBtn.addEventListener("click", () => this.dismiss());
 
     header.append(badge, title, dismissBtn);
