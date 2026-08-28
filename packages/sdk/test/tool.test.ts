@@ -1,8 +1,16 @@
 import { expect, test } from "bun:test";
 import Ajv from "ajv";
+import positiveEvals from "../../../tests/evals/positive.json";
 import { FEEDBACK_TOOL } from "../src";
 
 const validate = new Ajv({ strict: true }).compile(FEEDBACK_TOOL.inputSchema);
+
+for (const scenario of positiveEvals) {
+  test(`positive eval example satisfies the frozen tool schema: ${scenario.scenario}`, () => {
+    expect(validate(scenario.exampleDraft)).toBe(true);
+    expect(scenario.exampleDraft.kind).toBe(scenario.expectedKind);
+  });
+}
 
 test("the static tool accepts only report fields, not host or transport claims", () => {
   const draft = {
