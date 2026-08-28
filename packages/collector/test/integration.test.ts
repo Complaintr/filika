@@ -524,6 +524,63 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     }
   });
 
+  test("keeps inbox list and detail bounded with large fixtures", async () => {
+    const now = new Date();
+    const total = 120;
+    const fixtures = Array.from({ length: total }, (_, index) => ({
+      description: `fixture ${index}`,
+      eventId: uuidFor(1000 + index),
+      kind: "idea" as const,
+      origin: ALLOWED_ORIGIN,
+      projectId: demoProjectId,
+      receiptTimestamp: new Date(now.getTime() - index * 1000),
+      sdkVersion: "1.0.0",
+      source: "web_sdk_unverified",
+      title: `fixture report ${index}`,
+    }));
+
+    await handle.db.insert(feedback).values(fixtures);
+
+    const first = await postRaw(new Request(`${baseUrl}/api/v1/inbox`, { method: "GET" }));
+    const firstBody = (await first.json()) as {
+      items: Array<Record<string, unknown>>;
+      nextCursor: string | null;
+    };
+
+    expect(firstBody.items.length).toBeLessThanOrEqual(50);
+    expect(firstBody.nextCursor).not.toBeNull();
+
+    const collected: string[] = [];
+    let cursor: string | null = null;
+
+    do {
+      const url =
+        cursor === null
+          ? `${baseUrl}/api/v1/inbox`
+          : `${baseUrl}/api/v1/inbox?cursor=${encodeURIComponent(cursor)}`;
+      const response = await postRaw(new Request(url, { method: "GET" }));
+      const body = (await response.json()) as {
+        items: Array<{ feedbackId: string }>;
+        nextCursor: string | null;
+      };
+
+      for (const item of body.items) {
+        collected.push(item.feedbackId);
+      }
+
+      cursor = body.nextCursor;
+    } while (cursor !== null);
+
+    expect(collected.length).toBeGreaterThanOrEqual(total);
+    expect(new Set(collected).size).toBe(collected.length);
+
+    const detail = await postRaw(
+      new Request(`${baseUrl}/api/v1/inbox/${collected[0]}`, { method: "GET" }),
+    );
+
+    expect(detail.status).toBe(200);
+  });
+
   test("resolves concurrent duplicate retries to a single row", async () => {
     const eventId = "d1111111-0000-4000-8000-000000000001";
     const attempts = 8;
