@@ -46,13 +46,26 @@ Bun.serve({
     const url = new URL(req.url);
     let pathname = url.pathname;
 
-    // Serve static assets from public/ first
-    if (pathname !== "/") {
-      const normalizedPath = pathname.replace(/^\/public\//, "/").replace(/^\.\.\/public\//, "/");
-      const publicPath = join(PUBLIC_DIR, normalizedPath);
+    // Handle SDK script asset requests
+    if (
+      pathname === "/filika.js" ||
+      pathname === "/public/filika.js" ||
+      pathname.endsWith("/filika.js")
+    ) {
+      const sdkFile = Bun.file(sdkDest);
+      if (await sdkFile.exists()) {
+        return new Response(sdkFile, {
+          headers: { "content-type": "application/javascript; charset=utf-8" },
+        });
+      }
+    }
+
+    // Serve static assets from public/
+    if (pathname.startsWith("/public/")) {
+      const publicPath = join(PUBLIC_DIR, pathname.replace(/^\/public\//, ""));
       const publicFile = Bun.file(publicPath);
       if (await publicFile.exists()) {
-        const ext = extname(normalizedPath);
+        const ext = extname(publicPath);
         const contentType = MIME_TYPES[ext] ?? "application/octet-stream";
         return new Response(publicFile, {
           headers: { "content-type": contentType },
@@ -60,27 +73,45 @@ Bun.serve({
       }
     }
 
-    // Serve the HTML app from src/ with Bun's transpiler for .ts files
-    if (pathname === "/") {
-      pathname = "/index.html";
-    }
+    // Bundle TypeScript entry point on-the-fly for browser execution
+    if (
+      pathname === "/index.ts" ||
+      pathname === "/src/index.ts" ||
+      pathname === "/index.js" ||
+      pathname.endsWith("/index.ts")
+    ) {
+      const buildResult = await Bun.build({
+        entrypoints: [join(SRC_DIR, "index.ts")],
+        target: "browser",
+      });
 
-    const srcPath = join(SRC_DIR, pathname);
-    const srcFile = Bun.file(srcPath);
-    if (await srcFile.exists()) {
-      const ext = extname(pathname);
-
-      if (ext === ".ts") {
-        const transpiler = new Bun.Transpiler({
-          loader: "ts",
-        });
-        const code = await srcFile.text();
-        const output = transpiler.transformSync(code);
-        return new Response(output, {
+      if (buildResult.success && buildResult.outputs[0]) {
+        const bundledJs = await buildResult.outputs[0].text();
+        return new Response(bundledJs, {
           headers: { "content-type": "application/javascript; charset=utf-8" },
         });
       }
 
+      console.error("Bun.build dev error:", buildResult.logs);
+      return new Response("console.error('Failed to bundle index.ts');", {
+        headers: { "content-type": "application/javascript; charset=utf-8" },
+        status: 500,
+      });
+    }
+
+    // Serve index.html
+    if (pathname === "/" || pathname === "/index.html") {
+      const htmlFile = Bun.file(join(SRC_DIR, "index.html"));
+      return new Response(htmlFile, {
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    }
+
+    // Serve any other static asset from src/
+    const srcPath = join(SRC_DIR, pathname);
+    const srcFile = Bun.file(srcPath);
+    if (await srcFile.exists()) {
+      const ext = extname(pathname);
       const contentType = MIME_TYPES[ext] ?? "application/octet-stream";
       return new Response(srcFile, {
         headers: { "content-type": contentType },
