@@ -144,7 +144,7 @@ jobs:
         run: bun run tests/e2e/database.ts migrate
       - name: Seed the local demo project
         run: bun run tests/e2e/database.ts seed
-      - name: Run local vertical-slice browser tests
+      - name: Run workspace browser tests
         run: bun run test:browser
       - name: Run retention cleanup
         if: always()
