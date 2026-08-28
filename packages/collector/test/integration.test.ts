@@ -12,7 +12,7 @@ import {
 } from "../src/foundation/abuse-control-matrix";
 import { windowKey } from "../src/rate-limit";
 import { consumeProjectRateLimit, windowStartFor } from "../src/rate-limiting";
-import { startCollectorServer } from "../src/server";
+import { createFetchHandler, startCollectorServer } from "../src/server";
 
 const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/filika_test";
 
@@ -492,6 +492,36 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     });
 
     expect(expiredRows).toHaveLength(0);
+  });
+
+  test("returns a bounded internal-error response when the database is unavailable", async () => {
+    const closedHandle = createDb(TEST_DATABASE_URL);
+    await closedHandle.close();
+    const unavailableServer = Bun.serve({
+      fetch: createFetchHandler(closedHandle.db),
+      port: 0,
+    });
+
+    try {
+      const eventId = uuidFor(700);
+      const request = new Request(`http://localhost:${unavailableServer.port}/api/v1/feedback`, {
+        body: JSON.stringify(envelopeFor(eventId)),
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": eventId,
+          Origin: ALLOWED_ORIGIN,
+        },
+        method: "POST",
+      });
+      const response = await postRaw(request);
+
+      expect(response.status).toBe(500);
+      await expect(response.json()).resolves.toEqual({
+        error: { category: "internal_error" },
+      });
+    } finally {
+      unavailableServer.stop(true);
+    }
   });
 
   test("resolves concurrent duplicate retries to a single row", async () => {

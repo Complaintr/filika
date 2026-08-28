@@ -24,13 +24,24 @@ function reject(logger: Logger, category: Parameters<typeof rejectionResponse>[0
   return rejectionResponse(category);
 }
 
+async function dbAttempt<T>(operation: () => Promise<T>): Promise<T | undefined> {
+  try {
+    return await operation();
+  } catch {
+    return undefined;
+  }
+}
+
 export async function ingestFeedback(
   db: Db,
   request: Request,
   logger: Logger = consoleLogger,
 ): Promise<Response> {
   const originCheck = checkOrigin(request);
-  const allowedOrigins = originCheck.status === "accepted" ? await collectAllowedOrigins(db) : [];
+  const allowedOrigins =
+    originCheck.status === "accepted"
+      ? ((await dbAttempt(() => collectAllowedOrigins(db))) ?? [])
+      : [];
   const corsHeaders =
     originCheck.status === "accepted" && isAllowedOrigin(originCheck.origin, allowedOrigins)
       ? allowOriginHeaders(request, allowedOrigins)
@@ -76,7 +87,11 @@ async function processIngest(
     return reject(logger, "invalid_input");
   }
 
-  const resolvedProject = await resolveProject(db, validated.envelope.projectKey);
+  const resolvedProject = await dbAttempt(() => resolveProject(db, validated.envelope.projectKey));
+
+  if (resolvedProject === undefined) {
+    return reject(logger, "internal_error");
+  }
 
   if (resolvedProject === null) {
     return reject(logger, "project_not_found");
@@ -86,24 +101,32 @@ async function processIngest(
     return reject(logger, "denied_origin");
   }
 
-  const rateLimit = await consumeProjectRateLimit(db, resolvedProject.id, new Date());
+  const rateLimit = await dbAttempt(() =>
+    consumeProjectRateLimit(db, resolvedProject.id, new Date()),
+  );
+
+  if (rateLimit === undefined) {
+    return reject(logger, "internal_error");
+  }
 
   if (!rateLimit.allowed) {
     return reject(logger, "rate_limited");
   }
 
   const serverValues = buildServerOwnedValues(new Date(), originCheck.origin);
-  const persisted = await persistFeedback(db, {
-    context: validated.envelope.context,
-    eventId: validated.envelope.eventId,
-    feedback: validated.envelope.feedback,
-    origin: originCheck.origin,
-    projectId: resolvedProject.id,
-    receivedAt: serverValues.receivedAt,
-    source: serverValues.source,
-  }).catch(() => null);
+  const persisted = await dbAttempt(() =>
+    persistFeedback(db, {
+      context: validated.envelope.context,
+      eventId: validated.envelope.eventId,
+      feedback: validated.envelope.feedback,
+      origin: originCheck.origin,
+      projectId: resolvedProject.id,
+      receivedAt: serverValues.receivedAt,
+      source: serverValues.source,
+    }),
+  );
 
-  if (persisted === null) {
+  if (persisted === undefined) {
     return reject(logger, "internal_error");
   }
 
