@@ -375,6 +375,20 @@ describe("P2-BE-15 collector api and database tests", () => {
     expect(rows).toHaveLength(eventIds.length);
   });
 
+  test("seeds the demo project idempotently for repeated runs", async () => {
+    const before = await handle.db.query.project.findMany({
+      where: eq(project.projectKey, DEMO_PROJECT_KEY),
+    });
+    const created = await seedDemoProject(handle);
+    const after = await handle.db.query.project.findMany({
+      where: eq(project.projectKey, DEMO_PROJECT_KEY),
+    });
+
+    expect(before).toHaveLength(1);
+    expect(created).toBe(false);
+    expect(after).toHaveLength(1);
+  });
+
   test("lists and details feedback through the read-only inbox", async () => {
     const listResponse = await postRaw(new Request(`${baseUrl}/api/v1/inbox`, { method: "GET" }));
     const list = (await listResponse.json()) as {
