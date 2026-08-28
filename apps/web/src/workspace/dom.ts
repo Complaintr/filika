@@ -103,6 +103,10 @@ export function kindBadge(kind: string): HTMLElement {
   );
 }
 
+export function kindBadgeClass(kind: string): string {
+  return `kind-badge kind-${Object.hasOwn(kindLabels, kind) ? kind : "unknown"}`;
+}
+
 export function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(
     new Date(value),

@@ -58,10 +58,9 @@ describe("design-tokens", () => {
     expect(FILIKA_TOKEN_CSS).toContain("prefers-reduced-motion: reduce");
   });
 
-  test("supports dark color scheme tokens with high contrast", () => {
-    expect(FILIKA_TOKEN_CSS).toContain("prefers-color-scheme: dark");
-    expect(FILIKA_TOKEN_CSS).toContain('data-theme="dark"');
-    expect(contrastRatio("#f4f4f5", "#18181b")).toBeGreaterThanOrEqual(4.5);
-    expect(contrastRatio("#042f2e", "#14b8a6")).toBeGreaterThanOrEqual(4.5);
+  test("declares a single light color scheme without dark theme overrides", () => {
+    expect(FILIKA_TOKEN_CSS).toContain("color-scheme: light");
+    expect(FILIKA_TOKEN_CSS).not.toContain("prefers-color-scheme: dark");
+    expect(FILIKA_TOKEN_CSS).not.toContain('data-theme="dark"');
   });
 });

@@ -18,6 +18,7 @@
     "includes": [
       "**",
       "!!**/node_modules",
+      "!!**/.next",
       "!!**/dist",
       "!!**/coverage",
       "!!**/playwright-report",

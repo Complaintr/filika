@@ -9,7 +9,7 @@ export const FILIKA_DESIGN_TOKENS = {
     surface: "#ffffff",
     surfaceMuted: "#f7f8fa",
     text: "#253047",
-    textMuted: "#707b8e",
+    textMuted: "#5f6b7d",
   },
   focus: {
     offset: "3px",

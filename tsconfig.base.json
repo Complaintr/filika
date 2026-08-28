@@ -19,6 +19,8 @@
     "noUnusedParameters": true,
     "paths": {
       "@/*": ["apps/web/src/*"],
+      "@filika/collector": ["packages/collector/src/server.ts"],
+      "@filika/collector/*": ["packages/collector/src/*"],
       "@filika/sdk": ["packages/sdk/src/index.ts"],
       "@filika/sdk/*": ["packages/sdk/src/*"]
     },

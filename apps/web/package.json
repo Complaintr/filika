@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "copy-sdk": "bun scripts/copy-sdk.ts",
-    "build": "bun run build.ts",
-    "dev": "bun run server.ts",
+    "build:spa": "bun run build.ts",
+    "build": "bun run build:spa && next build",
+    "dev": "next dev -p 4173",
     "typecheck": "tsc --project tsconfig.json"
   },
   "dependencies": {
+    "@filika/collector": "workspace:*",
     "@filika/sdk": "workspace:*",
     "clsx": "^2.1.1",
     "framer-motion": "^13.1.1",
@@ -20,9 +21,11 @@
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.3",
+    "@types/node": "^26.4.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "happy-dom": "^20.11.12",
+    "next": "16",
     "tailwindcss": "^4.3.3"
   },
   "description": "Filika dashboard, complaints workspace, and native review dialog",
