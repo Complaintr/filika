@@ -14,5 +14,15 @@
   },
   "devDependencies": {
     "happy-dom": "^20.11.12"
+  },
+  "description": "Filika local demo, native review dialog, and maintainer inbox",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Complaintr/filika.git",
+    "directory": "apps/web"
+  },
+  "bugs": {
+    "url": "https://github.com/Complaintr/filika/issues"
   }
 }

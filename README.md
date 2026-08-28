@@ -132,3 +132,8 @@ After testing, `docker stop filika-demo-db` discards the disposable container da
 - [SDK verification](docs/sdk-verification.md)
 - [Security and data handling](docs/security.md)
 - [Evaluation results and outstanding checks](docs/webmcp-eval-results.md)
+
+## License
+
+[Apache-2.0](LICENSE). Dependencies retain their own licenses; see
+[licensing and package metadata](docs/licensing.md).
