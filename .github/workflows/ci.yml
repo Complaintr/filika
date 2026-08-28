@@ -110,9 +110,25 @@ jobs:
         run: bun run build
 
   browser-tests:
-    name: Browser tests (placeholder)
+    name: Browser tests
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      E2E_DATABASE_URL: postgres://postgres@localhost:5432/filika_e2e
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: filika_e2e
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d filika_e2e"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -122,5 +138,21 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
       - name: Install locked dependencies
         run: bun install --frozen-lockfile
-      - name: Run placeholder browser test
+      - name: Install Chromium and system dependencies
+        run: bunx --no-install playwright install --with-deps chromium --only-shell
+      - name: Apply local database migrations
+        run: bun run tests/e2e/database.ts migrate
+      - name: Seed the local demo project
+        run: bun run tests/e2e/database.ts seed
+      - name: Run local vertical-slice browser tests
         run: bun run test:browser
+      - name: Run retention cleanup
+        if: always()
+        run: bun run tests/e2e/database.ts cleanup
+      - name: Upload browser failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-results
+          path: tests/e2e/test-results/
+          retention-days: 7
