@@ -1,7 +1,9 @@
 import { bundleSdk } from "../../packages/sdk/build";
 
-/** Ship the SDK for host integrations without loading it in the workspace. */
-export async function buildWorkspace(outdir = `${import.meta.dir}/dist`) {
+const FIXTURE_FILES = ["hostile-css.html", "hostile-css-advanced.html"] as const;
+
+/** Build the standalone workspace SPA into Next.js's public directory. */
+export async function buildWorkspace(outdir = `${import.meta.dir}/public`) {
   const sdk = await bundleSdk(true);
   const app = await Bun.build({
     entrypoints: [`${import.meta.dir}/src/index.ts`],
@@ -29,9 +31,14 @@ export async function buildWorkspace(outdir = `${import.meta.dir}/dist`) {
   const html = await Bun.file(`${import.meta.dir}/src/index.html`).text();
   await Bun.write(`${outdir}/index.html`, html.replace("/index.ts", "/index.js"));
   await Bun.write(`${outdir}/sdk/${sdk.metadata.file}`, sdk.code);
+  for (const fixture of FIXTURE_FILES) {
+    await Bun.write(
+      `${outdir}/fixtures/${fixture}`,
+      Bun.file(`${import.meta.dir}/../../tests/e2e/fixtures/${fixture}`),
+    );
+  }
 }
 
-// Preserve the existing build import for downstream tooling during migration.
 export const buildLocalDemo = buildWorkspace;
 
 if (import.meta.main) await buildWorkspace();
