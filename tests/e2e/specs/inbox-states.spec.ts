@@ -33,7 +33,7 @@ async function openInbox(page: Page): Promise<void> {
 
 test("inbox shows the loading surface while fetching, then the empty surface", async ({ page }) => {
   const release = Promise.withResolvers<void>();
-  await page.route(`${INBOX_BASE}*`, async (route) => {
+  await page.route(`${INBOX_BASE}**`, async (route) => {
     await release.promise;
     await fulfillJson(route, 200, { items: [], nextCursor: null });
   });
@@ -52,7 +52,7 @@ test("inbox shows the loading surface while fetching, then the empty surface", a
 
 test("inbox shows the load failure surface and recovers through retry", async ({ page }) => {
   let attempts = 0;
-  await page.route(`${INBOX_BASE}*`, async (route) => {
+  await page.route(`${INBOX_BASE}**`, async (route) => {
     attempts++;
     if (attempts === 1) {
       await fulfillJson(route, 500, { code: "internal_error" });
@@ -73,7 +73,7 @@ test("inbox shows the load failure surface and recovers through retry", async ({
 });
 
 test("inbox detail shows the not found surface and returns to the list", async ({ page }) => {
-  await page.route(`${INBOX_BASE}*`, async (route) => {
+  await page.route(`${INBOX_BASE}**`, async (route) => {
     const pathname = new URL(route.request().url()).pathname;
     if (pathname === "/api/v1/inbox") {
       await fulfillJson(route, 200, { items: [listItem], nextCursor: null });
@@ -91,4 +91,41 @@ test("inbox detail shows the not found surface and returns to the list", async (
 
   await page.getByRole("button", { name: "Back to inbox" }).click();
   await expect(page.getByRole("heading", { name: "Sample save failed" })).toBeVisible();
+});
+
+test("inbox detail shows the expired surface with the expiration timestamp", async ({ page }) => {
+  const EXPIRED_AT = "2000-01-01T00:00:00.000Z";
+  await page.route(`${INBOX_BASE}**`, async (route) => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (pathname === "/api/v1/inbox") {
+      await fulfillJson(route, 200, { items: [listItem], nextCursor: null });
+      return;
+    }
+    await fulfillJson(route, 200, {
+      feedback: {
+        applicationRelease: null,
+        description: "The sample save failed.",
+        expectedBehavior: null,
+        expiresAt: EXPIRED_AT,
+        feedbackId: FEEDBACK_ID,
+        kind: "bug",
+        receivedAt: RECEIVED_AT,
+        reproductionSteps: null,
+        requestOrigin: "http://localhost:4173",
+        routeLabel: null,
+        source: "web_sdk_unverified",
+        title: "Sample save failed",
+      },
+    });
+  });
+
+  await openInbox(page);
+  await page.getByRole("button", { name: "View feedback" }).click();
+
+  await expect(page.getByRole("heading", { name: "Feedback detail" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Feedback expired" })).toBeVisible();
+  await expect(page.locator('[data-state="expired"]')).toHaveAttribute("role", "status");
+  await expect(page.locator('[data-view="inbox-detail"]')).toContainText(
+    `Expired at ${EXPIRED_AT}`,
+  );
 });
