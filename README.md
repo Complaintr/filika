@@ -96,36 +96,35 @@ delete it as well.
 
 ### React UI components
 
-The workspace uses strict TypeScript. Its bottom navigation is a React component
-mounted in an isolated DOM root; the existing pages keep their own lifecycle.
-It uses Lucide icons, Framer Motion, and Tailwind CSS 4. No images or additional
-state providers are needed. The active tab follows the workspace URL, including
-detail routes and browser back/forward navigation. The navbar stays at the bottom;
-the top header is unchanged.
+The workspace is a Next.js App Router application. Dashboard, complaints,
+complaint detail, and settings are React client pages under `apps/web/app/`,
+and the shared top bar, connection status, and bottom navigation live in
+`apps/web/src/workspace/workspace-shell.tsx`. A small connection context
+(`src/workspace/connection.tsx`) lets each page report collector reachability
+to the header.
 
 The default UI component directory is `apps/web/src/components/ui`, imported as
 `@/components/ui`. In this monorepo, that is the web application's equivalent of
 `/components/ui`; do not create a second directory at the repository root.
 Keeping reusable React primitives here lets the shadcn CLI resolve the `ui` alias
-and separates them from the existing DOM components in `src/components`.
+and separates them from the workspace view components in `src/workspace`.
 
 - Component: `apps/web/src/components/ui/bottom-nav-bar.tsx`.
 - Component styles: `apps/web/src/components/ui/bottom-nav-bar.css`, imported in
   Tailwind's components layer. The three-route pill is 220 × 52 px; its outer size
   stays fixed while a single 180 ms transition redistributes the active label space.
-- Usage example: `apps/web/src/components/ui/demo.tsx` (not a demo page or route).
-- Workspace integration: `apps/web/src/workspace/bottom-navigation.tsx`.
+- Workspace integration: `apps/web/src/workspace/workspace-shell.tsx`.
+- Inbox view components: `apps/web/src/workspace/inbox-view.tsx`.
 - Class helper: `apps/web/src/lib/utils.ts` (`clsx` and `tailwind-merge`).
 - shadcn configuration: `apps/web/components.json`.
 - Tailwind entry: `apps/web/src/styles/tailwind.css`.
 - Existing page styles: `apps/web/src/app.css`, imported into Tailwind's base layer.
 
 Install the checked-in dependencies from the repository root with
-`bun install --frozen-lockfile`. TypeScript and JSX support are already configured;
-there is no need to scaffold another application. The existing `bun run dev` and
-`bun run build` commands compile both the React bundle and Tailwind stylesheet.
-Tailwind preflight is intentionally omitted to preserve the native page styles.
-Wrap future shadcn components in `.filika-ui` to apply the scoped theme tokens.
+`bun install --frozen-lockfile`. The existing `bun run dev` and `bun run build`
+commands compile the Next.js app and the Tailwind stylesheet. Tailwind preflight
+is intentionally omitted to preserve the native page styles. Wrap future shadcn
+components in `.filika-ui` to apply the scoped theme tokens.
 
 For a fresh, unconfigured application, the equivalent setup commands inside
 `apps/web` are:
