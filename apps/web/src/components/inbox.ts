@@ -77,7 +77,7 @@ function createListItem(
     document,
     content,
     "p",
-    `${item.routeLabel ?? "No page label"} · ${new Date(item.receivedAt).toLocaleString()}`,
+    `${item.routeLabel ?? "No page label"} | ${new Date(item.receivedAt).toLocaleString()}`,
     "muted",
   );
   appendText(document, content, "p", item.requestOrigin, "mono");
@@ -156,7 +156,7 @@ function renderReadyDetail(document: Document, feedback: InboxDetailViewModel): 
   untrustedNotice.className = "untrusted-notice";
   untrustedNotice.dataset.untrusted = "true";
   untrustedNotice.setAttribute("role", "note");
-  untrustedNotice.textContent = "External report content — treated as untrusted data.";
+  untrustedNotice.textContent = "External report content is treated as untrusted data.";
   authored.append(untrustedNotice);
 
   const authoredList = authored.querySelector("dl");

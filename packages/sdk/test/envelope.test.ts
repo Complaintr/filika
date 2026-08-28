@@ -94,9 +94,10 @@ describe("V1 envelope", () => {
     expect(validate({ ...envelope(), projectKey: "a".repeat(128) })).toBe(true);
     expect(validate({ ...envelope(), projectKey: "a".repeat(129) })).toBe(false);
     const value = envelope();
-    value.feedback.title = "😀".repeat(160);
+    const wideCharacter = String.fromCodePoint(0x1f600);
+    value.feedback.title = wideCharacter.repeat(160);
     expect(validate(value)).toBe(true);
-    value.feedback.title += "😀";
+    value.feedback.title += wideCharacter;
     expect(validate(value)).toBe(false);
   });
 });

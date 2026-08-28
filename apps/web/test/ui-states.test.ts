@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { UI_STATE_CONTRACTS, UI_STATE_IDS } from "../src/foundation/ui-states";
 
 describe("ui-states", () => {
-  test("defines every planned state and every SDK-facing failure state", () => {
+  test("defines every visible state and every SDK-facing failure state", () => {
     expect(Object.keys(UI_STATE_CONTRACTS).sort()).toEqual([...UI_STATE_IDS].sort());
     expect(UI_STATE_IDS).toContain("unsupported_browser");
     expect(UI_STATE_IDS).toContain("duplicate");
