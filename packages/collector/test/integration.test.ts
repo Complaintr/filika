@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { runCleanup } from "../src/db/cleanup";
@@ -330,6 +330,49 @@ describe("P2-BE-15 collector api and database tests", () => {
     const third = await consumeProjectRateLimit(handle.db, rateProject.id, now, 2);
 
     expect([first.allowed, second.allowed, third.allowed]).toEqual([true, true, false]);
+  });
+
+  test("resolves concurrent duplicate retries to a single row", async () => {
+    const eventId = "d1111111-0000-4000-8000-000000000001";
+    const attempts = 8;
+    const responses = await Promise.all(
+      Array.from({ length: attempts }, () => postRaw(postEnvelope(eventId))),
+    );
+    const statuses = responses.map((response) => response.status).sort((a, b) => a - b);
+    const receipts = (await Promise.all(responses.map((response) => response.json()))) as Array<
+      Record<string, unknown>
+    >;
+
+    expect(statuses.filter((status) => status === 201)).toHaveLength(1);
+    expect(statuses.filter((status) => status === 200)).toHaveLength(attempts - 1);
+    expect(new Set(receipts.map((receipt) => receipt.feedbackId)).size).toBe(1);
+
+    const rows = await handle.db.query.feedback.findMany({
+      where: eq(feedback.eventId, eventId),
+    });
+
+    expect(rows).toHaveLength(1);
+  });
+
+  test("accepts concurrent distinct submissions", async () => {
+    const eventIds = [
+      "d2222222-0000-4000-8000-000000000002",
+      "d3333333-0000-4000-8000-000000000003",
+      "d4444444-0000-4000-8000-000000000004",
+      "d5555555-0000-4000-8000-000000000005",
+      "d6666666-0000-4000-8000-000000000006",
+    ];
+    const responses = await Promise.all(eventIds.map((eventId) => postRaw(postEnvelope(eventId))));
+
+    expect(responses.map((response) => response.status)).toEqual(
+      Array.from({ length: eventIds.length }, () => 201),
+    );
+
+    const rows = await handle.db.query.feedback.findMany({
+      where: inArray(feedback.eventId, eventIds),
+    });
+
+    expect(rows).toHaveLength(eventIds.length);
   });
 
   test("lists and details feedback through the read-only inbox", async () => {
