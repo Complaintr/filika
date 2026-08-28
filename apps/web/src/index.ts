@@ -1,13 +1,20 @@
-import { FeedbackDialog } from "./components/feedback-dialog";
+import type { FilikaPublicApi } from "@filika/sdk";
 import { MaintainerInbox } from "./components/inbox";
 import type { InboxDetailViewModel, InboxListItemViewModel } from "./contracts/inbox-view-model";
 import { SampleApplication } from "./sample-app";
 import { createSampleTaskTool } from "./sample-task-tool";
+import { connectSdkDialog } from "./sdk-dialog";
 import type { ModelContext } from "./webmcp-test-tool";
 
 type WebMcpDocument = Document & {
   readonly modelContext?: ModelContext;
 };
+
+declare global {
+  interface Window {
+    Filika: FilikaPublicApi;
+  }
+}
 
 const sampleFeedback: readonly InboxDetailViewModel[] = [
   {
@@ -48,47 +55,18 @@ function getRequiredElement<T extends HTMLElement>(id: string): T {
   return element as T;
 }
 
-function abortableDelay(duration: number, signal: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const timeout = window.setTimeout(resolve, duration);
-    signal.addEventListener(
-      "abort",
-      () => {
-        window.clearTimeout(timeout);
-        reject(new DOMException("Submission aborted.", "AbortError"));
-      },
-      { once: true },
-    );
-  });
-}
-
 const content = getRequiredElement<HTMLElement>("app-content");
 const dialogHost = getRequiredElement<HTMLElement>("filika-feedback-root");
 const demoNavigation = getRequiredElement<HTMLButtonElement>("nav-demo");
 const inboxNavigation = getRequiredElement<HTMLButtonElement>("nav-inbox");
 const webMcpStatus = getRequiredElement<HTMLElement>("webmcp-status");
 
-const feedbackDialog = new FeedbackDialog(dialogHost, {
-  identity: {
-    collectorOrigin: "http://localhost:8787",
-    privacyUrl: "#privacy",
-    projectName: "Filika local demo",
-    retentionSummary: "Demo feedback is retained for up to 24 hours.",
-  },
-  async submit(_draft, signal) {
-    await abortableDelay(300, signal);
-    return {
-      outcome: "success",
-      receipt: {
-        duplicate: false,
-        feedbackId: `fb_preview_${crypto.randomUUID().slice(0, 8)}`,
-        receivedAt: new Date().toISOString(),
-      },
-    };
-  },
+const api = window.Filika;
+const integration = connectSdkDialog(dialogHost, api);
+window.addEventListener("pagehide", () => integration.dispose(), { once: true });
+const sampleApplication = new SampleApplication(content, {
+  feedbackDialog: { open: () => api.open() },
 });
-
-const sampleApplication = new SampleApplication(content, { feedbackDialog });
 const listItems: readonly InboxListItemViewModel[] = sampleFeedback.map(
   ({ feedbackId, kind, receivedAt, requestOrigin, routeLabel, title }) => ({
     feedbackId,

@@ -161,6 +161,7 @@ export interface FeedbackDialogIdentity {
 
 export interface FeedbackDialogOptions {
   identity: FeedbackDialogIdentity;
+  settleAfterAbort?: boolean;
   submit(draft: FeedbackDraft, signal: AbortSignal): Promise<SdkExecutionResult>;
 }
 
@@ -276,6 +277,28 @@ export class FeedbackDialog {
     return this.#state;
   }
 
+  /** Start a new SDK review after the previous terminal surface. */
+  reset(): void {
+    if (this.#state.status !== "submitting") this.#close();
+  }
+
+  setIdentity(identity: FeedbackDialogIdentity): void {
+    this.#options.identity = identity;
+  }
+
+  resolveReview(result: SdkExecutionResult): void {
+    if (this.#state.status !== "editing" && this.#state.status !== "confirming") return;
+    this.#state = transitionFeedbackDialog(
+      { ...this.#state, status: "submitting" },
+      {
+        type: "RESOLVE",
+        result,
+      },
+    );
+    this.render();
+    this.#settle(result);
+  }
+
   open(
     draft: Partial<FeedbackDraft> = {},
     source: DialogInvocationSource = "manual",
@@ -336,6 +359,7 @@ export class FeedbackDialog {
   #cancel(): void {
     if (this.#state.status === "submitting") {
       this.#submissionController?.abort();
+      if (this.#options.settleAfterAbort) return;
     }
     this.#state = transitionFeedbackDialog(this.#state, { type: "CANCEL" });
     this.render();
