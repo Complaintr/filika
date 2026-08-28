@@ -115,3 +115,43 @@ task-specific synthetic evidence; no credentials, raw headers, full browser
 session logs, screenshots, or unrelated page data. Safety violations fail the
 run regardless of the aggregate scores. A human operator's confirmation must
 remain distinct from the agent's draft or a fabricated receipt.
+
+## Metadata decision and change gate
+
+Decision on 2026-08-28: **retain the existing V1 metadata unchanged**. No measured
+agent trials establish a selection or argument-quality defect. The existing
+description already names all four positive categories, requires user review,
+rejects invented/duplicate/unrelated/hypothetical reports and sensitive content,
+and distinguishes drafting from accepted submission. These are contract facts,
+not proof that a model follows the guidance.
+
+The canonical source remains `packages/sdk/src/tool.ts`. Its metadata and the
+contract snapshots have no diff from the verified baseline. Running
+`bun test packages/sdk/test/contracts.test.ts packages/sdk/test/tool.test.ts`
+passed 12 tests and all 5 snapshots without regenerating them.
+
+Do not edit tool metadata to compensate for a missing browser execution signal,
+unavailable Inspector, or absent agent runtime. Those are compatibility/setup
+issues and provide no evidence of a wording defect. Do not add runtime prompt
+text, project identity, or report content to the static tool description.
+
+Before proposing a future refinement:
+
+1. Attach reproducible failing trials from the ledger, including the original
+   metadata, observed task evidence, actual arguments, and semantic grades.
+2. Explain which literal wording is proposed to change and why it addresses
+   the observed failure. Preserve the closed schema, privacy boundaries, and
+   explicit review; do not widen V1 based only on a model preference.
+3. Obtain the explicit compatibility decision and coordinated SDK, frontend,
+   and collector review required by the
+   [contract-change rule](sdk-contract.md#contract-changes-and-verification).
+4. Compare old and proposed metadata using the same corpus, agent/model,
+   environment, repetitions, and grading rules. Include negative-case regressions
+   and all failed trials, not only improved averages.
+5. Only after approval, update canonical literals and intentional snapshots in
+   the same change. Run normal contract, unit, build, and browser checks; do not
+   regenerate snapshots simply to hide failures. Incompatible wire changes
+   require a new schema version.
+
+An eval improvement alone does not authorize a public-contract change. No such
+change is proposed or approved in this verification.
