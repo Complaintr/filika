@@ -1,5 +1,6 @@
 node_modules/
 dist/
+.env
 apps/web/public/
 apps/web/src/filika.js
 coverage/

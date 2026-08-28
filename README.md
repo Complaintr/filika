@@ -24,12 +24,20 @@ docker compose up db -d
 
 This starts PostgreSQL 16 on `localhost:55432` and stores data in a Docker volume.
 Run `docker compose ps db` and wait for the status to show **healthy** before
-continuing. The database credentials below are for local development only.
+continuing. The database credentials are for local development only.
 
-### 2. Set up the database and start the API
+### 2. Configure and start the API
+
+Create your local environment file from the example:
 
 ```sh
-export DATABASE_URL=postgres://filika:filika@localhost:55432/filika
+cp .env.example .env
+```
+
+Bun loads `.env` automatically, so the commands below need no exports. If your
+database URL differs, edit `.env` first.
+
+```sh
 bun run db:migrate
 bun run db:seed
 bun run dev:collector
@@ -57,7 +65,7 @@ changes; the development server does not hot reload.
 
 Reports are publicly readable. Use sample data, never passwords or personal
 information. Reports older than 24 hours are deleted when you run
-`bun run db:cleanup` with the same `DATABASE_URL`.
+`bun run db:cleanup`.
 
 To stop, press `Ctrl+C` in both terminals and run `docker compose down`.
 Database data is preserved. Use `docker compose down -v` only when you want to
