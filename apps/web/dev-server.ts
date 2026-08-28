@@ -48,10 +48,11 @@ Bun.serve({
 
     // Serve static assets from public/ first
     if (pathname !== "/") {
-      const publicPath = join(PUBLIC_DIR, pathname);
+      const normalizedPath = pathname.replace(/^\/public\//, "/").replace(/^\.\.\/public\//, "/");
+      const publicPath = join(PUBLIC_DIR, normalizedPath);
       const publicFile = Bun.file(publicPath);
       if (await publicFile.exists()) {
-        const ext = extname(pathname);
+        const ext = extname(normalizedPath);
         const contentType = MIME_TYPES[ext] ?? "application/octet-stream";
         return new Response(publicFile, {
           headers: { "content-type": contentType },

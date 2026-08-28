@@ -11,11 +11,10 @@ import { join } from "node:path";
 const WEB_ROOT = join(import.meta.dir, "..");
 const SDK_DIST = join(WEB_ROOT, "../../packages/sdk/dist");
 const PUBLIC_DIR = join(WEB_ROOT, "public");
-const SRC_DIR = join(WEB_ROOT, "src");
+const DIST_DIR = join(WEB_ROOT, "dist");
 
 const sourceFile = join(SDK_DIST, "filika.js");
 const publicDest = join(PUBLIC_DIR, "filika.js");
-const srcDest = join(SRC_DIR, "filika.js");
 
 if (!existsSync(sourceFile)) {
   console.error(
@@ -29,5 +28,10 @@ if (!existsSync(PUBLIC_DIR)) {
 }
 
 copyFileSync(sourceFile, publicDest);
-copyFileSync(sourceFile, srcDest);
-console.log(`Copied SDK bundle → ${publicDest} and ${srcDest}`);
+console.log(`Copied SDK bundle → ${publicDest}`);
+
+if (existsSync(DIST_DIR)) {
+  const distDest = join(DIST_DIR, "filika.js");
+  copyFileSync(sourceFile, distDest);
+  console.log(`Copied SDK bundle → ${distDest}`);
+}
