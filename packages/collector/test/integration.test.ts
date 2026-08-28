@@ -451,6 +451,49 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     expect(rows[0]?.count).toBe(5);
   });
 
+  test("runs cleanup concurrently without errors or double deletes", async () => {
+    const now = new Date();
+    const expired = new Date(now.getTime() - 25 * 3_600_000);
+
+    for (const [index, title] of ["expired a", "expired b"].entries()) {
+      await handle.db.insert(feedback).values({
+        description: "expired",
+        eventId: uuidFor(500 + index),
+        kind: "bug",
+        origin: ALLOWED_ORIGIN,
+        projectId: demoProjectId,
+        receiptTimestamp: expired,
+        sdkVersion: "1.0.0",
+        source: "web_sdk_unverified",
+        title,
+      });
+    }
+    await handle.db.insert(rateLimit).values({
+      count: 1,
+      expiresAt: new Date(now.getTime() - 1),
+      projectId: demoProjectId,
+      windowKey: "concurrent-expired",
+    });
+
+    const results = await Promise.all([
+      runCleanup(handle.db, now),
+      runCleanup(handle.db, now),
+      runCleanup(handle.db, now),
+    ]);
+
+    const deletedFeedback = results.reduce((sum, result) => sum + result.deletedFeedback, 0);
+    const deletedRateLimits = results.reduce((sum, result) => sum + result.deletedRateLimits, 0);
+
+    expect(deletedFeedback).toBe(2);
+    expect(deletedRateLimits).toBe(1);
+
+    const expiredRows = await handle.db.query.feedback.findMany({
+      where: inArray(feedback.title, ["expired a", "expired b"]),
+    });
+
+    expect(expiredRows).toHaveLength(0);
+  });
+
   test("resolves concurrent duplicate retries to a single row", async () => {
     const eventId = "d1111111-0000-4000-8000-000000000001";
     const attempts = 8;
