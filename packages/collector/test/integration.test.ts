@@ -359,6 +359,47 @@ describe("P2-BE-15 collector api and database tests", () => {
     expect(detail.feedback.source).toBe("web_sdk_unverified");
   });
 
+  test("never exposes internal identifiers in inbox responses", async () => {
+    const listResponse = await postRaw(new Request(`${baseUrl}/api/v1/inbox`, { method: "GET" }));
+    const list = (await listResponse.json()) as {
+      items: Array<Record<string, unknown>>;
+      nextCursor: string | null;
+    };
+    const firstItem = list.items[0] ?? {};
+
+    for (const forbidden of ["projectId", "windowKey", "count", "sdkVersion", "eventId", "id"]) {
+      expect(firstItem).not.toHaveProperty(forbidden);
+    }
+
+    const feedbackId = firstItem.feedbackId as string;
+    const detailResponse = await postRaw(
+      new Request(`${baseUrl}/api/v1/inbox/${feedbackId}`, { method: "GET" }),
+    );
+    const detail = (await detailResponse.json()) as { feedback: Record<string, unknown> };
+    const record = detail.feedback;
+
+    expect(Object.keys(record).sort()).toEqual(
+      [
+        "applicationRelease",
+        "description",
+        "expectedBehavior",
+        "expiresAt",
+        "feedbackId",
+        "kind",
+        "receivedAt",
+        "reproductionSteps",
+        "requestOrigin",
+        "routeLabel",
+        "source",
+        "title",
+      ].sort(),
+    );
+
+    for (const forbidden of ["projectId", "windowKey", "count", "sdkVersion", "eventId", "id"]) {
+      expect(record).not.toHaveProperty(forbidden);
+    }
+  });
+
   test("returns 404 for an unknown inbox detail", async () => {
     const response = await postRaw(
       new Request(`${baseUrl}/api/v1/inbox/00000000-0000-4000-8000-000000000000`, {
