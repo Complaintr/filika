@@ -20,6 +20,13 @@ export function windowExpiresAt(windowStart: string): Date {
 
 export interface RateLimitConsumeResult {
   allowed: boolean;
+  remaining: number;
+}
+
+export function retryAfterSeconds(now: Date): number {
+  const expiresAt = windowExpiresAt(windowStartFor(now));
+
+  return Math.max(1, Math.ceil((expiresAt.getTime() - now.getTime()) / 1000));
 }
 
 export async function consumeProjectRateLimit(
@@ -41,5 +48,11 @@ export async function consumeProjectRateLimit(
     RETURNING count
   `)) as { count: number }[];
 
-  return { allowed: result.length > 0 };
+  if (result.length === 0) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  const count = result[0]?.count ?? maxPerWindow;
+
+  return { allowed: true, remaining: Math.max(0, maxPerWindow - count) };
 }

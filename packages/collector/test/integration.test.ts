@@ -419,6 +419,7 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     const third = await consumeProjectRateLimit(handle.db, rateProject.id, now, 2);
 
     expect([first.allowed, second.allowed, third.allowed]).toEqual([true, true, false]);
+    expect([first.remaining, second.remaining, third.remaining]).toEqual([1, 0, 0]);
   });
 
   test("keeps the rate limit atomic under concurrent requests", async () => {
@@ -466,6 +467,11 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
 
     expect(responses.slice(0, 3).map((response) => response.status)).toEqual([201, 201, 201]);
     expect(responses[3]?.status).toBe(429);
+
+    const retryAfter = responses[3]?.headers.get("Retry-After");
+
+    expect(retryAfter).not.toBeNull();
+    expect(Number.parseInt(retryAfter ?? "", 10)).toBeGreaterThan(0);
 
     await expect(responses[3]?.json()).resolves.toEqual({
       error: { category: "rate_limited" },
