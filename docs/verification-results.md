@@ -71,3 +71,10 @@ The [Inspector acceptance sequence](webmcp-inspector-testing.md) is **not run**.
 The installed Inspector/version and its browser side panel have not been
 verified. Registration, invocation, cancellation, and active disposal therefore
 have no Inspector evidence. No extension, provider, or API credentials were added.
+
+## Agent evaluation
+
+The [evaluation ledger](webmcp-eval-results.md) records all nine scenarios as not
+run and all four agent-quality metrics as not measured. Fixture/schema validation
+and automated runtime checks are reported separately. Native execution and agent
+selection remain verification gaps, not release-readiness claims.
