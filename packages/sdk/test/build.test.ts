@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import { runInNewContext } from "node:vm";
 import { build } from "esbuild";
 import { bundleSdk, SDK_BUILD_OPTIONS } from "../build";
@@ -44,6 +45,23 @@ test("minified bundle and metadata are deterministic without absolute paths or t
   expect(first.metadata.inputs.every((path) => !path.startsWith("/"))).toBe(true);
   const unminified = await build({ ...SDK_BUILD_OPTIONS, write: false, minify: false });
   expect(first.code.byteLength).toBeLessThan(unminified.outputFiles?.[0]?.contents.byteLength ?? 0);
+});
+
+test("both bundle modes emit reproducible SRI matching the exact bytes", async () => {
+  const integrities: string[] = [];
+  for (const development of [false, true]) {
+    const first = await bundleSdk(development);
+    const second = await bundleSdk(development);
+    const expected = `sha384-${createHash("sha384").update(first.code).digest("base64")}`;
+    expect(first.metadata.integrity).toBe(expected);
+    expect(first.metadata).toEqual(second.metadata);
+    expect(first.code).toEqual(second.code);
+    const changed = new Uint8Array(first.code);
+    changed[0] = (changed[0] ?? 0) ^ 1;
+    expect(`sha384-${createHash("sha384").update(changed).digest("base64")}`).not.toBe(expected);
+    integrities.push(expected);
+  }
+  expect(integrities[0]).not.toBe(integrities[1]);
 });
 
 test("production global cannot enable HTTP; development bundle accepts only loopback", async () => {

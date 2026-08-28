@@ -39,6 +39,7 @@ export async function bundleSdk(development = false) {
     file: filename,
     bytes: output.contents.byteLength,
     sha256: new Bun.CryptoHasher("sha256").update(output.contents).digest("hex"),
+    integrity: `sha384-${new Bun.CryptoHasher("sha384").update(output.contents).digest("base64")}`,
     inputs: Object.keys(result.metafile?.inputs ?? {}).sort(),
   };
   return { code: output.contents, metadata };
