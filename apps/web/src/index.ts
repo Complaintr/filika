@@ -3,6 +3,8 @@ import { MaintainerInbox } from "./components/inbox";
 import type { InboxDetailViewModel, InboxListItemViewModel } from "./contracts/inbox-view-model";
 import { SampleApplication } from "./sample-app";
 import { createSampleTaskTool } from "./sample-task-tool";
+import { installReviewAdapter } from "./sdk-review-adapter";
+import { createCollectorSubmit } from "./services/collector-submit";
 import type { ModelContext } from "./webmcp-test-tool";
 
 type WebMcpDocument = Document & {
@@ -54,19 +56,6 @@ function getRequiredElement<T extends HTMLElement>(id: string): T {
   return element as T;
 }
 
-function abortableDelay(duration: number, signal: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const timeout = window.setTimeout(resolve, duration);
-    signal.addEventListener(
-      "abort",
-      () => {
-        window.clearTimeout(timeout);
-        reject(new DOMException("Submission aborted.", "AbortError"));
-      },
-      { once: true },
-    );
-  });
-}
 
 const content = getRequiredElement<HTMLElement>("app-content");
 const dialogHost = getRequiredElement<HTMLElement>("filika-feedback-root");
@@ -74,24 +63,24 @@ const demoNavigation = getRequiredElement<HTMLButtonElement>("nav-demo");
 const inboxNavigation = getRequiredElement<HTMLButtonElement>("nav-inbox");
 const webMcpStatus = getRequiredElement<HTMLElement>("webmcp-status");
 
+const COLLECTOR_ORIGIN = "http://localhost:8787";
+const PROJECT_KEY = "filika_demo";
+
+const collectorSubmit = createCollectorSubmit({
+  collectorOrigin: COLLECTOR_ORIGIN,
+  projectKey: PROJECT_KEY,
+  routeLabel: "Sample task",
+  applicationRelease: "demo-2026.08",
+});
+
 const feedbackDialog = new FeedbackDialog(dialogHost, {
   identity: {
-    collectorOrigin: "http://localhost:8787",
+    collectorOrigin: COLLECTOR_ORIGIN,
     privacyUrl: "#privacy",
     projectName: "Filika local demo",
     retentionSummary: "Demo feedback is retained for up to 24 hours.",
   },
-  async submit(_draft, signal) {
-    await abortableDelay(300, signal);
-    return {
-      outcome: "success",
-      receipt: {
-        duplicate: false,
-        feedbackId: `fb_preview_${crypto.randomUUID().slice(0, 8)}`,
-        receivedAt: new Date().toISOString(),
-      },
-    };
-  },
+  submit: collectorSubmit,
 });
 
 const sampleApplication = new SampleApplication(content, { feedbackDialog });
@@ -134,6 +123,10 @@ inboxNavigation.addEventListener("click", showInbox);
 (window as FilikaWindow).Filika = {
   open: () => feedbackDialog.open({}, "manual"),
 };
+
+// Bridge SDK review events (from filika_submit_feedback tool invocation)
+// to the feedback dialog. The dialog handles review UI and submission.
+installReviewAdapter(document, feedbackDialog);
 
 async function registerSampleTaskTool(): Promise<void> {
   const modelContext = (document as WebMcpDocument).modelContext;
