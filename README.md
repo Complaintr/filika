@@ -131,6 +131,7 @@ After testing, `docker stop filika-demo-db` discards the disposable container da
 - [SDK runtime integration](docs/sdk-runtime.md)
 - [SDK verification](docs/sdk-verification.md)
 - [Release candidate verification](docs/release-verification.md)
+- [Candidate manifest, checksums, and V1 freeze](docs/release-candidate.md)
 - [Security and data handling](docs/security.md)
 - [Evaluation results and outstanding checks](docs/webmcp-eval-results.md)
 

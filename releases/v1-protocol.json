@@ -1,0 +1,377 @@
+{
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "tool": {
+    "name": "filika_submit_feedback",
+    "title": "Submit feedback for review",
+    "description": "Draft feedback about an observed bug, blocked task, confusing behavior, or concrete improvement idea in this application. The user must review and explicitly confirm before anything is sent. Describe only evidence available from the current task; do not invent failures, repeat an existing report, or include credentials or personal data. Do not use for unrelated requests or hypothetical problems. A draft is not proof of submission; only a success receipt confirms acceptance.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "title", "description"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["bug", "blocked_task", "confusing_behavior", "idea"]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "\\S"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000,
+          "pattern": "\\S"
+        },
+        "expectedBehavior": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "reproductionSteps": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "pattern": "\\S"
+          }
+        }
+      }
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "untrustedContentHint": false
+    }
+  },
+  "envelope": {
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "projectKey", "eventId", "feedback", "context"],
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "projectKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "eventId": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "feedback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "title", "description"],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": ["bug", "blocked_task", "confusing_behavior", "idea"]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "\\S"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000,
+              "pattern": "\\S"
+            },
+            "expectedBehavior": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "reproductionSteps": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500,
+                "pattern": "\\S"
+              }
+            }
+          }
+        },
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sdkVersion"],
+          "properties": {
+            "sdkVersion": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
+            "routeLabel": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "pattern": "\\S"
+            },
+            "applicationRelease": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "\\S"
+            }
+          }
+        }
+      }
+    },
+    "limits": {
+      "envelopeBytes": 32768,
+      "toolInputBytes": 24576,
+      "projectKey": 128,
+      "title": 160,
+      "description": 4000,
+      "expectedBehavior": 2000,
+      "reproductionSteps": 10,
+      "reproductionStep": 500,
+      "sdkVersion": 32,
+      "routeLabel": 120,
+      "applicationRelease": 80
+    }
+  },
+  "receipt": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schemaVersion", "eventId", "feedbackId", "receivedAt", "duplicate"],
+    "properties": {
+      "schemaVersion": {
+        "type": "integer",
+        "const": 1
+      },
+      "eventId": {
+        "type": "string",
+        "minLength": 36,
+        "maxLength": 36,
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "feedbackId": {
+        "type": "string",
+        "minLength": 36,
+        "maxLength": 36,
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "receivedAt": {
+        "type": "string",
+        "minLength": 24,
+        "maxLength": 24,
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+      },
+      "duplicate": {
+        "type": "boolean"
+      }
+    }
+  },
+  "outcomes": {
+    "codes": [
+      "success",
+      "invalid_input",
+      "cancelled",
+      "timeout",
+      "aborted",
+      "collector_rejected",
+      "internal_error",
+      "outcome_unknown"
+    ],
+    "rules": {
+      "success": "A validated receipt confirms acceptance; duplicate receipts also use success.",
+      "invalid_input": "Draft validation failed before transmission; no request was dispatched.",
+      "cancelled": "The user cancelled review before transmission; no request was dispatched.",
+      "timeout": "Review expired before transmission; no request was dispatched.",
+      "aborted": "Execution was aborted before transmission; no request was dispatched.",
+      "collector_rejected": "The collector returned a documented rejection that guarantees no acceptance.",
+      "internal_error": "A local failure occurred before transmission; no request was dispatched.",
+      "outcome_unknown": "A request was dispatched but acceptance or rejection could not be confirmed."
+    },
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "receipt"],
+          "properties": {
+            "code": {
+              "type": "string",
+              "const": "success"
+            },
+            "receipt": {
+              "$schema": "http://json-schema.org/draft-07/schema#",
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["schemaVersion", "eventId", "feedbackId", "receivedAt", "duplicate"],
+              "properties": {
+                "schemaVersion": {
+                  "type": "integer",
+                  "const": 1
+                },
+                "eventId": {
+                  "type": "string",
+                  "minLength": 36,
+                  "maxLength": 36,
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                },
+                "feedbackId": {
+                  "type": "string",
+                  "minLength": 36,
+                  "maxLength": 36,
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                },
+                "receivedAt": {
+                  "type": "string",
+                  "minLength": 24,
+                  "maxLength": 24,
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                },
+                "duplicate": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code"],
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "invalid_input",
+                "cancelled",
+                "timeout",
+                "aborted",
+                "collector_rejected",
+                "internal_error",
+                "outcome_unknown"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "limits": {
+      "reviewTimeoutMs": 120000,
+      "requestTimeoutMs": 10000,
+      "registrationTimeoutMs": 5000,
+      "receiptBytes": 1024,
+      "outcomeBytes": 1024
+    }
+  },
+  "configuration": {
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["projectKey", "endpoint"],
+      "properties": {
+        "projectKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "endpoint": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "format": "uri",
+          "pattern": "^https://[^\\s/?#@\\\\]+(?:/[^\\s?#\\\\]*)?$"
+        },
+        "routeLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "\\S"
+        },
+        "applicationRelease": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "limits": {
+      "endpoint": 2048
+    },
+    "scriptAttributes": {
+      "projectKey": "data-project-key",
+      "endpoint": "data-endpoint",
+      "routeLabel": "data-route-label",
+      "applicationRelease": "data-application-release"
+    },
+    "developmentHosts": ["localhost", "127.0.0.1", "[::1]"]
+  },
+  "lifecycle": {
+    "statuses": [
+      "uninitialized",
+      "initializing",
+      "ready",
+      "unsupported_browser",
+      "registration_rejected",
+      "invalid_configuration",
+      "disposed"
+    ],
+    "transitions": {
+      "uninitialized": {
+        "initialize": "initializing",
+        "invalid_config": "invalid_configuration",
+        "dispose": "disposed"
+      },
+      "initializing": {
+        "registered": "ready",
+        "unsupported": "unsupported_browser",
+        "rejected": "registration_rejected",
+        "dispose": "disposed"
+      },
+      "ready": {
+        "dispose": "disposed"
+      },
+      "unsupported_browser": {
+        "dispose": "disposed"
+      },
+      "registration_rejected": {
+        "dispose": "disposed"
+      },
+      "invalid_configuration": {
+        "initialize": "initializing",
+        "invalid_config": "invalid_configuration",
+        "dispose": "disposed"
+      },
+      "disposed": {
+        "initialize": "initializing",
+        "invalid_config": "invalid_configuration",
+        "dispose": "disposed"
+      }
+    },
+    "diagnostics": [
+      "invalid_state",
+      "security_error",
+      "not_allowed",
+      "registration_timeout",
+      "unknown_error"
+    ]
+  },
+  "reviewEvent": "filika:review"
+}
