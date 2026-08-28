@@ -2,8 +2,9 @@ import { describe, expect, test } from "bun:test";
 import { Window } from "happy-dom";
 
 import { FeedbackDialog } from "../src/components/feedback-dialog";
-import { renderInboxDetail, renderInboxList } from "../src/components/inbox";
 import { ReceiptToast } from "../src/components/receipt-toast";
+import { InboxDetailState, InboxList } from "../src/workspace/inbox-view";
+import { renderReact } from "./helpers/render-react";
 
 const XSS_PAYLOADS = [
   '<script>window.__xss_executed = true; alert("xss");</script>',
@@ -26,14 +27,11 @@ function setupDom() {
 }
 
 describe("stored-XSS regression and text rendering safety", () => {
-  test("inbox list view renders adversarial payloads strictly as text without executing or parsing HTML", () => {
-    const { document } = setupDom();
-
+  test("inbox list view renders adversarial payloads strictly as text without executing or parsing HTML", async () => {
     for (const payload of XSS_PAYLOADS) {
-      const section = renderInboxList(
-        document,
-        {
-          items: [
+      const result = await renderReact(
+        <InboxList
+          items={[
             {
               feedbackId: `fb_${payload}`,
               kind: payload,
@@ -42,57 +40,49 @@ describe("stored-XSS regression and text rendering safety", () => {
               routeLabel: payload,
               title: payload,
             },
-          ],
-          status: "ready",
-        },
-        { onOpen: () => {}, onRetry: () => {} },
+          ]}
+        />,
       );
 
-      // Verify no injected script, img, iframe, or meta tags exist in the DOM
-      expect(section.querySelector("script")).toBeNull();
-      expect(section.querySelector("img")).toBeNull();
-      expect(section.querySelector("iframe")).toBeNull();
-      expect(section.querySelector("meta")).toBeNull();
-
-      // Verify payload is safely preserved verbatim in textContent
-      expect(section.textContent).toContain(payload);
+      expect(result.container.querySelector("script")).toBeNull();
+      expect(result.container.querySelector("img")).toBeNull();
+      expect(result.container.querySelector("iframe")).toBeNull();
+      expect(result.container.querySelector("meta")).toBeNull();
+      expect(result.container.textContent).toContain(payload);
+      await result.close();
     }
   });
 
-  test("inbox detail view renders all report fields, host context, and server facts as literal text", () => {
-    const { document } = setupDom();
-
+  test("inbox detail view renders all report fields, host context, and server facts as literal text", async () => {
     for (const payload of XSS_PAYLOADS) {
-      const section = renderInboxDetail(
-        document,
-        {
-          feedback: {
-            applicationRelease: payload,
-            description: payload,
-            expectedBehavior: payload,
-            expiresAt: "2026-08-29T12:00:00.000Z",
-            feedbackId: payload,
-            kind: "bug",
-            receivedAt: "2026-08-28T12:00:00.000Z",
-            reproductionSteps: payload,
-            requestOrigin: payload,
-            routeLabel: payload,
-            source: "web_sdk_unverified",
-            title: payload,
-          },
-          status: "ready",
-        },
-        { onBack: () => {}, onRetry: () => {} },
+      const result = await renderReact(
+        <InboxDetailState
+          state={{
+            feedback: {
+              applicationRelease: payload,
+              description: payload,
+              expectedBehavior: payload,
+              expiresAt: "2026-08-29T00:00:00.000Z",
+              feedbackId: payload,
+              kind: "bug",
+              receivedAt: "2026-08-28T12:00:00.000Z",
+              reproductionSteps: payload,
+              requestOrigin: payload,
+              routeLabel: payload,
+              source: "web_sdk_unverified",
+              title: payload,
+            },
+            status: "ready",
+          }}
+        />,
       );
 
-      // No injected elements
-      expect(section.querySelector("script")).toBeNull();
-      expect(section.querySelector("img")).toBeNull();
-      expect(section.querySelector("iframe")).toBeNull();
-      expect(section.querySelector("meta")).toBeNull();
-
-      // Literal representation in textContent
-      expect(section.textContent).toContain(payload);
+      expect(result.container.querySelector("script")).toBeNull();
+      expect(result.container.querySelector("img")).toBeNull();
+      expect(result.container.querySelector("iframe")).toBeNull();
+      expect(result.container.querySelector("meta")).toBeNull();
+      expect(result.container.textContent).toContain(payload);
+      await result.close();
     }
   });
 

@@ -1,12 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { Window } from "happy-dom";
 
-import { renderInboxDetail, renderInboxList } from "../src/components/inbox";
 import type { InboxDetailViewModel } from "../src/contracts/inbox-view-model";
-
-function createDocument(): Document {
-  return new Window({ url: "http://localhost:4173" }).document as unknown as Document;
-}
+import { InboxDetailState, InboxList } from "../src/workspace/inbox-view";
+import { renderReact } from "./helpers/render-react";
 
 function repeat(text: string, length: number): string {
   return text.repeat(Math.ceil(length / text.length)).slice(0, length);
@@ -32,34 +28,19 @@ describe("long-content", () => {
     title: longTitle,
   };
 
-  test("renders long report content without shortening it in the inbox list", () => {
-    const document = createDocument();
-    const list = renderInboxList(
-      document,
-      { items: [feedback], status: "ready" },
-      {
-        onOpen: () => {},
-        onRetry: () => {},
-      },
-    );
-    const heading = list.querySelector("h2");
+  test("renders long report content without shortening it in the inbox list", async () => {
+    const result = await renderReact(<InboxList items={[feedback]} />);
+    const heading = result.container.querySelector("h2");
     expect(heading?.textContent).toBe(longTitle);
+    await result.close();
   });
 
-  test("renders long report content without shortening it in the inbox detail", () => {
-    const document = createDocument();
-    const detail = renderInboxDetail(
-      document,
-      { feedback, status: "ready" },
-      {
-        onBack: () => {},
-        onRetry: () => {},
-      },
-    );
-    expect(detail.querySelector("h1")?.textContent).toBe(longTitle);
-    const values = [...detail.querySelectorAll("dd")].map((item) => item.textContent ?? "");
+  test("renders long report content without shortening it in the inbox detail", async () => {
+    const result = await renderReact(<InboxDetailState state={{ feedback, status: "ready" }} />);
+    const values = [...result.container.querySelectorAll("dd")].map((item) => item.textContent ?? "");
     expect(values).toContain(longDescription);
     expect(values).toContain(longSteps);
+    await result.close();
   });
 
   test("report surfaces use no truncation styling", async () => {
@@ -81,16 +62,13 @@ describe("long-content", () => {
     }
   });
 
-  test("non-ready inbox states keep their copy intact", () => {
-    const document = createDocument();
-    const empty = renderInboxList(
-      document,
-      { status: "empty" },
-      {
-        onOpen: () => {},
-        onRetry: () => {},
-      },
+  test("non-ready inbox states keep their copy intact", async () => {
+    const result = await renderReact(
+      <InboxDetailState state={{ status: "not_found" }} />,
     );
-    expect(empty.textContent).toContain("Accepted feedback will appear here.");
+    expect(result.container.textContent).toContain(
+      "The feedback may have been removed or the address may be incorrect.",
+    );
+    await result.close();
   });
 });

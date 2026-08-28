@@ -54,7 +54,7 @@ test("dashboard renders totals, a chart, and the latest complaints from the coll
   );
 
   await page.goto("/dashboard");
-  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
   await expect(page.getByText("Total complaints")).toBeVisible();
   await expect(page.locator(".stat-value").first()).toContainText("4");
   await expect(page.getByRole("heading", { name: "Complaint activity" })).toBeVisible();
@@ -71,7 +71,7 @@ test("dashboard date range switch reloads the requested window", async ({ page }
     await fulfillDashboard(route, days);
   });
   await page.goto("/dashboard");
-  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
   await expect(page.locator(".stat-value").first()).toContainText("4");
   await page.getByLabel("Dashboard date range").selectOption("7");
   await expect(page.getByRole("img", { name: /complaints over 7 days/ })).toBeVisible();

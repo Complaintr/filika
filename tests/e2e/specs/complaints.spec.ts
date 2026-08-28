@@ -95,11 +95,11 @@ test("complaints pagination moves between pages and disables at the end", async 
   });
   await page.goto("/complaints");
   await expect(page.getByRole("link", { name: "Checkout button missing" })).toBeVisible();
-  const next = page.getByRole("button", { name: "Next" });
+  const next = page.getByRole("button", { name: "Next", exact: true });
   await expect(next).toBeEnabled();
   await next.click();
   await expect(page.getByRole("link", { name: "Signup form stuck" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Next" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Next", exact: true })).toBeDisabled();
 });
 
 test("complaints list shows a retryable failure state and recovers", async ({ page }) => {

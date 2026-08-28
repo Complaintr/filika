@@ -1,14 +1,16 @@
 import { expect, test } from "bun:test";
 
-test("workspace entry does not expose or mutate a public SDK global", async () => {
-  const src = await Bun.file(`${import.meta.dir}/../src/index.ts`).text();
-  expect(src).not.toContain("window.Filika");
-  expect(src).not.toContain("globalThis.Filika");
-  expect(src).toContain('document.getElementById("app")');
+test("workspace pages never expose or mutate a public SDK global", async () => {
+  const layout = await Bun.file(`${import.meta.dir}/../app/layout.tsx`).text();
+  const shell = await Bun.file(`${import.meta.dir}/../src/workspace/workspace-shell.tsx`).text();
+  for (const source of [layout, shell]) {
+    expect(source).not.toContain("window.Filika");
+    expect(source).not.toContain("globalThis.Filika");
+  }
 });
 
-test("the workspace page does not load the SDK bundle", async () => {
-  const html = await Bun.file(`${import.meta.dir}/../src/index.html`).text();
-  expect(html).not.toContain("/sdk/filika.development.js");
-  expect(html).toContain("/index.ts");
+test("the root layout does not load the SDK bundle", async () => {
+  const layout = await Bun.file(`${import.meta.dir}/../app/layout.tsx`).text();
+  expect(layout).not.toContain("/sdk/filika.development.js");
+  expect(layout).toContain('rel="stylesheet" href="/app.css"');
 });

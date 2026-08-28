@@ -2,8 +2,9 @@ import { describe, expect, test } from "bun:test";
 import { Window } from "happy-dom";
 
 import { FeedbackDialog } from "../src/components/feedback-dialog";
-import { renderInboxDetail, renderInboxList } from "../src/components/inbox";
 import { ReceiptToast } from "../src/components/receipt-toast";
+import { InboxDetailState, InboxList } from "../src/workspace/inbox-view";
+import { renderReact } from "./helpers/render-react";
 
 function setupDom() {
   const window = new Window({ url: "http://localhost:4173" });
@@ -206,14 +207,11 @@ describe("screen reader, live regions, and aria associations", () => {
     expect(toast.isVisible).toBe(false);
   });
 
-  test("inbox list and detail render accessible heading hierarchy and polite landmark labels", () => {
-    const { document } = setupDom();
-
+  test("inbox list and detail render accessible heading hierarchy and polite landmark labels", async () => {
     // Inbox List
-    const listSection = renderInboxList(
-      document,
-      {
-        items: [
+    const listResult = await renderReact(
+      <InboxList
+        items={[
           {
             feedbackId: "fb_1",
             kind: "bug",
@@ -222,43 +220,41 @@ describe("screen reader, live regions, and aria associations", () => {
             routeLabel: "Demo page",
             title: "Row 1",
           },
-        ],
-        status: "ready",
-      },
-      { onOpen: () => {}, onRetry: () => {} },
+        ]}
+      />,
     );
-
-    const listEl = listSection.querySelector("ol");
+    const listEl = listResult.container.querySelector("ol");
     expect(listEl?.getAttribute("aria-label")).toBe("Accepted feedback");
-    expect(listSection.querySelector("h1")?.textContent).toBe("All complaints");
+    await listResult.close();
 
     // Inbox Detail
-    const detailSection = renderInboxDetail(
-      document,
-      {
-        feedback: {
-          applicationRelease: "v1.0",
-          description: "Detail desc",
-          expectedBehavior: "Expected",
-          expiresAt: "2026-08-29T12:00:00.000Z",
-          feedbackId: "fb_1",
-          kind: "bug",
-          receivedAt: "2026-08-28T12:00:00.000Z",
-          reproductionSteps: "Steps",
-          requestOrigin: "http://localhost:4173",
-          routeLabel: "Demo page",
-          source: "web_sdk_unverified",
-          title: "Detail Title",
-        },
-        status: "ready",
-      },
-      { onBack: () => {}, onRetry: () => {} },
+    const detailResult = await renderReact(
+      <InboxDetailState
+        state={{
+          feedback: {
+            applicationRelease: "v1.0",
+            description: "Detail desc",
+            expectedBehavior: "Expected",
+            expiresAt: "2026-08-29T12:00:00.000Z",
+            feedbackId: "fb_1",
+            kind: "bug",
+            receivedAt: "2026-08-28T12:00:00.000Z",
+            reproductionSteps: "Steps",
+            requestOrigin: "http://localhost:4173",
+            routeLabel: "Demo page",
+            source: "web_sdk_unverified",
+            title: "Detail Title",
+          },
+          status: "ready",
+        }}
+      />,
     );
-
-    expect(detailSection.querySelector("h1")?.textContent).toBe("Detail Title");
-    const headings = Array.from(detailSection.querySelectorAll("h2")).map((h) => h.textContent);
+    const headings = Array.from(detailResult.container.querySelectorAll("h2")).map(
+      (h) => h.textContent,
+    );
     expect(headings).toContain("Report content");
     expect(headings).toContain("Page context");
     expect(headings).toContain("Receipt details");
+    await detailResult.close();
   });
 });

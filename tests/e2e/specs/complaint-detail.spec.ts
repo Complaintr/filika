@@ -73,7 +73,7 @@ test("complaint detail returns to the list from the back action", async ({ page 
   await page.goto("/complaints");
   await page.getByRole("link", { name: "Checkout button missing" }).click();
   await expect(page.getByRole("heading", { name: "Checkout button missing" })).toBeVisible();
-  await page.getByRole("button", { name: "All complaints" }).click();
+  await page.getByRole("link", { name: "All complaints" }).click();
   await expect(page.getByRole("heading", { name: "All complaints" })).toBeVisible();
 });
 

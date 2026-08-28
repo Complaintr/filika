@@ -4,13 +4,10 @@ import { DEMO_ALLOWED_ORIGINS, DEMO_PROJECT_KEY } from "../../../packages/collec
 import { autoInitialize } from "../../../packages/sdk/src/bootstrap";
 import { parseConfig } from "../../../packages/sdk/src/config-validation";
 
-test("workspace page loads the SPA without embedding the SDK bootstrap script", async () => {
-  const window = new Window();
-  window.document.body.innerHTML = await Bun.file(`${import.meta.dir}/../src/index.html`).text();
-  const script = window.document.querySelector('script[src="/sdk/filika.development.js"]');
-  expect(script).toBeNull();
-  expect(window.document.querySelector('script[type="module"][src="/index.ts"]')).not.toBeNull();
-  await window.happyDOM.close();
+test("the root layout does not embed the SDK bootstrap script", async () => {
+  const layout = await Bun.file(`${import.meta.dir}/../app/layout.tsx`).text();
+  expect(layout).not.toContain("/sdk/filika.development.js");
+  expect(layout).toContain("WorkspaceShell");
 });
 
 test("the demo project origin allowlist covers the local workspace origin", () => {
