@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hostile CSS fixture</title>
+    <style>
+      /* biome-ignore-all lint/complexity/noImportantStyles: Hostile CSS test fixture intentionally uses important rules */
+      /* Aggressive global styles designed to break poorly isolated components */
+      * {
+        all: unset !important;
+        box-sizing: content-box !important;
+        color: red !important;
+        font-family: monospace !important;
+        font-size: 0px !important;
+        letter-spacing: 50px !important;
+        line-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      body {
+        background: #000000 !important;
+        overflow: hidden !important;
+      }
+
+      dialog {
+        display: none !important;
+        position: static !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        border: 20px solid purple !important;
+      }
+
+      #filika-feedback-root {
+        all: initial;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hostile host page</h1>
+    <p>This host page applies aggressive global CSS rules with !important overrides.</p>
+    <div id="filika-feedback-root"></div>
+  </body>
+</html>
