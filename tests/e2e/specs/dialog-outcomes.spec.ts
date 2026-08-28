@@ -166,3 +166,51 @@ test("submitting surface stays visible while the collector responds, then shows 
   release.resolve();
   await expect(page.getByRole("heading", { name: "Feedback received", exact: true })).toBeVisible();
 });
+
+test("not accepted surface follows a documented collector rejection and recovers after editing", async ({
+  page,
+}) => {
+  let posts = 0;
+  await page.route(FEEDBACK_ENDPOINT, async (route) => {
+    if (route.request().method() === "OPTIONS") {
+      await fulfillPreflight(route);
+      return;
+    }
+    posts++;
+    if (posts === 1) {
+      await route.fulfill({
+        body: JSON.stringify({ code: "collector_rejected" }),
+        contentType: "application/json",
+        headers: { "Access-Control-Allow-Origin": "http://localhost:4173" },
+        status: 400,
+      });
+      return;
+    }
+    const body = JSON.parse(route.request().postData() ?? "null") as { eventId: string };
+    await route.fulfill({
+      body: JSON.stringify(receipt(body.eventId, false)),
+      contentType: "application/json",
+      headers: { "Access-Control-Allow-Origin": "http://localhost:4173" },
+      status: 201,
+    });
+  });
+
+  await openDemo(page);
+  await invokeFeedback(page);
+  await reviewAndSend(page);
+
+  await expect(page.getByRole("heading", { name: "Feedback not accepted" })).toBeVisible();
+  await expect(page.locator("#filika-feedback-status")).toContainText("Feedback not accepted.");
+  await expect(page.getByRole("dialog")).toContainText(
+    "The collector did not accept this report. Review the fields before trying again.",
+  );
+  expect(posts).toBe(1);
+
+  await page.getByRole("button", { name: "Edit report" }).click();
+  await expect(page.getByRole("heading", { name: "Review feedback" })).toBeVisible();
+  await page.locator("#filika-kind").selectOption("idea");
+  await reviewAndSend(page);
+
+  await expect(page.getByRole("heading", { name: "Feedback received", exact: true })).toBeVisible();
+  expect(posts).toBe(2);
+});
