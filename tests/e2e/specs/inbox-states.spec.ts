@@ -49,3 +49,25 @@ test("inbox shows the loading surface while fetching, then the empty surface", a
     "Accepted feedback will appear here.",
   );
 });
+
+test("inbox shows the load failure surface and recovers through retry", async ({ page }) => {
+  let attempts = 0;
+  await page.route(`${INBOX_BASE}*`, async (route) => {
+    attempts++;
+    if (attempts === 1) {
+      await fulfillJson(route, 500, { code: "internal_error" });
+      return;
+    }
+    await fulfillJson(route, 200, { items: [listItem], nextCursor: null });
+  });
+
+  await openInbox(page);
+  await expect(page.getByRole("heading", { name: "Unable to load feedback" })).toBeVisible();
+  await expect(page.locator('[data-state="error"]')).toHaveAttribute("role", "alert");
+  await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Try again" }).click();
+  await expect(page.getByRole("heading", { name: "Sample save failed" })).toBeVisible();
+  await expect(page.getByRole("list")).toHaveAccessibleName("Accepted feedback");
+  expect(attempts).toBe(2);
+});
