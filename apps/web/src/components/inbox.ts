@@ -95,6 +95,7 @@ export function renderInboxList(
   const section = document.createElement("section");
   section.className = "page-section";
   section.dataset.view = "inbox-list";
+  section.dataset.untrusted = "true";
   appendText(document, section, "p", "Maintainer workspace", "eyebrow");
   appendText(document, section, "h1", "Feedback inbox");
   appendText(
@@ -150,6 +151,14 @@ function renderReadyDetail(document: Document, feedback: InboxDetailViewModel): 
   const fragment = document.createDocumentFragment();
 
   const authored = createDetailGroup(document, "Report content");
+  authored.dataset.untrusted = "true";
+  const untrustedNotice = document.createElement("p");
+  untrustedNotice.className = "untrusted-notice";
+  untrustedNotice.dataset.untrusted = "true";
+  untrustedNotice.setAttribute("role", "note");
+  untrustedNotice.textContent = "External report content — treated as untrusted data.";
+  authored.append(untrustedNotice);
+
   const authoredList = authored.querySelector("dl");
   if (authoredList === null) {
     throw new Error("Missing report content list.");
@@ -190,6 +199,7 @@ export function renderInboxDetail(
   const section = document.createElement("section");
   section.className = "page-section";
   section.dataset.view = "inbox-detail";
+  section.dataset.untrusted = "true";
   section.append(createAction(document, "Back to inbox", callbacks.onBack, "text-button"));
 
   if (state.status !== "ready") {

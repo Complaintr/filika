@@ -148,8 +148,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .spinner { inline-size: 1rem; block-size: 1rem; border: 0.15rem solid currentColor; border-inline-end-color: transparent; border-radius: 50%; animation: spin var(--filika-motion-normal) linear infinite; }
 @keyframes spin { to { transform: rotate(1turn); } }
 
+.sr-only, #filika-feedback-status {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .spinner { animation: none; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
 }
 `;
 
@@ -332,6 +350,9 @@ export class FeedbackDialog {
     if (this.#activePromise !== null) {
       this.#settle({ outcome: "aborted" });
     }
+    if (this.#document.body) {
+      this.#document.body.style.overflow = "";
+    }
     this.#root.replaceChildren();
     this.#state = INITIAL_FEEDBACK_DIALOG_STATE;
     this.#host.remove();
@@ -340,6 +361,9 @@ export class FeedbackDialog {
   render(): void {
     if (this.#state.status === "closed") {
       this.#root.replaceChildren();
+      if (this.#document.body) {
+        this.#document.body.style.overflow = "";
+      }
       return;
     }
 
@@ -353,12 +377,21 @@ export class FeedbackDialog {
       event.preventDefault();
       this.#cancel();
     });
+    dialog.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        this.#cancel();
+      }
+    });
 
     const surface = this.#document.createElement("div");
     surface.className = "surface";
     dialog.append(surface);
     this.#renderState(surface);
     this.#root.replaceChildren(style, dialog);
+    if (this.#document.body) {
+      this.#document.body.style.overflow = "hidden";
+    }
     dialog.showModal();
     this.#focusAfterRender();
   }
@@ -384,6 +417,9 @@ export class FeedbackDialog {
     const dialog = this.#root.querySelector<HTMLDialogElement>("dialog");
     if (dialog?.open) {
       dialog.close();
+    }
+    if (this.#document.body) {
+      this.#document.body.style.overflow = "";
     }
     this.#state = transitionFeedbackDialog(this.#state, { type: "CLOSE" });
     this.#root.replaceChildren();
@@ -451,7 +487,12 @@ export class FeedbackDialog {
     }
   }
 
-  #renderHeading(surface: HTMLElement, heading: string, description: string): void {
+  #renderHeading(
+    surface: HTMLElement,
+    heading: string,
+    description: string,
+    statusText?: string,
+  ): void {
     const title = appendText(this.#document, surface, "h2", heading);
     title.id = "filika-feedback-title";
     const body = appendText(this.#document, surface, "p", description, "muted");
@@ -461,6 +502,9 @@ export class FeedbackDialog {
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
     status.setAttribute("aria-atomic", "true");
+    if (statusText !== undefined) {
+      status.textContent = statusText;
+    }
     surface.append(status);
   }
 
@@ -468,10 +512,15 @@ export class FeedbackDialog {
     if (this.#state.status !== "editing") {
       return;
     }
+    const statusText =
+      this.#state.issues.length > 0
+        ? "Validation errors found. Review the highlighted fields."
+        : "Feedback review form ready.";
     this.#renderHeading(
       surface,
       "Review feedback",
       "Nothing is sent until you review the report and confirm it on the next step.",
+      statusText,
     );
     this.#renderErrorSummary(surface);
     appendText(this.#document, surface, "h3", "Report content");
@@ -660,6 +709,7 @@ export class FeedbackDialog {
       surface,
       "Confirm submission",
       "Check the destination and privacy details before sending this feedback.",
+      `Review submission to ${this.#options.identity.projectName}. Confirm to send.`,
     );
     const list = this.#document.createElement("dl");
     list.className = "review-list";
@@ -724,11 +774,8 @@ export class FeedbackDialog {
       surface,
       "Submitting feedback",
       "Keep this dialog open while Filika contacts the collector.",
+      "Submitting feedback.",
     );
-    const status = this.#root.getElementById("filika-feedback-status");
-    if (status !== null) {
-      status.textContent = "Submitting feedback.";
-    }
     const actions = this.#document.createElement("div");
     actions.className = "actions";
     const indicator = this.#document.createElement("span");
@@ -779,7 +826,10 @@ export class FeedbackDialog {
     const description = this.#state.receipt.duplicate
       ? "The collector recognized this submission and returned its original receipt."
       : "The collector accepted your feedback.";
-    this.#renderHeading(surface, heading, description);
+    const statusText = this.#state.receipt.duplicate
+      ? `Feedback already received. Original receipt returned. Feedback ID: ${this.#state.receipt.feedbackId}.`
+      : `Feedback received successfully. Feedback ID: ${this.#state.receipt.feedbackId}.`;
+    this.#renderHeading(surface, heading, description, statusText);
     const list = this.#document.createElement("dl");
     list.className = "receipt-list";
     for (const [label, value] of [
@@ -806,6 +856,7 @@ export class FeedbackDialog {
       surface,
       "Check the report",
       "The collector could not validate one or more report fields.",
+      "Submission rejected due to invalid input. Review report fields.",
     );
     const actions = this.#document.createElement("div");
     actions.className = "actions";
@@ -830,7 +881,7 @@ export class FeedbackDialog {
       | "timeout",
   ): void {
     const copy = outcomeCopy[status];
-    this.#renderHeading(surface, copy.heading, copy.body);
+    this.#renderHeading(surface, copy.heading, copy.body, `${copy.heading}. ${copy.body}`);
     const actions = this.#document.createElement("div");
     actions.className = "actions";
 

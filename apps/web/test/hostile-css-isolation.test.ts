@@ -3,13 +3,46 @@ import { Window } from "happy-dom";
 
 import { FeedbackDialog } from "../src/components/feedback-dialog";
 
-function createHostileDocument(): Document {
+function createHostileDocument(advanced = false): Document {
   const window = new Window({ url: "http://localhost:4173" });
   const doc = window.document as unknown as Document;
 
-  // Inject aggressive hostile host stylesheet
   const hostileStyle = doc.createElement("style");
-  hostileStyle.textContent = `
+  hostileStyle.textContent = advanced
+    ? `
+    *, *::before, *::after {
+      all: unset !important;
+      box-sizing: content-box !important;
+      color: transparent !important;
+      font-size: 0px !important;
+      line-height: 0 !important;
+      margin: -999px !important;
+      padding: 0 !important;
+      transform: scale(0.01) !important;
+      filter: blur(100px) !important;
+      clip-path: polygon(0 0, 0 0, 0 0) !important;
+      pointer-events: none !important;
+    }
+    body {
+      display: flex !important;
+      flex-direction: column-reverse !important;
+      background: #000000 !important;
+    }
+    dialog {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      z-index: -99999 !important;
+    }
+    button, input, select, textarea {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  `
+    : `
     * {
       all: unset !important;
       box-sizing: content-box !important;
@@ -38,9 +71,9 @@ function createHostileDocument(): Document {
   return doc;
 }
 
-describe("P3-FE-07 hostile CSS isolation", () => {
-  test("shadow DOM isolates dialog structure and styles from hostile host CSS", async () => {
-    const document = createHostileDocument();
+describe("P4-FE-09 hostile CSS isolation", () => {
+  test("shadow DOM isolates dialog structure and styles from standard hostile host CSS", async () => {
+    const document = createHostileDocument(false);
     const host = document.getElementById("filika-feedback-root") as HTMLElement;
 
     const dialog = new FeedbackDialog(host, {
@@ -67,24 +100,20 @@ describe("P3-FE-07 hostile CSS isolation", () => {
       title: "Hostile CSS test report",
     });
 
-    // Verify shadow root encapsulation
     const shadow = host.shadowRoot;
     expect(shadow).not.toBeNull();
     expect(shadow?.mode).toBe("open");
 
-    // Verify internal style tag exists and defines scoped styles
     const styleEl = shadow?.querySelector("style");
     expect(styleEl).not.toBeNull();
     expect(styleEl?.textContent).toContain("--filika-dialog-bg");
     expect(styleEl?.textContent).toContain("dialog {");
     expect(styleEl?.textContent).toContain(".surface {");
 
-    // Verify native dialog element exists within shadow DOM
     const dialogEl = shadow?.querySelector<HTMLDialogElement>("dialog");
     expect(dialogEl).not.toBeNull();
     expect(dialogEl?.open).toBe(true);
 
-    // Verify form controls remain present and accessible in shadow root
     const kindSelect = shadow?.getElementById("filika-kind") as HTMLSelectElement;
     const titleInput = shadow?.getElementById("filika-title") as HTMLInputElement;
     const descTextarea = shadow?.getElementById("filika-description") as HTMLTextAreaElement;
@@ -101,7 +130,6 @@ describe("P3-FE-07 hostile CSS isolation", () => {
     expect(titleInput.value).toBe("Hostile CSS test report");
     expect(descTextarea.value).toBe("Observed bug description under hostile CSS");
 
-    // Verify user interaction flows operate cleanly
     reviewBtn.click();
     expect(shadow?.getElementById("filika-feedback-title")?.textContent).toBe("Confirm submission");
 
@@ -110,9 +138,62 @@ describe("P3-FE-07 hostile CSS isolation", () => {
     confirmBtn.click();
     await Promise.resolve();
 
-    // Verify receipt state
     expect(shadow?.getElementById("filika-feedback-title")?.textContent).toBe("Feedback received");
     expect(shadow?.textContent).toContain("fb_isolated_1");
+
+    const closeBtn = shadow?.getElementById("filika-close") as HTMLButtonElement;
+    closeBtn.click();
+    expect(dialog.state.status).toBe("closed");
+  });
+
+  test("shadow DOM isolates dialog against advanced hostile CSS (transforms, flex reverse, transparent text)", async () => {
+    const document = createHostileDocument(true);
+    const host = document.getElementById("filika-feedback-root") as HTMLElement;
+
+    const dialog = new FeedbackDialog(host, {
+      identity: {
+        collectorOrigin: "http://localhost:8787",
+        privacyUrl: "#privacy",
+        projectName: "Filika demo",
+        retentionSummary: "24h retention",
+      },
+      submit: () =>
+        Promise.resolve({
+          outcome: "success",
+          receipt: {
+            duplicate: false,
+            feedbackId: "fb_isolated_adv",
+            receivedAt: "2026-08-28T12:00:00.000Z",
+          },
+        }),
+    });
+
+    void dialog.open({
+      description: "Advanced hostile test desc",
+      kind: "bug",
+      title: "Advanced hostile report",
+    });
+
+    const shadow = host.shadowRoot;
+    expect(shadow).not.toBeNull();
+
+    // Dialog remains open and interactive
+    const dialogEl = shadow?.querySelector<HTMLDialogElement>("dialog");
+    expect(dialogEl?.open).toBe(true);
+
+    const titleInput = shadow?.getElementById("filika-title") as HTMLInputElement;
+    expect(titleInput.value).toBe("Advanced hostile report");
+
+    const reviewBtn = shadow?.getElementById("filika-review") as HTMLButtonElement;
+    reviewBtn.click();
+    expect(dialog.state.status).toBe("confirming");
+
+    const confirmBtn = shadow?.getElementById("filika-confirm") as HTMLButtonElement;
+    confirmBtn.click();
+    await Promise.resolve();
+
+    expect(dialog.state.status).toBe("success");
+    expect(shadow?.textContent).toContain("fb_isolated_adv");
 
     const closeBtn = shadow?.getElementById("filika-close") as HTMLButtonElement;
     closeBtn.click();
