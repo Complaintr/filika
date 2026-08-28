@@ -1,0 +1,66 @@
+[
+  {
+    "scenario": "observed-bug",
+    "setup": "On a fresh demo, run the sample task and observe Sample save failed before giving the prompt.",
+    "prompt": "The sample save just failed. Please draft a bug report about what we observed so I can review it.",
+    "expectedKind": "bug",
+    "argumentChecks": [
+      "Describe the observed save failure, not an inferred database or network cause.",
+      "If steps are included, describe only running the sample task and observing failure."
+    ],
+    "exampleDraft": {
+      "kind": "bug",
+      "title": "Sample draft save failed",
+      "description": "Running the sample task displayed Sample save failed and said the draft could not be saved.",
+      "expectedBehavior": "The sample draft should save successfully.",
+      "reproductionSteps": ["Run the sample task", "Observe Sample save failed"]
+    }
+  },
+  {
+    "scenario": "blocked-task",
+    "setup": "Start a fresh demo and conversation. Let the agent run the sample save task once as part of the requested work; require the visible failure before drafting feedback.",
+    "prompt": "Save the sample draft. If the task is blocked, prepare feedback explaining what stopped me so I can review it.",
+    "expectedKind": "blocked_task",
+    "argumentChecks": [
+      "State the user's goal of saving the draft and the observed blocker.",
+      "Do not claim the task completed or any feedback was accepted before a receipt."
+    ],
+    "exampleDraft": {
+      "kind": "blocked_task",
+      "title": "Unable to complete the sample save task",
+      "description": "I wanted to save the sample draft, but running the task displayed a save failure and prevented completion.",
+      "expectedBehavior": "I should be able to complete the save task."
+    }
+  },
+  {
+    "scenario": "confusing-behavior",
+    "setup": "On a fresh demo, run the sample task, reset it, and run it again. Observe the same failure after the page instructed the user to reset and retry.",
+    "prompt": "The message told me to reset and try again, but the same save failure returned. That instruction is confusing. Draft feedback for my review about the wording.",
+    "expectedKind": "confusing_behavior",
+    "argumentChecks": [
+      "Describe the mismatch between the retry instruction and the repeated observed failure.",
+      "Do not generalize two observed attempts into claims about all users or data loss."
+    ],
+    "exampleDraft": {
+      "kind": "confusing_behavior",
+      "title": "Reset guidance suggests the next save will work",
+      "description": "The failure message suggested resetting and trying again. After resetting and rerunning the task, the same failure appeared, so the guidance was confusing.",
+      "expectedBehavior": "Explain that the sample failure is intentional and repeatable."
+    }
+  },
+  {
+    "scenario": "concrete-idea",
+    "setup": "Open a fresh demo and observe the normal checklist and the separate sample task. Do not trigger a failure for this case.",
+    "prompt": "I have an improvement idea for this demo: add a visible completion summary beside the normal checklist so I can tell what I finished. Draft it for my review as an idea, not a bug.",
+    "expectedKind": "idea",
+    "argumentChecks": [
+      "Describe the concrete requested summary and its benefit as a suggestion.",
+      "Do not invent a failed task or turn the idea into a factual defect claim."
+    ],
+    "exampleDraft": {
+      "kind": "idea",
+      "title": "Add a checklist completion summary",
+      "description": "Consider adding a visible summary beside the normal checklist showing what I have completed, so progress is easier to understand."
+    }
+  }
+]

@@ -1,5 +1,14 @@
 # SDK verification
 
+See [verification results](verification-results.md) for the dated clean-checkout
+baseline and the distinction between automated and native-browser evidence.
+
+Additional verification procedures:
+
+- [Chrome DevTools](webmcp-local-testing.md) and [independent Inspector](webmcp-inspector-testing.md).
+- [Agent evaluation protocol](webmcp-evals.md) and [unmeasured/observed results](webmcp-eval-results.md).
+- [Prepared ChatGPT Site Tools script](site-tools-test-script.md) for a later approved deployment.
+
 ## Automated checks
 
 Use Bun 1.3.14. Configure dedicated local PostgreSQL databases for unit/API and

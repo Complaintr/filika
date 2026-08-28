@@ -6,7 +6,9 @@ production credentials.
 
 ## Requirements
 
-- Chrome 149 or newer.
+- Chrome with the current `document.modelContext` implementation. The DevTools
+  pane was introduced in Chrome 149; the current Inspector requires
+  Chrome 150.0.7861.0 or newer (see the [separate Inspector procedure](webmcp-inspector-testing.md)).
 - Bun 1.3.14.
 
 Chrome currently exposes WebMCP and its DevTools pane behind two experimental
@@ -59,6 +61,41 @@ Available Tools, invocation history, and manual **Run tool** controls in
 [Debug WebMCP tools](https://developer.chrome.com/docs/devtools/application/webmcp).
 The automated Playwright suite uses a test double; this native-browser inspection
 remains a separate manual check.
+
+## Native acceptance record
+
+Use the integrated demo, not the smoke fixture, which may install a double.
+Record the source revision, date, Chrome version/channel, both flag states,
+SDK build SHA-256, and whether any polyfill or test double is present. Stop if
+the page is not using the native `document.modelContext` API. A ready demo-task
+status alone does not certify feedback registration or invocation.
+
+Run each row from a fresh page with only synthetic data. In Network, filter on
+`/api/v1/feedback`; count POST requests, not preflight or inbox GET requests.
+Do not export headers or a full HAR. Record only bounded outcomes, request counts,
+and synthetic receipt identity. Keep the feedback dialog visible while the
+DevTools call is pending.
+
+| Check | Action | Required observation |
+| --- | --- | --- |
+| Registration | Open Application → WebMCP | Exactly one feedback tool and one demo task; feedback metadata matches `packages/sdk/src/tool.ts` and its schema |
+| Failure | Run `filika_demo_save_draft` with `{}` | Visible save conflict; zero feedback POSTs |
+| Invocation and review | Run the synthetic feedback draft above | Editable review opens; call remains pending; zero POSTs |
+| Confirmation | Edit the title, remove route context, review, then send | One POST with reviewed fields; `success` with a validated receipt; exact record appears in inbox |
+| Cancellation | Reload, invoke again, choose Cancel in the dialog | `cancelled`; zero POSTs for this invocation; no receipt |
+| Disposal | Close the dialog and open Inbox | Both tools disappear from Available Tools; returning to Demo registers each once |
+
+Compare the raw tool outcome with the SDK's closed outcome contract. A DevTools
+execution marked Completed can still contain `invalid_input` or another failure.
+For the success row, require `code: "success"`, not only that the browser finished
+the call. If a valid draft immediately returns `invalid_input`, record a native
+execution compatibility failure; do not inject a replacement execution signal,
+install a polyfill, or switch to manual feedback and call it a native pass.
+
+If browser settings or the DevTools surface are inaccessible, record **not run**
+and request a human verification of the rows. Do not bypass browser restrictions.
+Use the [results document](verification-results.md) to distinguish completed
+observations from outstanding checks.
 
 ## Troubleshooting
 
