@@ -16,6 +16,8 @@ Dependencies retain their own licenses; the repository license does not relicens
 them. Review the dependency inventory and bundled license/notice files before
 redistributing dependencies. A source or binary release must preserve applicable
 third-party notices. No claim is made that every dependency is Apache-licensed.
+See the [provenance and dependency review](provenance-review.md) and
+[complete locked inventory](dependency-licenses.json) for scope and packaging gaps.
 
 Verification: compare `LICENSE` byte-for-byte with the linked canonical text,
 inspect all five package manifests, run `bun install --frozen-lockfile`, and run
