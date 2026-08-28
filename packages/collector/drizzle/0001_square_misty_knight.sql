@@ -1,0 +1,1 @@
+ALTER TABLE "project" ADD COLUMN "rate_limit_max" integer DEFAULT 100 NOT NULL;

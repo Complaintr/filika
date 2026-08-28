@@ -86,7 +86,12 @@ async function processIngest(
     return reject(logger, "denied_origin");
   }
 
-  const rateLimit = await consumeProjectRateLimit(db, resolvedProject.id, new Date());
+  const rateLimit = await consumeProjectRateLimit(
+    db,
+    resolvedProject.id,
+    new Date(),
+    resolvedProject.rateLimitMax,
+  );
 
   if (!rateLimit.allowed) {
     return reject(logger, "rate_limited");
