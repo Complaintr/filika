@@ -1,5 +1,8 @@
 # SDK verification
 
+See [verification results](verification-results.md) for the dated clean-checkout
+baseline and the distinction between automated and native-browser evidence.
+
 ## Automated checks
 
 Use Bun 1.3.14. Configure dedicated local PostgreSQL databases for unit/API and
