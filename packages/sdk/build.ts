@@ -17,6 +17,16 @@ export const SDK_BUILD_OPTIONS = {
   charset: "utf8",
 } satisfies BuildOptions;
 
+/** Keep the browser runtime independent of workspace and third-party packages. */
+export function assertSdkInputs(inputs: readonly string[]): void {
+  if (
+    inputs.some(
+      (input) => input !== "package.json" && !/^src\/(?:[a-z-]+\/)*[a-z-]+\.ts$/u.test(input),
+    )
+  )
+    throw new Error("SDK bundle must contain only SDK source and its package metadata");
+}
+
 export async function bundleSdk(development = false) {
   const filename = development ? "filika.development.js" : "filika.js";
   const result = await build({
@@ -30,6 +40,8 @@ export async function bundleSdk(development = false) {
   if (!output || result.outputFiles?.length !== 1) throw new Error("Expected one IIFE bundle");
   if (Object.values(result.metafile?.outputs ?? {}).some((entry) => entry.imports.length > 0))
     throw new Error("Unexpected external imports");
+  const inputs = Object.keys(result.metafile?.inputs ?? {}).sort();
+  assertSdkInputs(inputs);
   const metadata = {
     sdkVersion: version,
     esbuildVersion,
@@ -40,7 +52,7 @@ export async function bundleSdk(development = false) {
     bytes: output.contents.byteLength,
     sha256: new Bun.CryptoHasher("sha256").update(output.contents).digest("hex"),
     integrity: `sha384-${new Bun.CryptoHasher("sha384").update(output.contents).digest("base64")}`,
-    inputs: Object.keys(result.metafile?.inputs ?? {}).sort(),
+    inputs,
   };
   return { code: output.contents, metadata };
 }

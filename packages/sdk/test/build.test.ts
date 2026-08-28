@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { runInNewContext } from "node:vm";
 import { build } from "esbuild";
-import { bundleSdk, SDK_BUILD_OPTIONS } from "../build";
+import { assertSdkInputs, bundleSdk, SDK_BUILD_OPTIONS } from "../build";
 import {
   FEEDBACK_TOOL,
   type FilikaExecutionOutcome,
@@ -62,6 +62,20 @@ test("both bundle modes emit reproducible SRI matching the exact bytes", async (
     integrities.push(expected);
   }
   expect(integrities[0]).not.toBe(integrities[1]);
+});
+
+test("dependency audit rejects third-party, workspace, and runtime-shim bundle inputs", () => {
+  expect(() => assertSdkInputs(["src/browser.ts", "src/abort.ts", "package.json"])).not.toThrow();
+  for (const input of [
+    "../../node_modules/zod/index.js",
+    "node_modules/ajv/index.js",
+    "../collector/src/index.ts",
+    "../../apps/web/src/index.ts",
+    "src/../../private.ts",
+    "/absolute/path.ts",
+    "<runtime-shim>",
+  ])
+    expect(() => assertSdkInputs(["src/browser.ts", input])).toThrow("only SDK source");
 });
 
 test("production global cannot enable HTTP; development bundle accepts only loopback", async () => {
