@@ -1,7 +1,16 @@
 import { FEEDBACK_DRAFT_SCHEMA } from "./envelope";
 
+// These are SDK-owned literals, never caller objects. The public global exposes
+// the contract, so TypeScript readonly alone is not sufficient at runtime.
+function freezeMetadata<T extends object>(value: T): T {
+  for (const child of Object.values(value)) {
+    if (typeof child === "object" && child !== null) freezeMetadata(child);
+  }
+  return Object.freeze(value);
+}
+
 // Host configuration and agent content must never be interpolated into metadata.
-export const FEEDBACK_TOOL = {
+export const FEEDBACK_TOOL = freezeMetadata({
   name: "filika_submit_feedback",
   title: "Submit feedback for review",
   description:
@@ -14,7 +23,7 @@ export const FEEDBACK_TOOL = {
     readOnlyHint: false,
     untrustedContentHint: false,
   },
-} as const;
+} as const);
 
 export interface FilikaToolExecutionOptions {
   signal: AbortSignal;
