@@ -135,3 +135,34 @@ test("invalid input surface shows the field error copy and recovers after editin
   await expect(page.getByRole("heading", { name: "Feedback received", exact: true })).toBeVisible();
   expect(posts).toHaveLength(1);
 });
+
+test("submitting surface stays visible while the collector responds, then shows the receipt", async ({
+  page,
+}) => {
+  const release = Promise.withResolvers<void>();
+  await page.route(FEEDBACK_ENDPOINT, async (route) => {
+    if (route.request().method() === "OPTIONS") {
+      await fulfillPreflight(route);
+      return;
+    }
+    await release.promise;
+    const body = JSON.parse(route.request().postData() ?? "null") as { eventId: string };
+    await route.fulfill({
+      body: JSON.stringify(receipt(body.eventId, false)),
+      contentType: "application/json",
+      headers: { "Access-Control-Allow-Origin": "http://localhost:4173" },
+      status: 201,
+    });
+  });
+
+  await openDemo(page);
+  await invokeFeedback(page);
+  await reviewAndSend(page);
+
+  await expect(page.getByRole("heading", { name: "Submitting feedback" })).toBeVisible();
+  await expect(page.locator(".spinner")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Stop" })).toBeVisible();
+
+  release.resolve();
+  await expect(page.getByRole("heading", { name: "Feedback received", exact: true })).toBeVisible();
+});
