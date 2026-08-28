@@ -162,7 +162,7 @@ function initThemeSwitcher(): void {
     return;
   }
 
-  const buttons = switcher.querySelectorAll<HTMLButtonElement>(".theme-btn");
+  const inputs = switcher.querySelectorAll<HTMLInputElement>(".theme-input");
 
   function getStoredTheme(): ThemePreference {
     try {
@@ -183,19 +183,17 @@ function initThemeSwitcher(): void {
       document.documentElement.dataset.theme = pref;
     }
 
-    for (const btn of buttons) {
-      const val = btn.dataset.themeValue;
-      const isSelected = val === pref;
-      btn.setAttribute("aria-checked", isSelected ? "true" : "false");
+    for (const input of inputs) {
+      input.checked = input.dataset.themeValue === pref;
     }
   }
 
   let currentPref = getStoredTheme();
   applyTheme(currentPref);
 
-  for (const btn of buttons) {
-    btn.addEventListener("click", () => {
-      const selected = btn.dataset.themeValue as ThemePreference | undefined;
+  for (const input of inputs) {
+    input.addEventListener("change", () => {
+      const selected = input.dataset.themeValue as ThemePreference | undefined;
       if (selected === "light" || selected === "dark" || selected === "system") {
         currentPref = selected;
         try {
