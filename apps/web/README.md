@@ -6,8 +6,10 @@ review dialog, and the read-only maintainer inbox.
 Frontend journey, state, wireframe, design-token, accessibility, sample-failure,
 and style-isolation foundations are defined in `src/foundation`.
 Frontend behavior contracts are defined in `src/contracts`. The Phase 2
-components consume those contracts without connecting to the collector API,
-which remains a Phase 3 integration task.
+components consume those contracts. The sample app now connects the real SDK to
+the dialog and collector; the inbox UI still uses synthetic preview records.
+See the [local demo guide](../../docs/local-demo.md) for database setup, collector
+startup, script attributes, and the exact end-to-end journey.
 
 ## Local journey
 
