@@ -214,3 +214,41 @@ test("not accepted surface follows a documented collector rejection and recovers
   await expect(page.getByRole("heading", { name: "Feedback received", exact: true })).toBeVisible();
   expect(posts).toBe(2);
 });
+
+test("already received surface presents a duplicate receipt from the collector", async ({ page }) => {
+  await page.route(FEEDBACK_ENDPOINT, async (route) => {
+    if (route.request().method() === "OPTIONS") {
+      await fulfillPreflight(route);
+      return;
+    }
+    const body = JSON.parse(route.request().postData() ?? "null") as { eventId: string };
+    await route.fulfill({
+      body: JSON.stringify(receipt(body.eventId, true)),
+      contentType: "application/json",
+      headers: { "Access-Control-Allow-Origin": "http://localhost:4173" },
+      status: 200,
+    });
+  });
+
+  await openDemo(page);
+  await invokeFeedback(page);
+  await reviewAndSend(page);
+
+  await expect(page.getByRole("heading", { name: "Already received" })).toBeVisible();
+  await expect(page.locator("#filika-feedback-status")).toContainText(
+    "Feedback already received. Original receipt returned.",
+  );
+  await expect(page.getByRole("dialog")).toContainText("99999999-9999-4999-8999-999999999999");
+  await expect(page.getByRole("dialog")).toContainText(RECEIVED_AT);
+  await expect(page.locator(".filika-receipt-toast")).toHaveAttribute("data-duplicate", "true");
+  await expect(page.locator(".filika-receipt-toast")).toContainText(
+    "99999999-9999-4999-8999-999999999999",
+  );
+
+  await page.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(await page.evaluate(() => window.filikaTest.outcome)).toEqual({
+    code: "success",
+    receipt: expect.objectContaining({ duplicate: true }),
+  });
+});
