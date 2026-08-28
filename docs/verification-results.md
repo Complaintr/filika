@@ -78,3 +78,19 @@ The [evaluation ledger](webmcp-eval-results.md) records all nine scenarios as no
 run and all four agent-quality metrics as not measured. Fixture/schema validation
 and automated runtime checks are reported separately. Native execution and agent
 selection remain verification gaps, not release-readiness claims.
+
+## Verification after corpus and documentation additions
+
+The working tree containing the new evaluation corpus and procedures was checked
+again on 2026-08-28. Frozen install, formatting/lint (194 files), all workspace
+typechecks, and build passed. Unit/API tests passed **409/409**, including four
+new positive-example schema tests, with all five contract snapshots unchanged
+and no skipped database tests. After resetting the dedicated browser database,
+the full browser suite passed **22/22**, including native permissions-policy
+enforcement, with no skips. Local links in all seven verification documents were
+checked and resolved. SDK runtime code and metadata were not changed.
+
+These final checks used the working checkout, unlike the fresh-clone baseline
+above. They do not change the not-run native DevTools/Inspector or agent-eval
+status. The [Site Tools script](site-tools-test-script.md) is preparation only;
+no deployment or Site Tools run was performed.
