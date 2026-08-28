@@ -9,7 +9,7 @@ import { checkOrigin, type OriginCheck } from "./origin";
 import { decodeJsonBody } from "./parse";
 import { persistFeedback } from "./persistence";
 import { collectAllowedOrigins, isOriginAllowed, resolveProject } from "./project";
-import { consumeProjectRateLimit } from "./rate-limiting";
+import { consumeProjectRateLimit, retryAfterSeconds } from "./rate-limiting";
 import { buildServerOwnedValues } from "./server-owned";
 import { validateEnvelope } from "./validate";
 
@@ -86,10 +86,24 @@ async function processIngest(
     return reject(logger, "denied_origin");
   }
 
-  const rateLimit = await consumeProjectRateLimit(db, resolvedProject.id, new Date());
+  const rateLimit = await consumeProjectRateLimit(
+    db,
+    resolvedProject.id,
+    new Date(),
+    resolvedProject.rateLimitMax,
+  );
 
   if (!rateLimit.allowed) {
-    return reject(logger, "rate_limited");
+    logger.log({
+      category: "rate_limited",
+      eventId: null,
+      projectKey: validated.envelope.projectKey,
+      type: "ingest_rejected",
+    });
+
+    return rejectionResponse("rate_limited", {
+      "Retry-After": String(retryAfterSeconds(new Date())),
+    });
   }
 
   const serverValues = buildServerOwnedValues(new Date(), originCheck.origin);
