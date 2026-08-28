@@ -18,6 +18,11 @@ function dispatchInputEvent(document: Document, element: HTMLElement): void {
   element.dispatchEvent(new view.Event("input", { bubbles: true }));
 }
 
+function clickButton(root: ShadowRoot | null, id: string): void {
+  const btn = root?.getElementById(id) as HTMLButtonElement | null;
+  btn?.click();
+}
+
 function createDialog(
   document: Document,
   submit: FeedbackDialogOptions["submit"] = () =>
@@ -46,13 +51,8 @@ function createDialog(
   };
 }
 
-function clickButton(root: ShadowRoot | null, id: string): void {
-  const btn = root?.getElementById(id) as HTMLButtonElement | null;
-  btn?.click();
-}
-
-describe("P3-FE-06 dialog interaction flows", () => {
-  test("P3-FE-06a: edit authored fields, validate, confirm, and verify success receipt", async () => {
+describe("feedback-dialog-flows", () => {
+  test("edits authored fields, validates, confirms, and verifies success receipt", async () => {
     const document = createDocument();
     let submittedDraft: FeedbackDraft | null = null;
 
@@ -123,7 +123,7 @@ describe("P3-FE-06 dialog interaction flows", () => {
     expect(dialog.state.status).toBe("closed");
   });
 
-  test("P3-FE-06b: remove context fields and verify they are omitted from submission", async () => {
+  test("removes context fields and verifies they are omitted from submission", async () => {
     const document = createDocument();
     let submittedDraft: FeedbackDraft | null = null;
 
@@ -176,7 +176,7 @@ describe("P3-FE-06 dialog interaction flows", () => {
     expect(submittedDraft?.applicationRelease).toBeNull();
   });
 
-  test("P3-FE-06b: cancel flow from editing and confirmation states", async () => {
+  test("handles cancellation from editing and confirmation states", async () => {
     const document = createDocument();
     const { dialog, host } = createDialog(document);
 
@@ -201,7 +201,7 @@ describe("P3-FE-06 dialog interaction flows", () => {
     expect(result2.outcome).toBe("cancelled");
   });
 
-  test("P3-FE-06b: manual feedback button opens empty manual draft and restores focus", async () => {
+  test("opens empty manual draft from sample application and restores focus", async () => {
     const document = createDocument();
     const { dialog, host } = createDialog(document);
 
@@ -231,7 +231,7 @@ describe("P3-FE-06 dialog interaction flows", () => {
     expect(dialog.state.status).toBe("closed");
   });
 
-  test("P3-FE-06c: retry from timeout, internal_error, and outcome_unknown states", async () => {
+  test("retries across timeout, internal_error, and outcome_unknown states", async () => {
     const document = createDocument();
     let attempt = 0;
 
@@ -295,7 +295,7 @@ describe("P3-FE-06 dialog interaction flows", () => {
     expect(shadow?.textContent).toContain("fb_after_retries");
   });
 
-  test("P3-FE-06c: collector_rejected and invalid_input allow editing report and resubmitting", async () => {
+  test("collector_rejected and invalid_input allow editing report and resubmitting", async () => {
     const document = createDocument();
     let attempt = 0;
 
