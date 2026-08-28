@@ -353,6 +353,12 @@ export class FeedbackDialog {
       event.preventDefault();
       this.#cancel();
     });
+    dialog.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        this.#cancel();
+      }
+    });
 
     const surface = this.#document.createElement("div");
     surface.className = "surface";
