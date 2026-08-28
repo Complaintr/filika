@@ -54,39 +54,74 @@ export function renderPrivacyNotice(document: Document): HTMLElement {
   section.setAttribute("aria-labelledby", "privacy-notice-title");
 
   const header = document.createElement("header");
+  header.className = "privacy-notice-header";
+
   const eyebrow = document.createElement("p");
   eyebrow.className = "eyebrow";
   eyebrow.textContent = "Data safety & transparency";
+
   const title = document.createElement("h2");
   title.id = "privacy-notice-title";
   title.textContent = "Privacy and Data Handling Notice";
+
   const lede = document.createElement("p");
   lede.className = "lede";
   lede.textContent =
     "Filika operates on a strict zero-ambient-data policy. Every outgoing field is presented for your review before transmission.";
-  header.append(eyebrow, title, lede);
+
+  const trustBadges = document.createElement("div");
+  trustBadges.className = "privacy-trust-badges";
+  const badges = [
+    "Zero ambient telemetry",
+    "Explicit user review",
+    "24h automated purge",
+    "No cookies or DOM capture",
+  ];
+  for (const label of badges) {
+    const badge = document.createElement("span");
+    badge.className = "trust-badge";
+    badge.textContent = label;
+    trustBadges.append(badge);
+  }
+
+  header.append(eyebrow, title, lede, trustBadges);
   section.append(header);
 
   const grid = document.createElement("div");
   grid.className = "privacy-categories-grid";
 
-  const categories = [
-    FILIKA_PRIVACY_DISCLOSURE.collected,
-    FILIKA_PRIVACY_DISCLOSURE.optional,
-    FILIKA_PRIVACY_DISCLOSURE.excluded,
-    FILIKA_PRIVACY_DISCLOSURE.retained,
+  const categories: Array<{
+    key: "collected" | "optional" | "excluded" | "retained";
+    category: PrivacyDataCategory;
+    tag: string;
+  }> = [
+    { key: "collected", category: FILIKA_PRIVACY_DISCLOSURE.collected, tag: "Report payload" },
+    { key: "optional", category: FILIKA_PRIVACY_DISCLOSURE.optional, tag: "User editable" },
+    { key: "excluded", category: FILIKA_PRIVACY_DISCLOSURE.excluded, tag: "Strictly blocked" },
+    { key: "retained", category: FILIKA_PRIVACY_DISCLOSURE.retained, tag: "Auto-purged" },
   ];
 
-  for (const cat of categories) {
+  for (const { key, category, tag } of categories) {
     const card = document.createElement("article");
     card.className = "privacy-category-card";
+    card.dataset.category = key;
+
+    const cardHeader = document.createElement("div");
+    cardHeader.className = "privacy-category-header";
 
     const catHeading = document.createElement("h3");
-    catHeading.textContent = cat.title;
-    card.append(catHeading);
+    catHeading.textContent = category.title;
+
+    const tagBadge = document.createElement("span");
+    tagBadge.className = "category-tag";
+    tagBadge.textContent = tag;
+
+    cardHeader.append(catHeading, tagBadge);
+    card.append(cardHeader);
 
     const list = document.createElement("ul");
-    for (const item of cat.items) {
+    list.className = "privacy-category-list";
+    for (const item of category.items) {
       const li = document.createElement("li");
       li.textContent = item;
       list.append(li);
