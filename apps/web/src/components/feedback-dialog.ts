@@ -162,6 +162,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 @media (prefers-reduced-motion: reduce) {
   .spinner { animation: none; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
 }
 `;
 
@@ -344,6 +350,9 @@ export class FeedbackDialog {
     if (this.#activePromise !== null) {
       this.#settle({ outcome: "aborted" });
     }
+    if (this.#document.body) {
+      this.#document.body.style.overflow = "";
+    }
     this.#root.replaceChildren();
     this.#state = INITIAL_FEEDBACK_DIALOG_STATE;
     this.#host.remove();
@@ -352,6 +361,9 @@ export class FeedbackDialog {
   render(): void {
     if (this.#state.status === "closed") {
       this.#root.replaceChildren();
+      if (this.#document.body) {
+        this.#document.body.style.overflow = "";
+      }
       return;
     }
 
@@ -377,6 +389,9 @@ export class FeedbackDialog {
     dialog.append(surface);
     this.#renderState(surface);
     this.#root.replaceChildren(style, dialog);
+    if (this.#document.body) {
+      this.#document.body.style.overflow = "hidden";
+    }
     dialog.showModal();
     this.#focusAfterRender();
   }
@@ -402,6 +417,9 @@ export class FeedbackDialog {
     const dialog = this.#root.querySelector<HTMLDialogElement>("dialog");
     if (dialog?.open) {
       dialog.close();
+    }
+    if (this.#document.body) {
+      this.#document.body.style.overflow = "";
     }
     this.#state = transitionFeedbackDialog(this.#state, { type: "CLOSE" });
     this.#root.replaceChildren();
