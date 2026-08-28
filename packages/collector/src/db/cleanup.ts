@@ -6,6 +6,11 @@ import { feedback, rateLimit } from "./schema";
 
 export const CLEANUP_COMMAND_NAME = "db:cleanup" as const;
 
+export const LOG_RETENTION_POLICY = {
+  logsAreNotADataStore: true,
+  retentionIsOperationalOnly: true,
+} as const;
+
 export function cleanupDeadline(now: Date, retentionHours: number): Date {
   return new Date(now.getTime() - retentionHours * 3_600_000);
 }

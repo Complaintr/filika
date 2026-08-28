@@ -6,7 +6,8 @@ import { runCleanup } from "../src/db/cleanup";
 import { createDb, type DbHandle } from "../src/db/client";
 import { feedback, project, rateLimit } from "../src/db/schema";
 import { DEMO_PROJECT_KEY, seedDemoProject } from "../src/db/seed";
-import { consumeProjectRateLimit } from "../src/rate-limiting";
+import { windowKey } from "../src/rate-limit";
+import { consumeProjectRateLimit, windowStartFor } from "../src/rate-limiting";
 import { startCollectorServer } from "../src/server";
 
 const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/filika_test";
@@ -262,6 +263,77 @@ describe.skipIf(!isDbAvailable)("P2-BE-15 collector api and database tests", () 
     await expect(response.json()).resolves.toEqual({ error: { category: "denied_origin" } });
   });
 
+  test("rejects a scheme-mismatched origin over http", async () => {
+    const eventId = "c3333333-0000-4000-8000-000000000003";
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor(eventId)),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": eventId,
+        Origin: "https://localhost:4173",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(403);
+  });
+
+  test("rejects a port-mismatched origin", async () => {
+    const eventId = "c4444444-0000-4000-8000-000000000004";
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor(eventId)),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": eventId,
+        Origin: "http://localhost:4174",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(403);
+  });
+
+  test("rejects a subdomain-mismatched origin", async () => {
+    const eventId = "c5555555-0000-4000-8000-000000000005";
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor(eventId)),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": eventId,
+        Origin: "http://demo.example.com",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(403);
+  });
+
+  test("rejects an over-limit field over http", async () => {
+    const eventId = "c6666666-0000-4000-8000-000000000006";
+    const response = await postRaw(
+      postEnvelope(eventId, {
+        feedback: {
+          ...envelopeFor(eventId).feedback,
+          title: "x".repeat(161),
+        },
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: { category: "invalid_input" } });
+  });
+
+  test("rejects a body-supplied server claim over http", async () => {
+    const eventId = "c7777777-0000-4000-8000-000000000007";
+    const response = await postRaw(postEnvelope(eventId, { origin: "https://claimed.example" }));
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: { category: "invalid_input" } });
+  });
+
   test("rejects an oversized body before parsing", async () => {
     const eventId = "a3333333-0000-4000-8000-000000000003";
     const request = new Request(`${baseUrl}/api/v1/feedback`, {
@@ -347,6 +419,32 @@ describe.skipIf(!isDbAvailable)("P2-BE-15 collector api and database tests", () 
     const third = await consumeProjectRateLimit(handle.db, rateProject.id, now, 2);
 
     expect([first.allowed, second.allowed, third.allowed]).toEqual([true, true, false]);
+  });
+
+  test("keeps the rate limit atomic under concurrent requests", async () => {
+    const rateProject = await handle.db.query.project.findFirst({
+      where: eq(project.projectKey, "rate-limit-test"),
+    });
+
+    if (rateProject === undefined) {
+      throw new Error("Rate-limit project was not seeded.");
+    }
+
+    const windowNow = new Date(Date.now() + 24 * 3_600_000);
+    const results = await Promise.all(
+      Array.from({ length: 10 }, () =>
+        consumeProjectRateLimit(handle.db, rateProject.id, windowNow, 5),
+      ),
+    );
+
+    expect(results.filter((result) => result.allowed)).toHaveLength(5);
+
+    const key = windowKey(rateProject.id, windowStartFor(windowNow));
+    const rows = await handle.db.query.rateLimit.findMany({
+      where: eq(rateLimit.windowKey, key),
+    });
+
+    expect(rows[0]?.count).toBe(5);
   });
 
   test("resolves concurrent duplicate retries to a single row", async () => {
@@ -482,6 +580,59 @@ describe.skipIf(!isDbAvailable)("P2-BE-15 collector api and database tests", () 
     );
 
     expect(response.status).toBe(404);
+  });
+
+  test("stores xss-like content as plain text", async () => {
+    const eventId = "e1111111-0000-4000-8000-000000000001";
+    const xssTitle = "<script>alert(1)</script>";
+    const response = await postRaw(
+      postEnvelope(eventId, {
+        feedback: { ...envelopeFor(eventId).feedback, title: xssTitle },
+      }),
+    );
+
+    expect(response.status).toBe(201);
+
+    const receipt = (await response.json()) as Record<string, unknown>;
+    const detail = await postRaw(
+      new Request(`${baseUrl}/api/v1/inbox/${receipt.feedbackId}`, { method: "GET" }),
+    );
+    const detailBody = (await detail.json()) as { feedback: { title: string } };
+
+    expect(detailBody.feedback.title).toBe(xssTitle);
+  });
+
+  test("rejects malformed json over http", async () => {
+    const response = await postRaw(
+      new Request(`${baseUrl}/api/v1/feedback`, {
+        body: '{"schemaVersion":',
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": "e2222222-0000-4000-8000-000000000002",
+          Origin: ALLOWED_ORIGIN,
+        },
+        method: "POST",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: { category: "invalid_input" } });
+  });
+
+  test("rejects invalid utf-8 over http", async () => {
+    const response = await postRaw(
+      new Request(`${baseUrl}/api/v1/feedback`, {
+        body: new Uint8Array([0x7b, 0xc3, 0x28, 0x7d]),
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": "e3333333-0000-4000-8000-000000000003",
+          Origin: ALLOWED_ORIGIN,
+        },
+        method: "POST",
+      }),
+    );
+
+    expect(response.status).toBe(400);
   });
 
   test("cleanup removes only expired feedback and rate limits", async () => {
