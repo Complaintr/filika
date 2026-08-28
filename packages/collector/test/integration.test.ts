@@ -245,6 +245,54 @@ describe("P2-BE-15 collector api and database tests", () => {
     await expect(response.json()).resolves.toEqual({ error: { category: "denied_origin" } });
   });
 
+  test("rejects a scheme-mismatched origin over http", async () => {
+    const eventId = "c3333333-0000-4000-8000-000000000003";
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor(eventId)),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": eventId,
+        Origin: "https://localhost:4173",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(403);
+  });
+
+  test("rejects a port-mismatched origin", async () => {
+    const eventId = "c4444444-0000-4000-8000-000000000004";
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor(eventId)),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": eventId,
+        Origin: "http://localhost:4174",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(403);
+  });
+
+  test("rejects a subdomain-mismatched origin", async () => {
+    const eventId = "c5555555-0000-4000-8000-000000000005";
+    const request = new Request(`${baseUrl}/api/v1/feedback`, {
+      body: JSON.stringify(envelopeFor(eventId)),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": eventId,
+        Origin: "http://demo.example.com",
+      },
+      method: "POST",
+    });
+    const response = await postRaw(request);
+
+    expect(response.status).toBe(403);
+  });
+
   test("rejects an oversized body before parsing", async () => {
     const eventId = "a3333333-0000-4000-8000-000000000003";
     const request = new Request(`${baseUrl}/api/v1/feedback`, {
