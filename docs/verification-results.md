@@ -51,3 +51,16 @@ Production SDK artifact: 20,295 bytes; SHA-256
 `a71105bc411c7953acfbc235310a88a6c49bce64dbe696d090f654d5194b0754`.
 The build's generated metadata includes SHA-384 SRI; generated assets remain
 untracked.
+
+## Native Chrome DevTools
+
+The integrated localhost page was opened in connected Chrome without installing
+a test double and displayed `WebMCP demo task ready.` This is a demo-registration
+observation only. Chrome version/flag verification could not be completed because
+the browser-control policy blocks internal Chrome URLs. No settings were changed.
+
+The [native acceptance matrix](webmcp-local-testing.md#native-acceptance-record)
+is **not run**: exact feedback metadata inspection, DevTools invocation,
+confirmation, cancellation, and disposal still require a human-accessible
+DevTools session. Native headless permissions-policy results above do not replace
+this matrix. There is no claim of native full-journey success.
