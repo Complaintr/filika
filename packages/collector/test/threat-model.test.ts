@@ -21,10 +21,13 @@ describe("threat model", () => {
     expect(titles).toContain("Rate-limit bypass");
   });
 
-  test("gives every threat at least one mitigation and one verification", () => {
+  test("links every threat to mitigations and existing verification tests", async () => {
     for (const threat of THREATS) {
       expect(threat.mitigations.length).toBeGreaterThan(0);
       expect(threat.verification.length).toBeGreaterThan(0);
+      for (const file of threat.verification) {
+        expect(await Bun.file(new URL(`../../../${file}`, import.meta.url)).exists()).toBe(true);
+      }
     }
   });
 
