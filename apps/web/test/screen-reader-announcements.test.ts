@@ -230,7 +230,7 @@ describe("screen reader, live regions, and aria associations", () => {
 
     const listEl = listSection.querySelector("ol");
     expect(listEl?.getAttribute("aria-label")).toBe("Accepted feedback");
-    expect(listSection.querySelector("h1")?.textContent).toBe("Feedback inbox");
+    expect(listSection.querySelector("h1")?.textContent).toBe("All complaints");
 
     // Inbox Detail
     const detailSection = renderInboxDetail(
@@ -258,7 +258,7 @@ describe("screen reader, live regions, and aria associations", () => {
     expect(detailSection.querySelector("h1")?.textContent).toBe("Detail Title");
     const headings = Array.from(detailSection.querySelectorAll("h2")).map((h) => h.textContent);
     expect(headings).toContain("Report content");
-    expect(headings).toContain("Host-supplied context");
-    expect(headings).toContain("Server-derived facts");
+    expect(headings).toContain("Page context");
+    expect(headings).toContain("Receipt details");
   });
 });

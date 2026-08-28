@@ -1,6 +1,6 @@
 import { allowOriginHeaders, buildPreflightResponse } from "./cors";
-import { type Db } from "./db/client";
 import { getDashboard } from "./dashboard";
+import type { Db } from "./db/client";
 import { FEEDBACK_ENDPOINT, INBOX_DETAIL_ENDPOINT, INBOX_LIST_ENDPOINT } from "./endpoint-contract";
 import { getInboxFeedback, listInbox } from "./inbox";
 import { INBOX_PAGE_SIZE_DEFAULT, type InboxListQuery } from "./inbox-contract";

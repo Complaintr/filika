@@ -53,7 +53,9 @@ test("complaint detail shows the full report from the collector", async ({ page 
   await page.getByRole("link", { name: "Checkout button missing" }).click();
   await expect(page.getByRole("heading", { name: "Checkout button missing" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Report content" })).toBeVisible();
-  await expect(page.getByText("The checkout button does not appear on small screens.")).toBeVisible();
+  await expect(
+    page.getByText("The checkout button does not appear on small screens."),
+  ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Page context" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Receipt details" })).toBeVisible();
   await expect(page.getByText(FEEDBACK_ID)).toBeVisible();
@@ -76,13 +78,17 @@ test("complaint detail returns to the list from the back action", async ({ page 
 });
 
 test("complaint detail shows the not found surface for a missing record", async ({ page }) => {
-  await routeInbox(page, (route) => route.fulfill({ status: 404, contentType: "application/json", body: '{"code":"not_found"}' }));
+  await routeInbox(page, (route) =>
+    route.fulfill({ status: 404, contentType: "application/json", body: '{"code":"not_found"}' }),
+  );
   await page.goto("/complaints");
   await page.getByRole("link", { name: "Checkout button missing" }).click();
   await expect(page.getByRole("heading", { name: "Feedback not found" })).toBeVisible();
 });
 
-test("complaint detail shows the expired surface with the expiration timestamp", async ({ page }) => {
+test("complaint detail shows the expired surface with the expiration timestamp", async ({
+  page,
+}) => {
   await routeInbox(page, (route) =>
     route.fulfill({
       status: 200,

@@ -51,13 +51,15 @@ test("a confirmed report is stored and visible in the complaints inbox", async (
   await page.getByRole("link", { name: title }).click();
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Report content" })).toBeVisible();
-  await expect(page.getByText("The checkout button disappears when the window is narrow.")).toBeVisible();
+  await expect(
+    page.getByText("The checkout button disappears when the window is narrow."),
+  ).toBeVisible();
   await expect(page.getByText(receipt.feedbackId)).toBeVisible();
 });
 
 test("a duplicate event id returns the original receipt and no duplicate row", async ({ page }) => {
   const eventId = randomUUID();
-  const title = "Duplicate event retry title";
+  const title = `Duplicate event retry ${randomUUID()}`;
   await submitFeedback(page, eventId, title);
   const duplicate = await submitFeedback(page, eventId, title);
   const body = (await duplicate.json()) as { duplicate: boolean };

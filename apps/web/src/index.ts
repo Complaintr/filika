@@ -2,7 +2,7 @@ import { mountBottomNavigation } from "./workspace/bottom-navigation";
 import { showComplaintDetail, showComplaints } from "./workspace/complaints";
 import { showDashboard } from "./workspace/dashboard";
 import { button, element, icon, link } from "./workspace/dom";
-import { readPreferences, type Preferences } from "./workspace/preferences";
+import { type Preferences, readPreferences } from "./workspace/preferences";
 import { showSettings } from "./workspace/settings";
 
 const root = document.getElementById("app");

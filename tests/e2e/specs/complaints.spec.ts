@@ -1,4 +1,4 @@
-import { expect, type Page, type Route, test } from "@playwright/test";
+import { expect, type Route, test } from "@playwright/test";
 
 const INBOX = "**/api/v1/inbox**";
 
@@ -35,16 +35,16 @@ test("complaints list renders rows from the collector", async ({ page }) => {
   await expect(page.locator(".kind-badge", { hasText: "Idea" })).toBeVisible();
 });
 
-test("complaints search filters the request and clears the table when empty", async ({
-  page,
-}) => {
+test("complaints search filters the request and clears the table when empty", async ({ page }) => {
   const queries: string[] = [];
   await page.route(INBOX, async (route) => {
     const query = new URL(route.request().url()).searchParams.get("search") ?? "";
     queries.push(query);
     await fulfillList(
       route,
-      query.includes("checkout") ? { items: [items[0]], nextCursor: null } : { items: [], nextCursor: null },
+      query.includes("checkout")
+        ? { items: [items[0]], nextCursor: null }
+        : { items: [], nextCursor: null },
     );
   });
   await page.goto("/complaints");
@@ -86,7 +86,10 @@ test("complaints pagination moves between pages and disables at the end", async 
     await fulfillList(
       route,
       cursor === null
-        ? { items: [items[0]], nextCursor: "2026-08-28T11:00:00.000Z|22222222-2222-4222-8222-222222222222" }
+        ? {
+            items: [items[0]],
+            nextCursor: "2026-08-28T11:00:00.000Z|22222222-2222-4222-8222-222222222222",
+          }
         : { items: [pageTwoItem], nextCursor: null },
     );
   });
@@ -104,7 +107,11 @@ test("complaints list shows a retryable failure state and recovers", async ({ pa
   await page.route(INBOX, async (route) => {
     attempts++;
     if (attempts === 1) {
-      await route.fulfill({ status: 500, contentType: "application/json", body: '{"code":"internal_error"}' });
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: '{"code":"internal_error"}',
+      });
       return;
     }
     await fulfillList(route, { items, nextCursor: null });

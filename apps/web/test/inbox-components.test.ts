@@ -65,7 +65,7 @@ describe("inbox-components", () => {
       { onBack: () => {}, onRetry: () => {} },
     );
     const headings = [...detail.querySelectorAll("h2")].map((heading) => heading.textContent);
-    expect(headings).toEqual(["Report content", "Host-supplied context", "Server-derived facts"]);
+    expect(headings).toEqual(["Report content", "Page context", "Receipt details"]);
     expect(detail.textContent).toContain("web_sdk_unverified");
   });
 

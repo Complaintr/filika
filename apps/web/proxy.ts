@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
-const SPA_ROUTE = new RegExp("^/(?:dashboard|complaints(?:/[^/]+)?|settings)(?:\\?.*)?$");
+const SPA_ROUTE = /^\/(?:dashboard|complaints(?:\/[^/]+)?|settings)(?:\?.*)?$/;
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

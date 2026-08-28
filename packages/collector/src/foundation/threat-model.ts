@@ -88,7 +88,7 @@ export const THREATS: readonly Threat[] = [
     title: "Stored XSS",
     verification: [
       "apps/web/test/stored-xss-regression.test.ts",
-      "tests/e2e/specs/vertical-slice.spec.ts",
+      "tests/e2e/specs/feedback-ingest.spec.ts",
       "packages/collector/test/abuse-content.test.ts",
     ],
   },

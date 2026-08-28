@@ -24,13 +24,19 @@ test("settings preferences persist across reloads and update the brand name", as
 test("settings connection check reports a connected collector", async ({ page }) => {
   await page.goto("/settings");
   await expect(connectionStatus(page)).toContainText("Collector connected");
-  await expect(page.getByText(/Connected\. The collector and database are responding\./)).toBeVisible();
+  await expect(
+    page.getByText(/Connected\. The collector and database are responding\./),
+  ).toBeVisible();
   await expect(page.getByText("/api/v1/inbox")).toBeVisible();
 });
 
 test("settings connection check reports an unreachable collector", async ({ page }) => {
   await page.route("**/api/v1/dashboard**", (route) =>
-    route.fulfill({ status: 500, contentType: "application/json", body: '{"code":"internal_error"}' }),
+    route.fulfill({
+      status: 500,
+      contentType: "application/json",
+      body: '{"code":"internal_error"}',
+    }),
   );
   await page.goto("/settings");
   await expect(connectionStatus(page)).toContainText("Collector unavailable");

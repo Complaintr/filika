@@ -1,7 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 
-const navItem = (page: Page, label: string) =>
-  page.locator(".bottom-nav-item", { hasText: label });
+const navItem = (page: Page, label: string) => page.locator(".bottom-nav-item", { hasText: label });
 const connectionStatus = (page: Page) => page.locator(".connection-status");
 
 async function openDashboard(page: Page): Promise<void> {
@@ -47,7 +46,11 @@ test("settings is reachable and reports the connected collector", async ({ page 
 
 test("the collector connection status falls back to unavailable", async ({ page }) => {
   await page.route("**/api/v1/dashboard**", (route) =>
-    route.fulfill({ status: 500, contentType: "application/json", body: '{"code":"internal_error"}' }),
+    route.fulfill({
+      status: 500,
+      contentType: "application/json",
+      body: '{"code":"internal_error"}',
+    }),
   );
   await page.goto("/");
   await expect(connectionStatus(page)).toContainText("Collector unavailable");

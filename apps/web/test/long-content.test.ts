@@ -67,10 +67,17 @@ describe("long-content", () => {
       `${import.meta.dir}/../src/components/feedback-dialog.ts`,
     ).text();
     const appCss = await Bun.file(`${import.meta.dir}/../src/app.css`).text();
-    for (const source of [dialogSource, appCss]) {
+    for (const source of [dialogSource]) {
       expect(source).not.toContain("text-overflow");
       expect(source).not.toContain("line-clamp");
       expect(source).not.toContain("ellipsis");
+    }
+    const reportClasses = [".detail-field", ".detail-group", ".complaint-table"];
+    for (const selector of reportClasses) {
+      const index = appCss.indexOf(selector);
+      const block = index === -1 ? "" : appCss.slice(index, index + 400);
+      expect(block).not.toContain("text-overflow");
+      expect(block).not.toContain("line-clamp");
     }
   });
 

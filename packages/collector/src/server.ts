@@ -1,6 +1,8 @@
 import { createDb } from "./db/client";
 import { createFetchHandler } from "./handler";
 
+export { createFetchHandler };
+
 export const COLLECTOR_DEFAULT_PORT = 8787 as const;
 
 export interface CollectorServerOptions {

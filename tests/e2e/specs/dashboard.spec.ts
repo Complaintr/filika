@@ -1,4 +1,4 @@
-import { expect, type Page, type Route, test } from "@playwright/test";
+import { expect, type Route, test } from "@playwright/test";
 
 const DASHBOARD = "**/api/v1/dashboard**";
 
@@ -83,7 +83,11 @@ test("dashboard shows a retryable failure state when the collector is down", asy
   await page.route(DASHBOARD, async (route) => {
     attempts++;
     if (attempts === 1) {
-      await route.fulfill({ status: 500, contentType: "application/json", body: '{"code":"internal_error"}' });
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: '{"code":"internal_error"}',
+      });
       return;
     }
     await fulfillDashboard(route, 30);
