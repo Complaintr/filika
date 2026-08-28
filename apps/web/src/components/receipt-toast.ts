@@ -16,6 +16,7 @@ export interface ReceiptToastData {
 export interface ReceiptToastOptions {
   autoDismissMs?: number;
   onDismiss?(): void;
+  onViewInbox?(feedbackId: string): void;
 }
 
 const DEFAULT_AUTO_DISMISS_MS = 8000;
@@ -82,6 +83,18 @@ export class ReceiptToast {
 
     dl.append(dtId, ddId, dtTime, ddTime);
     body.append(dl);
+
+    if (this.#options.onViewInbox !== undefined) {
+      const viewInbox = this.#document.createElement("button");
+      viewInbox.type = "button";
+      viewInbox.className = "button button-secondary toast-view-inbox";
+      viewInbox.textContent = "View in inbox";
+      viewInbox.addEventListener("click", () => {
+        this.dismiss();
+        this.#options.onViewInbox?.(receipt.feedbackId);
+      });
+      body.append(viewInbox);
+    }
 
     toast.append(header, body);
     this.#container.append(toast);

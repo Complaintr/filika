@@ -13,12 +13,12 @@ const SDK_DIST = join(WEB_ROOT, "../../packages/sdk/dist");
 const PUBLIC_DIR = join(WEB_ROOT, "public");
 const DIST_DIR = join(WEB_ROOT, "dist");
 
-const sourceFile = join(SDK_DIST, "filika.js");
+const sourceFile = join(SDK_DIST, "filika.development.js");
 const publicDest = join(PUBLIC_DIR, "filika.js");
 
 if (!existsSync(sourceFile)) {
   console.error(
-    `SDK bundle not found at ${sourceFile}.\nRun 'bun run --filter @filika/sdk build' first.`,
+    `SDK bundle not found at ${sourceFile}.\nRun 'bun run --filter @filika/sdk build:development' first.`,
   );
   process.exit(1);
 }

@@ -10,7 +10,7 @@
  * callback and this adapter is not involved.
  */
 
-import type { FeedbackDialog } from "./components/feedback-dialog";
+import type { FeedbackDialog, FeedbackDialogSubmit } from "./components/feedback-dialog";
 import type {
   DialogInvocationSource,
   SdkExecutionResult,
@@ -50,8 +50,30 @@ export interface ReviewEventDetail {
       };
     };
   };
-  complete(decision: unknown): void;
+  complete(decision: unknown): Promise<SdkPublicOutcome>;
 }
+
+export type SdkPublicOutcome =
+  | {
+      code: "success";
+      receipt: {
+        duplicate: boolean;
+        eventId: string;
+        feedbackId: string;
+        receivedAt: string;
+        schemaVersion: 1;
+      };
+    }
+  | {
+      code:
+        | "aborted"
+        | "cancelled"
+        | "collector_rejected"
+        | "internal_error"
+        | "invalid_input"
+        | "outcome_unknown"
+        | "timeout";
+    };
 
 /**
  * Map an SDK draft (which uses `reproductionSteps` as `string[]`) to the
@@ -140,9 +162,25 @@ function readDialogDraft(dialog: FeedbackDialog): FeedbackDraft | null {
 export interface ReviewAdapterCallbacks {
   /** Called when a receipt is received after successful SDK transmission. */
   onReceipt?(receipt: { feedbackId: string; receivedAt: string; duplicate: boolean }): void;
+  /** Starts an explicit SDK retry for a retained outcome-unknown submission. */
+  retry?(): Promise<SdkPublicOutcome>;
 }
 
 const REVIEW_EVENT_NAME = "filika:review";
+
+function sdkOutcomeToDialogResult(outcome: SdkPublicOutcome): SdkExecutionResult {
+  if (outcome.code === "success") {
+    return {
+      outcome: "success",
+      receipt: {
+        duplicate: outcome.receipt.duplicate,
+        feedbackId: outcome.receipt.feedbackId,
+        receivedAt: outcome.receipt.receivedAt,
+      },
+    };
+  }
+  return { outcome: outcome.code };
+}
 
 /**
  * Install the review bridge adapter on the given document. Returns a dispose
@@ -165,11 +203,11 @@ export function installReviewAdapter(
   callbacks: ReviewAdapterCallbacks = {},
 ): () => void {
   const handler = (event: Event): void => {
-    if (!(event instanceof CustomEvent)) {
+    if (!("detail" in event)) {
       return;
     }
 
-    const detail = event.detail as ReviewEventDetail | undefined;
+    const detail = (event as CustomEvent<unknown>).detail as ReviewEventDetail | undefined;
     if (detail?.request === undefined || typeof detail.complete !== "function") {
       return;
     }
@@ -186,14 +224,36 @@ export function installReviewAdapter(
 
     // For retry, tell the SDK to reuse its retained submission.
     if (isRetry) {
-      detail.complete({ kind: "retry" });
+      void detail.complete({ kind: "retry" });
       return;
     }
 
-    // Open the dialog. The dialog result is used after we've already
-    // resolved the SDK review (the dialog's own submit callback does
-    // the resolution). We handle the dialog result for receipt display.
-    void feedbackDialog.open(dialogSeed, source).then((result: SdkExecutionResult) => {
+    if (feedbackDialog.state.status !== "closed") {
+      void detail.complete({ kind: "cancelled" });
+      return;
+    }
+
+    let submitted = false;
+    const submit: FeedbackDialogSubmit = async (draft, signal) => {
+      if (signal.aborted) {
+        return { outcome: "aborted" };
+      }
+      if (!submitted) {
+        submitted = true;
+        return sdkOutcomeToDialogResult(
+          await detail.complete(buildConfirmedDecision(draft, sdkContext)),
+        );
+      }
+      if (callbacks.retry === undefined) {
+        return { outcome: "internal_error" };
+      }
+      return sdkOutcomeToDialogResult(await callbacks.retry());
+    };
+
+    void feedbackDialog.open(dialogSeed, source, submit).then((result: SdkExecutionResult) => {
+      if (!submitted && (result.outcome === "cancelled" || result.outcome === "aborted")) {
+        void detail.complete({ kind: "cancelled" });
+      }
       if (result.outcome === "success" && result.receipt !== undefined) {
         callbacks.onReceipt?.({
           feedbackId: result.receipt.feedbackId,
@@ -209,4 +269,4 @@ export function installReviewAdapter(
 }
 
 export type { DialogInvocationSource, ReportFieldId };
-export { buildConfirmedDecision, readDialogDraft, sdkDraftToDialogSeed };
+export { buildConfirmedDecision, readDialogDraft, sdkDraftToDialogSeed, sdkOutcomeToDialogResult };

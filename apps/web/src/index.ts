@@ -3,13 +3,19 @@ import { MaintainerInbox } from "./components/inbox";
 import { ReceiptToast } from "./components/receipt-toast";
 import { SampleApplication } from "./sample-app";
 import { createSampleTaskTool } from "./sample-task-tool";
-import { installReviewAdapter } from "./sdk-review-adapter";
+import { installReviewAdapter, type SdkPublicOutcome } from "./sdk-review-adapter";
 import { createCollectorSubmit } from "./services/collector-submit";
 import { InboxApiService } from "./services/inbox-api";
 import type { ModelContext } from "./webmcp-test-tool";
 
 type WebMcpDocument = Document & {
   readonly modelContext?: ModelContext;
+};
+
+type SdkWindow = Window & {
+  readonly Filika?: {
+    open(): Promise<SdkPublicOutcome>;
+  };
 };
 
 function getRequiredElement<T extends HTMLElement>(id: string): T {
@@ -29,7 +35,9 @@ const webMcpStatus = getRequiredElement<HTMLElement>("webmcp-status");
 const COLLECTOR_ORIGIN = "http://localhost:8787";
 const PROJECT_KEY = "filika_demo";
 
-const receiptToast = new ReceiptToast(document.body);
+const receiptToast = new ReceiptToast(document.body, {
+  onViewInbox: (feedbackId) => showInbox(feedbackId),
+});
 const inboxApi = new InboxApiService({ collectorOrigin: COLLECTOR_ORIGIN });
 
 const collectorSubmit = createCollectorSubmit({
@@ -99,6 +107,10 @@ inboxNavigation.addEventListener("click", () => showInbox());
 installReviewAdapter(document, feedbackDialog, {
   onReceipt: (receipt) => {
     receiptToast.show(receipt);
+  },
+  retry: () => {
+    const sdk = (window as SdkWindow).Filika;
+    return sdk?.open() ?? Promise.resolve({ code: "internal_error" });
   },
 });
 

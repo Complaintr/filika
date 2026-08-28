@@ -86,4 +86,24 @@ describe("ReceiptToast", () => {
 
     expect(toast.isVisible).toBe(false);
   });
+
+  test("opens the exact accepted feedback from the receipt", () => {
+    let openedFeedbackId: string | null = null;
+    const toast = new ReceiptToast(container, {
+      autoDismissMs: 0,
+      onViewInbox: (feedbackId) => {
+        openedFeedbackId = feedbackId;
+      },
+    });
+    const element = toast.show({
+      duplicate: false,
+      feedbackId: "fb_exact_123",
+      receivedAt: "2026-08-28T10:00:00.000Z",
+    });
+
+    element.querySelector<HTMLButtonElement>(".toast-view-inbox")?.click();
+
+    expect(openedFeedbackId).toBe("fb_exact_123");
+    expect(toast.isVisible).toBe(false);
+  });
 });

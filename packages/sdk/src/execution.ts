@@ -7,6 +7,7 @@ import type {
 } from "./envelope";
 import { EXECUTION_LIMITS } from "./outcomes";
 import type { FilikaExecutionOutcome } from "./receipt";
+import { takeReviewCompletion } from "./review-completion";
 import type { RuntimeSession } from "./runtime";
 import { type PreparedSubmission, parseDraft, prepareSubmission } from "./submission";
 import { closedRecord } from "./validation";
@@ -56,7 +57,12 @@ export function createExecution(dependencies: ExecutionDependencies) {
     let expired = false;
     let dispatched = false;
     let submission: PreparedSubmission | null = null;
+    let settleReviewOutcome: ((outcome: FilikaExecutionOutcome) => void) | null = null;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    const finish = (outcome: FilikaExecutionOutcome): FilikaExecutionOutcome => {
+      settleReviewOutcome?.(outcome);
+      return outcome;
+    };
     try {
       const originalContext = createContext(session.config);
       const retry = retained?.session === session ? retained.submission : null;
@@ -66,7 +72,7 @@ export function createExecution(dependencies: ExecutionDependencies) {
         expired = true;
         scope.controller.abort();
       }, dependencies.reviewTimeoutMs ?? EXECUTION_LIMITS.reviewTimeoutMs);
-      const response = await withAbort(scope.controller.signal, () =>
+      const reviewResponse = await withAbort(scope.controller.signal, () =>
         dependencies.review({
           draft,
           context: originalContext,
@@ -84,22 +90,25 @@ export function createExecution(dependencies: ExecutionDependencies) {
             : {}),
         }),
       );
+      const completion = takeReviewCompletion(reviewResponse);
+      const response = completion?.decision ?? reviewResponse;
+      settleReviewOutcome = completion?.settle ?? null;
       clearTimeout(timer);
-      if (scope.controller.signal.aborted) return { code: expired ? "timeout" : "aborted" };
+      if (scope.controller.signal.aborted) return finish({ code: expired ? "timeout" : "aborted" });
       const cancelled = closedRecord(response, ["kind"]);
-      if (cancelled?.kind === "cancelled") return { code: "cancelled" };
+      if (cancelled?.kind === "cancelled") return finish({ code: "cancelled" });
       if (cancelled?.kind === "retry") {
-        if (!retry) return { code: "invalid_input" };
+        if (!retry) return finish({ code: "invalid_input" });
         submission = retry;
       } else {
         const decision = closedRecord(response, ["kind", "feedback", "context"]);
-        if (decision?.kind !== "confirmed") return { code: "invalid_input" };
+        if (decision?.kind !== "confirmed") return finish({ code: "invalid_input" });
         const feedback = parseDraft(decision.feedback);
         const context = reviewedContext(decision.context, originalContext);
-        if (!feedback || !context) return { code: "invalid_input" };
+        if (!feedback || !context) return finish({ code: "invalid_input" });
         submission = prepareSubmission(session.config, feedback, context, dependencies.randomUUID);
       }
-      if (!submission) return { code: "internal_error" };
+      if (!submission) return finish({ code: "internal_error" });
       const outgoing = submission;
       const outcome = await withAbort(scope.controller.signal, () => {
         dispatched = true;
@@ -107,15 +116,15 @@ export function createExecution(dependencies: ExecutionDependencies) {
       });
       if (active === token && !session.signal.aborted)
         retained = outcome.code === "outcome_unknown" ? { session, submission } : null;
-      return outcome;
+      return finish(outcome);
     } catch {
       if (dispatched) {
         if (submission && active === token && !session.signal.aborted)
           retained = { session, submission };
-        return { code: "outcome_unknown" };
+        return finish({ code: "outcome_unknown" });
       }
-      if (scope.controller.signal.aborted) return { code: expired ? "timeout" : "aborted" };
-      return { code: "internal_error" };
+      if (scope.controller.signal.aborted) return finish({ code: expired ? "timeout" : "aborted" });
+      return finish({ code: "internal_error" });
     } finally {
       clearTimeout(timer);
       scope.controller.abort();

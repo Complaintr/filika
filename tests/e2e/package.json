@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.json",
+    "test:browser": "playwright test --config playwright.config.ts",
     "typecheck": "tsc --project tsconfig.json"
   },
   "dependencies": {
     "@filika/web": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1"
   }
 }

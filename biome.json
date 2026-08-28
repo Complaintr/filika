@@ -15,7 +15,9 @@
       "!!**/node_modules",
       "!!**/dist",
       "!!**/coverage",
+      "!!**/playwright-report",
       "!!**/public",
+      "!!**/test-results",
       "!!apps/web/src/filika.js"
     ]
   },

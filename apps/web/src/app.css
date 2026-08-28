@@ -813,6 +813,10 @@ main {
   overflow-wrap: anywhere;
 }
 
+.toast-view-inbox {
+  margin-block-start: 0.85rem;
+}
+
 @keyframes slideInToast {
   from {
     opacity: 0;

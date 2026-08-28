@@ -164,6 +164,8 @@ export interface FeedbackDialogOptions {
   submit(draft: FeedbackDraft, signal: AbortSignal): Promise<SdkExecutionResult>;
 }
 
+export type FeedbackDialogSubmit = FeedbackDialogOptions["submit"];
+
 const outcomeCopy = {
   aborted: {
     body: "The in-progress submission was stopped.",
@@ -264,6 +266,7 @@ export class FeedbackDialog {
   #resolve: ((result: SdkExecutionResult) => void) | null = null;
   #state: FeedbackDialogState = INITIAL_FEEDBACK_DIALOG_STATE;
   #submissionController: AbortController | null = null;
+  #submitOverride: FeedbackDialogSubmit | null = null;
 
   constructor(host: HTMLElement, options: FeedbackDialogOptions) {
     this.#host = host;
@@ -279,6 +282,7 @@ export class FeedbackDialog {
   open(
     draft: Partial<FeedbackDraft> = {},
     source: DialogInvocationSource = "manual",
+    submit?: FeedbackDialogSubmit,
   ): Promise<SdkExecutionResult> {
     if (this.#activePromise !== null) {
       this.#root.querySelector<HTMLDialogElement>("dialog")?.focus();
@@ -290,6 +294,7 @@ export class FeedbackDialog {
     this.#invoker =
       view !== null && activeElement instanceof view.HTMLElement ? activeElement : null;
     this.#state = transitionFeedbackDialog(this.#state, { draft, source, type: "OPEN" });
+    this.#submitOverride = submit ?? null;
     this.#activePromise = new Promise((resolve) => {
       this.#resolve = resolve;
     });
@@ -359,6 +364,7 @@ export class FeedbackDialog {
     this.#activePromise = null;
     this.#resolve = null;
     this.#submissionController = null;
+    this.#submitOverride = null;
     this.#invoker?.focus();
     this.#invoker = null;
   }
@@ -716,7 +722,8 @@ export class FeedbackDialog {
     const draft = this.#state.draft;
     let result: SdkExecutionResult;
     try {
-      result = await this.#options.submit(draft, this.#submissionController.signal);
+      const submit = this.#submitOverride ?? this.#options.submit;
+      result = await submit(draft, this.#submissionController.signal);
     } catch {
       result = {
         outcome: this.#submissionController.signal.aborted ? "aborted" : "internal_error",

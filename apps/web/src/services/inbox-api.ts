@@ -20,8 +20,10 @@ const INBOX_DETAIL_ENDPOINT_PREFIX = "/api/v1/inbox/";
 
 export interface InboxApiOptions {
   collectorOrigin: string;
-  fetchFn?: typeof fetch;
+  fetchFn?: FetchFn;
 }
+
+type FetchFn = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -102,11 +104,11 @@ function validateDetailFeedback(raw: unknown): InboxDetailViewModel | null {
 
 export class InboxApiService {
   readonly #collectorOrigin: string;
-  readonly #fetch: typeof fetch;
+  readonly #fetch: FetchFn;
 
   constructor(options: InboxApiOptions) {
     this.#collectorOrigin = options.collectorOrigin.replace(/\/+$/, "");
-    this.#fetch = options.fetchFn ?? fetch;
+    this.#fetch = options.fetchFn ?? ((input, init) => fetch(input, init));
   }
 
   async fetchList(signal?: AbortSignal): Promise<InboxListViewState> {

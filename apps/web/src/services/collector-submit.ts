@@ -14,6 +14,10 @@ const IDEMPOTENCY_HEADER = "Idempotency-Key";
 const SCHEMA_VERSION = 1;
 const SDK_VERSION = "0.1.0";
 const SUBMISSION_TIMEOUT_MS = 15_000;
+const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
+const RECEIPT_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u;
+
+type FetchFn = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
 export interface CollectorSubmitOptions {
   /** Collector origin, e.g. "http://localhost:8787". */
@@ -24,28 +28,43 @@ export interface CollectorSubmitOptions {
   routeLabel?: string;
   /** Optional static application release from host configuration. */
   applicationRelease?: string;
+  fetchFn?: FetchFn;
+  timeoutMs?: number;
 }
 
 interface FeedbackReceipt {
-  schemaVersion: number;
+  duplicate: boolean;
   eventId: string;
   feedbackId: string;
   receivedAt: string;
-  duplicate: boolean;
+  schemaVersion: 1;
 }
 
-function isReceiptShape(value: unknown): value is FeedbackReceipt {
+function parseReceipt(value: unknown, expectedEventId: string): FeedbackReceipt | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return false;
+    return null;
   }
   const record = value as Record<string, unknown>;
-  return (
-    record.schemaVersion === SCHEMA_VERSION &&
-    typeof record.eventId === "string" &&
-    typeof record.feedbackId === "string" &&
-    typeof record.receivedAt === "string" &&
-    typeof record.duplicate === "boolean"
-  );
+  if (
+    Reflect.ownKeys(record).length !== 5 ||
+    record.schemaVersion !== SCHEMA_VERSION ||
+    record.eventId !== expectedEventId ||
+    typeof record.feedbackId !== "string" ||
+    !UUID_V4_PATTERN.test(record.feedbackId) ||
+    typeof record.receivedAt !== "string" ||
+    !RECEIPT_TIMESTAMP_PATTERN.test(record.receivedAt) ||
+    Number.isNaN(new Date(record.receivedAt).getTime()) ||
+    typeof record.duplicate !== "boolean"
+  ) {
+    return null;
+  }
+  return {
+    duplicate: record.duplicate,
+    eventId: expectedEventId,
+    feedbackId: record.feedbackId,
+    receivedAt: record.receivedAt,
+    schemaVersion: SCHEMA_VERSION,
+  };
 }
 
 /**
@@ -56,6 +75,8 @@ function isReceiptShape(value: unknown): value is FeedbackReceipt {
 export function createCollectorSubmit(
   options: CollectorSubmitOptions,
 ): (draft: FeedbackDraft, signal: AbortSignal) => Promise<SdkExecutionResult> {
+  const fetchFn = options.fetchFn ?? ((input, init) => fetch(input, init));
+  const timeoutMs = options.timeoutMs ?? SUBMISSION_TIMEOUT_MS;
   return async (draft: FeedbackDraft, signal: AbortSignal): Promise<SdkExecutionResult> => {
     const eventId = crypto.randomUUID();
 
@@ -93,13 +114,13 @@ export function createCollectorSubmit(
     };
 
     const url = `${options.collectorOrigin}${COLLECTOR_ENDPOINT}`;
-    const timeoutId = setTimeout(() => {
-      // The AbortSignal from the dialog already handles cancellation;
-      // this is a safety net for network stalls.
-    }, SUBMISSION_TIMEOUT_MS);
+    const requestController = new AbortController();
+    const abortRequest = (): void => requestController.abort();
+    signal.addEventListener("abort", abortRequest, { once: true });
+    const timeoutId = setTimeout(abortRequest, timeoutMs);
 
     try {
-      const response = await fetch(url, {
+      const response = await fetchFn(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -107,20 +128,18 @@ export function createCollectorSubmit(
         },
         body: JSON.stringify(envelope),
         credentials: "omit",
-        signal,
+        signal: requestController.signal,
       });
 
-      clearTimeout(timeoutId);
-
       if (response.status === 201 || response.status === 200) {
-        const body: unknown = await response.json();
-        if (isReceiptShape(body)) {
+        const receipt = parseReceipt(await response.json(), eventId);
+        if (receipt !== null && receipt.duplicate === (response.status === 200)) {
           return {
             outcome: "success",
             receipt: {
-              feedbackId: body.feedbackId,
-              receivedAt: body.receivedAt,
-              duplicate: body.duplicate,
+              feedbackId: receipt.feedbackId,
+              receivedAt: receipt.receivedAt,
+              duplicate: receipt.duplicate,
             },
           };
         }
@@ -138,10 +157,12 @@ export function createCollectorSubmit(
 
       return { outcome: "internal_error" };
     } catch (error: unknown) {
-      clearTimeout(timeoutId);
-
       if (signal.aborted) {
         return { outcome: "aborted" };
+      }
+
+      if (requestController.signal.aborted) {
+        return { outcome: "timeout" };
       }
 
       if (error instanceof TypeError) {
@@ -150,6 +171,9 @@ export function createCollectorSubmit(
       }
 
       return { outcome: "internal_error" };
+    } finally {
+      clearTimeout(timeoutId);
+      signal.removeEventListener("abort", abortRequest);
     }
   };
 }

@@ -17,16 +17,18 @@ const PUBLIC_DIR = join(WEB_ROOT, "public");
 const SRC_DIR = join(WEB_ROOT, "src");
 
 // Copy SDK bundle before starting
-const sdkSource = join(WEB_ROOT, "../../packages/sdk/dist/filika.js");
+const sdkSource = join(WEB_ROOT, "../../packages/sdk/dist/filika.development.js");
 const sdkDest = join(PUBLIC_DIR, "filika.js");
 if (!existsSync(PUBLIC_DIR)) {
   mkdirSync(PUBLIC_DIR, { recursive: true });
 }
 if (existsSync(sdkSource)) {
   copyFileSync(sdkSource, sdkDest);
-  console.log("SDK bundle copied to public/filika.js");
+  console.log("Development SDK bundle copied to public/filika.js");
 } else {
-  console.warn("SDK bundle not found. Run 'bun run --filter @filika/sdk build' first.");
+  console.warn(
+    "Development SDK bundle not found. Run 'bun run --filter @filika/sdk build:development' first.",
+  );
 }
 
 const MIME_TYPES: Record<string, string> = {
@@ -44,7 +46,7 @@ Bun.serve({
   port: PORT,
   async fetch(req) {
     const url = new URL(req.url);
-    let pathname = url.pathname;
+    const pathname = url.pathname;
 
     // Handle SDK script asset requests
     if (
