@@ -86,7 +86,8 @@ export function connectSdkDialog(
       collectorOrigin: "http://localhost:8787",
       privacyUrl: "/#privacy",
       projectName: "filika-demo",
-      retentionSummary: "Demo feedback is retained for up to 24 hours.",
+      retentionSummary:
+        "Public demo reports are eligible for deletion after 24 hours; a maintainer must run cleanup. Use synthetic data only.",
     },
     settleAfterAbort: true,
     async submit(draft, signal) {
@@ -142,7 +143,8 @@ export function connectSdkDialog(
       privacyUrl: "/#privacy",
       projectName: detail.request.projectKey,
       sdkVersion: detail.request.context.sdkVersion,
-      retentionSummary: "Demo feedback is retained for up to 24 hours.",
+      retentionSummary:
+        "Public demo reports are eligible for deletion after 24 hours; a maintainer must run cleanup. Use synthetic data only.",
     });
     void dialog
       .open(reviewDraft(detail.request), detail.request.draft ? "webmcp" : "manual")
