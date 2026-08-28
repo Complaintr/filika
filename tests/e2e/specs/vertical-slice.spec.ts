@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-const endpoint = "http://localhost:8787/api/v1/feedback";
+const endpoint = "http://localhost:4173/api/v1/feedback";
 const draft = {
   kind: "bug",
   title: "Sample draft save conflict",
@@ -116,7 +116,7 @@ test("inbox removes all tools and returning to the demo restores feedback review
 test("late inbox data cannot render after demo tools are reactivated", async ({ page }) => {
   const started = Promise.withResolvers<void>();
   const release = Promise.withResolvers<void>();
-  await page.route("http://localhost:8787/api/v1/inbox*", async (route) => {
+  await page.route("http://localhost:4173/api/v1/inbox*", async (route) => {
     started.resolve();
     await release.promise;
     await route.fulfill({
@@ -131,7 +131,7 @@ test("late inbox data cannot render after demo tools are reactivated", async ({ 
   await page.getByRole("button", { name: "Inbox", exact: true }).click();
   await started.promise;
   await page.getByRole("button", { name: "Demo", exact: true }).click();
-  const response = page.waitForResponse("http://localhost:8787/api/v1/inbox*");
+  const response = page.waitForResponse("http://localhost:4173/api/v1/inbox*");
   release.resolve();
   await (await response).finished();
   await expect.poll(() => page.evaluate(() => window.Filika.status.state)).toBe("ready");
@@ -166,7 +166,7 @@ test("sample failure -> reviewed tool submission -> real persisted inbox record"
   await page.getByRole("button", { name: "Remove page", exact: true }).click();
   expect(sent).toHaveLength(0);
   await page.getByRole("button", { name: "Review submission" }).click();
-  await expect(page.getByRole("dialog")).toContainText("http://localhost:8787");
+  await expect(page.getByRole("dialog")).toContainText("http://localhost:4173");
   expect(sent).toHaveLength(0);
   await page
     .getByRole("dialog")
@@ -181,7 +181,7 @@ test("sample failure -> reviewed tool submission -> real persisted inbox record"
   expect(sent[0]?.context).not.toHaveProperty("routeLabel");
   expect(sent[0]?.context.applicationRelease).toBe("demo-2026.08");
   const detail = await request.get(
-    `http://localhost:8787/api/v1/inbox/${result.receipt.feedbackId}`,
+    `http://localhost:4173/api/v1/inbox/${result.receipt.feedbackId}`,
   );
   expect(detail.status()).toBe(200);
   expect(await detail.json()).toMatchObject({
@@ -195,7 +195,7 @@ test("sample failure -> reviewed tool submission -> real persisted inbox record"
       source: "web_sdk_unverified",
     },
   });
-  const list = await request.get("http://localhost:8787/api/v1/inbox?limit=50");
+  const list = await request.get("http://localhost:4173/api/v1/inbox?limit=50");
   expect((await list.json()).items).toEqual(
     expect.arrayContaining([expect.objectContaining({ feedbackId: result.receipt.feedbackId })]),
   );
@@ -244,7 +244,7 @@ test("lost response retries the original event and receives a duplicate receipt"
   if (!receipt) throw new Error("First receipt missing");
   await expect(page.getByRole("dialog")).toContainText(receipt.feedbackId);
   await expect(page.getByRole("dialog")).toContainText(receipt.receivedAt);
-  const list = await request.get("http://localhost:8787/api/v1/inbox?limit=50");
+  const list = await request.get("http://localhost:4173/api/v1/inbox?limit=50");
   const matching = (await list.json()).items.filter(
     (item: { feedbackId: string }) => item.feedbackId === receipt.feedbackId,
   );

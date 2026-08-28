@@ -11,7 +11,7 @@ const LONG_STEPS = Array.from({ length: 10 }, (_, index) => `${index}${"s".repea
 );
 
 async function routeCollectorAndInbox(page: Page): Promise<void> {
-  await page.route("http://localhost:8787/**", async (route) => {
+  await page.route("http://localhost:4173/**", async (route) => {
     const request = route.request();
     const pathname = new URL(request.url()).pathname;
     if (request.method() === "OPTIONS") {

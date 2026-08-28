@@ -115,7 +115,7 @@ test("review dialog associates labels, errors, and focus across edit and confirm
   await expect(page.getByRole("heading", { name: "Confirm submission" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Destination and privacy" })).toBeVisible();
   await expect(dialog).toContainText("filika-demo");
-  await expect(dialog).toContainText("http://localhost:8787");
+  await expect(dialog).toContainText("http://localhost:4173");
   await expect(dialog).toContainText("SDK version");
   await expect(page.getByRole("link", { name: "Read the privacy notice" })).toBeVisible();
 
@@ -126,7 +126,7 @@ test("review dialog associates labels, errors, and focus across edit and confirm
 test("receipt toast and inbox surfaces keep accessible roles and names", async ({ page }) => {
   const FEEDBACK_ID = "22222222-2222-4222-8222-222222222222";
   const RECEIVED_AT = "2026-08-28T16:00:00.000Z";
-  await page.route("http://localhost:8787/**", async (route) => {
+  await page.route("http://localhost:4173/**", async (route) => {
     const request = route.request();
     const pathname = new URL(request.url()).pathname;
     if (request.method() === "OPTIONS") {

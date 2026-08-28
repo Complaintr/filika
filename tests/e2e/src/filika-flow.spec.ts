@@ -83,7 +83,7 @@ test.beforeEach(async ({ page }) => {
 
 test("edits, removes context, confirms, and opens the exact inbox detail", async ({ page }) => {
   const submission = { body: null as Record<string, unknown> | null };
-  await page.route("http://localhost:8787/**", async (route) => {
+  await page.route("http://localhost:4173/**", async (route) => {
     const request = route.request();
     if (request.method() === "POST") {
       submission.body = JSON.parse(request.postData() ?? "null") as Record<string, unknown>;
@@ -142,7 +142,7 @@ test("edits, removes context, confirms, and opens the exact inbox detail", async
 });
 
 test("supports cancel and the default manual feedback button", async ({ page }) => {
-  await page.route("http://localhost:8787/**", async (route) => {
+  await page.route("http://localhost:4173/**", async (route) => {
     const body = JSON.parse(route.request().postData() ?? "null") as { eventId: string };
     await route.fulfill({
       body: JSON.stringify(receipt(body.eventId, false)),
@@ -169,7 +169,7 @@ test("supports cancel and the default manual feedback button", async ({ page }) 
 
 test("retries an unknown SDK outcome with the original event ID", async ({ page }) => {
   const eventIds: string[] = [];
-  await page.route("http://localhost:8787/**", async (route) => {
+  await page.route("http://localhost:4173/**", async (route) => {
     const body = JSON.parse(route.request().postData() ?? "null") as { eventId: string };
     eventIds.push(body.eventId);
     if (eventIds.length === 1) {

@@ -113,7 +113,7 @@ async function interceptCollector(
   onPost?: (body: Record<string, unknown>) => void,
 ): Promise<{ posts(): number }> {
   let postCount = 0;
-  await page.route("http://localhost:8787/**", async (route) => {
+  await page.route("http://localhost:4173/**", async (route) => {
     const request = route.request();
     if (request.method() === "OPTIONS") {
       await route.fulfill({

@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-const FEEDBACK_ENDPOINT = "http://localhost:8787/api/v1/feedback";
+const FEEDBACK_ENDPOINT = "http://localhost:4173/api/v1/feedback";
 
 const draft = {
   kind: "bug",

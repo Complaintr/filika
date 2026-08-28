@@ -12,7 +12,7 @@ const RECEIVED_AT = "2026-08-28T17:00:00.000Z";
 
 async function routeCollectorAndInbox(page: Page): Promise<{ posts(): number }> {
   let postCount = 0;
-  await page.route("http://localhost:8787/**", async (route) => {
+  await page.route("http://localhost:4173/**", async (route) => {
     const request = route.request();
     const pathname = new URL(request.url()).pathname;
     if (request.method() === "OPTIONS") {

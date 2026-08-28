@@ -13,17 +13,11 @@ export default defineConfig({
   use: { baseURL: "http://localhost:4173", browserName: "chromium", trace: "retain-on-failure" },
   webServer: [
     {
-      command: "bun run dev:webmcp",
+      command: "bun run dev",
       cwd: fileURLToPath(new URL("../..", import.meta.url)),
-      url: "http://localhost:4173",
+      url: "http://localhost:4173/api/v1/inbox",
       reuseExistingServer: false,
-    },
-    {
-      command: "bun run dev:collector",
-      cwd: fileURLToPath(new URL("../..", import.meta.url)),
-      url: "http://localhost:8787/api/v1/inbox",
       env: { DATABASE_URL: browserDatabaseUrl() },
-      reuseExistingServer: false,
     },
   ],
 });

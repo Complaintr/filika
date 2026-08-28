@@ -1,6 +1,6 @@
 import { expect, type Page, type Route, test } from "@playwright/test";
 
-const INBOX_BASE = "http://localhost:8787/api/v1/inbox";
+const INBOX_BASE = "http://localhost:4173/api/v1/inbox";
 const FEEDBACK_ID = "11111111-1111-4111-8111-111111111111";
 const RECEIVED_AT = "2026-08-28T15:00:00.000Z";
 
