@@ -33,12 +33,8 @@
       "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
     },
     {
-      "path": "docs/dependency-licenses.json",
+      "path": "releases/dependency-licenses.json",
       "sha256": "d82aab512f32a6836a4d9ed43fe07f65162fe037242276c678dc15c049d7d302"
-    },
-    {
-      "path": "docs/sdk-contract.md",
-      "sha256": "01ef12805e80a7f686ad613e3def0cd02084c1c1195f6529bb74399f456bd0ba"
     },
     {
       "path": "packages/sdk/test/__snapshots__/contracts.test.ts.snap",
@@ -242,38 +238,31 @@
   "openGates": [
     {
       "check": "native-chrome-devtools",
-      "status": "not-run",
-      "evidence": "docs/webmcp-local-testing.md"
+      "status": "not-run"
     },
     {
       "check": "independent-inspector",
-      "status": "not-run",
-      "evidence": "docs/webmcp-inspector-testing.md"
+      "status": "not-run"
     },
     {
       "check": "real-agent-evaluations",
-      "status": "not-measured",
-      "evidence": "docs/webmcp-eval-results.md"
+      "status": "not-measured"
     },
     {
       "check": "human-screen-reader",
-      "status": "not-recorded",
-      "evidence": "docs/challenge.md"
+      "status": "not-recorded"
     },
     {
       "check": "collector-unicode-limit-alignment",
-      "status": "known-discrepancy",
-      "evidence": "docs/sdk-runtime.md"
+      "status": "known-discrepancy"
     },
     {
       "check": "dependency-redistribution-notices",
-      "status": "required-before-bundling-dependencies",
-      "evidence": "docs/provenance-review.md"
+      "status": "required-before-bundling-dependencies"
     },
     {
       "check": "deployed-site-tools",
-      "status": "prepared-only",
-      "evidence": "docs/site-tools-test-script.md"
+      "status": "prepared-only"
     }
   ]
 }

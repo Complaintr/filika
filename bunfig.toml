@@ -1,0 +1,3 @@
+[test]
+# Playwright runs browser specs separately; Bun still runs database helper tests.
+pathIgnorePatterns = ["tests/e2e/**/*.spec.ts", "**/dist/**"]

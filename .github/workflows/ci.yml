@@ -59,8 +59,8 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
       - name: Install locked dependencies
         run: bun install --frozen-lockfile
-      - name: Check formatting, lint rules, and imports
-        run: bun run check
+      - name: Check formatting, lint rules, and types
+        run: bun run lint
 
   unit-tests:
     name: Unit tests
@@ -91,7 +91,7 @@ jobs:
       - name: Run unit tests
         env:
           TEST_DATABASE_URL: postgres://postgres@localhost:5432/filika_test
-        run: bun run test:unit
+        run: bun test
 
   build:
     name: Build
