@@ -113,11 +113,14 @@ export class InboxApiService {
     const url = `${this.#collectorOrigin}${INBOX_LIST_ENDPOINT}`;
 
     try {
-      const response = await this.#fetch(url, {
+      const init: RequestInit = {
         headers: { Accept: "application/json" },
         method: "GET",
-        signal,
-      });
+      };
+      if (signal !== undefined) {
+        init.signal = signal;
+      }
+      const response = await this.#fetch(url, init);
 
       if (!response.ok) {
         return { retryable: true, status: "error" };
@@ -150,11 +153,14 @@ export class InboxApiService {
     const url = `${this.#collectorOrigin}${INBOX_DETAIL_ENDPOINT_PREFIX}${encodeURIComponent(feedbackId)}`;
 
     try {
-      const response = await this.#fetch(url, {
+      const init: RequestInit = {
         headers: { Accept: "application/json" },
         method: "GET",
-        signal,
-      });
+      };
+      if (signal !== undefined) {
+        init.signal = signal;
+      }
+      const response = await this.#fetch(url, init);
 
       if (response.status === 404) {
         return { status: "not_found" };
