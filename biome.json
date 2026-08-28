@@ -10,7 +10,14 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!!**/node_modules", "!!**/dist", "!!**/coverage"]
+    "includes": [
+      "**",
+      "!!**/node_modules",
+      "!!**/dist",
+      "!!**/coverage",
+      "!!**/public",
+      "!!apps/web/src/filika.js"
+    ]
   },
   "formatter": {
     "enabled": true,

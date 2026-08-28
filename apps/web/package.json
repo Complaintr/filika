@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "copy-sdk": "bun scripts/copy-sdk.ts",
-    "build": "bun scripts/copy-sdk.ts && bun build src/index.html --outdir dist --target browser && cp public/filika.js dist/filika.js",
+    "build": "bun scripts/copy-sdk.ts && bun build src/index.html --outdir dist --target browser",
     "dev": "bun dev-server.ts",
     "typecheck": "tsc --project tsconfig.json"
   },

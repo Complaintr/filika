@@ -8,8 +8,8 @@
  * Run: bun apps/web/dev-server.ts
  */
 
-import { existsSync, mkdirSync, copyFileSync } from "node:fs";
-import { join, extname } from "node:path";
+import { copyFileSync, existsSync, mkdirSync } from "node:fs";
+import { extname, join } from "node:path";
 
 const PORT = Number(process.env.PORT ?? 4173);
 const WEB_ROOT = import.meta.dir;
@@ -26,9 +26,7 @@ if (existsSync(sdkSource)) {
   copyFileSync(sdkSource, sdkDest);
   console.log("SDK bundle copied to public/filika.js");
 } else {
-  console.warn(
-    "SDK bundle not found. Run 'bun run --filter @filika/sdk build' first.",
-  );
+  console.warn("SDK bundle not found. Run 'bun run --filter @filika/sdk build' first.");
 }
 
 const MIME_TYPES: Record<string, string> = {
@@ -41,11 +39,6 @@ const MIME_TYPES: Record<string, string> = {
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
 };
-
-const routes = new Bun.FileSystemRouter({
-  dir: SRC_DIR,
-  style: "nextjs",
-});
 
 Bun.serve({
   port: PORT,

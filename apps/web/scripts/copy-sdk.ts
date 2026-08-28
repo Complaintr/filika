@@ -5,15 +5,17 @@
  * Usage: bun apps/web/scripts/copy-sdk.ts
  */
 
-import { existsSync, mkdirSync, copyFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 const WEB_ROOT = join(import.meta.dir, "..");
 const SDK_DIST = join(WEB_ROOT, "../../packages/sdk/dist");
 const PUBLIC_DIR = join(WEB_ROOT, "public");
+const SRC_DIR = join(WEB_ROOT, "src");
 
 const sourceFile = join(SDK_DIST, "filika.js");
-const destFile = join(PUBLIC_DIR, "filika.js");
+const publicDest = join(PUBLIC_DIR, "filika.js");
+const srcDest = join(SRC_DIR, "filika.js");
 
 if (!existsSync(sourceFile)) {
   console.error(
@@ -26,5 +28,6 @@ if (!existsSync(PUBLIC_DIR)) {
   mkdirSync(PUBLIC_DIR, { recursive: true });
 }
 
-copyFileSync(sourceFile, destFile);
-console.log(`Copied SDK bundle → ${destFile}`);
+copyFileSync(sourceFile, publicDest);
+copyFileSync(sourceFile, srcDest);
+console.log(`Copied SDK bundle → ${publicDest} and ${srcDest}`);

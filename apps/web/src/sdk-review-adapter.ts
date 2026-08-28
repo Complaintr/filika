@@ -11,11 +11,11 @@
  */
 
 import type { FeedbackDialog } from "./components/feedback-dialog";
-import type { FeedbackDraft, ReportFieldId } from "./contracts/feedback-fields";
 import type {
   DialogInvocationSource,
   SdkExecutionResult,
 } from "./contracts/feedback-dialog-machine";
+import type { FeedbackDraft, ReportFieldId } from "./contracts/feedback-fields";
 
 export interface ReviewEventDetail {
   readonly request: {
@@ -208,5 +208,5 @@ export function installReviewAdapter(
   return () => target.removeEventListener(REVIEW_EVENT_NAME, handler);
 }
 
-export { sdkDraftToDialogSeed, buildConfirmedDecision, readDialogDraft };
 export type { DialogInvocationSource, ReportFieldId };
+export { buildConfirmedDecision, readDialogDraft, sdkDraftToDialogSeed };
