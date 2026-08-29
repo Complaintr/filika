@@ -35,7 +35,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-inline-size: var(--nav-item-size);
   block-size: var(--nav-item-size);
   padding: 0 10px;
@@ -91,6 +91,14 @@
   line-height: 16px;
   letter-spacing: -0.1px;
   user-select: none;
+}
+
+.bottom-nav-item:not([data-active="true"]) {
+  padding: 0;
+}
+
+.bottom-nav-item:not([data-active="true"]) .bottom-nav-label {
+  display: none;
 }
 
 :root[data-theme="dark"] .bottom-nav {
