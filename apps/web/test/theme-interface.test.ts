@@ -42,6 +42,8 @@ test("dark appearance uses neutral charcoal surfaces instead of blue-tinted back
   expect(appCss).toContain("--white: #151517");
   expect(appCss).toContain("background: var(--canvas)");
   expect(appCss).toContain("background: #1b1b1e");
+  expect(appCss).toContain('.theme-preview-dark span:first-child');
+  expect(appCss).toContain("background: #5f8ff5");
   expect(navigationCss).toContain("background: rgb(21 21 23 / 96%)");
   expect(navigationCss).toContain("background: #242428");
   expect(navigationCss).toContain("color: #5f8ff5");
