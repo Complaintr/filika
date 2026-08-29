@@ -135,13 +135,13 @@
 }
 
 :root[data-theme="dark"] .bottom-nav-item:hover {
-  background: #242428;
+  background: #202024;
   color: #e4e4e7;
 }
 
 :root[data-theme="dark"] .bottom-nav-item[data-active="true"] {
-  background: #292930;
-  color: #8aafff;
+  background: #242428;
+  color: #5f8ff5;
   box-shadow: inset 0 0 0 1px rgb(120 161 255 / 12%);
 }
 
