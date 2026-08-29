@@ -146,10 +146,16 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
               <strong>{workspaceName}</strong>
               <span>Local workspace</span>
             </span>
-            <span className="profile-menu-status">
-              Active
+            <button
+              className="profile-menu-status"
+              type="button"
+              disabled
+              aria-label="Active status. Status controls are not available yet."
+              title="Status controls become available when profile status settings are enabled."
+            >
+              <span>Active</span>
               <ChevronDown aria-hidden="true" />
-            </span>
+            </button>
           </div>
           <fieldset className="profile-theme-switcher">
             <legend className="sr-only">Appearance</legend>

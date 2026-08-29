@@ -19,6 +19,10 @@ describe("header profile menu", () => {
     expect(result.container.textContent).toContain("Settings");
     expect(result.container.textContent).toContain("Sign out");
     expect(result.container.textContent).toContain("Other Accounts");
+    const status = result.container.querySelector<HTMLButtonElement>(
+      '[aria-label="Active status. Status controls are not available yet."]',
+    );
+    expect(status?.disabled).toBe(true);
     const addAccount = result.container.querySelector<HTMLButtonElement>(
       '[title="Account switching becomes available when account access is enabled."]',
     );
