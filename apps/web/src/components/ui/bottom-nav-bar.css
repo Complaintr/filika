@@ -123,24 +123,24 @@
 }
 
 :root[data-theme="dark"] .bottom-nav {
-  border-color: #2b3748;
-  background: rgb(17 24 33 / 96%);
+  border-color: #303035;
+  background: rgb(21 21 23 / 96%);
   box-shadow:
     0 12px 30px rgb(0 0 0 / 32%),
     0 1px 3px rgb(0 0 0 / 24%);
 }
 
 :root[data-theme="dark"] .bottom-nav-item {
-  color: #91a0b7;
+  color: #9b9ba4;
 }
 
 :root[data-theme="dark"] .bottom-nav-item:hover {
-  background: #1b2533;
-  color: #d8e0ef;
+  background: #242428;
+  color: #e4e4e7;
 }
 
 :root[data-theme="dark"] .bottom-nav-item[data-active="true"] {
-  background: #1b2b4b;
+  background: #292930;
   color: #8aafff;
   box-shadow: inset 0 0 0 1px rgb(120 161 255 / 12%);
 }

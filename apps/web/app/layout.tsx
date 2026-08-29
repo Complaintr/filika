@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const theme = saved && saved.theme === "dark" ? "dark" : "light";
   document.documentElement.dataset.theme = theme;
   const themeColor = document.querySelector('meta[name="theme-color"]');
-  if (themeColor) themeColor.setAttribute("content", theme === "dark" ? "#0d1117" : "#f7f8fa");
+  if (themeColor) themeColor.setAttribute("content", theme === "dark" ? "#0e0e10" : "#f7f8fa");
 } catch {
   document.documentElement.dataset.theme = "light";
 }`}

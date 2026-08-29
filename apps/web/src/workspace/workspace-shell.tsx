@@ -44,7 +44,7 @@ function ShellBody({ children }: WorkspaceShellProps) {
     document.documentElement.dataset.density = preferences.density;
     document.documentElement.dataset.theme = preferences.theme;
     const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    themeColor?.setAttribute("content", preferences.theme === "dark" ? "#0d1117" : "#f7f8fa");
+    themeColor?.setAttribute("content", preferences.theme === "dark" ? "#0e0e10" : "#f7f8fa");
   }, [preferences.density, preferences.theme]);
 
   useEffect(() => {
