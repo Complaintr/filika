@@ -289,6 +289,10 @@ html {
   margin: auto;
   padding: 44px 40px calc(120px + env(safe-area-inset-bottom, 0px));
 }
+.workspace-page {
+  min-width: 0;
+  will-change: opacity, transform;
+}
 .page-heading {
   display: flex;
   justify-content: space-between;

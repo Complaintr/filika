@@ -10,8 +10,11 @@ import {
   Trophy,
   User,
 } from "lucide-react";
+import Link from "next/link";
 import { type CSSProperties, type MouseEvent, useState } from "react";
 import { cn } from "@/lib/utils";
+
+const MotionLink = motion.create(Link);
 
 export interface BottomNavItem {
   label: string;
@@ -55,7 +58,7 @@ export function BottomNavBar({
     : 0;
   const transition = {
     type: "tween" as const,
-    duration: prefersReducedMotion ? 0 : 0.18,
+    duration: prefersReducedMotion ? 0 : 0.22,
     ease: [0.22, 1, 0.36, 1] as const,
   };
   const dimensions = { "--nav-items": Math.max(1, items.length) } as CSSProperties;
@@ -103,7 +106,7 @@ export function BottomNavBar({
             : "var(--nav-item-size)",
         };
         return item.href ? (
-          <motion.a
+          <MotionLink
             key={item.href}
             href={item.href}
             initial={false}
@@ -117,7 +120,7 @@ export function BottomNavBar({
             title={item.label}
           >
             {contents}
-          </motion.a>
+          </MotionLink>
         ) : (
           <motion.button
             key={item.label}

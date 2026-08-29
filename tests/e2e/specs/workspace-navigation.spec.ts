@@ -38,10 +38,22 @@ test("complaints list is reachable from the dashboard and renders its empty stat
 
 test("settings is reachable and reports the connected collector", async ({ page }) => {
   await openDashboard(page);
+  await page.evaluate(() => {
+    document.documentElement.dataset.navigationProbe = "preserved";
+  });
   await navItem(page, "Settings").click();
   await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Workspace preferences" })).toBeVisible();
   await expect(connectionStatus(page)).toContainText("Collector connected");
+  await expect(page.locator(".workspace-page")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.dataset.navigationProbe)).toBe(
+    "preserved",
+  );
+  expect(
+    await navItem(page, "Settings")
+      .locator(".bottom-nav-label > span")
+      .evaluate((label) => label.scrollWidth <= label.clientWidth),
+  ).toBe(true);
   const [navigationBox, settingsBox] = await Promise.all([
     page.locator(".bottom-nav").boundingBox(),
     navItem(page, "Settings").boundingBox(),

@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   EllipsisVertical,
   Home,
@@ -8,6 +9,7 @@ import {
   Settings,
   UserRound,
 } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import BottomNavBar from "@/components/ui/bottom-nav-bar";
@@ -34,6 +36,7 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
 
 function ShellBody({ children }: WorkspaceShellProps) {
   const pathname = usePathname();
+  const prefersReducedMotion = useReducedMotion();
   const { state: connection } = useConnection();
   const [preferences, setPreferences] = useState<Preferences>(() => readPreferences());
 
@@ -64,18 +67,18 @@ function ShellBody({ children }: WorkspaceShellProps) {
       <header className="topbar">
         <div className="topbar-inner">
           <div className="workspace-identity">
-            <a className="brand" href="/dashboard" aria-label="Filika dashboard">
+            <Link className="brand" href="/dashboard" aria-label="Filika dashboard">
               <span className="brand-mark" aria-hidden="true">
                 <span className="sail-main" />
                 <span className="sail-small" />
                 <span className="sail-hull" />
               </span>
               <span className="brand-name">filika</span>
-            </a>
+            </Link>
             <span className="identity-separator" aria-hidden="true">
               /
             </span>
-            <a className="workspace-switcher" href="/settings">
+            <Link className="workspace-switcher" href="/settings">
               <span className="workspace-avatar" aria-hidden="true">
                 {preferences.workspaceName.slice(0, 1).toUpperCase()}
               </span>
@@ -85,21 +88,39 @@ function ShellBody({ children }: WorkspaceShellProps) {
               <span className="workspace-copy-marker" aria-hidden="true">
                 <EllipsisVertical />
               </span>
-            </a>
+            </Link>
           </div>
           <div className="topbar-actions">
             <div className="connection-status" data-state={connection} role="status">
               <span className="connection-dot" />
               <span className="sr-only">{connectionLabel(connection)}</span>
             </div>
-            <a className="topbar-avatar" href="/settings" aria-label="Workspace settings">
+            <Link className="topbar-avatar" href="/settings" aria-label="Workspace settings">
               <UserRound aria-hidden="true" />
-            </a>
+            </Link>
           </div>
         </div>
       </header>
       <main className="workspace-content" id="app-content" tabIndex={-1}>
-        {children}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={pathname}
+            className="workspace-page"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 6, scale: 0.997 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={
+              prefersReducedMotion
+                ? { opacity: 1, y: 0, scale: 1 }
+                : { opacity: 0, y: -4, scale: 0.998 }
+            }
+            transition={{
+              duration: prefersReducedMotion ? 0 : 0.2,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
       <div className="navigation-root">
         <BottomNavBar
