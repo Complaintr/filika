@@ -14,17 +14,24 @@ function isPublicPath(pathname: string): boolean {
 }
 
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
   const hasSession = request.cookies.get(SESSION_COOKIE)?.value !== undefined;
+  const forceLogin = searchParams.has("force") || searchParams.has("reauth");
 
   if (!isPublicPath(pathname) && !hasSession) {
     const loginUrl = new URL("/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (pathname === "/login" && hasSession) {
+  if (pathname === "/login" && hasSession && !forceLogin) {
     const dashboardUrl = new URL("/dashboard", request.url);
     return NextResponse.redirect(dashboardUrl);
+  }
+
+  if (pathname === "/login" && forceLogin) {
+    const response = NextResponse.next();
+    response.cookies.delete(SESSION_COOKIE);
+    return response;
   }
 
   return NextResponse.next();

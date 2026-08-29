@@ -35,6 +35,11 @@ async function read(path: string, signal: AbortSignal): Promise<unknown> {
     headers: { Accept: "application/json" },
     signal: AbortSignal.any([signal, AbortSignal.timeout(10_000)]),
   });
+  if (response.status === 401) {
+    if (typeof window !== "undefined") {
+      window.location.assign("/login?force=1");
+    }
+  }
   if (!response.ok) throw new Error("The collector could not be reached.");
   return readBoundedJson(response);
 }

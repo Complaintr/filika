@@ -1,17 +1,9 @@
 "use client";
 
-import {
-  ChevronDown,
-  CircleUserRound,
-  LogOut,
-  Monitor,
-  Moon,
-  Settings,
-  Sun,
-  UserRoundPlus,
-} from "lucide-react";
+import { CircleUserRound, LogOut, Monitor, Moon, Settings, Sun, UserRoundPlus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
+import { fetchSession, type SessionInfo, signOut } from "@/services/session";
 
 export interface ProfileMenuProps {
   workspaceName: string;
@@ -69,9 +61,22 @@ function saveProfileTheme(theme: ProfileTheme): void {
 export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<ProfileTheme>("light");
+  const [session, setSession] = useState<SessionInfo | null>(null);
+  const [imageFailed, setImageFailed] = useState(false);
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchSession(controller.signal)
+      .then((res) => {
+        setSession(res);
+        setImageFailed(false);
+      })
+      .catch(() => setSession(null));
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     const syncTheme = () => {
@@ -115,12 +120,17 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
     };
   }, [open]);
 
-  const initial = workspaceName.trim().slice(0, 1).toUpperCase() || "F";
+  const displayName = session?.user.name?.trim() || workspaceName;
+  const displaySubtitle = session?.user.email || "Local workspace";
+  const avatarImage = session?.user.image;
+  const initial = displayName.trim().slice(0, 1).toUpperCase() || "F";
 
   function selectTheme(nextTheme: ProfileTheme): void {
     setTheme(nextTheme);
     saveProfileTheme(nextTheme);
   }
+
+  const showAvatarImage = Boolean(avatarImage && !imageFailed);
 
   return (
     <div className="profile-menu-root" ref={rootRef}>
@@ -134,28 +144,40 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
         aria-controls={menuId}
         onClick={() => setOpen((current) => !current)}
       >
-        <CircleUserRound aria-hidden="true" />
+        {showAvatarImage ? (
+          // biome-ignore lint/performance/noImgElement: External OAuth avatar URL
+          <img
+            className="topbar-avatar-img"
+            src={avatarImage ?? ""}
+            alt={displayName}
+            referrerPolicy="no-referrer"
+            onError={() => setImageFailed(true)}
+          />
+        ) : (
+          <CircleUserRound aria-hidden="true" />
+        )}
       </button>
       {open ? (
         <div className="profile-menu" id={menuId} role="menu" aria-label="Profile">
           <div className="profile-menu-summary">
             <span className="profile-menu-avatar" aria-hidden="true">
-              {initial}
+              {showAvatarImage ? (
+                // biome-ignore lint/performance/noImgElement: External OAuth avatar URL
+                <img
+                  className="profile-menu-avatar-img"
+                  src={avatarImage ?? ""}
+                  alt={displayName}
+                  referrerPolicy="no-referrer"
+                  onError={() => setImageFailed(true)}
+                />
+              ) : (
+                initial
+              )}
             </span>
             <span className="profile-menu-identity">
-              <strong>{workspaceName}</strong>
-              <span>Local workspace</span>
+              <strong>{displayName}</strong>
+              <span title={displaySubtitle}>{displaySubtitle}</span>
             </span>
-            <button
-              className="profile-menu-status"
-              type="button"
-              disabled
-              aria-label="Active status. Status controls are not available yet."
-              title="Status controls become available when profile status settings are enabled."
-            >
-              <span>Active</span>
-              <ChevronDown aria-hidden="true" />
-            </button>
           </div>
           <fieldset className="profile-theme-switcher">
             <legend className="sr-only">Appearance</legend>
@@ -219,8 +241,15 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
             <button
               type="button"
               role="menuitem"
-              disabled
-              title="Sign out becomes available when account access is enabled."
+              disabled={!session}
+              title={
+                session ? "Sign out of your account" : "Sign out becomes available when signed in."
+              }
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                void signOut();
+              }}
             >
               <LogOut aria-hidden="true" />
               <span>Sign out</span>

@@ -19,10 +19,6 @@ describe("header profile menu", () => {
     expect(result.container.textContent).toContain("Settings");
     expect(result.container.textContent).toContain("Sign out");
     expect(result.container.textContent).toContain("Other Accounts");
-    const status = result.container.querySelector<HTMLButtonElement>(
-      '[aria-label="Active status. Status controls are not available yet."]',
-    );
-    expect(status?.disabled).toBe(true);
     const addAccount = result.container.querySelector<HTMLButtonElement>(
       '[title="Account switching becomes available when account access is enabled."]',
     );
@@ -46,7 +42,7 @@ describe("header profile menu", () => {
     await new Promise((resolve) => setTimeout(resolve, 20));
 
     expect(result.container.querySelector('[role="menu"]')).toBeNull();
-    expect(result.window.document.activeElement).toBe(trigger);
+    expect(result.window.document.activeElement as unknown).toBe(trigger);
 
     await result.close();
   });
@@ -110,7 +106,7 @@ describe("header profile menu", () => {
 
     expect(css).toContain("width: min(340px, calc(100vw - 32px))");
     expect(css).toContain("min-height: 438px");
-    expect(css).toContain("grid-template-columns: 54px minmax(0, 1fr) auto");
+    expect(css).toContain("grid-template-columns: 54px minmax(0, 1fr)");
     expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
     expect(css).toContain("width: 54px");
     expect(css).not.toContain("width: min(260px, 100%)");
