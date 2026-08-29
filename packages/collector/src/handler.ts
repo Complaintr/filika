@@ -1,3 +1,4 @@
+import type { BetterAuth } from "./auth/better-auth";
 import { allowOriginHeaders, buildPreflightResponse } from "./cors";
 import { getDashboard } from "./dashboard";
 import type { Db } from "./db/client";
@@ -29,11 +30,25 @@ function parseKind(kind: string | null): Pick<InboxListQuery, "kind"> {
     : {};
 }
 
-export function createFetchHandler(db: Db): (request: Request) => Promise<Response> {
+export interface CollectorRouteOptions {
+  betterAuth?: BetterAuth | undefined;
+}
+
+function unauthenticatedResponse(): Response {
+  return Response.json({ error: { category: "unauthenticated" } }, { status: 401 });
+}
+
+export function createFetchHandler(
+  db: Db,
+  options?: CollectorRouteOptions,
+): (request: Request) => Promise<Response> {
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
 
     if (request.method === "GET" && url.pathname === "/api/v1/dashboard") {
+      if (!(await requireSession(request, options))) {
+        return unauthenticatedResponse();
+      }
       const rawDays = url.searchParams.get("days");
       const days = rawDays === "7" ? 7 : rawDays === "90" ? 90 : 30;
       const headers = allowOriginHeaders(request, await collectAllowedOrigins(db));
@@ -51,6 +66,9 @@ export function createFetchHandler(db: Db): (request: Request) => Promise<Respon
     }
 
     if (request.method === "GET" && url.pathname === INBOX_LIST_ENDPOINT) {
+      if (!(await requireSession(request, options))) {
+        return unauthenticatedResponse();
+      }
       const allowedOrigins = await collectAllowedOrigins(db);
       const headers = allowOriginHeaders(request, allowedOrigins);
       const result = await listInbox(db, parseListQuery(url));
@@ -59,6 +77,9 @@ export function createFetchHandler(db: Db): (request: Request) => Promise<Respon
     }
 
     if (request.method === "GET" && url.pathname.startsWith(INBOX_DETAIL_ENDPOINT)) {
+      if (!(await requireSession(request, options))) {
+        return unauthenticatedResponse();
+      }
       const allowedOrigins = await collectAllowedOrigins(db);
       const headers = allowOriginHeaders(request, allowedOrigins);
       const feedbackId = url.pathname.slice(INBOX_DETAIL_ENDPOINT.length);
@@ -73,4 +94,16 @@ export function createFetchHandler(db: Db): (request: Request) => Promise<Respon
 
     return new Response("Not found.", { status: 404 });
   };
+}
+
+async function requireSession(
+  request: Request,
+  options: CollectorRouteOptions | undefined,
+): Promise<boolean> {
+  if (options?.betterAuth === undefined) {
+    return true;
+  }
+
+  const session = await options.betterAuth.api.getSession({ headers: request.headers });
+  return session !== null;
 }

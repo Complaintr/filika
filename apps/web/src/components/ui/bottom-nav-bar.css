@@ -122,6 +122,29 @@
   transform: translateX(0);
 }
 
+:root[data-theme="dark"] .bottom-nav {
+  border-color: #303035;
+  background: rgb(21 21 23 / 96%);
+  box-shadow:
+    0 12px 30px rgb(0 0 0 / 32%),
+    0 1px 3px rgb(0 0 0 / 24%);
+}
+
+:root[data-theme="dark"] .bottom-nav-item {
+  color: #9b9ba4;
+}
+
+:root[data-theme="dark"] .bottom-nav-item:hover {
+  background: #202024;
+  color: #e4e4e7;
+}
+
+:root[data-theme="dark"] .bottom-nav-item[data-active="true"] {
+  background: #242428;
+  color: #5f8ff5;
+  box-shadow: inset 0 0 0 1px rgb(120 161 255 / 12%);
+}
+
 @media (max-width: 480px) {
   .bottom-nav--fixed {
     bottom: calc(16px + env(safe-area-inset-bottom, 0px));

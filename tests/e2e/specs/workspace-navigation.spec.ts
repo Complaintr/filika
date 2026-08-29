@@ -1,9 +1,11 @@
 import { expect, type Page, test } from "@playwright/test";
+import { signInAsE2eUser } from "../sign-in";
 
 const navItem = (page: Page, label: string) => page.locator(".bottom-nav-item", { hasText: label });
-const connectionStatus = (page: Page) => page.locator(".connection-status");
+const connectionStatus = (page: Page) => page.locator(".topbar .connection-status");
 
 async function openDashboard(page: Page): Promise<void> {
+  await signInAsE2eUser(page);
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
 }
@@ -68,6 +70,7 @@ test("settings is reachable and reports the connected collector", async ({ page 
 });
 
 test("the collector connection status falls back to unavailable", async ({ page }) => {
+  await signInAsE2eUser(page);
   await page.route("**/api/v1/dashboard**", (route) =>
     route.fulfill({
       status: 500,

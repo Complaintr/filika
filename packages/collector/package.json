@@ -12,6 +12,8 @@
     "typecheck": "tsc --project tsconfig.json"
   },
   "dependencies": {
+    "@better-auth/drizzle-adapter": "^1.7.2",
+    "better-auth": "^1.7.2",
     "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.9",
     "zod": "^4.4.3"
