@@ -29,29 +29,10 @@ async function fulfillDashboard(route: Route, days: number): Promise<void> {
   });
 }
 
-test("dashboard renders totals, a chart, and the latest complaints from the collector", async ({
+test("dashboard renders the OpenAnalytics-style overview without lower complaint panels", async ({
   page,
 }) => {
   await page.route(DASHBOARD, (route) => fulfillDashboard(route, 30));
-  await page.route("**/api/v1/inbox**", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        items: [
-          {
-            feedbackId: "11111111-1111-4111-8111-111111111111",
-            kind: "bug",
-            receivedAt: "2026-08-28T12:00:00.000Z",
-            requestOrigin: "http://localhost:4173",
-            routeLabel: "/checkout",
-            title: "Checkout button missing",
-          },
-        ],
-        nextCursor: null,
-      }),
-    }),
-  );
 
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
@@ -59,8 +40,9 @@ test("dashboard renders totals, a chart, and the latest complaints from the coll
   await expect(page.locator(".stat-value").first()).toContainText("4");
   await expect(page.getByRole("heading", { name: "Complaint activity" })).toBeVisible();
   await expect(page.getByRole("img", { name: /complaints over 30 days/ })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Latest complaints" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Checkout button missing" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "By feedback type" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Latest complaints" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Most reported pages" })).toHaveCount(0);
 });
 
 test("dashboard date range switch reloads the requested window", async ({ page }) => {

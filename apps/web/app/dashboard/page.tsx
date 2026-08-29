@@ -1,45 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  type ComplaintPage,
-  type DashboardData,
-  fetchComplaints,
-  fetchDashboard,
-} from "@/services/workspace-api";
+import { type DashboardData, fetchDashboard } from "@/services/workspace-api";
 import { useConnection } from "@/workspace/connection";
 import { formatDate, kindLabels } from "@/workspace/dom";
 
 type RangeDays = 7 | 30 | 90;
 
-function StatCard({
-  label,
-  value,
-  note,
-  symbol,
-}: {
-  label: string;
-  note: string;
-  symbol: string;
-  value: number;
-}) {
+function StatCard({ label, value, note }: { label: string; note: string; value: number }) {
   return (
     <section className="stat-card">
       <div className="stat-label">
         <span>{label}</span>
-        <span className="stat-icon" aria-hidden="true">
-          {symbol}
+        <span className="stat-info" title={note} aria-hidden="true">
+          i
         </span>
+        <span className="sr-only">{note}</span>
       </div>
       <div className="stat-value">
         <strong>{value.toLocaleString("en")}</strong>
-        <span className="muted small">{note}</span>
       </div>
     </section>
   );
 }
 
 function DashboardChart({ data }: { data: DashboardData }) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const daily = new Map(data.daily.map((item) => [item.date, item.count]));
   const start = new Date(data.generatedAt);
   start.setUTCHours(0, 0, 0, 0);
@@ -51,60 +37,106 @@ function DashboardChart({ data }: { data: DashboardData }) {
     return { date: key, count: daily.get(key) ?? 0 };
   });
   const maximum = Math.max(4, ...points.map((point) => point.count));
-  const coordinates = points.map(
-    (point, index) =>
-      `${40 + (index * 710) / Math.max(1, points.length - 1)},${210 - (point.count / maximum) * 192}`,
+  const chartPoints = points.map((point, index) => ({
+    ...point,
+    x: 42 + (index * 776) / Math.max(1, points.length - 1),
+    y: 232 - (point.count / maximum) * 172,
+  }));
+  const path = chartPoints.reduce((result, point, index) => {
+    if (index === 0) return `M ${point.x} ${point.y}`;
+    const previous = chartPoints[index - 1];
+    if (!previous) return result;
+    const middle = (previous.x + point.x) / 2;
+    return `${result} C ${middle} ${previous.y}, ${middle} ${point.y}, ${point.x} ${point.y}`;
+  }, "");
+  const labelIndexes = Array.from(
+    new Set([
+      0,
+      Math.floor((points.length - 1) / 3),
+      Math.floor(((points.length - 1) * 2) / 3),
+      points.length - 1,
+    ]),
   );
-  const labels = [0, Math.floor((points.length - 1) / 2), points.length - 1];
+  const activePoint = activeIndex === null ? null : chartPoints[activeIndex];
+  const dateFormatter = new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
   return (
     <div className="chart-container">
       <svg
-        viewBox="0 0 760 240"
+        viewBox="0 0 860 290"
         role="img"
-        aria-label={`${data.total} complaints over ${data.days} days. Daily values are available below the chart.`}
+        aria-label={`${data.total} complaints over ${data.days} days.`}
+        onPointerLeave={() => setActiveIndex(null)}
+        onPointerMove={(event) => {
+          const bounds = event.currentTarget.getBoundingClientRect();
+          const x = ((event.clientX - bounds.left) / bounds.width) * 860;
+          const index = Math.round(((x - 42) / 776) * Math.max(1, points.length - 1));
+          setActiveIndex(Math.max(0, Math.min(points.length - 1, index)));
+        }}
       >
-        {[0, 1, 2, 3, 4].map((index) => {
-          const y = 18 + index * 48;
-          return (
-            <g key={index}>
-              <line x1="40" x2="750" y1={y} y2={y} className="chart-grid" />
-              <text x="28" y={y + 4} textAnchor="end" className="chart-label">
-                {Math.round((maximum * (4 - index)) / 4)}
-              </text>
-            </g>
-          );
-        })}
-        <polygon points={`40,210 ${coordinates.join(" ")} 750,210`} className="chart-area" />
-        <polyline points={coordinates.join(" ")} className="chart-line" />
-        {labels.map((index) => {
-          const point = points[index];
+        <defs>
+          <pattern id="dashboard-dot-grid" width="12" height="12" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="1" className="chart-grid-dot" />
+          </pattern>
+          <linearGradient id="dashboard-line-fade" x1="0" x2="1">
+            <stop offset="0" stopColor="#2f73f6" stopOpacity="0.18" />
+            <stop offset="0.16" stopColor="#2f73f6" stopOpacity="0.62" />
+            <stop offset="0.84" stopColor="#2f73f6" stopOpacity="0.86" />
+            <stop offset="1" stopColor="#2f73f6" stopOpacity="0.2" />
+          </linearGradient>
+        </defs>
+        <rect x="22" y="24" width="816" height="220" fill="url(#dashboard-dot-grid)" />
+        <path d={path} className="chart-line" />
+        {labelIndexes.map((index) => {
+          const point = chartPoints[index];
           if (!point) return null;
           return (
             <text
               key={point.date}
-              x={40 + (index * 710) / Math.max(1, points.length - 1)}
-              y="235"
+              x={point.x}
+              y="270"
               textAnchor={index === 0 ? "start" : index === points.length - 1 ? "end" : "middle"}
               className="chart-label"
             >
-              {new Intl.DateTimeFormat("en", {
-                month: "short",
-                day: "numeric",
-                timeZone: "UTC",
-              }).format(new Date(point.date))}
+              {dateFormatter.format(new Date(point.date))}
             </text>
           );
         })}
+        {activePoint && (
+          <g className="chart-focus">
+            <line x1={activePoint.x} x2={activePoint.x} y1="34" y2="244" />
+            <circle cx={activePoint.x} cy={activePoint.y} r="5" />
+            <rect x={activePoint.x - 38} y="250" width="76" height="30" rx="15" />
+            <text x={activePoint.x} y="270" textAnchor="middle">
+              {dateFormatter.format(new Date(activePoint.date))}
+            </text>
+          </g>
+        )}
       </svg>
+      {activePoint && (
+        <div
+          className="chart-tooltip"
+          style={{ left: `${(activePoint.x / 860) * 100}%` }}
+          role="status"
+        >
+          <strong>{dateFormatter.format(new Date(activePoint.date))}</strong>
+          <span>
+            <i aria-hidden="true" /> Complaints <b>{activePoint.count.toLocaleString("en")}</b>
+          </span>
+        </div>
+      )}
       {data.total === 0 && (
         <div className="chart-empty">
           <strong>A clearer picture starts with the first report.</strong>
           <span className="muted">Complaints received in this period will appear here.</span>
         </div>
       )}
-      <details className="chart-data">
-        <summary>View daily counts</summary>
+      <div className="sr-only">
         <table>
+          <caption>Daily complaint counts</caption>
           <thead>
             <tr>
               <th>Date (UTC)</th>
@@ -120,51 +152,7 @@ function DashboardChart({ data }: { data: DashboardData }) {
             ))}
           </tbody>
         </table>
-      </details>
-    </div>
-  );
-}
-
-function ComplaintTable({ items }: { items: ComplaintPage["items"] }) {
-  return (
-    <div className="table-scroll">
-      <table className="complaint-table recent-table" aria-label="Latest complaints">
-        <thead>
-          <tr>
-            <th scope="col">Complaint</th>
-            <th scope="col">Type</th>
-            <th scope="col">Received</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <tr key={item.feedbackId}>
-              <td className="complaint-title">
-                <a
-                  className="complaint-link"
-                  href={`/complaints/${encodeURIComponent(item.feedbackId)}`}
-                >
-                  {item.title}
-                </a>
-                <span className="complaint-origin">{item.requestOrigin}</span>
-              </td>
-              <td>
-                <span className={`kind-badge kind-${item.kind}`}>
-                  {kindLabels[item.kind] ?? "Other"}
-                </span>
-              </td>
-              <td className="date-cell">
-                <time
-                  dateTime={item.receivedAt}
-                  title={new Date(item.receivedAt).toLocaleString("en")}
-                >
-                  {formatDate(item.receivedAt)}
-                </time>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      </div>
     </div>
   );
 }
@@ -173,7 +161,6 @@ export default function DashboardPage() {
   const { reportConnection } = useConnection();
   const [days, setDays] = useState<RangeDays>(30);
   const [data, setData] = useState<DashboardData | null>(null);
-  const [recent, setRecent] = useState<ComplaintPage["items"] | null>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const controllerRef = useRef<AbortController | null>(null);
@@ -185,14 +172,10 @@ export default function DashboardPage() {
       controllerRef.current = controller;
       setLoading(true);
       setError(false);
-      setRecent(null);
       fetchDashboard(range, controller.signal)
         .then((next) => {
           reportConnection(true);
           setData(next);
-          return fetchComplaints({ search: "", kind: "", cursor: null }, controller.signal).then(
-            (page) => setRecent(page.items.slice(0, 5)),
-          );
         })
         .catch(() => {
           if (!controller.signal.aborted) {
@@ -252,107 +235,56 @@ export default function DashboardPage() {
                 label="Total complaints"
                 value={data.total}
                 note="Across all feedback types"
-                symbol="complaints"
               />
               <StatCard
                 label="Bug reports"
                 value={data.kinds.find((item) => item.kind === "bug")?.count ?? 0}
                 note="Things that need a fix"
-                symbol="bug"
               />
               <StatCard
                 label="Blocked tasks"
                 value={data.kinds.find((item) => item.kind === "blocked_task")?.count ?? 0}
                 note="Journeys that could not finish"
-                symbol="blocked"
               />
               <StatCard
                 label="Ideas"
                 value={data.kinds.find((item) => item.kind === "idea")?.count ?? 0}
                 note="Room for something better"
-                symbol="idea"
               />
             </div>
             <div className="dashboard-grid">
-              <div className="panel activity-panel">
-                <div className="panel-heading">
-                  <h2>Complaint activity</h2>
-                  <span className="muted small">Daily volume · UTC · {days} days</span>
+              <section
+                className="analytics-surface activity-panel"
+                aria-labelledby="activity-title"
+              >
+                <div className="sr-only">
+                  <h2 id="activity-title">Complaint activity</h2>
+                  <span>Daily volume · UTC · {days} days</span>
                 </div>
-                <DashboardChart data={data} />
-              </div>
-              <div className="panel">
-                <div className="panel-heading">
+                <div className="analytics-inset chart-inset">
+                  <DashboardChart data={data} />
+                </div>
+              </section>
+              <section className="analytics-surface feedback-type-panel">
+                <div className="analytics-surface-heading">
                   <h2>By feedback type</h2>
-                  <span className="muted small">What people report</span>
+                  <span>Share of reports</span>
                 </div>
-                <div className="breakdown">
+                <div className="analytics-inset breakdown">
                   {Object.entries(kindLabels).map(([kind, label]) => {
                     const count = data.kinds.find((item) => item.kind === kind)?.count ?? 0;
+                    const percentage = data.total ? Math.round((count / data.total) * 100) : 0;
                     return (
                       <a key={kind} className="breakdown-row" href={`/complaints?kind=${kind}`}>
-                        <div className="breakdown-label">
-                          <span>{label}</span>
-                          <strong className="mono">{count}</strong>
-                        </div>
-                        <div className="bar-track">
-                          <span
-                            className={`bar-fill kind-${kind}`}
-                            style={{ width: `${data.total ? (count / data.total) * 100 : 0}%` }}
-                          />
-                        </div>
+                        <span className={`breakdown-dot kind-${kind}`} aria-hidden="true" />
+                        <span className="breakdown-name">{label}</span>
+                        <strong className="mono">{count}</strong>
+                        <span className="mono breakdown-percentage">{percentage}%</span>
                       </a>
                     );
                   })}
                 </div>
-                <p className="panel-note">Every report starts with the user&apos;s review.</p>
-              </div>
-              <div className="panel">
-                <div className="panel-heading">
-                  <h2>Latest complaints</h2>
-                  <span className="muted small">Most recently received · all dates</span>
-                </div>
-                {recent === null ? (
-                  <StatePanel
-                    title="Loading recent reports"
-                    body="Fetching the latest complaints."
-                  />
-                ) : recent.length === 0 ? (
-                  <StatePanel
-                    title="No complaints yet"
-                    body="User-reviewed reports from your website will arrive here."
-                  />
-                ) : (
-                  <>
-                    <ComplaintTable items={recent} />
-                    <a className="panel-link" href="/complaints">
-                      View all complaints →
-                    </a>
-                  </>
-                )}
-              </div>
-              <div className="panel">
-                <div className="panel-heading">
-                  <h2>Most reported pages</h2>
-                  <span className="muted small">Top 5 in this period</span>
-                </div>
-                {data.routes.length === 0 ? (
-                  <StatePanel
-                    title="No pages yet"
-                    body="Page labels will appear when reports include them."
-                  />
-                ) : (
-                  <ol className="route-list">
-                    {data.routes.map((route, index) => (
-                      <li key={route.label ?? `unlabeled-${route.count}`}>
-                        <span className="route-rank mono">{index + 1}</span>
-                        <span className="route-name">{route.label ?? "No page label"}</span>
-                        <strong className="mono">{route.count}</strong>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </div>
+              </section>
             </div>
             <div className="dashboard-footer">
               <span>

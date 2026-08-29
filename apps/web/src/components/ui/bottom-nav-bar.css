@@ -45,6 +45,7 @@
   align-items: center;
   flex: 0 0 var(--nav-item-size);
   min-inline-size: var(--nav-item-size);
+  max-inline-size: calc(var(--nav-item-size) + var(--nav-label-space));
   block-size: var(--nav-item-size);
   padding: 0;
   border: 0;
@@ -54,6 +55,7 @@
   font-family: inherit;
   text-decoration: none;
   cursor: pointer;
+  overflow: hidden;
   -webkit-tap-highlight-color: transparent;
   transition:
     background-color 140ms ease-out,

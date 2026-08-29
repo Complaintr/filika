@@ -95,9 +95,13 @@ export function BottomNavBar({
             </span>
           </>
         );
-        // One flex transition redistributes the reserved label space. The outer
-        // pill never resizes, and width/margin/layout animations cannot compete.
-        const animation = { flexGrow: isActive ? 1 : 0 };
+        // Animate the one reserved label slot explicitly. A fixed basis keeps
+        // the right-most item inside the shell while routes exchange focus.
+        const animation = {
+          flexBasis: isActive
+            ? "calc(var(--nav-item-size) + var(--nav-label-space))"
+            : "var(--nav-item-size)",
+        };
         return item.href ? (
           <motion.a
             key={item.href}

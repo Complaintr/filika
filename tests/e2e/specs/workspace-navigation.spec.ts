@@ -42,6 +42,17 @@ test("settings is reachable and reports the connected collector", async ({ page 
   await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Workspace preferences" })).toBeVisible();
   await expect(connectionStatus(page)).toContainText("Collector connected");
+  const [navigationBox, settingsBox] = await Promise.all([
+    page.locator(".bottom-nav").boundingBox(),
+    navItem(page, "Settings").boundingBox(),
+  ]);
+  expect(navigationBox).not.toBeNull();
+  expect(settingsBox).not.toBeNull();
+  if (navigationBox && settingsBox) {
+    expect(settingsBox.x + settingsBox.width).toBeLessThanOrEqual(
+      navigationBox.x + navigationBox.width,
+    );
+  }
 });
 
 test("the collector connection status falls back to unavailable", async ({ page }) => {
