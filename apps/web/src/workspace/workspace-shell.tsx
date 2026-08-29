@@ -7,7 +7,6 @@ import {
   type LucideIcon,
   MessageCircle,
   Settings,
-  UserRound,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -15,6 +14,7 @@ import { useEffect, useState } from "react";
 import BottomNavBar from "@/components/ui/bottom-nav-bar";
 import { ConnectionProvider, connectionLabel, useConnection } from "./connection";
 import { type Preferences, readPreferences } from "./preferences";
+import { ProfileMenu } from "./profile-menu";
 
 const NAV_ITEMS: readonly { href: string; icon: LucideIcon; label: string }[] = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
@@ -95,9 +95,7 @@ function ShellBody({ children }: WorkspaceShellProps) {
               <span className="connection-dot" />
               <span className="sr-only">{connectionLabel(connection)}</span>
             </div>
-            <Link className="topbar-avatar" href="/settings" aria-label="Workspace settings">
-              <UserRound aria-hidden="true" />
-            </Link>
+            <ProfileMenu workspaceName={preferences.workspaceName} />
           </div>
         </div>
       </header>
