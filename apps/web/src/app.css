@@ -13,6 +13,18 @@
   --blue-soft: #edf2ff;
   --display: "Avenir Next", "Segoe UI", -apple-system, sans-serif;
 }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  color: #d8e0ef;
+  background: #0d1117;
+  --white: #111821;
+  --canvas: #0d1117;
+  --ink: #e8edf7;
+  --muted: #9aa7bb;
+  --border: #283444;
+  --blue: #78a1ff;
+  --blue-soft: #172542;
+}
 * {
   box-sizing: border-box;
 }
@@ -21,6 +33,9 @@ body {
   background: var(--white);
   font-size: 14px;
   line-height: 1.55;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
 }
 button,
 input,
@@ -1016,6 +1031,13 @@ html {
   padding: 24px 22px;
   border-bottom: 1px solid #eef0f5;
 }
+.appearance-setting {
+  min-width: 0;
+  margin: 0;
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+}
 .setting-row > div:first-child {
   max-width: 300px;
 }
@@ -1032,28 +1054,71 @@ html {
   width: 210px;
   flex-shrink: 0;
 }
-.palette-preview {
+.theme-options {
   display: flex;
-  padding: 5px;
-  border: 1px solid #e5eaf3;
-  border-radius: 8px;
-  gap: 5px;
+  gap: 10px;
 }
-.swatch {
-  width: 27px;
-  height: 27px;
-  border-radius: 4px;
+.theme-option {
+  position: relative;
+  display: grid;
+  grid-template-columns: 38px auto;
+  align-items: center;
+  gap: 9px;
+  min-width: 106px;
+  padding: 7px 10px 7px 7px;
   border: 1px solid #dfe5ef;
+  border-radius: 9px;
+  color: #566179;
+  cursor: pointer;
 }
-.swatch-white {
+.theme-option:has(input:checked) {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--blue) 18%, transparent);
+}
+.theme-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.theme-option:has(input:focus-visible) {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+.theme-preview {
+  display: grid;
+  gap: 4px;
+  width: 38px;
+  height: 30px;
+  padding: 5px;
+  border: 1px solid #dfe5ef;
+  border-radius: 6px;
+}
+.theme-preview span {
+  display: block;
+  border-radius: 999px;
+}
+.theme-preview span:first-child {
+  width: 60%;
+}
+.theme-preview-light {
   background: #fff;
 }
-.swatch-blue {
-  background: var(--blue);
-  border-color: var(--blue);
+.theme-preview-light span {
+  background: #dce3ef;
 }
-.swatch-gray {
-  background: #e5e8ee;
+.theme-preview-light span:first-child {
+  background: #3563e9;
+}
+.theme-preview-dark {
+  background: #111821;
+  border-color: #354052;
+}
+.theme-preview-dark span {
+  background: #344055;
+}
+.theme-preview-dark span:first-child {
+  background: #78a1ff;
 }
 .settings-form-footer {
   padding: 20px 22px;
@@ -1206,6 +1271,121 @@ html {
   padding-top: 18px;
   margin-top: 22px;
   font-size: 11px;
+}
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] .brand,
+:root[data-theme="dark"] .stat-value strong,
+:root[data-theme="dark"] .breakdown-row strong,
+:root[data-theme="dark"] .complaint-link,
+:root[data-theme="dark"] .state-panel h2 {
+  color: #eef3fc;
+}
+:root[data-theme="dark"] .skip-link,
+:root[data-theme="dark"] .date-range-select,
+:root[data-theme="dark"] .button,
+:root[data-theme="dark"] .select,
+:root[data-theme="dark"] .input,
+:root[data-theme="dark"] .panel,
+:root[data-theme="dark"] .stat-card,
+:root[data-theme="dark"] .analytics-surface,
+:root[data-theme="dark"] .dashboard-body > .state-panel,
+:root[data-theme="dark"] .detail-group {
+  background: #111821;
+  border-color: #283444;
+  color: #d8e0ef;
+}
+:root[data-theme="dark"] .topbar {
+  background: rgb(17 24 33 / 94%);
+  border-bottom: 1px solid #202b39;
+}
+:root[data-theme="dark"] .workspace-switcher:hover,
+:root[data-theme="dark"] .date-range-select:hover,
+:root[data-theme="dark"] .button:hover,
+:root[data-theme="dark"] .panel-link:hover,
+:root[data-theme="dark"] .complaint-table tbody tr:hover {
+  background: #192230;
+  border-color: #3a4960;
+}
+:root[data-theme="dark"] .identity-separator,
+:root[data-theme="dark"] .workspace-copy-marker,
+:root[data-theme="dark"] .date-range-menu,
+:root[data-theme="dark"] .select-with-icon svg,
+:root[data-theme="dark"] .search-field svg {
+  color: #75839a;
+}
+:root[data-theme="dark"] .button-primary,
+:root[data-theme="dark"] .button-primary:hover {
+  background: #5f8ff5;
+  border-color: #5f8ff5;
+  color: #08101d;
+}
+:root[data-theme="dark"] .button-quiet,
+:root[data-theme="dark"] .text-button {
+  background: transparent;
+  border-color: transparent;
+}
+:root[data-theme="dark"] .stat-value,
+:root[data-theme="dark"] .analytics-inset,
+:root[data-theme="dark"] .complaint-table th,
+:root[data-theme="dark"] .endpoint,
+:root[data-theme="dark"] .subtle-badge,
+:root[data-theme="dark"] .state-icon {
+  background: #171f2a;
+  border-color: #2a3748;
+}
+:root[data-theme="dark"] .stat-label,
+:root[data-theme="dark"] .analytics-surface-heading h2,
+:root[data-theme="dark"] .breakdown-row,
+:root[data-theme="dark"] .setting-label {
+  color: #d1d9e7;
+}
+:root[data-theme="dark"] .chart-grid-dot {
+  fill: #303b4c;
+}
+:root[data-theme="dark"] .chart-label {
+  fill: #9aa7bb;
+}
+:root[data-theme="dark"] .chart-focus circle {
+  stroke: #171f2a;
+}
+:root[data-theme="dark"] .breakdown-row,
+:root[data-theme="dark"] .panel-note,
+:root[data-theme="dark"] .panel-link,
+:root[data-theme="dark"] .route-list li,
+:root[data-theme="dark"] .complaint-table th,
+:root[data-theme="dark"] .complaint-table td,
+:root[data-theme="dark"] .setting-row,
+:root[data-theme="dark"] .privacy-list {
+  border-color: #283444;
+}
+:root[data-theme="dark"] .kind-badge,
+:root[data-theme="dark"] .kind-badge.kind-bug,
+:root[data-theme="dark"] .kind-badge.kind-blocked_task,
+:root[data-theme="dark"] .kind-badge.kind-idea {
+  background: #1c2a43;
+  color: #a9c1fb;
+}
+:root[data-theme="dark"] .privacy-card {
+  background: #15223a;
+  border-color: #26395c;
+}
+:root[data-theme="dark"] .privacy-icon {
+  background: #1b2b48;
+  border-color: #30496f;
+  color: #9bb7f5;
+}
+:root[data-theme="dark"] .privacy-card h2,
+:root[data-theme="dark"] .privacy-card p,
+:root[data-theme="dark"] .privacy-list li,
+:root[data-theme="dark"] .settings-note h3,
+:root[data-theme="dark"] .eyebrow,
+:root[data-theme="dark"] .detail-field dt,
+:root[data-theme="dark"] .untrusted-notice {
+  color: #aab9d0;
+}
+:root[data-theme="dark"] .theme-option {
+  border-color: #354052;
+  color: #d8e0ef;
 }
 @media (min-width: 1600px) {
   .workspace-content {
