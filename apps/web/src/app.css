@@ -1056,6 +1056,7 @@ html {
 }
 .theme-options {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 .theme-option {
@@ -1119,6 +1120,16 @@ html {
 }
 .theme-preview-dark span:first-child {
   background: #5f8ff5;
+}
+.theme-preview-system {
+  background: linear-gradient(90deg, #fff 0 50%, #151517 50% 100%);
+  border-color: #9b9ba4;
+}
+.theme-preview-system span {
+  background: linear-gradient(90deg, #dce3ef 0 50%, #3f3f46 50% 100%);
+}
+.theme-preview-system span:first-child {
+  background: linear-gradient(90deg, #3563e9 0 50%, #5f8ff5 50% 100%);
 }
 .settings-form-footer {
   padding: 20px 22px;

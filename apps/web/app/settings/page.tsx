@@ -16,7 +16,7 @@ export default function SettingsPage() {
   const [name, setName] = useState(preferences.workspaceName);
   const [days, setDays] = useState<number>(preferences.days);
   const [density, setDensity] = useState<"comfortable" | "compact">(preferences.density);
-  const [theme, setTheme] = useState<"light" | "dark">(preferences.theme);
+  const [theme, setTheme] = useState<"light" | "dark" | "system">(preferences.theme);
   const [saveStatus, setSaveStatus] = useState("");
   const [checkStatus, setCheckStatus] = useState("Checking the collector…");
   const [checking, setChecking] = useState(false);
@@ -72,7 +72,12 @@ export default function SettingsPage() {
     }
     setPreferences(next);
     document.documentElement.dataset.density = next.density;
-    document.documentElement.dataset.theme = next.theme;
+    document.documentElement.dataset.theme =
+      next.theme === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        : next.theme;
     window.dispatchEvent(new CustomEvent("filika:preferences"));
     setSaveStatus("Changes saved.");
   }
@@ -175,6 +180,20 @@ export default function SettingsPage() {
                     <span />
                   </span>
                   <span>Dark</span>
+                </label>
+                <label className="theme-option">
+                  <input
+                    type="radio"
+                    name="theme"
+                    value="system"
+                    checked={theme === "system"}
+                    onChange={() => setTheme("system")}
+                  />
+                  <span className="theme-preview theme-preview-system" aria-hidden="true">
+                    <span />
+                    <span />
+                  </span>
+                  <span>System</span>
                 </label>
               </div>
             </fieldset>
