@@ -1,23 +1,12 @@
 .bottom-nav {
   --nav-item-size: 38px;
-  --nav-label-space: 72px;
   --nav-gap: 4px;
   --nav-padding: 4px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: var(--nav-gap);
-  /* One fixed label slot keeps the shell still while the active route moves. */
-  inline-size: calc(
-    var(--nav-items) *
-    var(--nav-item-size) +
-    var(--nav-label-space) +
-    (var(--nav-items) - 1) *
-    var(--nav-gap) +
-    2 *
-    var(--nav-padding) +
-    2px
-  );
+  inline-size: max-content;
   max-inline-size: calc(100vw - 32px);
   block-size: calc(var(--nav-item-size) + 2 * var(--nav-padding) + 2px);
   padding: var(--nav-padding);
@@ -44,11 +33,12 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  flex: 0 0 var(--nav-item-size);
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 auto;
   min-inline-size: var(--nav-item-size);
-  max-inline-size: calc(var(--nav-item-size) + var(--nav-label-space));
   block-size: var(--nav-item-size);
-  padding: 0;
+  padding: 0 10px;
   border: 0;
   border-radius: 20px;
   background: transparent;
@@ -56,7 +46,6 @@
   font-family: inherit;
   text-decoration: none;
   cursor: pointer;
-  overflow: hidden;
   -webkit-tap-highlight-color: transparent;
   transition:
     background-color 140ms ease-out,
@@ -82,9 +71,9 @@
 .bottom-nav-icon {
   display: grid;
   place-items: center;
-  flex: 0 0 var(--nav-item-size);
-  inline-size: var(--nav-item-size);
-  block-size: var(--nav-item-size);
+  flex: 0 0 19px;
+  inline-size: 19px;
+  block-size: 19px;
 }
 
 .bottom-nav-icon svg {
@@ -94,19 +83,6 @@
 }
 
 .bottom-nav-label {
-  flex: 1 1 0;
-  min-inline-size: 0;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateX(-3px);
-  transition:
-    opacity 140ms ease-out,
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.bottom-nav-label > span {
-  display: block;
-  padding-inline-end: 10px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -115,11 +91,6 @@
   line-height: 16px;
   letter-spacing: -0.1px;
   user-select: none;
-}
-
-.bottom-nav-item[data-active="true"] .bottom-nav-label {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 :root[data-theme="dark"] .bottom-nav {
@@ -149,18 +120,17 @@
   .bottom-nav--fixed {
     bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
-  /* The six-item example becomes icon-only; Filika's three routes keep labels. */
-  .bottom-nav[data-many-items="true"] {
-    --nav-label-space: 0px;
+  .bottom-nav-item {
+    min-inline-size: var(--nav-item-size);
+    padding: 0;
   }
-  .bottom-nav[data-many-items="true"] .bottom-nav-label {
+  .bottom-nav-label {
     display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bottom-nav-item,
-  .bottom-nav-label {
+  .bottom-nav-item {
     transition: none;
   }
 }

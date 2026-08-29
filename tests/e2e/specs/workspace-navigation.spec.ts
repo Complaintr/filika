@@ -53,7 +53,7 @@ test("settings is reachable and reports the connected collector", async ({ page 
   );
   expect(
     await navItem(page, "Settings")
-      .locator(".bottom-nav-label > span")
+      .locator(".bottom-nav-label")
       .evaluate((label) => label.scrollWidth <= label.clientWidth),
   ).toBe(true);
   const [navigationBox, settingsBox] = await Promise.all([

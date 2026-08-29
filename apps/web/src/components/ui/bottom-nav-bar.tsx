@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import {
   CreditCard,
   Home,
@@ -13,8 +12,6 @@ import {
 import Link from "next/link";
 import { type CSSProperties, type MouseEvent, useState } from "react";
 import { cn } from "@/lib/utils";
-
-const MotionLink = motion.create(Link);
 
 export interface BottomNavItem {
   label: string;
@@ -51,16 +48,10 @@ export function BottomNavBar({
   ariaLabel = "Primary navigation",
 }: BottomNavBarProps) {
   const [selectedIndex, setSelectedIndex] = useState(defaultIndex);
-  const prefersReducedMotion = useReducedMotion();
   const requestedIndex = controlledIndex ?? selectedIndex;
   const activeIndex = Number.isInteger(requestedIndex)
     ? Math.max(0, Math.min(requestedIndex, items.length - 1))
     : 0;
-  const transition = {
-    type: "tween" as const,
-    duration: prefersReducedMotion ? 0 : 0.22,
-    ease: [0.22, 1, 0.36, 1] as const,
-  };
   const dimensions = { "--nav-items": Math.max(1, items.length) } as CSSProperties;
 
   if (items.length === 0) return null;
@@ -93,25 +84,13 @@ export function BottomNavBar({
             <span className="bottom-nav-icon" aria-hidden="true">
               <Icon size={20} strokeWidth={1.75} />
             </span>
-            <span className="bottom-nav-label" aria-hidden="true">
-              <span>{item.label}</span>
-            </span>
+            <span className="bottom-nav-label">{item.label}</span>
           </>
         );
-        // Animate the one reserved label slot explicitly. A fixed basis keeps
-        // the right-most item inside the shell while routes exchange focus.
-        const animation = {
-          flexBasis: isActive
-            ? "calc(var(--nav-item-size) + var(--nav-label-space))"
-            : "var(--nav-item-size)",
-        };
         return item.href ? (
-          <MotionLink
+          <Link
             key={item.href}
             href={item.href}
-            initial={false}
-            animate={animation}
-            transition={transition}
             className="bottom-nav-item"
             data-active={isActive}
             onClick={onClick}
@@ -120,13 +99,10 @@ export function BottomNavBar({
             title={item.label}
           >
             {contents}
-          </MotionLink>
+          </Link>
         ) : (
-          <motion.button
+          <button
             key={item.label}
-            initial={false}
-            animate={animation}
-            transition={transition}
             className="bottom-nav-item"
             data-active={isActive}
             onClick={onClick}
@@ -136,7 +112,7 @@ export function BottomNavBar({
             type="button"
           >
             {contents}
-          </motion.button>
+          </button>
         );
       })}
     </nav>
