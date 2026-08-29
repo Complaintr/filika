@@ -1,13 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import {
-  EllipsisVertical,
-  Home,
-  type LucideIcon,
-  MessageCircle,
-  Settings,
-} from "lucide-react";
+import { EllipsisVertical, Home, type LucideIcon, MessageCircle, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
