@@ -2,12 +2,14 @@ export interface Preferences {
   workspaceName: string;
   days: 7 | 30 | 90;
   density: "comfortable" | "compact";
+  theme: "light" | "dark" | "system";
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {
   workspaceName: "My workspace",
   days: 30,
   density: "comfortable",
+  theme: "light",
 };
 const STORAGE_KEY = "filika-workspace-v1";
 
@@ -23,6 +25,7 @@ export function readPreferences(): Preferences {
           : DEFAULT_PREFERENCES.workspaceName,
       days: raw.days === 7 || raw.days === 90 ? raw.days : 30,
       density: raw.density === "compact" ? "compact" : "comfortable",
+      theme: raw.theme === "dark" || raw.theme === "system" ? raw.theme : "light",
     };
   } catch {
     return { ...DEFAULT_PREFERENCES };
