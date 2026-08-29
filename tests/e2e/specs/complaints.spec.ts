@@ -71,7 +71,11 @@ test("complaints kind filter narrows the table to the selected type", async ({ p
     );
   });
   await page.goto("/complaints");
+  const kindRequest = page.waitForRequest(
+    (request) => request.url().includes("/api/v1/inbox") && request.url().includes("kind=bug"),
+  );
   await page.getByLabel("Filter by feedback type").selectOption("bug");
+  await kindRequest;
   await expect(page.getByRole("link", { name: "Checkout button missing" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Add a yearly plan" })).toHaveCount(0);
 });
