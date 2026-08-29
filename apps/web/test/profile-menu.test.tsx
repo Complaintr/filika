@@ -59,4 +59,40 @@ describe("header profile menu", () => {
 
     await result.close();
   });
+
+  test("light, dark, and system choices share the workspace theme preference", async () => {
+    const result = await renderReact(createElement(ProfileMenu, { workspaceName: "Filika" }));
+    const themeColor = result.window.document.createElement("meta");
+    themeColor.name = "theme-color";
+    result.window.document.head.append(themeColor);
+    result.container.querySelector<HTMLButtonElement>('[aria-label="Open profile menu"]')?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    const dark = result.container.querySelector<HTMLButtonElement>('[aria-label="Dark theme"]');
+    dark?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(dark?.getAttribute("aria-checked")).toBe("true");
+    expect(result.window.document.documentElement.dataset.theme).toBe("dark");
+    expect(themeColor.content).toBe("#0e0e10");
+    expect(
+      JSON.parse(result.window.localStorage.getItem("filika-workspace-v1") ?? "{}").theme,
+    ).toBe("dark");
+
+    Object.defineProperty(result.window, "matchMedia", {
+      configurable: true,
+      value: () => ({ matches: true }),
+    });
+    const system = result.container.querySelector<HTMLButtonElement>('[aria-label="System theme"]');
+    system?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(system?.getAttribute("aria-checked")).toBe("true");
+    expect(result.window.document.documentElement.dataset.theme).toBe("dark");
+    expect(
+      JSON.parse(result.window.localStorage.getItem("filika-workspace-v1") ?? "{}").theme,
+    ).toBe("system");
+
+    await result.close();
+  });
 });
