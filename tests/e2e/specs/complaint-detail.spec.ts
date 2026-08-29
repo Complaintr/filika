@@ -1,4 +1,5 @@
 import { expect, type Page, type Route, test } from "@playwright/test";
+import { signInAsE2eUser } from "../sign-in";
 
 const FEEDBACK_ID = "11111111-1111-4111-8111-111111111111";
 
@@ -42,6 +43,7 @@ async function routeInbox(page: Page, detail: (route: Route) => Promise<void>): 
 }
 
 test("complaint detail shows the full report from the collector", async ({ page }) => {
+  await signInAsE2eUser(page);
   await routeInbox(page, (route) =>
     route.fulfill({
       status: 200,
@@ -63,6 +65,7 @@ test("complaint detail shows the full report from the collector", async ({ page 
 });
 
 test("complaint detail returns to the list from the back action", async ({ page }) => {
+  await signInAsE2eUser(page);
   await routeInbox(page, (route) =>
     route.fulfill({
       status: 200,
@@ -78,6 +81,7 @@ test("complaint detail returns to the list from the back action", async ({ page 
 });
 
 test("complaint detail shows the not found surface for a missing record", async ({ page }) => {
+  await signInAsE2eUser(page);
   await routeInbox(page, (route) =>
     route.fulfill({ status: 404, contentType: "application/json", body: '{"code":"not_found"}' }),
   );
@@ -89,6 +93,7 @@ test("complaint detail shows the not found surface for a missing record", async 
 test("complaint detail shows the expired surface with the expiration timestamp", async ({
   page,
 }) => {
+  await signInAsE2eUser(page);
   await routeInbox(page, (route) =>
     route.fulfill({
       status: 200,
