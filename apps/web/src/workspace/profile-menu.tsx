@@ -178,7 +178,7 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
           <div className="profile-menu-links">
             <Link role="menuitem" href="/settings#workspace-name" onClick={() => setOpen(false)}>
               <CircleUserRound aria-hidden="true" />
-              <span>Manage profile</span>
+              <span>Manage Profile</span>
             </Link>
             <Link role="menuitem" href="/settings" onClick={() => setOpen(false)}>
               <Settings aria-hidden="true" />
@@ -194,7 +194,6 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
             >
               <LogOut aria-hidden="true" />
               <span>Sign out</span>
-              <small>Not available</small>
             </button>
           </div>
         </div>
