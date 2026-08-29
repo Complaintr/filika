@@ -4,18 +4,20 @@ test("the saved theme is applied before the workspace paints", async () => {
   const layout = await Bun.file(`${import.meta.dir}/../app/layout.tsx`).text();
 
   expect(layout).toContain('strategy="beforeInteractive"');
-  expect(layout).toContain('saved.theme === "dark"');
+  expect(layout).toContain('["light", "dark", "system"].includes(saved.theme)');
+  expect(layout).toContain('matchMedia("(prefers-color-scheme: dark)")');
   expect(layout).toContain('dataset.theme = "light"');
   expect(layout).toContain('content="light dark"');
 });
 
-test("settings expose accessible light and dark appearance choices", async () => {
+test("settings expose accessible light, dark, and system appearance choices", async () => {
   const settings = await Bun.file(`${import.meta.dir}/../app/settings/page.tsx`).text();
 
   expect(settings).toContain('<legend className="sr-only">Appearance</legend>');
   expect(settings).toContain('name="theme"');
   expect(settings).toContain('value="light"');
   expect(settings).toContain('value="dark"');
+  expect(settings).toContain('value="system"');
 });
 
 test("dark appearance covers the workspace and floating navigation", async () => {

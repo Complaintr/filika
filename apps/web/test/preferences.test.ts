@@ -45,6 +45,17 @@ describe("workspace theme preferences", () => {
     await window.happyDOM.close();
   });
 
+  test("persists the system theme preference", async () => {
+    const window = new Window();
+    useLocalStorage(window);
+    const preferences: Preferences = { ...DEFAULT_PREFERENCES, theme: "system" };
+
+    expect(savePreferences(preferences)).toBe(true);
+    expect(readPreferences().theme).toBe("system");
+
+    await window.happyDOM.close();
+  });
+
   test("falls back to light when stored theme data is invalid", async () => {
     const window = new Window();
     useLocalStorage(window);
