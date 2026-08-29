@@ -1,6 +1,15 @@
 "use client";
 
-import { ChevronDown, CircleUserRound, LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
+import {
+  ChevronDown,
+  CircleUserRound,
+  LogOut,
+  Monitor,
+  Moon,
+  Settings,
+  Sun,
+  UserRoundPlus,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 
@@ -185,6 +194,21 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
               <span>Settings</span>
             </Link>
           </div>
+          <section className="profile-other-accounts" aria-labelledby={`${menuId}-other-accounts`}>
+            <div className="profile-other-accounts-heading">
+              <h2 id={`${menuId}-other-accounts`}>Other Accounts</h2>
+              <small>Not available</small>
+            </div>
+            <button
+              type="button"
+              role="menuitem"
+              disabled
+              title="Account switching becomes available when account access is enabled."
+            >
+              <UserRoundPlus aria-hidden="true" />
+              <span>Add another account</span>
+            </button>
+          </section>
           <div className="profile-menu-footer">
             <button
               type="button"
