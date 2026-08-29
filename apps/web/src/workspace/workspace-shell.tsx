@@ -42,10 +42,26 @@ function ShellBody({ children }: WorkspaceShellProps) {
 
   useEffect(() => {
     document.documentElement.dataset.density = preferences.density;
-    document.documentElement.dataset.theme = preferences.theme;
-    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    themeColor?.setAttribute("content", preferences.theme === "dark" ? "#0e0e10" : "#f7f8fa");
-  }, [preferences.density, preferences.theme]);
+  }, [preferences.density]);
+
+  useEffect(() => {
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+    const applyTheme = () => {
+      const theme =
+        preferences.theme === "system"
+          ? systemTheme.matches
+            ? "dark"
+            : "light"
+          : preferences.theme;
+      document.documentElement.dataset.theme = theme;
+      const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+      themeColor?.setAttribute("content", theme === "dark" ? "#0e0e10" : "#f7f8fa");
+    };
+    applyTheme();
+    if (preferences.theme !== "system") return;
+    systemTheme.addEventListener("change", applyTheme);
+    return () => systemTheme.removeEventListener("change", applyTheme);
+  }, [preferences.theme]);
 
   useEffect(() => {
     const apply = () => setPreferences(readPreferences());
