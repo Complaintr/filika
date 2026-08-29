@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { expect, type Page, test } from "@playwright/test";
+import { signInAsE2eUser } from "../sign-in";
 
 async function submitFeedback(
   page: Page,
@@ -44,6 +45,7 @@ test("a confirmed report is stored and visible in the complaints inbox", async (
     schemaVersion: number;
   };
 
+  await signInAsE2eUser(page);
   await page.goto("/complaints");
   await expect(page.getByRole("heading", { name: "All complaints" })).toBeVisible();
   await expect(page.getByRole("link", { name: title })).toBeVisible();
@@ -65,6 +67,7 @@ test("a duplicate event id returns the original receipt and no duplicate row", a
   const body = (await duplicate.json()) as { duplicate: boolean };
   expect(body.duplicate).toBe(true);
 
+  await signInAsE2eUser(page);
   const list = await page.request.get("http://localhost:4173/api/v1/inbox?limit=50");
   const data = (await list.json()) as { items: { title: string }[] };
   const matches = data.items.filter((item) => item.title === title);

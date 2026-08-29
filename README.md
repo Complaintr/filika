@@ -37,6 +37,25 @@ bun run dev
 
 Open [localhost:4173](http://localhost:4173).
 
+### Signing in with Google
+
+The workspace requires a Google account. To enable Google sign-in:
+
+1. Create an OAuth client in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+   (Application type: Web application).
+2. Add `http://localhost:4173/api/auth/callback/google` as an authorized redirect URI.
+3. Put the client ID and secret in `.env`:
+
+   ```sh
+   GOOGLE_CLIENT_ID=...
+   GOOGLE_CLIENT_SECRET=...
+   ```
+
+4. Restart `bun run dev`.
+
+Without credentials the app boots, but sign-in reports that Google is not
+configured. Set `BETTER_AUTH_SECRET` to a long random value in production.
+
 ## Verification
 
 ```sh

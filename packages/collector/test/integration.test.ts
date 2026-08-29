@@ -102,7 +102,7 @@ beforeAll(async () => {
     retentionHours: 24,
   });
 
-  server = startCollectorServer({ databaseUrl: TEST_DATABASE_URL, port: 0 });
+  server = startCollectorServer({ databaseUrl: TEST_DATABASE_URL, port: 0, enableAuth: false });
   baseUrl = `http://localhost:${server.port}`;
 });
 

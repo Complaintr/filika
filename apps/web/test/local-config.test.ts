@@ -7,7 +7,7 @@ import { parseConfig } from "../../../packages/sdk/src/config-validation";
 test("the root layout does not embed the SDK bootstrap script", async () => {
   const layout = await Bun.file(`${import.meta.dir}/../app/layout.tsx`).text();
   expect(layout).not.toContain("/sdk/filika.development.js");
-  expect(layout).toContain("WorkspaceShell");
+  expect(layout).toContain("AuthAwareShell");
 });
 
 test("the demo project origin allowlist covers the local workspace origin", () => {

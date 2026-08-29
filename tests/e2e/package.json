@@ -12,7 +12,9 @@
     "@filika/web": "workspace:*"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1"
+    "@playwright/test": "1.62.1",
+    "better-auth": "^1.7.2",
+    "postgres": "^3.4.9"
   },
   "description": "Browser integration tests for the Filika feedback workflow",
   "license": "Apache-2.0",

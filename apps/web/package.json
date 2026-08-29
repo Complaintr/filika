@@ -6,7 +6,7 @@
   "scripts": {
     "build:spa": "bun run build.ts",
     "build": "bun run build:spa && next build",
-    "dev": "next dev -p 4173",
+    "dev": "bun run build:spa && next dev -p 4173",
     "typecheck": "tsc --project tsconfig.json"
   },
   "dependencies": {
