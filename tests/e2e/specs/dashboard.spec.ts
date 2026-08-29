@@ -1,4 +1,5 @@
 import { expect, type Route, test } from "@playwright/test";
+import { signInAsE2eUser } from "../sign-in";
 
 const DASHBOARD = "**/api/v1/dashboard**";
 
@@ -32,6 +33,7 @@ async function fulfillDashboard(route: Route, days: number): Promise<void> {
 test("dashboard renders the OpenAnalytics-style overview without lower complaint panels", async ({
   page,
 }) => {
+  await signInAsE2eUser(page);
   await page.route(DASHBOARD, (route) => fulfillDashboard(route, 30));
 
   await page.goto("/dashboard");
@@ -46,6 +48,7 @@ test("dashboard renders the OpenAnalytics-style overview without lower complaint
 });
 
 test("dashboard date range switch reloads the requested window", async ({ page }) => {
+  await signInAsE2eUser(page);
   const requests: number[] = [];
   await page.route(DASHBOARD, async (route) => {
     const days = Number(new URL(route.request().url()).searchParams.get("days") ?? 30);
@@ -61,6 +64,7 @@ test("dashboard date range switch reloads the requested window", async ({ page }
 });
 
 test("dashboard shows a retryable failure state when the collector is down", async ({ page }) => {
+  await signInAsE2eUser(page);
   let attempts = 0;
   await page.route(DASHBOARD, async (route) => {
     attempts++;

@@ -1,4 +1,5 @@
 import { expect, type Route, test } from "@playwright/test";
+import { signInAsE2eUser } from "../sign-in";
 
 const INBOX = "**/api/v1/inbox**";
 
@@ -26,6 +27,7 @@ async function fulfillList(route: Route, body: unknown): Promise<void> {
 }
 
 test("complaints list renders rows from the collector", async ({ page }) => {
+  await signInAsE2eUser(page);
   await page.route(INBOX, (route) => fulfillList(route, { items, nextCursor: null }));
   await page.goto("/complaints");
   await expect(page.getByRole("heading", { name: "All complaints" })).toBeVisible();
@@ -36,6 +38,7 @@ test("complaints list renders rows from the collector", async ({ page }) => {
 });
 
 test("complaints search filters the request and clears the table when empty", async ({ page }) => {
+  await signInAsE2eUser(page);
   const queries: string[] = [];
   await page.route(INBOX, async (route) => {
     const query = new URL(route.request().url()).searchParams.get("search") ?? "";
@@ -59,6 +62,7 @@ test("complaints search filters the request and clears the table when empty", as
 });
 
 test("complaints kind filter narrows the table to the selected type", async ({ page }) => {
+  await signInAsE2eUser(page);
   await page.route(INBOX, async (route) => {
     const kind = new URL(route.request().url()).searchParams.get("kind") ?? "";
     await fulfillList(
@@ -67,12 +71,17 @@ test("complaints kind filter narrows the table to the selected type", async ({ p
     );
   });
   await page.goto("/complaints");
+  const kindRequest = page.waitForRequest(
+    (request) => request.url().includes("/api/v1/inbox") && request.url().includes("kind=bug"),
+  );
   await page.getByLabel("Filter by feedback type").selectOption("bug");
+  await kindRequest;
   await expect(page.getByRole("link", { name: "Checkout button missing" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Add a yearly plan" })).toHaveCount(0);
 });
 
 test("complaints pagination moves between pages and disables at the end", async ({ page }) => {
+  await signInAsE2eUser(page);
   const pageTwoItem = {
     feedbackId: "33333333-3333-4333-8333-333333333333",
     kind: "blocked_task",
@@ -103,6 +112,7 @@ test("complaints pagination moves between pages and disables at the end", async 
 });
 
 test("complaints list shows a retryable failure state and recovers", async ({ page }) => {
+  await signInAsE2eUser(page);
   let attempts = 0;
   await page.route(INBOX, async (route) => {
     attempts++;

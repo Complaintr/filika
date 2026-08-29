@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { fetchSession, type SessionInfo, signOut } from "@/services/session";
 import { fetchDashboard } from "@/services/workspace-api";
 import { useConnection } from "@/workspace/connection";
 import { DEFAULT_PREFERENCES, type Preferences, savePreferences } from "@/workspace/preferences";
@@ -15,6 +16,19 @@ export default function SettingsPage() {
   const [checkStatus, setCheckStatus] = useState("Checking the collector…");
   const [checking, setChecking] = useState(false);
   const checkingRef = useRef(false);
+  const [session, setSession] = useState<SessionInfo | null>(null);
+  const [sessionStatus, setSessionStatus] = useState("Checking your session…");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchSession(controller.signal)
+      .then((value) => {
+        setSession(value);
+        setSessionStatus(value === null ? "Signed out." : `Signed in as ${value.user.email}.`);
+      })
+      .catch(() => setSessionStatus("Could not read your session."));
+    return () => controller.abort();
+  }, []);
 
   const checkConnection = useCallback(async () => {
     if (checkingRef.current) return;
@@ -158,6 +172,36 @@ export default function SettingsPage() {
           </form>
           <section className="panel settings-panel">
             <div className="panel-heading">
+              <h2>Your account</h2>
+              <span className="subtle-badge">Google</span>
+            </div>
+            <div className="connection-info">
+              {session === null ? (
+                <p className="muted">{sessionStatus}</p>
+              ) : (
+                <p>
+                  <strong>{session.user.name}</strong>
+                  <br />
+                  <span className="muted small">{session.user.email}</span>
+                </p>
+              )}
+            </div>
+            <div className="connection-actions">
+              <p className="small muted" role="status">
+                {sessionStatus}
+              </p>
+              <button
+                className="button"
+                type="button"
+                onClick={() => void signOut()}
+                disabled={session === null}
+              >
+                Sign out
+              </button>
+            </div>
+          </section>
+          <section className="panel settings-panel">
+            <div className="panel-heading">
               <h2>Collector connection</h2>
               <span className="connection-globe" aria-hidden="true">
                 <GlobeIcon />
@@ -215,9 +259,8 @@ export default function SettingsPage() {
           <section className="settings-note">
             <h3>About this workspace</h3>
             <p className="muted small">
-              This is a local, read-only management interface. Reports remain publicly readable
-              through the collector API. There are no accounts or access controls; keep the
-              collector on a trusted network.
+              Sign in with Google to manage this workspace. Reports stay readable only by signed-in
+              maintainers; the public feedback form is limited to reporting, never reading.
             </p>
             <p className="muted small">
               Retention is configured per collector project. Expired records remain in counts until
