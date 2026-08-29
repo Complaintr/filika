@@ -27,7 +27,7 @@ does not provide an AI model. Manual feedback remains available without WebMCP.
 Requires Bun 1.3.14 and Docker Compose.
 
 ```sh
-bun install --frozen-lockfile
+bun install
 docker compose up db -d
 cp .env.example .env
 bun run db:migrate

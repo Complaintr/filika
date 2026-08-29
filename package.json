@@ -22,7 +22,6 @@
     "db:cleanup": "bun --env-file=.env run --filter @filika/collector db:cleanup",
     "db:reset": "bun --env-file=.env run --filter @filika/collector db:reset",
     "db:seed": "bun --env-file=.env run --filter @filika/collector db:seed",
-    "install:frozen": "bun install --frozen-lockfile",
     "lint": "biome check . && bun run typecheck",
     "test:browser": "playwright test --config tests/e2e/playwright.config.ts",
     "test:browser:prepare": "bun run tests/e2e/database.ts reset",

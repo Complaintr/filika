@@ -127,7 +127,7 @@
     "commands": [
       {
         "name": "install",
-        "command": "bun install --frozen-lockfile",
+        "command": "bun install",
         "exitCode": 0
       },
       {

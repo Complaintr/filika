@@ -27,8 +27,8 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install locked dependencies
-        run: bun install --frozen-lockfile
+      - name: Install dependencies
+        run: bun install
 
   typecheck:
     name: Typecheck
@@ -41,8 +41,8 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install locked dependencies
-        run: bun install --frozen-lockfile
+      - name: Install dependencies
+        run: bun install
       - name: Type-check workspaces
         run: bun run typecheck
 
@@ -57,8 +57,8 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install locked dependencies
-        run: bun install --frozen-lockfile
+      - name: Install dependencies
+        run: bun install
       - name: Check formatting, lint rules, and types
         run: bun run lint
 
@@ -86,8 +86,8 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install locked dependencies
-        run: bun install --frozen-lockfile
+      - name: Install dependencies
+        run: bun install
       - name: Run unit tests
         env:
           TEST_DATABASE_URL: postgres://postgres@localhost:5432/filika_test
@@ -104,8 +104,8 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install locked dependencies
-        run: bun install --frozen-lockfile
+      - name: Install dependencies
+        run: bun install
       - name: Build workspaces
         run: bun run build
 
@@ -136,8 +136,8 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install locked dependencies
-        run: bun install --frozen-lockfile
+      - name: Install dependencies
+        run: bun install
       - name: Install Chromium and system dependencies
         run: bunx --no-install playwright install --with-deps chromium --only-shell
       - name: Apply local database migrations

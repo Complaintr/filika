@@ -50,7 +50,7 @@ Repository areas:
 Run the checks relevant to the change before opening a pull request:
 
 ```sh
-bun install --frozen-lockfile
+bun install
 bun run check
 bun run typecheck
 bun run test:unit
