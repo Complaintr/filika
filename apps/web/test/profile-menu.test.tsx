@@ -15,7 +15,7 @@ describe("header profile menu", () => {
 
     expect(trigger?.getAttribute("aria-expanded")).toBe("true");
     expect(result.container.querySelector('[role="menu"]')).not.toBeNull();
-    expect(result.container.textContent).toContain("Manage profile");
+    expect(result.container.textContent).toContain("Manage Profile");
     expect(result.container.textContent).toContain("Settings");
     expect(result.container.textContent).toContain("Sign out");
     expect(result.container.textContent).not.toContain("Other Accounts");
@@ -99,10 +99,11 @@ describe("header profile menu", () => {
   test("keeps the reference card, avatar, and three-way switcher proportions", async () => {
     const css = await Bun.file(`${import.meta.dir}/../src/app.css`).text();
 
-    expect(css).toContain("width: min(360px, calc(100vw - 32px))");
-    expect(css).toContain("grid-template-columns: 56px minmax(0, 1fr) auto");
+    expect(css).toContain("width: min(340px, calc(100vw - 32px))");
+    expect(css).toContain("min-height: 438px");
+    expect(css).toContain("grid-template-columns: 54px minmax(0, 1fr) auto");
     expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
-    expect(css).toContain("width: 56px");
-    expect(css).toContain("min-height: 40px");
+    expect(css).toContain("width: 54px");
+    expect(css).toContain("min-height: 34px");
   });
 });
