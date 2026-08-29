@@ -36,7 +36,8 @@ describe("header profile menu", () => {
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
     );
-    trigger?.click();
+    if (!trigger) throw new Error("Profile menu trigger was not rendered");
+    trigger.click();
     await new Promise((resolve) => setTimeout(resolve, 20));
 
     result.window.document.dispatchEvent(
