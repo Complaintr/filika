@@ -292,10 +292,10 @@ html {
   z-index: 50;
   top: calc(100% + 12px);
   right: 0;
-  width: min(340px, calc(100vw - 32px));
-  padding: 14px;
+  width: min(360px, calc(100vw - 32px));
+  padding: 18px;
   border: 1px solid #e4e8ef;
-  border-radius: 20px;
+  border-radius: 18px;
   background: rgb(255 255 255 / 98%);
   box-shadow:
     0 24px 60px rgb(37 48 71 / 18%),
@@ -305,22 +305,22 @@ html {
 }
 .profile-menu-summary {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) auto;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 11px;
-  padding: 4px 3px 14px;
+  gap: 12px;
+  padding: 2px 0 12px;
 }
 .profile-menu-avatar {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border: 4px solid #c4edf5;
   border-radius: 50%;
   background: linear-gradient(145deg, #91e0ed, #5bbfd6);
   color: #244b63;
   font-family: var(--display);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
 }
 .profile-menu-identity {
@@ -337,22 +337,22 @@ html {
 .profile-menu-identity strong {
   color: #222c3e;
   font-family: var(--display);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 650;
 }
 .profile-menu-identity span {
   color: #8a94a5;
-  font-size: 11px;
+  font-size: 13px;
 }
 .profile-menu-status {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 8px;
+  padding: 7px 9px;
   border-radius: 999px;
   background: #dff8e8;
   color: #25814b;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
 }
 .profile-menu-status svg {
@@ -400,8 +400,7 @@ html {
 .profile-menu-links {
   display: grid;
   gap: 4px;
-  padding: 8px 0 10px;
-  border-top: 1px solid #edf0f4;
+  padding: 2px 0 10px;
 }
 .profile-menu-links a,
 .profile-menu-footer button {
@@ -410,12 +409,12 @@ html {
   gap: 12px;
   width: 100%;
   min-height: 44px;
-  padding: 10px 11px;
+  padding: 10px 0;
   border: 0;
   border-radius: 11px;
   background: transparent;
   color: #364156;
-  font-size: 13px;
+  font-size: 14px;
   text-align: left;
   transition:
     background 140ms ease,
@@ -427,8 +426,8 @@ html {
 }
 .profile-menu-links svg,
 .profile-menu-footer svg {
-  width: 19px;
-  height: 19px;
+  width: 20px;
+  height: 20px;
   color: #8994a5;
   stroke-width: 1.7;
 }
