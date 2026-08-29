@@ -117,15 +117,15 @@ function ShellBody({ children }: WorkspaceShellProps) {
           <motion.div
             key={pathname}
             className="workspace-page"
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 6, scale: 0.997 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 10, scale: 0.995 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={
               prefersReducedMotion
                 ? { opacity: 1, y: 0, scale: 1 }
-                : { opacity: 0, y: -4, scale: 0.998 }
+                : { opacity: 0, y: -8, scale: 0.997 }
             }
             transition={{
-              duration: prefersReducedMotion ? 0 : 0.2,
+              duration: prefersReducedMotion ? 0 : 0.24,
               ease: [0.22, 1, 0.36, 1],
             }}
           >
