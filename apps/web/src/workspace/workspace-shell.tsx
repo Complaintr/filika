@@ -1,6 +1,13 @@
 "use client";
 
-import { Home, type LucideIcon, MessageCircle, Settings } from "lucide-react";
+import {
+  EllipsisVertical,
+  Home,
+  type LucideIcon,
+  MessageCircle,
+  Settings,
+  UserRound,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import BottomNavBar from "@/components/ui/bottom-nav-bar";
@@ -57,37 +64,36 @@ function ShellBody({ children }: WorkspaceShellProps) {
       <header className="topbar">
         <div className="topbar-inner">
           <div className="workspace-identity">
-            <a className="brand" href="/dashboard">
-              <span className="brand-mark">
+            <a className="brand" href="/dashboard" aria-label="Filika dashboard">
+              <span className="brand-mark" aria-hidden="true">
                 <span className="sail-main" />
                 <span className="sail-small" />
                 <span className="sail-hull" />
               </span>
-              <span className="">filika</span>
+              <span className="brand-name">filika</span>
             </a>
             <span className="identity-separator" aria-hidden="true">
               /
             </span>
             <a className="workspace-switcher" href="/settings">
-              <span className="workspace-avatar">
+              <span className="workspace-avatar" aria-hidden="true">
                 {preferences.workspaceName.slice(0, 1).toUpperCase()}
               </span>
               <span className="workspace-copy">
-                <strong className="">{preferences.workspaceName}</strong>
-                <span className="muted small">Local workspace</span>
+                <strong>{preferences.workspaceName}</strong>
               </span>
-              <span className="workspace-copy-marker">
-                <ChevronIcon />
+              <span className="workspace-copy-marker" aria-hidden="true">
+                <EllipsisVertical />
               </span>
             </a>
           </div>
           <div className="topbar-actions">
             <div className="connection-status" data-state={connection} role="status">
               <span className="connection-dot" />
-              <span className="">{connectionLabel(connection)}</span>
+              <span className="sr-only">{connectionLabel(connection)}</span>
             </div>
             <a className="topbar-avatar" href="/settings" aria-label="Workspace settings">
-              <Settings size={18} strokeWidth={1.75} />
+              <UserRound aria-hidden="true" />
             </a>
           </div>
         </div>
@@ -103,13 +109,5 @@ function ShellBody({ children }: WorkspaceShellProps) {
         />
       </div>
     </div>
-  );
-}
-
-function ChevronIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M9 5l7 7-7 7" />
-    </svg>
   );
 }
