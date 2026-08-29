@@ -95,4 +95,14 @@ describe("header profile menu", () => {
 
     await result.close();
   });
+
+  test("keeps the reference card, avatar, and three-way switcher proportions", async () => {
+    const css = await Bun.file(`${import.meta.dir}/../src/app.css`).text();
+
+    expect(css).toContain("width: min(360px, calc(100vw - 32px))");
+    expect(css).toContain("grid-template-columns: 56px minmax(0, 1fr) auto");
+    expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
+    expect(css).toContain("width: 56px");
+    expect(css).toContain("min-height: 40px");
+  });
 });
