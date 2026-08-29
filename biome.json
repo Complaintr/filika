@@ -24,6 +24,7 @@
       "!!**/playwright-report",
       "!!**/public",
       "!!**/test-results",
+      "!!.commandcode",
       "!!apps/web/src/filika.js"
     ]
   },

@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "auditedOn": "2026-08-29",
-  "lockfileSha256": "57034337707fc3af5f61cee809b5afcf8983124eeb93bbeab609fa6dba7d0029",
+  "lockfileSha256": "7d4f63e7051fdcb42cb73c6b0179516377c6ed84952497330aa38de22868eb9c",
   "method": "Exact-version npm registry license declarations; all distribution integrity values match bun.lock. This inventory does not replace package license and notice texts.",
   "packages": [
     {
