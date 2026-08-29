@@ -2,13 +2,18 @@
 
 ## Project
 
-Filika is a WebMCP-enabled feedback workflow. A browser agent drafts structured
-feedback, the user reviews it, the collector stores it, and maintainers read it
-in the inbox.
+Filika is a WebMCP-enabled feedback application. A browser agent drafts a report
+about a problem, complaint, blocked task, confusing behavior, or product idea
+encountered on a website. The user reviews and confirms the report, the collector
+stores it, and maintainers read it in the Filika workspace.
+
+Nothing is transmitted before user confirmation. People can also submit feedback
+manually when WebMCP is unavailable or they do not want to use an agent. Filika
+provides the feedback workflow, not the AI assistant.
 
 Repository areas:
 
-- `apps/web`: demo application and maintainer inbox.
+- `apps/web`: host review UI and maintainer workspace.
 - `packages/sdk`: browser SDK and public protocol.
 - `packages/collector`: feedback API and PostgreSQL persistence.
 - `tests/e2e`: browser-level integration tests.
