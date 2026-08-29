@@ -41,4 +41,22 @@ describe("header profile menu", () => {
 
     await result.close();
   });
+
+  test("an outside pointer closes the open menu", async () => {
+    const result = await renderReact(createElement(ProfileMenu, { workspaceName: "Filika" }));
+    const trigger = result.container.querySelector<HTMLButtonElement>(
+      '[aria-label="Open profile menu"]',
+    );
+    trigger?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    result.window.document.body.dispatchEvent(
+      new result.window.Event("pointerdown", { bubbles: true }),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(result.container.querySelector('[role="menu"]')).toBeNull();
+
+    await result.close();
+  });
 });
