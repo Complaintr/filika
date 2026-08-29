@@ -30,7 +30,7 @@
 }
 body {
   margin: 0;
-  background: var(--white);
+  background: var(--canvas);
   font-size: 14px;
   line-height: 1.55;
   transition:
