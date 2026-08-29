@@ -11,6 +11,7 @@
     "build:development": "bun run build.ts --development",
     "typecheck": "tsc --project tsconfig.json"
   },
+  "author": "Complaintr",
   "description": "Browser SDK and V1 contracts for user-reviewed Filika feedback",
   "license": "Apache-2.0",
   "repository": {

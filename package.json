@@ -36,6 +36,7 @@
     "esbuild": "0.25.12",
     "typescript": "5.9.2"
   },
+  "author": "Complaintr",
   "description": "Filika user-reviewed browser feedback workflow",
   "license": "Apache-2.0",
   "repository": {

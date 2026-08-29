@@ -28,6 +28,7 @@
     "next": "16",
     "tailwindcss": "^4.3.3"
   },
+  "author": "Complaintr",
   "description": "Filika dashboard, complaints workspace, and native review dialog",
   "license": "Apache-2.0",
   "repository": {

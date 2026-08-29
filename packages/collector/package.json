@@ -19,6 +19,7 @@
   "devDependencies": {
     "drizzle-kit": "^0.31.10"
   },
+  "author": "Complaintr",
   "description": "Filika feedback collector and PostgreSQL persistence",
   "license": "Apache-2.0",
   "repository": {
