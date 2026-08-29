@@ -3,14 +3,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchDashboard } from "@/services/workspace-api";
 import { useConnection } from "@/workspace/connection";
-import { DEFAULT_PREFERENCES, type Preferences, savePreferences } from "@/workspace/preferences";
+import {
+  DEFAULT_PREFERENCES,
+  type Preferences,
+  readPreferences,
+  savePreferences,
+} from "@/workspace/preferences";
 
 export default function SettingsPage() {
   const { reportConnection } = useConnection();
-  const [preferences, setPreferences] = useState<Preferences>(() => readLocalPreferences());
+  const [preferences, setPreferences] = useState<Preferences>(() => readPreferences());
   const [name, setName] = useState(preferences.workspaceName);
   const [days, setDays] = useState<number>(preferences.days);
   const [density, setDensity] = useState<"comfortable" | "compact">(preferences.density);
+  const [theme, setTheme] = useState<"light" | "dark">(preferences.theme);
   const [saveStatus, setSaveStatus] = useState("");
   const [checkStatus, setCheckStatus] = useState("Checking the collector…");
   const [checking, setChecking] = useState(false);
@@ -42,6 +48,7 @@ export default function SettingsPage() {
     setName(DEFAULT_PREFERENCES.workspaceName);
     setDays(DEFAULT_PREFERENCES.days);
     setDensity(DEFAULT_PREFERENCES.density);
+    setTheme(DEFAULT_PREFERENCES.theme);
     setSaveStatus("Defaults restored. Save changes to apply them.");
   }
 
@@ -55,6 +62,7 @@ export default function SettingsPage() {
       workspaceName: name.trim().slice(0, 60),
       days: days === 7 || days === 90 ? days : 30,
       density,
+      theme,
     };
     if (!savePreferences(next)) {
       setSaveStatus(
@@ -64,6 +72,8 @@ export default function SettingsPage() {
     }
     setPreferences(next);
     document.documentElement.dataset.density = next.density;
+    document.documentElement.dataset.theme = next.theme;
+    window.dispatchEvent(new CustomEvent("filika:preferences"));
     setSaveStatus("Changes saved.");
   }
 
@@ -131,19 +141,43 @@ export default function SettingsPage() {
                 <option value="compact">Compact</option>
               </select>
             </SettingRow>
-            <div className="setting-row">
+            <fieldset className="setting-row appearance-setting">
+              <legend className="sr-only">Appearance</legend>
               <div>
                 <span className="setting-label">Appearance</span>
-                <p className="muted small">
-                  Filika&apos;s light workspace, in white, blue, and gray.
-                </p>
+                <p className="muted small">Choose the workspace theme used on this browser.</p>
               </div>
-              <div className="palette-preview" role="img" aria-label="White, blue, and gray theme">
-                <span className="swatch swatch-white" />
-                <span className="swatch swatch-blue" />
-                <span className="swatch swatch-gray" />
+              <div className="theme-options">
+                <label className="theme-option">
+                  <input
+                    type="radio"
+                    name="theme"
+                    value="light"
+                    checked={theme === "light"}
+                    onChange={() => setTheme("light")}
+                  />
+                  <span className="theme-preview theme-preview-light" aria-hidden="true">
+                    <span />
+                    <span />
+                  </span>
+                  <span>Light</span>
+                </label>
+                <label className="theme-option">
+                  <input
+                    type="radio"
+                    name="theme"
+                    value="dark"
+                    checked={theme === "dark"}
+                    onChange={() => setTheme("dark")}
+                  />
+                  <span className="theme-preview theme-preview-dark" aria-hidden="true">
+                    <span />
+                    <span />
+                  </span>
+                  <span>Dark</span>
+                </label>
               </div>
-            </div>
+            </fieldset>
             <div className="settings-form-footer">
               <button className="button" type="button" onClick={restoreDefaults}>
                 Restore defaults
@@ -228,24 +262,6 @@ export default function SettingsPage() {
       </div>
     </>
   );
-}
-
-function readLocalPreferences(): Preferences {
-  try {
-    const value: unknown = JSON.parse(localStorage.getItem("filika-workspace-v1") ?? "null");
-    if (typeof value !== "object" || value === null) return { ...DEFAULT_PREFERENCES };
-    const raw = value as Record<string, unknown>;
-    return {
-      workspaceName:
-        typeof raw.workspaceName === "string" && raw.workspaceName.trim()
-          ? raw.workspaceName.trim().slice(0, 60)
-          : DEFAULT_PREFERENCES.workspaceName,
-      days: raw.days === 7 || raw.days === 90 ? raw.days : 30,
-      density: raw.density === "compact" ? "compact" : "comfortable",
-    };
-  } catch {
-    return { ...DEFAULT_PREFERENCES };
-  }
 }
 
 function SettingRow({
