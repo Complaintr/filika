@@ -109,6 +109,6 @@ describe("header profile menu", () => {
     expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
     expect(css).toContain("width: 54px");
     expect(css).not.toContain("width: min(260px, 100%)");
-    expect(css).toContain("min-height: 34px");
+    expect(css).toContain("min-height: 30px");
   });
 });

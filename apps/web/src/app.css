@@ -373,7 +373,7 @@ html {
   gap: 4px;
   min-width: 0;
   margin-bottom: 8px;
-  padding: 4px;
+  padding: 3px;
   border: 0;
   margin-right: 3px;
   margin-left: 3px;
@@ -383,10 +383,10 @@ html {
 .profile-theme-switcher button {
   display: grid;
   place-items: center;
-  min-height: 34px;
+  min-height: 30px;
   padding: 0;
   border: 0;
-  border-radius: 9px;
+  border-radius: 8px;
   background: transparent;
   color: #969ca7;
   transition:
@@ -408,8 +408,8 @@ html {
   box-shadow: 0 2px 7px rgb(37 48 71 / 12%);
 }
 .profile-theme-switcher svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   stroke-width: 1.8;
 }
 .profile-menu-links {
