@@ -13,6 +13,8 @@ export interface CollectorServerOptions {
   secret?: string | undefined;
   googleClientId?: string | undefined;
   googleClientSecret?: string | undefined;
+  /** Disables the session guard on protected routes. Intended for tests. */
+  enableAuth?: boolean | undefined;
 }
 
 export function startCollectorServer(
@@ -25,7 +27,9 @@ export function startCollectorServer(
     googleClientId: options.googleClientId,
     googleClientSecret: options.googleClientSecret,
   });
-  const fetchHandler = createFetchHandler(handle.db, { betterAuth });
+  const fetchHandler = createFetchHandler(handle.db, {
+    betterAuth: options.enableAuth === false ? undefined : betterAuth,
+  });
 
   return Bun.serve({
     fetch: async (request) => {

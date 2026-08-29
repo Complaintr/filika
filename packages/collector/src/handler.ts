@@ -31,7 +31,7 @@ function parseKind(kind: string | null): Pick<InboxListQuery, "kind"> {
 }
 
 export interface CollectorRouteOptions {
-  betterAuth: BetterAuth;
+  betterAuth?: BetterAuth | undefined;
 }
 
 function unauthenticatedResponse(): Response {
@@ -100,7 +100,7 @@ async function requireSession(
   request: Request,
   options: CollectorRouteOptions | undefined,
 ): Promise<boolean> {
-  if (options === undefined) {
+  if (options?.betterAuth === undefined) {
     return true;
   }
 

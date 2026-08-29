@@ -2,7 +2,7 @@ import { expect, type Page, test } from "@playwright/test";
 import { signInAsE2eUser } from "../sign-in";
 
 const navItem = (page: Page, label: string) => page.locator(".bottom-nav-item", { hasText: label });
-const connectionStatus = (page: Page) => page.locator(".connection-status");
+const connectionStatus = (page: Page) => page.locator(".topbar .connection-status");
 
 async function openDashboard(page: Page): Promise<void> {
   await signInAsE2eUser(page);
