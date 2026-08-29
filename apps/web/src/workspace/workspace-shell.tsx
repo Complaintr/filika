@@ -42,7 +42,10 @@ function ShellBody({ children }: WorkspaceShellProps) {
 
   useEffect(() => {
     document.documentElement.dataset.density = preferences.density;
-  }, [preferences.density]);
+    document.documentElement.dataset.theme = preferences.theme;
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    themeColor?.setAttribute("content", preferences.theme === "dark" ? "#0d1117" : "#f7f8fa");
+  }, [preferences.density, preferences.theme]);
 
   useEffect(() => {
     const apply = () => setPreferences(readPreferences());
