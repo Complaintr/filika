@@ -286,9 +286,19 @@ html {
   border-radius: 50%;
   background: #74d4e8;
   color: #35536b;
+  overflow: hidden;
+  padding: 0;
   transition:
     transform 140ms ease,
     border-color 140ms ease;
+}
+.topbar-avatar img,
+.topbar-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 .topbar-avatar:hover {
   transform: translateY(-1px);
@@ -327,9 +337,9 @@ html {
 }
 .profile-menu-summary {
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr) auto;
+  grid-template-columns: 54px minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 1px 5px 9px;
 }
 .profile-menu-avatar {
@@ -344,6 +354,16 @@ html {
   font-family: var(--display);
   font-size: 18px;
   font-weight: 700;
+  overflow: hidden;
+  padding: 0;
+}
+.profile-menu-avatar img,
+.profile-menu-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 .profile-menu-identity {
   display: grid;
@@ -365,24 +385,6 @@ html {
 .profile-menu-identity span {
   color: #8a94a5;
   font-size: 13px;
-}
-.profile-menu-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 7px 9px;
-  border: 0;
-  border-radius: 999px;
-  background: #dff8e8;
-  color: #25814b;
-  margin-right: -6px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: not-allowed;
-}
-.profile-menu-status svg {
-  width: 12px;
-  height: 12px;
 }
 .profile-theme-switcher {
   display: grid;
@@ -452,9 +454,11 @@ html {
     background 140ms ease,
     color 140ms ease;
 }
-.profile-menu-links a:hover {
+.profile-menu-links a:hover,
+.profile-menu-footer button:not(:disabled):hover {
   background: #f3f6fb;
   color: #244fae;
+  cursor: pointer;
 }
 .profile-menu-links svg,
 .profile-menu-footer svg,
@@ -506,6 +510,7 @@ html {
 .profile-menu-footer button {
   gap: 12px;
   font-size: 17px;
+  cursor: pointer;
 }
 .profile-menu-footer svg {
   width: 18px;
@@ -513,7 +518,7 @@ html {
 }
 .profile-menu-footer button:disabled {
   cursor: not-allowed;
-  opacity: 1;
+  opacity: 0.55;
 }
 :root[data-theme="dark"] .profile-menu {
   border-color: #303035;
@@ -541,7 +546,8 @@ html {
 :root[data-theme="dark"] .profile-other-accounts button {
   color: #9b9ba4;
 }
-:root[data-theme="dark"] .profile-menu-links a:hover {
+:root[data-theme="dark"] .profile-menu-links a:hover,
+:root[data-theme="dark"] .profile-menu-footer button:not(:disabled):hover {
   background: #202024;
   color: #5f8ff5;
 }
@@ -1871,8 +1877,7 @@ html {
   display: grid;
   place-items: center;
   padding: 24px;
-  background:
-    radial-gradient(1000px 420px at 50% -120px, #eaf0ff 0, transparent 60%), var(--page-bg, #f7f8fa);
+  background: radial-gradient(1000px 420px at 50% -120px, #eaf0ff 0, transparent 60%), #f7f8fa;
 }
 .login-card {
   width: min(380px, 100%);
@@ -1916,4 +1921,16 @@ html {
 }
 .login-note {
   margin-top: 8px;
+}
+:root[data-theme="dark"] .login-page {
+  background: radial-gradient(1000px 420px at 50% -120px, #172038 0, transparent 60%), #0e0e10;
+}
+:root[data-theme="dark"] .button-google {
+  color: #0b1528;
+  font-weight: 600;
+}
+:root[data-theme="dark"] .login-error {
+  color: #fda29b;
+  background: #2b1417;
+  border-color: #551d20;
 }

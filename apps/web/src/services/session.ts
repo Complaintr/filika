@@ -47,6 +47,20 @@ export async function fetchSession(signal: AbortSignal): Promise<SessionInfo | n
 
 /** Ends the current session and redirects to the login page. */
 export async function signOut(): Promise<void> {
-  await fetch("/api/auth/sign-out", { method: "POST" });
-  window.location.assign("/login");
+  try {
+    await fetch("/api/auth/sign-out", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+  } catch {
+    // Continue even if network error occurs
+  }
+  if (typeof document !== "undefined") {
+    // biome-ignore lint/suspicious/noDocumentCookie: Clear session cookie on sign out
+    document.cookie = "better-auth.session_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+  }
+  if (typeof window !== "undefined") {
+    window.location.assign("/login?force=1");
+  }
 }

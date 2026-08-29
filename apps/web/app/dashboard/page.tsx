@@ -323,10 +323,15 @@ function DashboardError({ onRetry }: { onRetry: () => void }) {
         </span>
         <h2>Could not load your dashboard</h2>
         <p className="muted">Check that the collector and database are running, then try again.</p>
-        <button className="button" type="button" onClick={onRetry}>
-          <RefreshIcon />
-          Try again
-        </button>
+        <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
+          <button className="button" type="button" onClick={onRetry}>
+            <RefreshIcon />
+            Try again
+          </button>
+          <a className="button button-primary" href="/login?force=1">
+            Sign in again
+          </a>
+        </div>
       </div>
       <a className="panel-link" href="/settings">
         Connection details
