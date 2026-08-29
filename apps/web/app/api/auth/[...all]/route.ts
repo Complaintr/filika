@@ -1,6 +1,5 @@
 import { createBetterAuth } from "@filika/collector/auth/better-auth";
 import { createDb } from "@filika/collector/db/client";
-import { createFetchHandler } from "@filika/collector/handler";
 
 export const runtime = "nodejs";
 
@@ -11,16 +10,19 @@ const betterAuth = createBetterAuth(handle.db, {
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
 });
-const fetchHandler = createFetchHandler(handle.db, { betterAuth });
 
 export function GET(request: Request): Promise<Response> {
-  return fetchHandler(request);
+  return betterAuth.handler(request);
 }
 
 export function POST(request: Request): Promise<Response> {
-  return fetchHandler(request);
+  return betterAuth.handler(request);
 }
 
-export function OPTIONS(request: Request): Promise<Response> {
-  return fetchHandler(request);
+export function PUT(request: Request): Promise<Response> {
+  return betterAuth.handler(request);
+}
+
+export function DELETE(request: Request): Promise<Response> {
+  return betterAuth.handler(request);
 }

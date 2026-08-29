@@ -1,9 +1,11 @@
 import { expect, type Page, test } from "@playwright/test";
+import { signInAsE2eUser } from "../sign-in";
 
 const connectionStatus = (page: Page) => page.locator(".connection-status");
 const saveStatus = (page: Page) => page.locator(".save-status");
 
 test("settings preferences persist across reloads and update the brand name", async ({ page }) => {
+  await signInAsE2eUser(page);
   await page.goto("/settings");
   await expect(page.getByRole("heading", { name: "Workspace preferences" })).toBeVisible();
 
@@ -22,6 +24,7 @@ test("settings preferences persist across reloads and update the brand name", as
 });
 
 test("settings connection check reports a connected collector", async ({ page }) => {
+  await signInAsE2eUser(page);
   await page.goto("/settings");
   await expect(connectionStatus(page)).toContainText("Collector connected");
   await expect(
@@ -31,6 +34,7 @@ test("settings connection check reports a connected collector", async ({ page })
 });
 
 test("settings connection check reports an unreachable collector", async ({ page }) => {
+  await signInAsE2eUser(page);
   await page.route("**/api/v1/dashboard**", (route) =>
     route.fulfill({
       status: 500,
@@ -44,6 +48,7 @@ test("settings connection check reports an unreachable collector", async ({ page
 });
 
 test("settings rejects a blank workspace name", async ({ page }) => {
+  await signInAsE2eUser(page);
   await page.goto("/settings");
   const name = page.getByLabel("Workspace name");
   await name.fill("   ");

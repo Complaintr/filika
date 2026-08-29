@@ -17,7 +17,10 @@ export default defineConfig({
       cwd: fileURLToPath(new URL("../..", import.meta.url)),
       url: "http://localhost:4173/api/v1/inbox",
       reuseExistingServer: false,
-      env: { DATABASE_URL: browserDatabaseUrl() },
+      env: {
+        DATABASE_URL: browserDatabaseUrl(),
+        BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? "test-secret",
+      },
     },
   ],
 });

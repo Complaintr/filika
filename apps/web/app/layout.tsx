@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthAwareShell } from "@/workspace/auth-aware-shell";
 import { WorkspaceShell } from "@/workspace/workspace-shell";
 
 export const metadata: Metadata = {
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a className="skip-link" href="#app-content">
           Skip to content
         </a>
-        <WorkspaceShell>{children}</WorkspaceShell>
+        <AuthAwareShell>
+          <WorkspaceShell>{children}</WorkspaceShell>
+        </AuthAwareShell>
       </body>
     </html>
   );

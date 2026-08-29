@@ -1405,3 +1405,54 @@ html {
     scroll-behavior: auto !important;
   }
 }
+.login-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(1000px 420px at 50% -120px, #eaf0ff 0, transparent 60%), var(--page-bg, #f7f8fa);
+}
+.login-card {
+  width: min(380px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 36px 28px 30px;
+}
+.login-brand .brand-mark {
+  width: 34px;
+  height: 38px;
+}
+.login-card h1 {
+  margin: 4px 0 0;
+  font-size: 22px;
+  letter-spacing: -0.4px;
+}
+.button-google {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 16px;
+}
+.button-google svg {
+  width: 18px;
+  height: 18px;
+}
+.login-error {
+  width: 100%;
+  margin-top: 4px;
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+.login-note {
+  margin-top: 8px;
+}
