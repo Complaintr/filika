@@ -359,6 +359,44 @@ html {
   width: 12px;
   height: 12px;
 }
+.profile-theme-switcher {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+  margin-bottom: 8px;
+  padding: 4px;
+  border: 0;
+  border-radius: 12px;
+  background: #f2f3f5;
+}
+.profile-theme-switcher button {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #969ca7;
+  transition:
+    background 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+}
+.profile-theme-switcher button:hover {
+  color: #5c6574;
+}
+.profile-theme-switcher button[aria-checked="true"] {
+  background: #fff;
+  color: #3563e9;
+  box-shadow: 0 2px 7px rgb(37 48 71 / 12%);
+}
+.profile-theme-switcher svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 1.8;
+}
 .profile-menu-links {
   display: grid;
   gap: 4px;
@@ -408,8 +446,8 @@ html {
   font-size: 9px;
 }
 :root[data-theme="dark"] .profile-menu {
-  border-color: #2b3748;
-  background: rgb(17 24 33 / 98%);
+  border-color: #303035;
+  background: rgb(21 21 23 / 98%);
   box-shadow:
     0 24px 60px rgb(0 0 0 / 38%),
     0 4px 14px rgb(0 0 0 / 20%);
@@ -417,21 +455,35 @@ html {
 :root[data-theme="dark"] .profile-menu-identity strong,
 :root[data-theme="dark"] .profile-menu-links a,
 :root[data-theme="dark"] .profile-menu-footer button {
-  color: #d8e0ef;
+  color: #dedee3;
 }
 :root[data-theme="dark"] .profile-menu-identity span,
 :root[data-theme="dark"] .profile-menu-links svg,
 :root[data-theme="dark"] .profile-menu-footer svg,
 :root[data-theme="dark"] .profile-menu-footer button small {
-  color: #91a0b7;
+  color: #9b9ba4;
 }
 :root[data-theme="dark"] .profile-menu-links,
 :root[data-theme="dark"] .profile-menu-footer {
-  border-color: #2b3748;
+  border-color: #303035;
 }
 :root[data-theme="dark"] .profile-menu-links a:hover {
-  background: #1b2533;
-  color: #8aafff;
+  background: #202024;
+  color: #5f8ff5;
+}
+:root[data-theme="dark"] .profile-theme-switcher {
+  background: #202024;
+}
+:root[data-theme="dark"] .profile-theme-switcher button {
+  color: #9b9ba4;
+}
+:root[data-theme="dark"] .profile-theme-switcher button:hover {
+  color: #e4e4e7;
+}
+:root[data-theme="dark"] .profile-theme-switcher button[aria-checked="true"] {
+  background: #242428;
+  color: #5f8ff5;
+  box-shadow: 0 2px 7px rgb(0 0 0 / 24%);
 }
 @keyframes profile-menu-enter {
   from {
