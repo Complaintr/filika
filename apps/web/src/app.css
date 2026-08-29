@@ -248,7 +248,7 @@ html {
   background: #a34d59;
 }
 .topbar {
-  background: var(--white);
+  background: var(--canvas);
 }
 .topbar-inner {
   max-width: 1360px;
@@ -1580,10 +1580,6 @@ html {
   background: #151517;
   border-color: #2c2c31;
   color: #dedee3;
-}
-:root[data-theme="dark"] .topbar {
-  background: rgb(21 21 23 / 94%);
-  border-bottom: 1px solid #262629;
 }
 :root[data-theme="dark"] .workspace-switcher:hover,
 :root[data-theme="dark"] .date-range-select:hover,
