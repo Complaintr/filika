@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, CircleUserRound, LogOut, Settings } from "lucide-react";
+import { ChevronDown, CircleUserRound, LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 
@@ -8,11 +8,82 @@ export interface ProfileMenuProps {
   workspaceName: string;
 }
 
+type ProfileTheme = "light" | "dark" | "system";
+
+const PREFERENCES_KEY = "filika-workspace-v1";
+
+function readProfileTheme(): ProfileTheme {
+  if (typeof window === "undefined") return "light";
+  try {
+    const value: unknown = JSON.parse(window.localStorage.getItem(PREFERENCES_KEY) ?? "null");
+    if (typeof value === "object" && value !== null && "theme" in value) {
+      const storedTheme = (value as { theme?: unknown }).theme;
+      if (storedTheme === "dark" || storedTheme === "system") return storedTheme;
+      return "light";
+    }
+  } catch {
+    return "light";
+  }
+  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+}
+
+function resolvedProfileTheme(theme: ProfileTheme): "light" | "dark" {
+  if (theme !== "system") return theme;
+  return typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function applyProfileTheme(theme: ProfileTheme): void {
+  const resolvedTheme = resolvedProfileTheme(theme);
+  document.documentElement.dataset.theme = resolvedTheme;
+  document
+    .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+    ?.setAttribute("content", resolvedTheme === "dark" ? "#0e0e10" : "#f7f8fa");
+}
+
+function saveProfileTheme(theme: ProfileTheme): void {
+  applyProfileTheme(theme);
+
+  try {
+    const value: unknown = JSON.parse(window.localStorage.getItem(PREFERENCES_KEY) ?? "null");
+    const current = typeof value === "object" && value !== null ? value : {};
+    window.localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ ...current, theme }));
+  } catch {
+    // The visible theme can still change when browser storage is unavailable.
+  }
+
+  window.dispatchEvent(new CustomEvent("filika:preferences"));
+}
+
 export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
+  const [theme, setTheme] = useState<ProfileTheme>("light");
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const syncTheme = () => {
+      const nextTheme = readProfileTheme();
+      setTheme(nextTheme);
+      applyProfileTheme(nextTheme);
+    };
+    const systemTheme =
+      typeof window.matchMedia === "function"
+        ? window.matchMedia("(prefers-color-scheme: dark)")
+        : null;
+    syncTheme();
+    window.addEventListener("storage", syncTheme);
+    window.addEventListener("filika:preferences", syncTheme);
+    systemTheme?.addEventListener("change", syncTheme);
+    return () => {
+      window.removeEventListener("storage", syncTheme);
+      window.removeEventListener("filika:preferences", syncTheme);
+      systemTheme?.removeEventListener("change", syncTheme);
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -36,6 +107,11 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
   }, [open]);
 
   const initial = workspaceName.trim().slice(0, 1).toUpperCase() || "F";
+
+  function selectTheme(nextTheme: ProfileTheme): void {
+    setTheme(nextTheme);
+    saveProfileTheme(nextTheme);
+  }
 
   return (
     <div className="profile-menu-root" ref={rootRef}>
@@ -66,6 +142,39 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
               <ChevronDown aria-hidden="true" />
             </span>
           </div>
+          <fieldset className="profile-theme-switcher">
+            <legend className="sr-only">Appearance</legend>
+            <button
+              type="button"
+              role="menuitemradio"
+              aria-label="Light theme"
+              aria-checked={theme === "light"}
+              onClick={() => selectTheme("light")}
+            >
+              <Sun aria-hidden="true" />
+              <span className="sr-only">Light</span>
+            </button>
+            <button
+              type="button"
+              role="menuitemradio"
+              aria-label="Dark theme"
+              aria-checked={theme === "dark"}
+              onClick={() => selectTheme("dark")}
+            >
+              <Moon aria-hidden="true" />
+              <span className="sr-only">Dark</span>
+            </button>
+            <button
+              type="button"
+              role="menuitemradio"
+              aria-label="System theme"
+              aria-checked={theme === "system"}
+              onClick={() => selectTheme("system")}
+            >
+              <Monitor aria-hidden="true" />
+              <span className="sr-only">System</span>
+            </button>
+          </fieldset>
           <div className="profile-menu-links">
             <Link role="menuitem" href="/settings#workspace-name" onClick={() => setOpen(false)}>
               <CircleUserRound aria-hidden="true" />
