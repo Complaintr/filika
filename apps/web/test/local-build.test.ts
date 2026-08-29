@@ -15,3 +15,9 @@ test("workspace build compiles the Tailwind stylesheet into public", async () =>
     await rm(directory, { recursive: true, force: true });
   }
 }, 15_000);
+
+test("workspace development compiles the stylesheet before Next starts", async () => {
+  const packageJson = await Bun.file(`${import.meta.dir}/../package.json`).json();
+
+  expect(packageJson.scripts.dev).toBe("bun run build:spa && next dev -p 4173");
+});
