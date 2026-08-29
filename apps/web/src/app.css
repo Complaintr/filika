@@ -407,6 +407,32 @@ html {
   color: #8c96a5;
   font-size: 9px;
 }
+:root[data-theme="dark"] .profile-menu {
+  border-color: #2b3748;
+  background: rgb(17 24 33 / 98%);
+  box-shadow:
+    0 24px 60px rgb(0 0 0 / 38%),
+    0 4px 14px rgb(0 0 0 / 20%);
+}
+:root[data-theme="dark"] .profile-menu-identity strong,
+:root[data-theme="dark"] .profile-menu-links a,
+:root[data-theme="dark"] .profile-menu-footer button {
+  color: #d8e0ef;
+}
+:root[data-theme="dark"] .profile-menu-identity span,
+:root[data-theme="dark"] .profile-menu-links svg,
+:root[data-theme="dark"] .profile-menu-footer svg,
+:root[data-theme="dark"] .profile-menu-footer button small {
+  color: #91a0b7;
+}
+:root[data-theme="dark"] .profile-menu-links,
+:root[data-theme="dark"] .profile-menu-footer {
+  border-color: #2b3748;
+}
+:root[data-theme="dark"] .profile-menu-links a:hover {
+  background: #1b2533;
+  color: #8aafff;
+}
 @keyframes profile-menu-enter {
   from {
     opacity: 0;
