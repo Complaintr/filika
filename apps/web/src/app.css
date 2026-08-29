@@ -1059,17 +1059,6 @@ html {
   font-size: 11px;
   font-weight: 400;
 }
-.dashboard-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  margin-top: 24px;
-  color: #929bad;
-  font-size: 10px;
-}
-.dashboard-footer a {
-  font-size: 10px;
-}
 .state-panel {
   display: flex;
   flex-direction: column;
@@ -1834,10 +1823,6 @@ html {
   }
   .pagination .small {
     font-size: 10px;
-  }
-  .dashboard-footer {
-    flex-direction: column;
-    gap: 10px;
   }
   .settings-aside {
     grid-template-columns: minmax(0, 1fr);

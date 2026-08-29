@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type DashboardData, fetchDashboard } from "@/services/workspace-api";
 import { useConnection } from "@/workspace/connection";
-import { formatDate, kindLabels } from "@/workspace/dom";
+import { kindLabels } from "@/workspace/dom";
 
 type RangeDays = 7 | 30 | 90;
 
@@ -285,15 +285,6 @@ export default function DashboardPage() {
                   })}
                 </div>
               </section>
-            </div>
-            <div className="dashboard-footer">
-              <span>
-                Updated {data ? formatDate(data.generatedAt) : ""} · Counts include retained records
-                in this period.
-              </span>
-              <a className="text-link" href="/settings">
-                Workspace settings
-              </a>
             </div>
           </>
         )}
