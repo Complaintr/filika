@@ -371,11 +371,9 @@ html {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
-  align-self: center;
-  width: min(260px, 100%);
   min-width: 0;
   margin-bottom: 8px;
-  padding: 3px;
+  padding: 4px;
   border: 0;
   margin-right: 3px;
   margin-left: 3px;
@@ -385,10 +383,10 @@ html {
 .profile-theme-switcher button {
   display: grid;
   place-items: center;
-  min-height: 30px;
+  min-height: 34px;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: 9px;
   background: transparent;
   color: #969ca7;
   transition:
@@ -410,8 +408,8 @@ html {
   box-shadow: 0 2px 7px rgb(37 48 71 / 12%);
 }
 .profile-theme-switcher svg {
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   stroke-width: 1.8;
 }
 .profile-menu-links {
@@ -423,7 +421,7 @@ html {
 .profile-menu-footer button {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   min-height: 38px;
   padding: 10px 0;
@@ -431,7 +429,7 @@ html {
   border-radius: 11px;
   background: transparent;
   color: #364156;
-  font-size: 17px;
+  font-size: 15px;
   text-align: left;
   transition:
     background 140ms ease,
@@ -444,8 +442,8 @@ html {
 .profile-menu-links svg,
 .profile-menu-footer svg,
 .profile-other-accounts svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   color: #8994a5;
   stroke-width: 1.7;
 }
@@ -473,7 +471,7 @@ html {
 .profile-other-accounts button {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-height: 38px;
   padding: 8px 0;
   border: 0;
@@ -487,6 +485,14 @@ html {
   margin-top: auto;
   padding-top: 8px;
   border-top: 1px dashed #dfe4eb;
+}
+.profile-menu-footer button {
+  gap: 12px;
+  font-size: 17px;
+}
+.profile-menu-footer svg {
+  width: 18px;
+  height: 18px;
 }
 .profile-menu-footer button:disabled {
   cursor: not-allowed;
