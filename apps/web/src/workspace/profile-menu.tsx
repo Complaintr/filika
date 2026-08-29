@@ -1,0 +1,233 @@
+"use client";
+
+import {
+  ChevronDown,
+  CircleUserRound,
+  LogOut,
+  Monitor,
+  Moon,
+  Settings,
+  Sun,
+  UserRoundPlus,
+} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useId, useRef, useState } from "react";
+
+export interface ProfileMenuProps {
+  workspaceName: string;
+}
+
+type ProfileTheme = "light" | "dark" | "system";
+
+const PREFERENCES_KEY = "filika-workspace-v1";
+
+function readProfileTheme(): ProfileTheme {
+  if (typeof window === "undefined") return "light";
+  try {
+    const value: unknown = JSON.parse(window.localStorage.getItem(PREFERENCES_KEY) ?? "null");
+    if (typeof value === "object" && value !== null && "theme" in value) {
+      const storedTheme = (value as { theme?: unknown }).theme;
+      if (storedTheme === "dark" || storedTheme === "system") return storedTheme;
+      return "light";
+    }
+  } catch {
+    return "light";
+  }
+  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+}
+
+function resolvedProfileTheme(theme: ProfileTheme): "light" | "dark" {
+  if (theme !== "system") return theme;
+  return typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function applyProfileTheme(theme: ProfileTheme): void {
+  const resolvedTheme = resolvedProfileTheme(theme);
+  document.documentElement.dataset.theme = resolvedTheme;
+  document
+    .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+    ?.setAttribute("content", resolvedTheme === "dark" ? "#0e0e10" : "#f7f8fa");
+}
+
+function saveProfileTheme(theme: ProfileTheme): void {
+  applyProfileTheme(theme);
+
+  try {
+    const value: unknown = JSON.parse(window.localStorage.getItem(PREFERENCES_KEY) ?? "null");
+    const current = typeof value === "object" && value !== null ? value : {};
+    window.localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ ...current, theme }));
+  } catch {
+    // The visible theme can still change when browser storage is unavailable.
+  }
+
+  window.dispatchEvent(new CustomEvent("filika:preferences"));
+}
+
+export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
+  const [open, setOpen] = useState(false);
+  const [theme, setTheme] = useState<ProfileTheme>("light");
+  const menuId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const syncTheme = () => {
+      const nextTheme = readProfileTheme();
+      setTheme(nextTheme);
+      applyProfileTheme(nextTheme);
+    };
+    const systemTheme =
+      typeof window.matchMedia === "function"
+        ? window.matchMedia("(prefers-color-scheme: dark)")
+        : null;
+    syncTheme();
+    window.addEventListener("storage", syncTheme);
+    window.addEventListener("filika:preferences", syncTheme);
+    systemTheme?.addEventListener("change", syncTheme);
+    return () => {
+      window.removeEventListener("storage", syncTheme);
+      window.removeEventListener("filika:preferences", syncTheme);
+      systemTheme?.removeEventListener("change", syncTheme);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function closeOnOutsidePointer(event: PointerEvent): void {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+
+    function closeOnEscape(event: KeyboardEvent): void {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      triggerRef.current?.focus();
+    }
+
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  const initial = workspaceName.trim().slice(0, 1).toUpperCase() || "F";
+
+  function selectTheme(nextTheme: ProfileTheme): void {
+    setTheme(nextTheme);
+    saveProfileTheme(nextTheme);
+  }
+
+  return (
+    <div className="profile-menu-root" ref={rootRef}>
+      <button
+        ref={triggerRef}
+        className="topbar-avatar"
+        type="button"
+        aria-label="Open profile menu"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-controls={menuId}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <CircleUserRound aria-hidden="true" />
+      </button>
+      {open ? (
+        <div className="profile-menu" id={menuId} role="menu" aria-label="Profile">
+          <div className="profile-menu-summary">
+            <span className="profile-menu-avatar" aria-hidden="true">
+              {initial}
+            </span>
+            <span className="profile-menu-identity">
+              <strong>{workspaceName}</strong>
+              <span>Local workspace</span>
+            </span>
+            <button
+              className="profile-menu-status"
+              type="button"
+              disabled
+              aria-label="Active status. Status controls are not available yet."
+              title="Status controls become available when profile status settings are enabled."
+            >
+              <span>Active</span>
+              <ChevronDown aria-hidden="true" />
+            </button>
+          </div>
+          <fieldset className="profile-theme-switcher">
+            <legend className="sr-only">Appearance</legend>
+            <button
+              type="button"
+              role="menuitemradio"
+              aria-label="Light theme"
+              aria-checked={theme === "light"}
+              onClick={() => selectTheme("light")}
+            >
+              <Sun aria-hidden="true" />
+              <span className="sr-only">Light</span>
+            </button>
+            <button
+              type="button"
+              role="menuitemradio"
+              aria-label="Dark theme"
+              aria-checked={theme === "dark"}
+              onClick={() => selectTheme("dark")}
+            >
+              <Moon aria-hidden="true" />
+              <span className="sr-only">Dark</span>
+            </button>
+            <button
+              type="button"
+              role="menuitemradio"
+              aria-label="System theme"
+              aria-checked={theme === "system"}
+              onClick={() => selectTheme("system")}
+            >
+              <Monitor aria-hidden="true" />
+              <span className="sr-only">System</span>
+            </button>
+          </fieldset>
+          <div className="profile-menu-links">
+            <Link role="menuitem" href="/settings#workspace-name" onClick={() => setOpen(false)}>
+              <CircleUserRound aria-hidden="true" />
+              <span>Manage Profile</span>
+            </Link>
+            <Link role="menuitem" href="/settings" onClick={() => setOpen(false)}>
+              <Settings aria-hidden="true" />
+              <span>Settings</span>
+            </Link>
+          </div>
+          <section className="profile-other-accounts" aria-labelledby={`${menuId}-other-accounts`}>
+            <div className="profile-other-accounts-heading">
+              <h2 id={`${menuId}-other-accounts`}>Other Accounts</h2>
+              <small>Not available</small>
+            </div>
+            <button
+              type="button"
+              role="menuitem"
+              disabled
+              title="Account switching becomes available when account access is enabled."
+            >
+              <UserRoundPlus aria-hidden="true" />
+              <span>Add another account</span>
+            </button>
+          </section>
+          <div className="profile-menu-footer">
+            <button
+              type="button"
+              role="menuitem"
+              disabled
+              title="Sign out becomes available when account access is enabled."
+            >
+              <LogOut aria-hidden="true" />
+              <span>Sign out</span>
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
