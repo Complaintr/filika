@@ -219,14 +219,11 @@ export default function DashboardPage() {
           <h1 tabIndex={-1}>Dashboard</h1>
           <p className="muted">A little clarity on what needs your attention.</p>
         </div>
-        <div className="page-actions">
-          <div className="select-with-icon">
-            <span className="select-icon" aria-hidden="true">
-              <CalendarIcon />
-            </span>
+        <div className="page-actions dashboard-actions">
+          <div className="date-range-control">
             <select
               aria-label="Dashboard date range"
-              className="select"
+              className="date-range-select"
               value={days}
               onChange={(event) => setDays(Number(event.target.value) as RangeDays)}
             >
@@ -234,10 +231,10 @@ export default function DashboardPage() {
               <option value="30">Last 30 days</option>
               <option value="90">Last 90 days</option>
             </select>
+            <span className="date-range-menu" aria-hidden="true">
+              <KebabIcon />
+            </span>
           </div>
-          <a className="button button-primary" href="/complaints">
-            View complaints
-          </a>
         </div>
       </div>
       <div className="dashboard-body" aria-busy={loading}>
@@ -406,10 +403,12 @@ function DashboardError({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-function CalendarIcon() {
+function KebabIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z M7 3v4 M17 3v4 M3 11h18" />
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="12" cy="5" r="1.6" />
+      <circle cx="12" cy="12" r="1.6" />
+      <circle cx="12" cy="19" r="1.6" />
     </svg>
   );
 }

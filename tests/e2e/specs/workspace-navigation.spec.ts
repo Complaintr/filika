@@ -16,7 +16,7 @@ test("workspace loads with a connected collector and three navigation destinatio
   await expect(navItem(page, "Dashboard")).toBeVisible();
   await expect(navItem(page, "Complaints")).toBeVisible();
   await expect(navItem(page, "Settings")).toBeVisible();
-  await expect(page.getByRole("link", { name: "View complaints" })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Dashboard date range" })).toBeVisible();
 });
 
 test("complaints list is reachable from the dashboard and renders its empty state", async ({
