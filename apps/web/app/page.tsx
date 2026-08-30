@@ -321,7 +321,6 @@ export default function HomePage() {
                 <span>Agent signals</span>
                 <strong>What agents notice</strong>
               </div>
-              <span className={styles.boardCount}>03</span>
             </div>
 
             <div className={styles.signalList}>
@@ -348,7 +347,6 @@ export default function HomePage() {
                 <span>Reviewed reports</span>
                 <strong>What maintainers receive</strong>
               </div>
-              <span className={styles.boardCount}>03</span>
             </div>
 
             <div className={styles.reportList}>

@@ -928,11 +928,6 @@
   letter-spacing: -0.45px;
 }
 
-.boardCount {
-  color: #8a9b9d;
-  font-size: 11px;
-}
-
 .signalList,
 .reportList {
   display: flex;
