@@ -1,6 +1,5 @@
 import {
   ArrowRight,
-  Check,
   CircleAlert,
   Code2,
   FileCode2,
@@ -120,10 +119,6 @@ export default function HomePage() {
         <div className={styles.heroTexture} aria-hidden="true" />
 
         <div className={styles.heroCopy}>
-          <a className={styles.eyebrow} href="#workflow">
-            WebMCP-native feedback infrastructure
-            <ArrowRight aria-hidden="true" />
-          </a>
           <h1>Turn agent friction into feedback your team can ship.</h1>
           <p>
             AI agents report bugs, blockers, and product feedback down to the relevant code, after
@@ -144,9 +139,6 @@ export default function HomePage() {
               View source
             </a>
           </div>
-          <p className={styles.heroNote}>
-            <Check aria-hidden="true" /> Open source · User-reviewed · Built on WebMCP
-          </p>
         </div>
 
         <div className={styles.productStage} id="product">
