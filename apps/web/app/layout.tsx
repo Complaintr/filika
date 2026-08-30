@@ -3,8 +3,12 @@ import Script from "next/script";
 import { AuthAwareShell } from "@/workspace/auth-aware-shell";
 
 export const metadata: Metadata = {
-  title: "Dashboard · Filika",
-  description: "Your Filika workspace for reviewing complaints and understanding product feedback.",
+  title: {
+    default: "Filika · Feedback infrastructure for AI agents",
+    template: "%s · Filika",
+  },
+  description:
+    "Filika helps AI agents report bugs, blockers, and product feedback through WebMCP with code context and user review.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
