@@ -22,6 +22,21 @@ describe("public landing page", () => {
     expect(page).toContain("Nothing is sent yet");
   });
 
+  test("pairs agent signals with maintainer-ready reviewed reports", async () => {
+    const page = await Bun.file(`${appDirectory}/page.tsx`).text();
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    expect(page).toContain("Evidence, not noise");
+    expect(page).toContain("What agents notice");
+    expect(page).toContain("What maintainers receive");
+    expect(page).toContain("Ready for triage");
+    expect(page).toContain("User reviewed");
+    expect(page).toContain("Duplicate-safe");
+    expect(styles).toContain('.reportCard[data-tone="aqua"]');
+    expect(styles).toContain('.reportCard[data-tone="violet"]');
+    expect(styles).toContain('.reportCard[data-tone="peach"]');
+  });
+
   test("offers workspace and source calls to action", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
 
