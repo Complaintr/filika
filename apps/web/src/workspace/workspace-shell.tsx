@@ -90,7 +90,7 @@ function ShellBody({ children }: WorkspaceShellProps) {
                 height={32}
                 unoptimized
               />
-              <span className="brand-name">filika</span>
+              <span className="brand-name">Filika</span>
             </Link>
             <span className="identity-separator" aria-hidden="true">
               /

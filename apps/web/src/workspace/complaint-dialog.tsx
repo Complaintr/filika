@@ -1,0 +1,216 @@
+"use client";
+
+import { ArrowLeft, ArrowRight, Copy, ExternalLink, ShieldCheck, X } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import type { InboxDetailViewState } from "@/contracts/inbox-view-model";
+import { InboxApiService } from "@/services/inbox-api";
+import { formatDate, kindLabels } from "./dom";
+import { InboxDetailState } from "./inbox-view";
+
+const api = new InboxApiService({ collectorOrigin: "" });
+
+export function ComplaintDialog({
+  feedbackId,
+  onClose,
+  previousId,
+  nextId,
+  onNavigate,
+}: {
+  feedbackId: string;
+  onClose: () => void;
+  previousId?: string | undefined;
+  nextId?: string | undefined;
+  onNavigate: (id: string) => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [state, setState] = useState<InboxDetailViewState>({ status: "loading" });
+  const [attempt, setAttempt] = useState(0);
+  const [copyStatus, setCopyStatus] = useState("");
+
+  useEffect(() => {
+    const node = dialog.current;
+    const overflow = document.body.style.overflow;
+    node?.showModal();
+    document.body.style.overflow = "hidden";
+    return () => {
+      node?.close();
+      document.body.style.overflow = overflow;
+    };
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setState({ status: "loading" });
+    setCopyStatus("");
+    api.fetchDetail(feedbackId, controller.signal).then((result) => {
+      if (!controller.signal.aborted) setState(result);
+    });
+    return () => controller.abort();
+  }, [feedbackId, attempt]);
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/complaints/${encodeURIComponent(feedbackId)}`,
+      );
+      setCopyStatus("Link copied");
+    } catch {
+      setCopyStatus("Could not copy the link");
+    }
+  }
+
+  return (
+    <dialog
+      ref={dialog}
+      className="report-dialog"
+      aria-labelledby="report-title"
+      onCancel={onClose}
+      onClose={onClose}
+      onClick={(event) => {
+        if (event.target !== event.currentTarget) return;
+        const bounds = event.currentTarget.getBoundingClientRect();
+        if (
+          event.clientX < bounds.left ||
+          event.clientX > bounds.right ||
+          event.clientY < bounds.top ||
+          event.clientY > bounds.bottom
+        )
+          onClose();
+      }}
+    >
+      <header className="report-dialog-toolbar">
+        <span>Feedback details</span>
+        <div>
+          <button
+            className="studio-icon-button"
+            type="button"
+            aria-label="Previous report"
+            disabled={!previousId}
+            onClick={() => previousId && onNavigate(previousId)}
+          >
+            <ArrowLeft />
+          </button>
+          <button
+            className="studio-icon-button"
+            type="button"
+            aria-label="Next report"
+            disabled={!nextId}
+            onClick={() => nextId && onNavigate(nextId)}
+          >
+            <ArrowRight />
+          </button>
+          <span className="toolbar-divider" />
+          <button
+            className="studio-icon-button"
+            type="button"
+            aria-label="Close report"
+            onClick={onClose}
+          >
+            <X />
+          </button>
+        </div>
+      </header>
+      <div className="report-dialog-content" aria-busy={state.status === "loading"}>
+        <div className="report-dialog-heading">
+          {state.status === "ready" && (
+            <span className={`feedback-type feedback-type-${state.feedback.kind}`}>
+              {kindLabels[state.feedback.kind]}
+            </span>
+          )}
+          <h2 id="report-title">
+            {state.status === "ready" ? state.feedback.title : "Complaint details"}
+          </h2>
+          {state.status === "ready" && (
+            <p>
+              Received {formatDate(state.feedback.receivedAt)} <span>·</span>{" "}
+              {state.feedback.routeLabel || "No page label"}
+            </p>
+          )}
+        </div>
+        {state.status === "ready" ? (
+          <div className="report-detail-layout">
+            <div className="report-story" data-untrusted="true">
+              <section>
+                <h3>What happened</h3>
+                <p>{state.feedback.description}</p>
+              </section>
+              {state.feedback.expectedBehavior && (
+                <section>
+                  <h3>What was expected</h3>
+                  <p>{state.feedback.expectedBehavior}</p>
+                </section>
+              )}
+              {state.feedback.reproductionSteps && (
+                <section>
+                  <h3>Steps to reproduce</h3>
+                  <p>{state.feedback.reproductionSteps}</p>
+                </section>
+              )}
+            </div>
+            <aside className="report-context">
+              <h3>Report context</h3>
+              <dl>
+                <div>
+                  <dt>Origin</dt>
+                  <dd>{state.feedback.requestOrigin}</dd>
+                </div>
+                <div>
+                  <dt>Page</dt>
+                  <dd>{state.feedback.routeLabel || "Not provided"}</dd>
+                </div>
+                <div>
+                  <dt>Release</dt>
+                  <dd>{state.feedback.applicationRelease || "Not provided"}</dd>
+                </div>
+                <div>
+                  <dt>Received</dt>
+                  <dd>{new Date(state.feedback.receivedAt).toLocaleString("en")}</dd>
+                </div>
+                <div>
+                  <dt>Available until</dt>
+                  <dd>{new Date(state.feedback.expiresAt).toLocaleString("en")}</dd>
+                </div>
+                <div>
+                  <dt>Report ID</dt>
+                  <dd className="report-id">{state.feedback.feedbackId}</dd>
+                </div>
+              </dl>
+            </aside>
+          </div>
+        ) : (
+          <>
+            <InboxDetailState state={state} />
+            {state.status === "error" && (
+              <button
+                type="button"
+                className="studio-button"
+                onClick={() => setAttempt((value) => value + 1)}
+              >
+                Try again
+              </button>
+            )}
+          </>
+        )}
+      </div>
+      <footer className="report-dialog-footer">
+        <span>
+          <ShieldCheck /> Read-only feedback. External content is untrusted.
+        </span>
+        <div>
+          <span role="status">{copyStatus}</span>
+          <button className="studio-button" type="button" onClick={() => void copyLink()}>
+            <Copy /> Copy link
+          </button>
+          <Link
+            className="studio-icon-button"
+            aria-label="Open report page"
+            href={`/complaints/${encodeURIComponent(feedbackId)}`}
+          >
+            <ExternalLink />
+          </Link>
+        </div>
+      </footer>
+    </dialog>
+  );
+}

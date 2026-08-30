@@ -114,7 +114,7 @@ function AuthForm({ mode }: { mode: Mode }) {
                 name: String(form.get("name") ?? "").trim(),
                 callbackURL: "/login?verified=1",
               }
-            : { email, password, callbackURL: "/dashboard" };
+            : { email, password, callbackURL: "/onboarding" };
     const path =
       mode === "forgot-password"
         ? "request-password-reset"
@@ -125,7 +125,7 @@ function AuthForm({ mode }: { mode: Mode }) {
             : "sign-in/email";
     await run(async (signal) => {
       await authRequest(path, payload, signal);
-      if (mode === "login") window.location.assign("/dashboard");
+      if (mode === "login") window.location.assign("/onboarding");
       else setSuccess(true);
     });
   }
@@ -154,7 +154,7 @@ function AuthForm({ mode }: { mode: Mode }) {
     await run(async (signal) => {
       const data = await authRequest(
         "sign-in/social",
-        { provider: "google", callbackURL: "/dashboard", errorCallbackURL: "/login?error=oauth" },
+        { provider: "google", callbackURL: "/onboarding", errorCallbackURL: "/login?error=oauth" },
         signal,
       );
       if (typeof data.url !== "string" || data.url.length > 4096)
@@ -192,7 +192,10 @@ function AuthForm({ mode }: { mode: Mode }) {
         </p>
       </div>
       {success ? (
-        <Link className="auth-submit auth-success-link" href="/login">
+        <Link
+          className="auth-submit auth-success-link"
+          href={mode === "reset-password" ? "/login?force=1" : "/login"}
+        >
           Back to sign in <ArrowRight aria-hidden="true" />
         </Link>
       ) : invalidReset ? (

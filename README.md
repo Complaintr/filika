@@ -81,6 +81,19 @@ this service available to users.
 Implementation references: [Better Auth email/password authentication](https://better-auth.com/docs/authentication/email-password)
 and [Resend email API](https://resend.com/docs/api-reference/emails/send-email).
 
+### Workspace introduction
+
+Email and Google sign-in open `/onboarding`. The four-step introduction lets a
+maintainer choose a role, a local workspace display name, and an initial inbox
+filter before reviewing how Filika collects user-confirmed feedback. Completion
+is saved per account in this browser; it does not create a collector project or
+install the SDK. Settings includes a link to reopen the guide. A completed guide
+is skipped on subsequent sign-ins in the same browser.
+
+Complaint details open in a keyboard-accessible dialog without leaving the list.
+Direct report links remain available for sharing. Settings separates workspace,
+appearance, account, connection, and privacy preferences with sidebar navigation.
+
 ## Verification
 
 ```sh

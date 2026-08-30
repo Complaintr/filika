@@ -9,6 +9,7 @@ const STANDALONE_PATHS = new Set([
   "/forgot-password",
   "/reset-password",
   "/terms",
+  "/onboarding",
 ]);
 
 /**

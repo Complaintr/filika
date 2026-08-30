@@ -1,6 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ArrowRight,
+  Check,
+  ChevronRight,
+  Copy,
+  Globe2,
+  Laptop,
+  LogOut,
+  Moon,
+  Paintbrush,
+  PanelLeft,
+  RefreshCw,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sun,
+  UserRound,
+} from "lucide-react";
+import Link from "next/link";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { fetchSession, type SessionInfo, signOut } from "@/services/session";
 import { fetchDashboard } from "@/services/workspace-api";
 import { useConnection } from "@/workspace/connection";
@@ -11,372 +29,496 @@ import {
   savePreferences,
 } from "@/workspace/preferences";
 
+type Section = "workspace" | "appearance" | "account" | "connection" | "privacy";
+const sections = [
+  {
+    id: "workspace",
+    label: "Workspace",
+    icon: SlidersHorizontal,
+    description: "A few small details to make this space yours.",
+  },
+  {
+    id: "appearance",
+    label: "Appearance",
+    icon: Paintbrush,
+    description: "Find a comfortable view for your everyday work.",
+  },
+  {
+    id: "account",
+    label: "Your account",
+    icon: UserRound,
+    description: "Your identity and access to this workspace.",
+  },
+  {
+    id: "connection",
+    label: "Collector connection",
+    icon: Globe2,
+    description: "Where feedback arrives, and how your workspace connects.",
+  },
+  {
+    id: "privacy",
+    label: "Privacy & data",
+    icon: ShieldCheck,
+    description: "Clear boundaries around every piece of feedback.",
+  },
+] as const;
+
 export default function SettingsPage() {
   const { reportConnection } = useConnection();
-  const [preferences, setPreferences] = useState<Preferences>(() => readPreferences());
-  const [name, setName] = useState(preferences.workspaceName);
-  const [days, setDays] = useState<number>(preferences.days);
-  const [density, setDensity] = useState<"comfortable" | "compact">(preferences.density);
-  const [theme, setTheme] = useState<"light" | "dark" | "system">(preferences.theme);
-  const [saveStatus, setSaveStatus] = useState("");
-  const [checkStatus, setCheckStatus] = useState("Checking the collector…");
-  const [checking, setChecking] = useState(false);
-  const checkingRef = useRef(false);
+  const [active, setActive] = useState<Section>("workspace");
+  const [saved, setSaved] = useState<Preferences>(DEFAULT_PREFERENCES);
+  const [draft, setDraft] = useState<Preferences>(DEFAULT_PREFERENCES);
+  const [status, setStatus] = useState("");
   const [session, setSession] = useState<SessionInfo | null>(null);
-  const [sessionStatus, setSessionStatus] = useState("Checking your session…");
+  const [sessionStatus, setSessionStatus] = useState("Loading your account…");
+  const [connection, setConnection] = useState<"idle" | "checking" | "connected" | "offline">(
+    "idle",
+  );
+  const checking = useRef<AbortController | null>(null);
+  const [copyStatus, setCopyStatus] = useState("");
+  const section = sections.find((item) => item.id === active) ?? sections[0];
+  const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
 
   useEffect(() => {
+    const current = readPreferences();
+    setSaved(current);
+    setDraft(current);
     const controller = new AbortController();
     fetchSession(controller.signal)
       .then((value) => {
+        if (controller.signal.aborted) return;
         setSession(value);
-        setSessionStatus(value === null ? "Signed out." : `Signed in as ${value.user.email}.`);
+        setSessionStatus(
+          value ? "" : "Your session has ended. Sign in again to view your account.",
+        );
       })
-      .catch(() => setSessionStatus("Could not read your session."));
-    return () => controller.abort();
+      .catch(() => {
+        if (!controller.signal.aborted)
+          setSessionStatus("We couldn’t load your account. Refresh the page to try again.");
+      });
+    return () => {
+      controller.abort();
+      checking.current?.abort();
+    };
   }, []);
 
-  const checkConnection = useCallback(async () => {
-    if (checkingRef.current) return;
-    checkingRef.current = true;
-    setChecking(true);
-    setCheckStatus("Checking the collector…");
-    try {
-      await fetchDashboard(7, AbortSignal.timeout(10_000));
-      reportConnection(true);
-      setCheckStatus("Connected. The collector and database are responding.");
-    } catch {
-      reportConnection(false);
-      setCheckStatus("Could not connect. Check the collector address and database.");
-    } finally {
-      checkingRef.current = false;
-      setChecking(false);
-    }
-  }, [reportConnection]);
-
-  useEffect(() => {
-    void checkConnection();
-  }, [checkConnection]);
-
-  function restoreDefaults() {
-    setName(DEFAULT_PREFERENCES.workspaceName);
-    setDays(DEFAULT_PREFERENCES.days);
-    setDensity(DEFAULT_PREFERENCES.density);
-    setTheme(DEFAULT_PREFERENCES.theme);
-    setSaveStatus("Defaults restored. Save changes to apply them.");
+  function update(next: Partial<Preferences>) {
+    setDraft((current) => ({ ...current, ...next }));
+    setStatus("");
   }
-
-  function submit(event: React.FormEvent) {
+  function save(event: FormEvent) {
     event.preventDefault();
-    if (!name.trim()) {
-      setSaveStatus("");
+    if (!draft.workspaceName.trim()) {
+      setActive("workspace");
+      setStatus("Enter a workspace name before saving.");
       return;
     }
-    const next: Preferences = {
-      workspaceName: name.trim().slice(0, 60),
-      days: days === 7 || days === 90 ? days : 30,
-      density,
-      theme,
-    };
+    const next = { ...draft, workspaceName: draft.workspaceName.trim().slice(0, 60) };
     if (!savePreferences(next)) {
-      setSaveStatus(
-        "Your browser could not save these settings. Allow local storage and try again.",
+      setStatus(
+        "Your browser could not save these preferences. Allow local storage and try again.",
       );
       return;
     }
-    setPreferences(next);
-    document.documentElement.dataset.density = next.density;
-    document.documentElement.dataset.theme =
-      next.theme === "system"
-        ? window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light"
-        : next.theme;
+    setSaved(next);
+    setDraft(next);
     window.dispatchEvent(new CustomEvent("filika:preferences"));
-    setSaveStatus("Changes saved.");
+    setStatus("Your changes are saved.");
+  }
+
+  async function checkConnection() {
+    if (checking.current) return;
+    const controller = new AbortController();
+    checking.current = controller;
+    setConnection("checking");
+    try {
+      await fetchDashboard(7, controller.signal);
+      if (!controller.signal.aborted) {
+        reportConnection(true);
+        setConnection("connected");
+      }
+    } catch {
+      if (!controller.signal.aborted) {
+        reportConnection(false);
+        setConnection("offline");
+      }
+    } finally {
+      checking.current = null;
+    }
+  }
+
+  async function copyEndpoint() {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/api/v1/feedback`);
+      setCopyStatus("Endpoint copied");
+    } catch {
+      setCopyStatus("Could not copy. The endpoint is /api/v1/feedback.");
+    }
   }
 
   return (
-    <>
-      <div className="page-heading">
+    <div className="settings-studio">
+      <header className="studio-page-heading">
         <div>
-          <h1 tabIndex={-1}>Settings</h1>
-          <p className="muted">Make this workspace feel like yours.</p>
+          <p className="studio-eyebrow">Your space, your way</p>
+          <h1>
+            Settings<span className="heading-dot">.</span>
+          </h1>
         </div>
-      </div>
-      <div className="settings-grid">
-        <div className="settings-main">
-          <form className="panel settings-panel" onSubmit={submit}>
-            <div className="panel-heading">
-              <h2>Workspace preferences</h2>
-              <span className="subtle-badge">This browser</span>
-            </div>
-            <SettingRow
-              id="workspace-name"
-              title="Workspace name"
-              hint="A display name for this browser. It does not rename collector projects."
-            >
-              <input
-                id="workspace-name"
-                className="input"
-                type="text"
-                maxLength={60}
-                required
-                autoComplete="off"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-              />
-            </SettingRow>
-            <SettingRow
-              id="default-range"
-              title="Default date range"
-              hint="The period shown when you open your dashboard."
-            >
-              <select
-                id="default-range"
-                className="select"
-                value={days}
-                onChange={(event) => setDays(Number(event.target.value))}
+        <span className="studio-local-badge">
+          <Laptop /> Preferences for this browser
+        </span>
+      </header>
+      <div className="settings-layout">
+        <aside className="settings-sidebar">
+          <p className="settings-nav-label">Preferences</p>
+          <nav aria-label="Settings sections">
+            {sections.map(({ id, label, icon: Icon }) => (
+              <button
+                type="button"
+                key={id}
+                aria-current={active === id ? "page" : undefined}
+                onClick={() => {
+                  setActive(id);
+                  setStatus("");
+                }}
               >
-                <option value={7}>Last 7 days</option>
-                <option value={30}>Last 30 days</option>
-                <option value={90}>Last 90 days</option>
-              </select>
-            </SettingRow>
-            <SettingRow
-              id="table-density"
-              title="Table density"
-              hint="Choose how much space complaint rows use."
-            >
-              <select
-                id="table-density"
-                className="select"
-                value={density}
-                onChange={(event) =>
-                  setDensity(event.target.value === "compact" ? "compact" : "comfortable")
-                }
-              >
-                <option value="comfortable">Comfortable</option>
-                <option value="compact">Compact</option>
-              </select>
-            </SettingRow>
-            <fieldset className="setting-row appearance-setting">
-              <legend className="sr-only">Appearance</legend>
-              <div>
-                <span className="setting-label">Appearance</span>
-                <p className="muted small">Choose the workspace theme used on this browser.</p>
-              </div>
-              <div className="theme-options">
-                <label className="theme-option">
-                  <input
-                    type="radio"
-                    name="theme"
-                    value="light"
-                    checked={theme === "light"}
-                    onChange={() => setTheme("light")}
-                  />
-                  <span className="theme-preview theme-preview-light" aria-hidden="true">
-                    <span />
-                    <span />
-                  </span>
-                  <span>Light</span>
-                </label>
-                <label className="theme-option">
-                  <input
-                    type="radio"
-                    name="theme"
-                    value="dark"
-                    checked={theme === "dark"}
-                    onChange={() => setTheme("dark")}
-                  />
-                  <span className="theme-preview theme-preview-dark" aria-hidden="true">
-                    <span />
-                    <span />
-                  </span>
-                  <span>Dark</span>
-                </label>
-                <label className="theme-option">
-                  <input
-                    type="radio"
-                    name="theme"
-                    value="system"
-                    checked={theme === "system"}
-                    onChange={() => setTheme("system")}
-                  />
-                  <span className="theme-preview theme-preview-system" aria-hidden="true">
-                    <span />
-                    <span />
-                  </span>
-                  <span>System</span>
-                </label>
-              </div>
-            </fieldset>
-            <div className="settings-form-footer">
-              <button className="button" type="button" onClick={restoreDefaults}>
-                Restore defaults
+                <Icon />
+                <span>{label}</span>
+                <ChevronRight />
               </button>
-              <button className="button button-primary" type="submit">
-                Save changes
-              </button>
-            </div>
-            <p className="save-status small" role="status">
-              {saveStatus}
-            </p>
+            ))}
+          </nav>
+          <div className="settings-sidebar-guide">
+            <span className="settings-guide-icon">
+              <PanelLeft />
+            </span>
+            <h3>A good place to start</h3>
+            <p>A quick introduction to your feedback workspace.</p>
+            <Link href="/onboarding?edit=1">
+              Open the guide <ArrowRight />
+            </Link>
+          </div>
+          <Link href="/terms" className="settings-terms">
+            Terms of Service ↗
+          </Link>
+        </aside>
+        <div className="settings-content">
+          <header className="settings-section-heading">
+            <h2>{section.label}</h2>
+            <p>{section.description}</p>
+          </header>
+          <form onSubmit={save}>
+            {active === "workspace" && (
+              <div className="settings-section-body">
+                <div className="workspace-name-preview">
+                  <span>{draft.workspaceName.trim().slice(0, 1).toUpperCase() || "F"}</span>
+                  <div>
+                    <strong>{draft.workspaceName.trim() || "Your workspace"}</strong>
+                    <p>Your corner of Filika</p>
+                  </div>
+                </div>
+                <div className="studio-setting">
+                  <label htmlFor="workspace-name">
+                    Workspace name
+                    <span>A local display name. Collector project names stay unchanged.</span>
+                  </label>
+                  <input
+                    className="studio-input"
+                    id="workspace-name"
+                    value={draft.workspaceName}
+                    maxLength={60}
+                    required
+                    onChange={(event) => update({ workspaceName: event.target.value })}
+                  />
+                </div>
+                <div className="studio-setting">
+                  <label htmlFor="default-range">
+                    Dashboard date range<span>The period you see when opening your dashboard.</span>
+                  </label>
+                  <select
+                    className="studio-input"
+                    id="default-range"
+                    value={draft.days}
+                    onChange={(event) =>
+                      update({
+                        days:
+                          Number(event.target.value) === 7
+                            ? 7
+                            : Number(event.target.value) === 90
+                              ? 90
+                              : 30,
+                      })
+                    }
+                  >
+                    <option value={7}>Last 7 days</option>
+                    <option value={30}>Last 30 days</option>
+                    <option value={90}>Last 90 days</option>
+                  </select>
+                </div>
+                <div className="settings-inline-note">
+                  <Laptop />
+                  <p>
+                    These preferences belong to this browser. They don’t change what other
+                    maintainers see.
+                  </p>
+                </div>
+              </div>
+            )}
+            {active === "appearance" && (
+              <div className="settings-section-body">
+                <fieldset className="studio-fieldset">
+                  <legend>Color theme</legend>
+                  <p>Choose a look, or follow your device’s setting.</p>
+                  <div className="appearance-choices">
+                    {[
+                      { value: "light", label: "Light", icon: Sun },
+                      { value: "dark", label: "Dark", icon: Moon },
+                      { value: "system", label: "System", icon: Laptop },
+                    ].map(({ value, label, icon: Icon }) => (
+                      <label key={value} className={`appearance-choice appearance-${value}`}>
+                        <input
+                          type="radio"
+                          name="theme"
+                          value={value}
+                          checked={draft.theme === value}
+                          onChange={() =>
+                            update({
+                              theme:
+                                value === "dark" ? "dark" : value === "system" ? "system" : "light",
+                            })
+                          }
+                        />
+                        <span className="appearance-mini" aria-hidden="true">
+                          <span className="appearance-mini-sidebar" />
+                          <span className="appearance-mini-body">
+                            <i />
+                            <i />
+                            <i />
+                          </span>
+                        </span>
+                        <span className="appearance-choice-label">
+                          <Icon />
+                          {label}
+                          <span className="appearance-check">
+                            {draft.theme === value && <Check />}
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <fieldset className="studio-fieldset">
+                  <legend>Inbox spacing</legend>
+                  <p>A little breathing room, or more reports at a glance.</p>
+                  <div className="density-choices">
+                    {(["comfortable", "compact"] as const).map((value) => (
+                      <label key={value}>
+                        <input
+                          type="radio"
+                          name="density"
+                          checked={draft.density === value}
+                          onChange={() => update({ density: value })}
+                        />
+                        <span className={`density-lines density-${value}`} aria-hidden="true">
+                          <i />
+                          <i />
+                          <i />
+                        </span>
+                        <strong>{value === "comfortable" ? "Comfortable" : "Compact"}</strong>
+                        <span>{value === "comfortable" ? "Room to focus" : "More in view"}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </div>
+            )}
+            {(active === "workspace" || active === "appearance") && (
+              <footer className="settings-save-bar">
+                <button
+                  className="studio-text-button"
+                  type="button"
+                  onClick={() => {
+                    setDraft(saved);
+                    setStatus("");
+                  }}
+                  disabled={!dirty}
+                >
+                  Discard changes
+                </button>
+                <div>
+                  <span>{dirty ? "Unsaved changes" : "All changes saved"}</span>
+                  <button
+                    className="studio-button studio-button-primary"
+                    type="submit"
+                    disabled={!dirty}
+                  >
+                    Save changes <Check />
+                  </button>
+                </div>
+              </footer>
+            )}
           </form>
-          <section className="panel settings-panel">
-            <div className="panel-heading">
-              <h2>Your account</h2>
-              <span className="subtle-badge">Google</span>
-            </div>
-            <div className="connection-info">
-              {session === null ? (
-                <p className="muted">{sessionStatus}</p>
+          {active === "account" && (
+            <div className="settings-section-body">
+              {session ? (
+                <>
+                  <div className="account-profile">
+                    <span className="account-avatar">
+                      {session.user.name.slice(0, 1).toUpperCase()}
+                    </span>
+                    <div>
+                      <h3>{session.user.name}</h3>
+                      <p>{session.user.email}</p>
+                    </div>
+                  </div>
+                  <div className="settings-info-row">
+                    <div>
+                      <h3>Email address</h3>
+                      <p>Your identity for signing in to Filika.</p>
+                    </div>
+                    <span>{session.user.email}</span>
+                  </div>
+                  <div className="settings-info-row">
+                    <div>
+                      <h3>Password & recovery</h3>
+                      <p>Request a secure link to set a new password.</p>
+                    </div>
+                    <Link className="studio-button" href="/forgot-password">
+                      Reset password <ArrowRight />
+                    </Link>
+                  </div>
+                  <div className="settings-info-row">
+                    <div>
+                      <h3>End this session</h3>
+                      <p>You can sign in again whenever you’re ready.</p>
+                    </div>
+                    <button className="studio-button" type="button" onClick={() => void signOut()}>
+                      <LogOut /> Sign out
+                    </button>
+                  </div>
+                </>
               ) : (
-                <p>
-                  <strong>{session.user.name}</strong>
-                  <br />
-                  <span className="muted small">{session.user.email}</span>
+                <p className="settings-inline-note" role="status">
+                  {sessionStatus}
                 </p>
               )}
             </div>
-            <div className="connection-actions">
-              <p className="small muted" role="status">
-                {sessionStatus}
+          )}
+          {active === "connection" && (
+            <div className="settings-section-body">
+              <div className={`collector-overview collector-${connection}`}>
+                <span className="collector-symbol">
+                  <Globe2 />
+                </span>
+                <div>
+                  <h3>Your feedback collector</h3>
+                  <p>
+                    {connection === "connected"
+                      ? "Connected. Ready to receive and display reports."
+                      : connection === "offline"
+                        ? "Unavailable. Check your server and database configuration."
+                        : connection === "checking"
+                          ? "Connecting to your collector…"
+                          : "Your workspace uses the collector on this server."}
+                  </p>
+                </div>
+                <span className="collector-status-dot" />
+              </div>
+              <div className="settings-info-row">
+                <div>
+                  <h3>Ingest endpoint</h3>
+                  <p>Where your website sends user-confirmed reports.</p>
+                  <code className="settings-endpoint">/api/v1/feedback</code>
+                </div>
+                <button className="studio-button" type="button" onClick={() => void copyEndpoint()}>
+                  <Copy /> Copy endpoint
+                </button>
+              </div>
+              <p className="settings-copy-status" role="status">
+                {copyStatus}
               </p>
-              <button
-                className="button"
-                type="button"
-                onClick={() => void signOut()}
-                disabled={session === null}
-              >
-                Sign out
-              </button>
-            </div>
-          </section>
-          <section className="panel settings-panel">
-            <div className="panel-heading">
-              <h2>Collector connection</h2>
-              <span className="connection-globe" aria-hidden="true">
-                <GlobeIcon />
-              </span>
-            </div>
-            <div className="connection-info">
-              <p>Your workspace reads reports from the collector API on this server.</p>
-              <code className="endpoint">/api/v1/inbox</code>
-              <p className="muted small">
-                The collector runs in the same Next.js server. DATABASE_URL in .env points at
-                PostgreSQL.
+              <div className="settings-info-row">
+                <div>
+                  <h3>Connection status</h3>
+                  <p>Check that the collector and database are responding.</p>
+                </div>
+                <button
+                  className="studio-button"
+                  type="button"
+                  disabled={connection === "checking"}
+                  onClick={() => void checkConnection()}
+                >
+                  <RefreshCw className={connection === "checking" ? "studio-spinning" : ""} />
+                  {connection === "checking" ? "Checking…" : "Check connection"}
+                </button>
+              </div>
+              <p role="status" className="settings-copy-status">
+                {connection === "connected"
+                  ? "The collector and database are responding."
+                  : connection === "offline"
+                    ? "Could not connect. Check DATABASE_URL in your server configuration."
+                    : ""}
               </p>
+              <div className="settings-inline-note">
+                <ShieldCheck />
+                <p>
+                  Project keys and allowed origins are configured on the server. Copying this
+                  endpoint does not install the SDK or connect a website.
+                </p>
+              </div>
             </div>
-            <div className="connection-actions">
-              <p className="small muted" role="status">
-                {checkStatus}
-              </p>
-              <button
-                className="button"
-                type="button"
-                onClick={() => void checkConnection()}
-                disabled={checking}
-              >
-                <RefreshIcon />
-                Check connection
-              </button>
+          )}
+          {active === "privacy" && (
+            <div className="settings-section-body">
+              <div className="privacy-intro">
+                <ShieldCheck />
+                <h3>
+                  Useful feedback.
+                  <br />
+                  Clear boundaries.
+                </h3>
+                <p>
+                  Filika collects the report a person chooses to send, after they have had a chance
+                  to review it.
+                </p>
+              </div>
+              {[
+                {
+                  title: "Reviewed before it leaves the page",
+                  body: "People can edit, remove, or cancel an agent-authored draft before confirming it. Manual feedback is always available.",
+                },
+                {
+                  title: "No ambient collection",
+                  body: "Filika does not automatically collect page content, credentials, screenshots, or browsing history.",
+                },
+                {
+                  title: "Read-only maintainer workspace",
+                  body: "External feedback is displayed as text. Browser agent tools are never registered on these management pages.",
+                },
+                {
+                  title: "Retention belongs to the project",
+                  body: "Your collector project defines how long reports remain available. Data cleanup is managed on the server.",
+                },
+              ].map(({ title, body }) => (
+                <div key={title} className="privacy-principle">
+                  <Check />
+                  <div>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </div>
+                </div>
+              ))}
+              <Link className="studio-text-button" href="/terms">
+                Read the Terms of Service <ArrowRight />
+              </Link>
             </div>
-          </section>
+          )}
+          <p className="settings-save-status" role="status">
+            {status}
+          </p>
         </div>
-        <aside className="settings-aside">
-          <section className="privacy-card">
-            <span className="privacy-icon" aria-hidden="true">
-              <ShieldIcon />
-            </span>
-            <h2>Feedback, with boundaries.</h2>
-            <p className="muted">
-              Users review every agent-authored report before it is sent. Your workspace only shows
-              the feedback they chose to share.
-            </p>
-            <ul className="privacy-list">
-              <li>
-                <CheckIcon />
-                <span>No page content or browsing history</span>
-              </li>
-              <li>
-                <CheckIcon />
-                <span>No screenshots or credentials</span>
-              </li>
-              <li>
-                <CheckIcon />
-                <span>No agent tools on management pages</span>
-              </li>
-            </ul>
-          </section>
-          <section className="settings-note">
-            <h3>About this workspace</h3>
-            <p className="muted small">
-              Sign in with Google to manage this workspace. Reports stay readable only by signed-in
-              maintainers; the public feedback form is limited to reporting, never reading.
-            </p>
-            <p className="muted small">
-              Retention is configured per collector project. Expired records remain in counts until
-              the cleanup command runs.
-            </p>
-          </section>
-        </aside>
       </div>
-    </>
-  );
-}
-
-function SettingRow({
-  children,
-  hint,
-  id,
-  title,
-}: {
-  children: React.ReactNode;
-  hint: string;
-  id: string;
-  title: string;
-}) {
-  return (
-    <div className="setting-row">
-      <div>
-        <label className="setting-label" htmlFor={id}>
-          {title}
-        </label>
-        <p className="muted small" id={`${id}-hint`}>
-          {hint}
-        </p>
-      </div>
-      <div aria-describedby={`${id}-hint`}>{children}</div>
     </div>
-  );
-}
-
-function GlobeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z M3 12h18 M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z" />
-    </svg>
-  );
-}
-function ShieldIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z M8 12l3 3 5-6" />
-    </svg>
-  );
-}
-function CheckIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M5 12l4 4L19 6" />
-    </svg>
-  );
-}
-function RefreshIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M20 7v5h-5 M4 17v-5h5 M6 6a8 8 0 0 1 13 2 M18 18A8 8 0 0 1 5 16" />
-    </svg>
   );
 }
