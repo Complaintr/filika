@@ -128,217 +128,194 @@ export default function ComplaintsPage() {
 
   return (
     <div className="feedback-workspace">
-      <header className="studio-page-heading">
+      <header className="page-heading">
         <div>
-          <p className="studio-eyebrow">Feedback inbox</p>
-          <h1>
-            All complaints<span className="heading-dot">.</span>
-          </h1>
-          <p>The details that help you build something better.</p>
+          <h1>All complaints</h1>
+          <p className="muted">A closer look at the feedback behind your product.</p>
         </div>
         <button
-          className="studio-button"
+          className="button filika-pill"
           type="button"
           onClick={() => load(query)}
           disabled={loading}
         >
-          <RefreshCw className={loading ? "studio-spinning" : ""} /> Refresh
+          <RefreshCw className={loading ? "studio-spinning" : ""} /> Refresh inbox
         </button>
       </header>
-      <div className="feedback-tabs" aria-label="Feedback types">
-        {[
-          { key: "", label: "All feedback", icon: Inbox },
-          { key: "bug", label: "Bugs", icon: Bug },
-          { key: "blocked_task", label: "Blocked tasks", icon: CircleSlash },
-          { key: "confusing_behavior", label: "Confusing behavior", icon: CircleHelp },
-          { key: "idea", label: "Ideas", icon: Lightbulb },
-        ].map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            type="button"
-            aria-pressed={query.kind === key}
-            onClick={() => reset({ kind: key, search: draft })}
+      <section className="analytics-surface feedback-inbox" aria-label="Feedback inbox">
+        <div className="analytics-surface-heading">
+          <h2>Your inbox</h2>
+          <span>{loading ? "Updating…" : `${items?.length ?? 0} reports on this page`}</span>
+        </div>
+        <div className="analytics-inset feedback-inbox-inset">
+          <form
+            className="feedback-inbox-toolbar"
+            onSubmit={(event) => {
+              event.preventDefault();
+              reset({ search: draft });
+            }}
           >
-            <Icon />
-            {label}
-          </button>
-        ))}
-      </div>
-      <section className="feedback-surface" aria-label="Feedback list">
-        <form
-          className="feedback-tools"
-          onSubmit={(event) => {
-            event.preventDefault();
-            reset({ search: draft });
-          }}
-        >
-          <label className="feedback-search">
-            <Search />
-            <input
-              aria-label="Search complaints, pages, or origins"
-              type="search"
-              maxLength={200}
-              placeholder="Search feedback, pages, or origins…"
-              value={draft}
-              onChange={(event) => updateSearch(event.target.value)}
-            />
-            <kbd>↵</kbd>
-          </label>
-          <div className="feedback-tools-meta">
-            <span>{loading ? "Updating…" : `${items?.length ?? 0} reports on this page`}</span>
+            <label className="feedback-inbox-search">
+              <Search />
+              <input
+                aria-label="Search complaints, pages, or origins"
+                type="search"
+                maxLength={200}
+                placeholder="Search complaints…"
+                value={draft}
+                onChange={(event) => updateSearch(event.target.value)}
+              />
+            </label>
+            <span className="feedback-sort-label">Newest first</span>
             {filtersActive && (
               <button
+                className="button filika-pill"
                 type="button"
                 onClick={() => {
                   setDraft("");
                   reset({ kind: "", search: "" });
                 }}
               >
-                <X /> Clear filters
+                <X /> Clear
               </button>
             )}
+          </form>
+          <div className="feedback-kind-switcher" aria-label="Feedback types">
+            {[
+              { key: "", label: "All complaints", icon: Inbox },
+              { key: "bug", label: "Bugs", icon: Bug },
+              { key: "blocked_task", label: "Blocked tasks", icon: CircleSlash },
+              { key: "confusing_behavior", label: "Confusing", icon: CircleHelp },
+              { key: "idea", label: "Ideas", icon: Lightbulb },
+            ].map(({ key, label, icon: Icon }) => (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={query.kind === key}
+                onClick={() => reset({ kind: key, search: draft })}
+              >
+                <Icon />
+                {label}
+              </button>
+            ))}
           </div>
-        </form>
-        <div aria-busy={loading} className={loading && items ? "feedback-updating" : ""}>
-          {error ? (
-            <div className="feedback-empty" role="alert">
-              <span className="feedback-empty-icon">
-                <WifiOff />
-              </span>
-              <h2>We couldn’t load your feedback</h2>
-              <p>Your filters are saved. Check your connection and try again.</p>
-              <button className="studio-button" type="button" onClick={() => load(query)}>
-                Try again <ArrowRight />
+          <div
+            className={`feedback-inbox-body${loading && items ? " feedback-updating" : ""}`}
+            aria-busy={loading}
+          >
+            {error ? (
+              <div className="feedback-empty" role="alert">
+                <span className="feedback-empty-icon">
+                  <WifiOff />
+                </span>
+                <h2>Could not load complaints</h2>
+                <p>Check the collector connection and try again. Your filters are still here.</p>
+                <button className="button filika-pill" type="button" onClick={() => load(query)}>
+                  Try again <ArrowRight />
+                </button>
+              </div>
+            ) : loading && items === null ? (
+              <div className="feedback-empty" role="status">
+                <span className="feedback-empty-icon">
+                  <RefreshCw className="studio-spinning" />
+                </span>
+                <h2>Loading your inbox</h2>
+                <p>Reading reports from the collector.</p>
+              </div>
+            ) : !items?.length ? (
+              <div className="feedback-empty" role="status">
+                <span className="feedback-empty-icon">
+                  <Inbox />
+                </span>
+                <h2>
+                  {filtersActive ? "No matching complaints" : "Your next improvement starts here."}
+                </h2>
+                <p>
+                  {filtersActive
+                    ? "Try another search or clear your filters."
+                    : "Once someone reviews and sends feedback from your website, you’ll find it here."}
+                </p>
+                {filtersActive ? (
+                  <button
+                    className="button filika-pill"
+                    type="button"
+                    onClick={() => {
+                      setDraft("");
+                      reset({ kind: "", search: "" });
+                    }}
+                  >
+                    Clear filters
+                  </button>
+                ) : (
+                  <Link href="/onboarding?edit=1" className="button filika-pill">
+                    Set up your feedback flow <ArrowRight />
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <ol className="feedback-report-list" aria-label="Complaints">
+                {items.map((item) => (
+                  <li key={item.feedbackId}>
+                    <button
+                      className="feedback-report-button"
+                      type="button"
+                      onClick={() => setSelectedId(item.feedbackId)}
+                    >
+                      <span className={`feedback-report-symbol feedback-type-${item.kind}`}>
+                        <FeedbackIcon kind={item.kind} />
+                      </span>
+                      <span className="feedback-report-copy">
+                        <strong>{item.title}</strong>
+                        <span className="feedback-report-metadata">
+                          <span>{kindLabels[item.kind]}</span>
+                          <i aria-hidden="true">·</i>
+                          <span>{item.routeLabel || item.requestOrigin}</span>
+                          {item.routeLabel && (
+                            <>
+                              <i aria-hidden="true">·</i>
+                              <span className="feedback-report-origin">{item.requestOrigin}</span>
+                            </>
+                          )}
+                        </span>
+                      </span>
+                      <time
+                        dateTime={item.receivedAt}
+                        title={new Date(item.receivedAt).toLocaleString("en")}
+                      >
+                        {formatDate(item.receivedAt)}
+                      </time>
+                      <ArrowUpRight className="feedback-report-arrow" />
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+          <footer className="feedback-inbox-footer">
+            <p role="status">Page {page}</p>
+            <div>
+              <button
+                className="button filika-pill"
+                type="button"
+                disabled={page === 1 || loading}
+                onClick={goBack}
+              >
+                <ChevronLeft /> Previous
+              </button>
+              <button
+                className="button filika-pill"
+                type="button"
+                disabled={nextCursor === null || loading}
+                onClick={goForward}
+              >
+                Next <ChevronRight />
               </button>
             </div>
-          ) : loading && items === null ? (
-            <div className="feedback-empty" role="status">
-              <span className="feedback-empty-icon">
-                <RefreshCw className="studio-spinning" />
-              </span>
-              <h2>Opening your inbox</h2>
-              <p>Bringing your feedback into view.</p>
-            </div>
-          ) : !items?.length ? (
-            <div className="feedback-empty" role="status">
-              <span className="feedback-empty-icon">
-                <Inbox />
-              </span>
-              <h2>{filtersActive ? "Nothing matches just yet" : "Good feedback starts here"}</h2>
-              <p>
-                {filtersActive
-                  ? "Try a different phrase or clear your filters to see every report."
-                  : "Once Filika is connected to your website, user-reviewed reports will arrive here."}
-              </p>
-              {filtersActive ? (
-                <button
-                  className="studio-button"
-                  type="button"
-                  onClick={() => {
-                    setDraft("");
-                    reset({ kind: "", search: "" });
-                  }}
-                >
-                  Clear filters
-                </button>
-              ) : (
-                <Link href="/onboarding?edit=1" className="studio-button">
-                  Your getting-started guide <ArrowRight />
-                </Link>
-              )}
-            </div>
-          ) : (
-            <div className="feedback-table-scroll">
-              <table className="feedback-table" aria-label="All complaints">
-                <thead>
-                  <tr>
-                    <th scope="col">Report</th>
-                    <th scope="col">Source</th>
-                    <th scope="col">Received</th>
-                    <th scope="col">
-                      <span className="sr-only">Open report</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item) => (
-                    <tr key={item.feedbackId}>
-                      <td>
-                        <div className="feedback-report-cell">
-                          <span className={`feedback-kind-icon feedback-type-${item.kind}`}>
-                            <FeedbackIcon kind={item.kind} />
-                          </span>
-                          <div>
-                            <button
-                              className="feedback-title"
-                              type="button"
-                              onClick={() => setSelectedId(item.feedbackId)}
-                            >
-                              {item.title}
-                            </button>
-                            <span className="feedback-type-label">{kindLabels[item.kind]}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="feedback-source">
-                          {item.routeLabel || "Unlabeled page"}
-                        </span>
-                        <span className="feedback-origin">{item.requestOrigin}</span>
-                      </td>
-                      <td>
-                        <time
-                          dateTime={item.receivedAt}
-                          title={new Date(item.receivedAt).toLocaleString("en")}
-                        >
-                          {formatDate(item.receivedAt)}
-                        </time>
-                      </td>
-                      <td>
-                        <button
-                          className="studio-icon-button feedback-open"
-                          type="button"
-                          aria-label={`Open ${item.title}`}
-                          onClick={() => setSelectedId(item.feedbackId)}
-                        >
-                          <ArrowUpRight />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          </footer>
         </div>
-        <footer className="feedback-pagination">
-          <p role="status">
-            Page <strong>{page}</strong> <span>·</span> Newest first
-          </p>
-          <div>
-            <button
-              className="studio-icon-button"
-              type="button"
-              aria-label="Previous page"
-              disabled={page === 1 || loading}
-              onClick={goBack}
-            >
-              <ChevronLeft />
-            </button>
-            <button
-              className="studio-icon-button"
-              type="button"
-              aria-label="Next page"
-              disabled={nextCursor === null || loading}
-              onClick={goForward}
-            >
-              <ChevronRight />
-            </button>
-          </div>
-        </footer>
       </section>
       <p className="feedback-footnote">
-        <ShieldCheck /> Only the feedback people chose to share. No background page collection.
+        <ShieldCheck /> Reviewed by people. Shared on their terms.
       </p>
       {selectedId && (
         <ComplaintDialog

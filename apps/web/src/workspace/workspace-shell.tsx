@@ -2,10 +2,10 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { EllipsisVertical, Home, type LucideIcon, MessageCircle, Settings } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FilikaBrand } from "@/components/filika-brand";
 import BottomNavBar from "@/components/ui/bottom-nav-bar";
 import { ConnectionProvider, connectionLabel, useConnection } from "./connection";
 import { type Preferences, readPreferences } from "./preferences";
@@ -81,17 +81,7 @@ function ShellBody({ children }: WorkspaceShellProps) {
       <header className="topbar">
         <div className="topbar-inner">
           <div className="workspace-identity">
-            <Link className="brand" href="/dashboard" aria-label="Filika dashboard">
-              <Image
-                className="brand-mark"
-                src="/filika-logo.svg"
-                alt=""
-                width={32}
-                height={32}
-                unoptimized
-              />
-              <span className="brand-name">Filika</span>
-            </Link>
+            <FilikaBrand href="/dashboard" label="Filika dashboard" />
             <span className="identity-separator" aria-hidden="true">
               /
             </span>

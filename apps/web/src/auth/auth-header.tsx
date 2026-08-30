@@ -1,9 +1,8 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import { FilikaBrand } from "@/components/filika-brand";
 import { readPreferences, savePreferences } from "@/workspace/preferences";
 
 export function AuthHeader() {
@@ -31,10 +30,7 @@ export function AuthHeader() {
 
   return (
     <header className="auth-header">
-      <Link href="/login" className="auth-brand" aria-label="Filika home">
-        <Image src="/filika-logo.svg" width={32} height={32} alt="" unoptimized />
-        <span>Filika</span>
-      </Link>
+      <FilikaBrand href="/login" label="Filika home" />
       <button
         className="auth-theme"
         type="button"

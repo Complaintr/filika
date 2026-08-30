@@ -54,22 +54,24 @@ export function AuthExperience() {
           </p>
         </section>
         <div className="auth-art" aria-hidden="true">
-          <Image
-            className="auth-photo auth-photo-login"
-            src="/auth/photo.png"
-            alt=""
-            fill
-            sizes="(max-width: 760px) 100vw, 1600px"
-            priority
-          />
-          <Image
-            className="auth-photo auth-photo-register"
-            src="/auth/photo2.png"
-            alt=""
-            fill
-            sizes="(max-width: 760px) 100vw, 1600px"
-            priority
-          />
+          <div className="auth-art-island">
+            <Image
+              className="auth-photo auth-photo-login"
+              src="/auth/photo.png"
+              alt=""
+              fill
+              sizes="(max-width: 760px) 100vw, 1600px"
+              priority
+            />
+            <Image
+              className="auth-photo auth-photo-register"
+              src="/auth/photo2.png"
+              alt=""
+              fill
+              sizes="(max-width: 760px) 100vw, 1600px"
+              priority
+            />
+          </div>
         </div>
       </div>
     </main>
