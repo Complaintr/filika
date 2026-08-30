@@ -12,7 +12,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type { Metadata } from "next";
-import { FilikaMark, LandingHeader } from "@/components/landing-header";
+import { FilikaBrand } from "@/components/filika-brand";
+import { LandingHeader } from "@/components/landing-header";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
@@ -391,10 +392,7 @@ export default function HomePage() {
 
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
-          <a className={styles.logo} href="/" aria-label="Filika home">
-            <FilikaMark />
-            <span>filika</span>
-          </a>
+          <FilikaBrand href="/" label="Filika home" className={styles.logo} />
           <p>User-reviewed feedback infrastructure for AI agents.</p>
           <div>
             <a href="#product">Product</a>

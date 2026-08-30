@@ -2,18 +2,9 @@
 
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FilikaBrand } from "@/components/filika-brand";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import styles from "../../app/landing.module.css";
-
-export function FilikaMark() {
-  return (
-    <span className={styles.mark} aria-hidden="true">
-      <span className={styles.markSail} />
-      <span className={styles.markSailSmall} />
-      <span className={styles.markHull} />
-    </span>
-  );
-}
 
 export function LandingHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -33,10 +24,7 @@ export function LandingHeader() {
   return (
     <div className={`${styles.headerWrapper} ${isScrolled ? styles.headerWrapperScrolled : ""}`}>
       <header className={`${styles.header} ${isScrolled ? styles.headerScrolled : ""}`}>
-        <a className={styles.logo} href="/" aria-label="Filika home">
-          <FilikaMark />
-          <span>filika</span>
-        </a>
+        <FilikaBrand href="/" label="Filika home" className={styles.logo} />
 
         <nav className={styles.nav} aria-label="Main navigation">
           <a href="#product">Product</a>
