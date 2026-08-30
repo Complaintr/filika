@@ -31,13 +31,17 @@ test("complaints list renders rows from the collector", async ({ page }) => {
   await page.route(INBOX, (route) => fulfillList(route, { items, nextCursor: null }));
   await page.goto("/complaints");
   await expect(page.getByRole("heading", { name: "All complaints" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Checkout button missing" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Add a yearly plan" })).toBeVisible();
-  await expect(page.locator(".kind-badge", { hasText: "Bug report" })).toBeVisible();
-  await expect(page.locator(".kind-badge", { hasText: "Idea" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Checkout button missing/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Add a yearly plan/ })).toBeVisible();
+  await expect(
+    page.getByRole("list", { name: "Complaints" }).getByText("Bug report", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("list", { name: "Complaints" }).getByText("Idea", { exact: true }),
+  ).toBeVisible();
 });
 
-test("complaints search filters the request and clears the table when empty", async ({ page }) => {
+test("complaints search filters the request and clears the list when empty", async ({ page }) => {
   await signInAsE2eUser(page);
   const queries: string[] = [];
   await page.route(INBOX, async (route) => {
@@ -52,16 +56,16 @@ test("complaints search filters the request and clears the table when empty", as
   });
   await page.goto("/complaints");
   await page.getByLabel("Search complaints, pages, or origins").fill("checkout");
-  await page.waitForTimeout(450);
-  await expect(page.getByRole("link", { name: "Checkout button missing" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Add a yearly plan" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Checkout button missing/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Add a yearly plan/ })).toHaveCount(0);
   expect(queries).toContain("checkout");
   await page.getByLabel("Search complaints, pages, or origins").fill("");
-  await page.waitForTimeout(450);
-  await expect(page.getByRole("heading", { name: "No complaints yet" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Your next improvement starts here." }),
+  ).toBeVisible();
 });
 
-test("complaints kind filter narrows the table to the selected type", async ({ page }) => {
+test("complaints kind filter narrows the list to the selected type", async ({ page }) => {
   await signInAsE2eUser(page);
   await page.route(INBOX, async (route) => {
     const kind = new URL(route.request().url()).searchParams.get("kind") ?? "";
@@ -74,10 +78,13 @@ test("complaints kind filter narrows the table to the selected type", async ({ p
   const kindRequest = page.waitForRequest(
     (request) => request.url().includes("/api/v1/inbox") && request.url().includes("kind=bug"),
   );
-  await page.getByLabel("Filter by feedback type").selectOption("bug");
+  await page
+    .getByRole("group", { name: "Feedback types" })
+    .getByRole("button", { name: "Bugs", exact: true })
+    .click();
   await kindRequest;
-  await expect(page.getByRole("link", { name: "Checkout button missing" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Add a yearly plan" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Checkout button missing/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Add a yearly plan/ })).toHaveCount(0);
 });
 
 test("complaints pagination moves between pages and disables at the end", async ({ page }) => {
@@ -103,11 +110,11 @@ test("complaints pagination moves between pages and disables at the end", async 
     );
   });
   await page.goto("/complaints");
-  await expect(page.getByRole("link", { name: "Checkout button missing" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Checkout button missing/ })).toBeVisible();
   const next = page.getByRole("button", { name: "Next", exact: true });
   await expect(next).toBeEnabled();
   await next.click();
-  await expect(page.getByRole("link", { name: "Signup form stuck" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Signup form stuck/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "Next", exact: true })).toBeDisabled();
 });
 
@@ -129,6 +136,6 @@ test("complaints list shows a retryable failure state and recovers", async ({ pa
   await page.goto("/complaints");
   await expect(page.getByRole("heading", { name: "Could not load complaints" })).toBeVisible();
   await page.getByRole("button", { name: "Try again" }).click();
-  await expect(page.getByRole("link", { name: "Checkout button missing" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Checkout button missing/ })).toBeVisible();
   expect(attempts).toBe(2);
 });

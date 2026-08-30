@@ -34,7 +34,9 @@ test("complaints list is reachable from the dashboard and renders its empty stat
   await openDashboard(page);
   await navItem(page, "Complaints").click();
   await expect(page.getByRole("heading", { name: "All complaints" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "No complaints yet" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Your next improvement starts here." }),
+  ).toBeVisible();
   await expect(connectionStatus(page)).toContainText("Collector connected");
 });
 
@@ -45,7 +47,7 @@ test("settings is reachable and reports the connected collector", async ({ page 
   });
   await navItem(page, "Settings").click();
   await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Workspace preferences" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Settings sections" })).toBeVisible();
   await expect(connectionStatus(page)).toContainText("Collector connected");
   await expect(page.locator(".workspace-page")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.dataset.navigationProbe)).toBe(

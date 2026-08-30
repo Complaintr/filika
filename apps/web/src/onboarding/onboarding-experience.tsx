@@ -320,7 +320,14 @@ export function OnboardingExperience() {
           </div>
         )}
         <footer className="onboarding-footer">
-          <div className="onboarding-progress" aria-label={`Step ${step + 1} of 4`}>
+          <div
+            className="onboarding-progress"
+            role="progressbar"
+            aria-label="Setup progress"
+            aria-valuemin={1}
+            aria-valuemax={4}
+            aria-valuenow={step + 1}
+          >
             {[0, 1, 2, 3].map((value) => (
               <span key={value} data-active={value <= step} />
             ))}

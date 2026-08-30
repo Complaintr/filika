@@ -20,8 +20,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { InboxListItemViewModel } from "@/contracts/inbox-view-model";
 import { fetchComplaints } from "@/services/workspace-api";
-import { useConnection } from "@/workspace/connection";
 import { ComplaintDialog } from "@/workspace/complaint-dialog";
+import { useConnection } from "@/workspace/connection";
 import { formatDate, kindLabels } from "@/workspace/dom";
 
 interface ComplaintQuery {
@@ -180,7 +180,7 @@ export default function ComplaintsPage() {
               </button>
             )}
           </form>
-          <div className="feedback-kind-switcher" aria-label="Feedback types">
+          <fieldset className="feedback-kind-switcher" aria-label="Feedback types">
             {[
               { key: "", label: "All complaints", icon: Inbox },
               { key: "bug", label: "Bugs", icon: Bug },
@@ -198,7 +198,7 @@ export default function ComplaintsPage() {
                 {label}
               </button>
             ))}
-          </div>
+          </fieldset>
           <div
             className={`feedback-inbox-body${loading && items ? " feedback-updating" : ""}`}
             aria-busy={loading}

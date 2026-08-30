@@ -16,7 +16,7 @@ const detailFeedback = {
   applicationRelease: "2026.08.1",
   description: "The checkout button does not appear on small screens.",
   expectedBehavior: "The checkout button should always be visible.",
-  expiresAt: "2026-09-01T00:00:00.000Z",
+  expiresAt: new Date(Date.now() + 86_400_000).toISOString(),
   feedbackId: FEEDBACK_ID,
   kind: "bug",
   receivedAt: "2026-08-28T12:00:00.000Z",
@@ -52,19 +52,20 @@ test("complaint detail shows the full report from the collector", async ({ page 
     }),
   );
   await page.goto("/complaints");
-  await page.getByRole("link", { name: "Checkout button missing" }).click();
+  await page.getByRole("button", { name: /^Checkout button missing/ }).click();
   await expect(page.getByRole("heading", { name: "Checkout button missing" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Report content" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What happened" })).toBeVisible();
   await expect(
     page.getByText("The checkout button does not appear on small screens."),
   ).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Page context" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Receipt details" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Report context" })).toBeVisible();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page).toHaveURL(/\/complaints$/);
   await expect(page.getByText(FEEDBACK_ID)).toBeVisible();
   await expect(page.locator('[data-untrusted="true"]').first()).toBeVisible();
 });
 
-test("complaint detail returns to the list from the back action", async ({ page }) => {
+test("closing complaint details keeps the list and restores focus", async ({ page }) => {
   await signInAsE2eUser(page);
   await routeInbox(page, (route) =>
     route.fulfill({
@@ -74,9 +75,11 @@ test("complaint detail returns to the list from the back action", async ({ page 
     }),
   );
   await page.goto("/complaints");
-  await page.getByRole("link", { name: "Checkout button missing" }).click();
+  await page.getByRole("button", { name: /^Checkout button missing/ }).click();
   await expect(page.getByRole("heading", { name: "Checkout button missing" })).toBeVisible();
-  await page.getByRole("link", { name: "All complaints" }).click();
+  await page.getByRole("button", { name: "Close report" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Checkout button missing/ })).toBeFocused();
   await expect(page.getByRole("heading", { name: "All complaints" })).toBeVisible();
 });
 
@@ -86,7 +89,7 @@ test("complaint detail shows the not found surface for a missing record", async 
     route.fulfill({ status: 404, contentType: "application/json", body: '{"code":"not_found"}' }),
   );
   await page.goto("/complaints");
-  await page.getByRole("link", { name: "Checkout button missing" }).click();
+  await page.getByRole("button", { name: /^Checkout button missing/ }).click();
   await expect(page.getByRole("heading", { name: "Feedback not found" })).toBeVisible();
 });
 
@@ -104,7 +107,32 @@ test("complaint detail shows the expired surface with the expiration timestamp",
     }),
   );
   await page.goto("/complaints");
-  await page.getByRole("link", { name: "Checkout button missing" }).click();
+  await page.getByRole("button", { name: /^Checkout button missing/ }).click();
   await expect(page.getByRole("heading", { name: "Feedback expired" })).toBeVisible();
   await expect(page.getByText("Expired at 2000-01-01T00:00:00.000Z")).toBeVisible();
+});
+
+test("complaint details retry a failed request and close with Escape", async ({ page }) => {
+  await signInAsE2eUser(page);
+  let attempts = 0;
+  await routeInbox(page, async (route) => {
+    attempts += 1;
+    await route.fulfill(
+      attempts === 1
+        ? { status: 500, json: { code: "internal_error" } }
+        : { json: { feedback: detailFeedback } },
+    );
+  });
+  await page.goto("/complaints");
+  const report = page.getByRole("button", { name: /^Checkout button missing/ });
+  await report.click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.getByRole("heading", { name: "Unable to load feedback" })).toBeVisible();
+  await dialog.getByRole("button", { name: "Try again" }).click();
+  await expect(dialog.getByRole("heading", { name: "Checkout button missing" })).toBeVisible();
+  expect(attempts).toBe(2);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(report).toBeFocused();
+  await expect(page).toHaveURL(/\/complaints$/);
 });

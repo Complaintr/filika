@@ -48,11 +48,17 @@ test("a confirmed report is stored and visible in the complaints inbox", async (
   await signInAsE2eUser(page);
   await page.goto("/complaints");
   await expect(page.getByRole("heading", { name: "All complaints" })).toBeVisible();
-  await expect(page.getByRole("link", { name: title })).toBeVisible();
+  await expect(
+    page.getByRole("list", { name: "Complaints" }).getByRole("button").filter({ hasText: title }),
+  ).toBeVisible();
 
-  await page.getByRole("link", { name: title }).click();
+  await page
+    .getByRole("list", { name: "Complaints" })
+    .getByRole("button")
+    .filter({ hasText: title })
+    .click();
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Report content" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What happened" })).toBeVisible();
   await expect(
     page.getByText("The checkout button disappears when the window is narrow."),
   ).toBeVisible();

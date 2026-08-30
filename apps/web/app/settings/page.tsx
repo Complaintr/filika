@@ -68,6 +68,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState<Preferences>(DEFAULT_PREFERENCES);
   const [draft, setDraft] = useState<Preferences>(DEFAULT_PREFERENCES);
   const [status, setStatus] = useState("");
+  const [preferencesReady, setPreferencesReady] = useState(false);
   const [session, setSession] = useState<SessionInfo | null>(null);
   const [sessionStatus, setSessionStatus] = useState("Loading your account…");
   const [connection, setConnection] = useState<"idle" | "checking" | "connected" | "offline">(
@@ -83,6 +84,7 @@ export default function SettingsPage() {
     const current = readPreferences();
     setSaved(current);
     setDraft(current);
+    setPreferencesReady(true);
     const controller = new AbortController();
     fetchSession(controller.signal)
       .then((value) => {
@@ -217,161 +219,165 @@ export default function SettingsPage() {
                 <p>{section.description}</p>
               </div>
             </header>
-            <form onSubmit={save}>
-              {active === "workspace" && (
-                <div className="settings-section-body">
-                  <div className="workspace-name-preview">
-                    <span>{draft.workspaceName.trim().slice(0, 1).toUpperCase() || "F"}</span>
-                    <div>
-                      <strong>{draft.workspaceName.trim() || "Your workspace"}</strong>
-                      <p>Workspace display name</p>
+            <form onSubmit={save} aria-busy={!preferencesReady}>
+              <fieldset className="settings-form-fields" disabled={!preferencesReady}>
+                {active === "workspace" && (
+                  <div className="settings-section-body">
+                    <div className="workspace-name-preview">
+                      <span>{draft.workspaceName.trim().slice(0, 1).toUpperCase() || "F"}</span>
+                      <div>
+                        <strong>{draft.workspaceName.trim() || "Your workspace"}</strong>
+                        <p>Workspace display name</p>
+                      </div>
+                    </div>
+                    <div className="studio-setting">
+                      <label htmlFor="workspace-name">
+                        Workspace name
+                        <span>A local display name. Collector project names stay unchanged.</span>
+                      </label>
+                      <input
+                        className="studio-input"
+                        id="workspace-name"
+                        value={draft.workspaceName}
+                        maxLength={60}
+                        required
+                        onChange={(event) => update({ workspaceName: event.target.value })}
+                      />
+                    </div>
+                    <div className="studio-setting">
+                      <label htmlFor="default-range">
+                        Dashboard date range
+                        <span>The period you see when opening your dashboard.</span>
+                      </label>
+                      <select
+                        className="studio-input"
+                        id="default-range"
+                        value={draft.days}
+                        onChange={(event) =>
+                          update({
+                            days:
+                              Number(event.target.value) === 7
+                                ? 7
+                                : Number(event.target.value) === 90
+                                  ? 90
+                                  : 30,
+                          })
+                        }
+                      >
+                        <option value={7}>Last 7 days</option>
+                        <option value={30}>Last 30 days</option>
+                        <option value={90}>Last 90 days</option>
+                      </select>
+                    </div>
+                    <div className="settings-inline-note">
+                      <Laptop />
+                      <p>
+                        These preferences belong to this browser. They don’t change what other
+                        maintainers see.
+                      </p>
                     </div>
                   </div>
-                  <div className="studio-setting">
-                    <label htmlFor="workspace-name">
-                      Workspace name
-                      <span>A local display name. Collector project names stay unchanged.</span>
-                    </label>
-                    <input
-                      className="studio-input"
-                      id="workspace-name"
-                      value={draft.workspaceName}
-                      maxLength={60}
-                      required
-                      onChange={(event) => update({ workspaceName: event.target.value })}
-                    />
-                  </div>
-                  <div className="studio-setting">
-                    <label htmlFor="default-range">
-                      Dashboard date range
-                      <span>The period you see when opening your dashboard.</span>
-                    </label>
-                    <select
-                      className="studio-input"
-                      id="default-range"
-                      value={draft.days}
-                      onChange={(event) =>
-                        update({
-                          days:
-                            Number(event.target.value) === 7
-                              ? 7
-                              : Number(event.target.value) === 90
-                                ? 90
-                                : 30,
-                        })
-                      }
-                    >
-                      <option value={7}>Last 7 days</option>
-                      <option value={30}>Last 30 days</option>
-                      <option value={90}>Last 90 days</option>
-                    </select>
-                  </div>
-                  <div className="settings-inline-note">
-                    <Laptop />
-                    <p>
-                      These preferences belong to this browser. They don’t change what other
-                      maintainers see.
-                    </p>
-                  </div>
-                </div>
-              )}
-              {active === "appearance" && (
-                <div className="settings-section-body">
-                  <fieldset className="studio-fieldset">
-                    <legend>Color theme</legend>
-                    <p>Choose a look, or follow your device’s setting.</p>
-                    <div className="appearance-choices">
-                      {[
-                        { value: "light", label: "Light", icon: Sun },
-                        { value: "dark", label: "Dark", icon: Moon },
-                        { value: "system", label: "System", icon: Laptop },
-                      ].map(({ value, label, icon: Icon }) => (
-                        <label key={value} className={`appearance-choice appearance-${value}`}>
-                          <input
-                            type="radio"
-                            name="theme"
-                            value={value}
-                            checked={draft.theme === value}
-                            onChange={() =>
-                              update({
-                                theme:
-                                  value === "dark"
-                                    ? "dark"
-                                    : value === "system"
-                                      ? "system"
-                                      : "light",
-                              })
-                            }
-                          />
-                          <span className="appearance-mini" aria-hidden="true">
-                            <span className="appearance-mini-sidebar" />
-                            <span className="appearance-mini-body">
+                )}
+                {active === "appearance" && (
+                  <div className="settings-section-body">
+                    <fieldset className="studio-fieldset">
+                      <legend>Color theme</legend>
+                      <p>Choose a look, or follow your device’s setting.</p>
+                      <div className="appearance-choices">
+                        {[
+                          { value: "light", label: "Light", icon: Sun },
+                          { value: "dark", label: "Dark", icon: Moon },
+                          { value: "system", label: "System", icon: Laptop },
+                        ].map(({ value, label, icon: Icon }) => (
+                          <label key={value} className={`appearance-choice appearance-${value}`}>
+                            <input
+                              type="radio"
+                              name="theme"
+                              value={value}
+                              checked={draft.theme === value}
+                              onChange={() =>
+                                update({
+                                  theme:
+                                    value === "dark"
+                                      ? "dark"
+                                      : value === "system"
+                                        ? "system"
+                                        : "light",
+                                })
+                              }
+                            />
+                            <span className="appearance-mini" aria-hidden="true">
+                              <span className="appearance-mini-sidebar" />
+                              <span className="appearance-mini-body">
+                                <i />
+                                <i />
+                                <i />
+                              </span>
+                            </span>
+                            <span className="appearance-choice-label">
+                              <Icon />
+                              {label}
+                              <span className="appearance-check">
+                                {draft.theme === value && <Check />}
+                              </span>
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
+                    <fieldset className="studio-fieldset">
+                      <legend>Inbox spacing</legend>
+                      <p>A little breathing room, or more reports at a glance.</p>
+                      <div className="density-choices">
+                        {(["comfortable", "compact"] as const).map((value) => (
+                          <label key={value}>
+                            <input
+                              type="radio"
+                              name="density"
+                              checked={draft.density === value}
+                              onChange={() => update({ density: value })}
+                            />
+                            <span className={`density-lines density-${value}`} aria-hidden="true">
                               <i />
                               <i />
                               <i />
                             </span>
-                          </span>
-                          <span className="appearance-choice-label">
-                            <Icon />
-                            {label}
-                            <span className="appearance-check">
-                              {draft.theme === value && <Check />}
+                            <strong>{value === "comfortable" ? "Comfortable" : "Compact"}</strong>
+                            <span>
+                              {value === "comfortable" ? "Room to focus" : "More in view"}
                             </span>
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-                  <fieldset className="studio-fieldset">
-                    <legend>Inbox spacing</legend>
-                    <p>A little breathing room, or more reports at a glance.</p>
-                    <div className="density-choices">
-                      {(["comfortable", "compact"] as const).map((value) => (
-                        <label key={value}>
-                          <input
-                            type="radio"
-                            name="density"
-                            checked={draft.density === value}
-                            onChange={() => update({ density: value })}
-                          />
-                          <span className={`density-lines density-${value}`} aria-hidden="true">
-                            <i />
-                            <i />
-                            <i />
-                          </span>
-                          <strong>{value === "comfortable" ? "Comfortable" : "Compact"}</strong>
-                          <span>{value === "comfortable" ? "Room to focus" : "More in view"}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-                </div>
-              )}
-              {(active === "workspace" || active === "appearance") && (
-                <footer className="settings-save-bar">
-                  <button
-                    className="studio-text-button"
-                    type="button"
-                    onClick={() => {
-                      setDraft(saved);
-                      setStatus("");
-                    }}
-                    disabled={!dirty}
-                  >
-                    Discard changes
-                  </button>
-                  <div>
-                    <span>{dirty ? "Unsaved changes" : "All changes saved"}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
+                  </div>
+                )}
+                {(active === "workspace" || active === "appearance") && (
+                  <footer className="settings-save-bar">
                     <button
-                      className="studio-button studio-button-primary"
-                      type="submit"
+                      className="studio-text-button"
+                      type="button"
+                      onClick={() => {
+                        setDraft(saved);
+                        setStatus("");
+                      }}
                       disabled={!dirty}
                     >
-                      Save changes <Check />
+                      Discard changes
                     </button>
-                  </div>
-                </footer>
-              )}
+                    <div>
+                      <span>{dirty ? "Unsaved changes" : "All changes saved"}</span>
+                      <button
+                        className="studio-button studio-button-primary"
+                        type="submit"
+                        disabled={!dirty}
+                      >
+                        Save changes <Check />
+                      </button>
+                    </div>
+                  </footer>
+                )}
+              </fieldset>
             </form>
             {active === "account" && (
               <div className="settings-section-body">

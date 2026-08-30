@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Copy, ExternalLink, ShieldCheck, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { InboxDetailViewState } from "@/contracts/inbox-view-model";
 import { InboxApiService } from "@/services/inbox-api";
 import { formatDate, kindLabels } from "./dom";
@@ -25,29 +25,37 @@ export function ComplaintDialog({
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [state, setState] = useState<InboxDetailViewState>({ status: "loading" });
-  const [attempt, setAttempt] = useState(0);
+  const requestRef = useRef<AbortController | null>(null);
   const [copyStatus, setCopyStatus] = useState("");
 
   useEffect(() => {
     const node = dialog.current;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const overflow = document.body.style.overflow;
     node?.showModal();
     document.body.style.overflow = "hidden";
     return () => {
       node?.close();
       document.body.style.overflow = overflow;
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
     };
   }, []);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    requestRef.current?.abort();
     const controller = new AbortController();
+    requestRef.current = controller;
     setState({ status: "loading" });
     setCopyStatus("");
     api.fetchDetail(feedbackId, controller.signal).then((result) => {
       if (!controller.signal.aborted) setState(result);
     });
-    return () => controller.abort();
-  }, [feedbackId, attempt]);
+  }, [feedbackId]);
+
+  useEffect(() => {
+    load();
+    return () => requestRef.current?.abort();
+  }, [load]);
 
   async function copyLink() {
     try {
@@ -65,6 +73,12 @@ export function ComplaintDialog({
       ref={dialog}
       className="report-dialog"
       aria-labelledby="report-title"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          onClose();
+        }
+      }}
       onCancel={onClose}
       onClose={onClose}
       onClick={(event) => {
@@ -182,11 +196,7 @@ export function ComplaintDialog({
           <>
             <InboxDetailState state={state} />
             {state.status === "error" && (
-              <button
-                type="button"
-                className="studio-button"
-                onClick={() => setAttempt((value) => value + 1)}
-              >
+              <button type="button" className="studio-button" onClick={load}>
                 Try again
               </button>
             )}
