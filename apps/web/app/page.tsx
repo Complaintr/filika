@@ -319,13 +319,6 @@ export default function HomePage() {
         <div className={styles.safetyCopy}>
           <p className={styles.sectionKicker}>Safety</p>
           <h2 id="safety-title">Nothing is transmitted before the user confirms it.</h2>
-          <p>
-            Filika provides the feedback workflow, not the AI assistant. Users review and approve
-            every draft before anything is sent.
-          </p>
-          <a href="https://github.com/Complaintr/filika" rel="noreferrer" target="_blank">
-            Explore the open-source protocol <ArrowRight aria-hidden="true" />
-          </a>
         </div>
 
         <div className={styles.safetyChecklist}>
@@ -333,21 +326,18 @@ export default function HomePage() {
             <span className={styles.safetyIndex}>01</span>
             <div className={styles.safetyItemContent}>
               <strong>Explicit review</strong>
-              <span>Users edit or cancel every draft.</span>
             </div>
           </div>
           <div>
             <span className={styles.safetyIndex}>02</span>
             <div className={styles.safetyItemContent}>
               <strong>Bounded context</strong>
-              <span>Strict schema with zero ambient data.</span>
             </div>
           </div>
           <div>
             <span className={styles.safetyIndex}>03</span>
             <div className={styles.safetyItemContent}>
               <strong>Graceful fallback</strong>
-              <span>Manual submission always available.</span>
             </div>
           </div>
         </div>

@@ -10,7 +10,7 @@ describe("public landing page", () => {
     expect(page).toContain("AI agents report bugs, blockers, and product feedback");
     expect(page).toContain("down to the relevant code");
     expect(page).toContain("the user reviews every word");
-    expect(page).toContain("Filika provides the feedback workflow, not the AI assistant");
+    expect(page).toContain("Nothing is transmitted before the user confirms it.");
   });
 
   test("keeps a dedicated surface for the future interactive widget", async () => {
