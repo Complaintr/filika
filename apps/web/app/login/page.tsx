@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -41,7 +42,14 @@ export default function LoginPage() {
     <main className="login-page">
       <div className="panel login-card">
         <div className="login-brand">
-          <img className="brand-mark" src="/filika-logo.svg" alt="" width={64} height={64} />
+          <Image
+            className="brand-mark"
+            src="/filika-logo.svg"
+            alt=""
+            width={64}
+            height={64}
+            unoptimized
+          />
         </div>
         <h1>Sign in to Filika</h1>
         <p className="muted">Your workspace for reviewing product feedback.</p>

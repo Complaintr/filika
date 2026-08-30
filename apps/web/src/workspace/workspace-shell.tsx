@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { EllipsisVertical, Home, type LucideIcon, MessageCircle, Settings } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -81,12 +82,13 @@ function ShellBody({ children }: WorkspaceShellProps) {
         <div className="topbar-inner">
           <div className="workspace-identity">
             <Link className="brand" href="/dashboard" aria-label="Filika dashboard">
-              <img
+              <Image
                 className="brand-mark"
                 src="/filika-logo.svg"
                 alt=""
                 width={32}
                 height={32}
+                unoptimized
               />
               <span className="brand-name">filika</span>
             </Link>
