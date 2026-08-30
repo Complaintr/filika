@@ -1,9 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export function FilikaBrand({ href, label }: { href: string; label: string }) {
+export function FilikaBrand({
+  href,
+  label,
+  className,
+}: {
+  href: string;
+  label: string;
+  className?: string | undefined;
+}) {
   return (
-    <Link href={href} className="filika-brand" aria-label={label}>
+    <Link
+      href={href}
+      className={`filika-brand${className ? ` ${className}` : ""}`}
+      aria-label={label}
+    >
       <Image
         className="filika-brand-symbol"
         src="/filika-logo.svg"

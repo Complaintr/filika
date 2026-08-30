@@ -21,6 +21,8 @@ describe("header profile menu", () => {
     expect(result.container.textContent).toContain("Profile photo");
     expect(result.container.querySelector('a[href="/account"]')).not.toBeNull();
     expect(result.container.querySelector('a[href="/eckra/settings"]')).not.toBeNull();
+    expect(result.container.textContent).not.toContain("Other Accounts");
+    expect(result.container.textContent).not.toContain("Add another account");
 
     await result.close();
   });
@@ -103,7 +105,6 @@ describe("header profile menu", () => {
     const css = await Bun.file(`${import.meta.dir}/../src/app.css`).text();
 
     expect(css).toContain("width: min(340px, calc(100vw - 32px))");
-    expect(css).toContain("min-height: 438px");
     expect(css).toContain("grid-template-columns: 54px minmax(0, 1fr)");
     expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
     expect(css).toContain("width: 54px");

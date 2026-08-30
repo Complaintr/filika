@@ -5,6 +5,7 @@ import { ApplicationProvider } from "@/applications/application-context";
 import { WorkspaceShell } from "./workspace-shell";
 
 const STANDALONE_PATHS = new Set([
+  "/",
   "/login",
   "/register",
   "/forgot-password",

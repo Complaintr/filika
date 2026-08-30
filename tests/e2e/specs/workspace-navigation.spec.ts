@@ -6,7 +6,7 @@ const connectionStatus = (page: Page) => page.locator(".topbar .connection-statu
 
 async function openDashboard(page: Page): Promise<void> {
   await signInAsE2eUser(page);
-  await page.goto("/");
+  await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
 }
 
@@ -80,7 +80,7 @@ test("the collector connection status falls back to unavailable", async ({ page 
       body: '{"code":"internal_error"}',
     }),
   );
-  await page.goto("/");
+  await page.goto("/dashboard");
   await expect(connectionStatus(page)).toContainText("Collector unavailable");
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
 });
