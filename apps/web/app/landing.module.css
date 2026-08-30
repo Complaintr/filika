@@ -96,6 +96,8 @@
   z-index: 1000;
   width: 100%;
   padding-top: 18px;
+  padding-inline: clamp(24px, 4.5vw, 56px);
+  box-sizing: border-box;
   transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1492,6 +1494,7 @@
 
   .headerWrapper {
     padding-top: 10px;
+    padding-inline: 14px;
   }
 
   .headerWrapperScrolled {
