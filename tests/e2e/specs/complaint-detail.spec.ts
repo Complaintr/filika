@@ -28,9 +28,9 @@ const detailFeedback = {
 };
 
 async function routeInbox(page: Page, detail: (route: Route) => Promise<void>): Promise<void> {
-  await page.route("**/api/v1/inbox**", async (route) => {
+  await page.route("**/api/v1/apps/*/inbox**", async (route) => {
     const pathname = new URL(route.request().url()).pathname;
-    if (pathname === "/api/v1/inbox") {
+    if (pathname.endsWith("/inbox")) {
       await route.fulfill({
         status: 200,
         contentType: "application/json",

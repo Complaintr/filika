@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { ApplicationProvider } from "@/applications/application-context";
 import { WorkspaceShell } from "./workspace-shell";
 
 const STANDALONE_PATHS = new Set([
@@ -25,5 +26,9 @@ export function AuthAwareShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  return <WorkspaceShell>{children}</WorkspaceShell>;
+  return (
+    <ApplicationProvider>
+      <WorkspaceShell>{children}</WorkspaceShell>
+    </ApplicationProvider>
+  );
 }

@@ -1,12 +1,10 @@
 export interface Preferences {
-  workspaceName: string;
   days: 7 | 30 | 90;
   density: "comfortable" | "compact";
   theme: "light" | "dark" | "system";
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {
-  workspaceName: "My workspace",
   days: 30,
   density: "comfortable",
   theme: "light",
@@ -19,10 +17,6 @@ export function readPreferences(): Preferences {
     if (typeof value !== "object" || value === null) return { ...DEFAULT_PREFERENCES };
     const raw = value as Record<string, unknown>;
     return {
-      workspaceName:
-        typeof raw.workspaceName === "string" && raw.workspaceName.trim()
-          ? raw.workspaceName.trim().slice(0, 60)
-          : DEFAULT_PREFERENCES.workspaceName,
       days: raw.days === 7 || raw.days === 90 ? raw.days : 30,
       density: raw.density === "compact" ? "compact" : "comfortable",
       theme: raw.theme === "dark" || raw.theme === "system" ? raw.theme : "light",

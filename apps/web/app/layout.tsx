@@ -4,7 +4,7 @@ import { AuthAwareShell } from "@/workspace/auth-aware-shell";
 
 export const metadata: Metadata = {
   title: "Dashboard · Filika",
-  description: "Your Filika workspace for reviewing complaints and understanding product feedback.",
+  description: "Review complaints and understand feedback for each of your applications.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

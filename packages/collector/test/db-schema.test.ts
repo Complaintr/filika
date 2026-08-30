@@ -21,6 +21,9 @@ describe("drizzle tables", () => {
     expect(Object.keys(columns).sort()).toEqual(
       [
         "id",
+        "ownerUserId",
+        "slug",
+        "dashboardDays",
         "projectKey",
         "displayName",
         "rateLimitMax",

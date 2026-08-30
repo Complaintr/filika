@@ -189,7 +189,7 @@ function AuthForm({ mode }: { mode: Mode }) {
               ? "If this address is new, we’ve sent a verification link. Open it to finish creating your account. Already registered? Sign in instead."
               : mode === "forgot-password"
                 ? "If an account exists for that email, you’ll receive a password reset link. Check your spam folder, too."
-                : "Your new password is ready. Sign in to return to your workspace."
+                : "Your new password is ready. Sign in to return to your applications."
             : copy[mode].description}
         </p>
       </div>

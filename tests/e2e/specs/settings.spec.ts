@@ -8,13 +8,13 @@ const settingsSection = (page: Page, name: string) =>
     .getByRole("navigation", { name: "Settings sections" })
     .getByRole("button", { name, exact: true });
 
-test("settings preferences persist across reloads and update the workspace name", async ({
+test("settings preferences persist across reloads and update the application name", async ({
   page,
 }) => {
-  await signInAsE2eUser(page);
-  await page.goto("/settings");
-  await expect(settingsSection(page, "Workspace")).toHaveAttribute("aria-current", "page");
-  const name = page.getByLabel("Workspace name");
+  const app = await signInAsE2eUser(page);
+  await page.goto(`/${app.slug}/settings`);
+  await expect(settingsSection(page, "Application")).toHaveAttribute("aria-current", "page");
+  const name = page.getByLabel("Application name");
   await name.fill("Alpha Team");
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(saveStatus(page)).toHaveText("Your changes are saved.");
@@ -29,8 +29,8 @@ test("settings preferences persist across reloads and update the workspace name"
 });
 
 test("settings connection check reports a connected collector", async ({ page }) => {
-  await signInAsE2eUser(page);
-  await page.goto("/settings");
+  const app = await signInAsE2eUser(page);
+  await page.goto(`/${app.slug}/settings`);
   await settingsSection(page, "Collector connection").click();
   await page.getByRole("button", { name: "Check connection" }).click();
   await expect(connectionStatus(page)).toContainText("Collector connected");
@@ -41,26 +41,26 @@ test("settings connection check reports a connected collector", async ({ page })
 });
 
 test("settings connection check reports an unreachable collector", async ({ page }) => {
-  await signInAsE2eUser(page);
-  await page.route("**/api/v1/dashboard**", (route) =>
+  const app = await signInAsE2eUser(page);
+  await page.route("**/api/v1/apps/*/dashboard**", (route) =>
     route.fulfill({ status: 500, json: { code: "internal_error" } }),
   );
-  await page.goto("/settings");
+  await page.goto(`/${app.slug}/settings`);
   await settingsSection(page, "Collector connection").click();
   await page.getByRole("button", { name: "Check connection" }).click();
   await expect(connectionStatus(page)).toContainText("Collector unavailable");
   await expect(page.getByText(/Could not connect\. Check DATABASE_URL/)).toBeVisible();
 });
 
-test("settings rejects a blank workspace name", async ({ page }) => {
-  await signInAsE2eUser(page);
-  await page.goto("/settings");
-  const name = page.getByLabel("Workspace name");
+test("settings rejects a blank application name", async ({ page }) => {
+  const app = await signInAsE2eUser(page);
+  await page.goto(`/${app.slug}/settings`);
+  const name = page.getByLabel("Application name");
   await name.fill("   ");
   await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(saveStatus(page)).toHaveText("Enter a workspace name before saving.");
+  await expect(saveStatus(page)).toHaveText("Enter an application name before saving.");
   await page.reload();
-  await expect(name).toHaveValue("My workspace");
+  await expect(name).toHaveValue("Eckra");
 });
 
 test("appearance exposes accessible light, dark, and system choices and persists them", async ({
@@ -68,7 +68,7 @@ test("appearance exposes accessible light, dark, and system choices and persists
 }) => {
   await signInAsE2eUser(page);
   await page.emulateMedia({ colorScheme: "dark" });
-  await page.goto("/settings");
+  await page.goto("/account");
   for (const theme of ["Dark", "Light", "System"]) {
     await settingsSection(page, "Appearance").click();
     const group = page.getByRole("group", { name: "Color theme" });

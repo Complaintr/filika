@@ -1,21 +1,23 @@
 import { randomUUID } from "node:crypto";
 import { expect, type Page, test } from "@playwright/test";
 import { signInAsE2eUser } from "../sign-in";
+import { webOrigin } from "../web-origin";
 
 async function submitFeedback(
   page: Page,
   eventId: string,
+  projectKey: string,
   title = "Checkout button missing on small screens",
 ): Promise<Awaited<ReturnType<Page["request"]["post"]>>> {
-  const response = await page.request.post("http://localhost:4173/api/v1/feedback", {
+  const response = await page.request.post(`${webOrigin}/api/v1/feedback`, {
     headers: {
       "Content-Type": "application/json",
       "Idempotency-Key": eventId,
-      Origin: "http://localhost:4173",
+      Origin: webOrigin,
     },
     data: {
       schemaVersion: 1,
-      projectKey: "filika-demo",
+      projectKey,
       eventId,
       feedback: {
         kind: "bug",
@@ -36,16 +38,16 @@ async function submitFeedback(
 }
 
 test("a confirmed report is stored and visible in the complaints inbox", async ({ page }) => {
+  const app = await signInAsE2eUser(page);
   const eventId = randomUUID();
   const title = `Checkout button missing ${randomUUID()}`;
-  const response = await submitFeedback(page, eventId, title);
+  const response = await submitFeedback(page, eventId, app.projectKey, title);
   const receipt = (await response.json()) as {
     feedbackId: string;
     receivedAt: string;
     schemaVersion: number;
   };
 
-  await signInAsE2eUser(page);
   await page.goto("/complaints");
   await expect(page.getByRole("heading", { name: "All complaints" })).toBeVisible();
   await expect(
@@ -66,15 +68,15 @@ test("a confirmed report is stored and visible in the complaints inbox", async (
 });
 
 test("a duplicate event id returns the original receipt and no duplicate row", async ({ page }) => {
+  const app = await signInAsE2eUser(page);
   const eventId = randomUUID();
   const title = `Duplicate event retry ${randomUUID()}`;
-  await submitFeedback(page, eventId, title);
-  const duplicate = await submitFeedback(page, eventId, title);
+  await submitFeedback(page, eventId, app.projectKey, title);
+  const duplicate = await submitFeedback(page, eventId, app.projectKey, title);
   const body = (await duplicate.json()) as { duplicate: boolean };
   expect(body.duplicate).toBe(true);
 
-  await signInAsE2eUser(page);
-  const list = await page.request.get("http://localhost:4173/api/v1/inbox?limit=50");
+  const list = await page.request.get(`${webOrigin}/api/v1/apps/${app.slug}/inbox?limit=50`);
   const data = (await list.json()) as { items: { title: string }[] };
   const matches = data.items.filter((item) => item.title === title);
   expect(matches).toHaveLength(1);

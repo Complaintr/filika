@@ -4,12 +4,13 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { runCleanup } from "../src/db/cleanup";
 import { createDb, type DbHandle } from "../src/db/client";
-import { feedback, project, rateLimit } from "../src/db/schema";
+import { account, feedback, project, rateLimit, user } from "../src/db/schema";
 import { DEMO_PROJECT_KEY, seedDemoProject } from "../src/db/seed";
 import {
   ABUSE_CONTROL_MATRIX,
   type AbuseControlScenarioId,
 } from "../src/foundation/abuse-control-matrix";
+import type { CollectorRouteOptions } from "../src/handler";
 import { windowKey } from "../src/rate-limit";
 import { consumeProjectRateLimit, windowStartFor } from "../src/rate-limiting";
 import { createFetchHandler, startCollectorServer } from "../src/server";
@@ -1041,6 +1042,137 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     } finally {
       await ddl.end();
     }
+  });
+});
+
+describe.skipIf(!isDbAvailable)("owned applications and account settings", () => {
+  async function identity() {
+    const id = crypto.randomUUID();
+    await handle.db.insert(user).values({ id, name: "App owner", email: `${id}@filika.test` });
+    const betterAuth = {
+      api: { getSession: async () => ({ user: { id } }) },
+    } as unknown as CollectorRouteOptions["betterAuth"];
+    const handler = createFetchHandler(handle.db, { betterAuth });
+    const request = (
+      path: string,
+      method = "GET",
+      body?: unknown,
+      origin = "http://localhost:4173",
+    ) =>
+      handler(
+        new Request(`http://localhost:4173/api/v1${path}`, {
+          method,
+          headers: { Origin: origin, "Content-Type": "application/json" },
+          ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        }),
+      );
+    return { id, request };
+  }
+  const settings = { displayName: "Eckra", allowedOrigins: [ALLOWED_ORIGIN], dashboardDays: 30 };
+
+  test("creates persisted applications and rejects invalid, reserved, duplicate and cross-origin writes", async () => {
+    const owner = await identity();
+    const slug = `app-${crypto.randomUUID()}`;
+    expect((await owner.request("/apps", "POST", { ...settings, slug: "account" })).status).toBe(
+      400,
+    );
+    expect(
+      (await owner.request("/apps", "POST", { ...settings, slug, ownerUserId: "other" })).status,
+    ).toBe(400);
+    expect(
+      (await owner.request("/apps", "POST", { ...settings, slug }, "https://evil.example")).status,
+    ).toBe(403);
+    const responses = await Promise.all([
+      owner.request("/apps", "POST", { ...settings, slug }),
+      owner.request("/apps", "POST", { ...settings, slug }),
+    ]);
+    expect(responses.map((response) => response.status).sort()).toEqual([201, 409]);
+    const list = await (await owner.request("/apps")).json();
+    expect(list.applications).toHaveLength(1);
+    expect(list.applications[0]).toMatchObject({ slug, displayName: "Eckra", dashboardDays: 30 });
+    expect(list.applications[0]).not.toHaveProperty("ownerUserId");
+    expect(
+      (await owner.request(`/apps/${slug}`, "PATCH", { ...settings, displayName: "Renamed" }))
+        .status,
+    ).toBe(200);
+    expect((await (await owner.request(`/apps/${slug}`)).json()).application.displayName).toBe(
+      "Renamed",
+    );
+    expect((await owner.request("/inbox")).status).toBe(400);
+    expect((await owner.request("/dashboard")).status).toBe(400);
+  });
+
+  test("isolates inbox, detail, dashboard and settings by application and owner", async () => {
+    const owner = await identity();
+    const other = await identity();
+    const first = `one-${crypto.randomUUID()}`;
+    const second = `two-${crypto.randomUUID()}`;
+    const app = (await (await owner.request("/apps", "POST", { ...settings, slug: first })).json())
+      .application;
+    await owner.request("/apps", "POST", { ...settings, slug: second });
+    const eventId = crypto.randomUUID();
+    const accepted = await postRaw(postEnvelope(eventId, { projectKey: app.projectKey }));
+    expect(accepted.status).toBe(201);
+    const receipt = await accepted.json();
+    expect((await (await owner.request(`/apps/${first}/inbox`)).json()).items).toHaveLength(1);
+    expect((await (await owner.request(`/apps/${second}/inbox`)).json()).items).toHaveLength(0);
+    expect((await (await owner.request(`/apps/${first}/dashboard`)).json()).total).toBe(1);
+    expect((await (await owner.request(`/apps/${second}/dashboard`)).json()).total).toBe(0);
+    expect((await owner.request(`/apps/${first}/inbox/${receipt.feedbackId}`)).status).toBe(200);
+    expect((await owner.request(`/apps/${second}/inbox/${receipt.feedbackId}`)).status).toBe(404);
+    for (const suffix of ["", "/inbox", "/dashboard", `/inbox/${receipt.feedbackId}`]) {
+      expect((await other.request(`/apps/${first}${suffix}`)).status).toBe(404);
+    }
+    expect((await other.request(`/apps/${first}`, "PATCH", settings)).status).toBe(404);
+    expect((await (await other.request("/apps")).json()).applications).toEqual([]);
+  });
+
+  test("Google photo is opt-in, verified against the linked provider, and never accepts arbitrary URLs", async () => {
+    const owner = await identity();
+    const settings = {
+      name: "Updated owner",
+      theme: "dark",
+      density: "compact",
+      useGoogleImage: true,
+    };
+    expect((await owner.request("/account", "PATCH", settings)).status).toBe(400);
+    expect(
+      (
+        await owner.request("/account", "PATCH", {
+          ...settings,
+          image: "https://evil.example/photo",
+        })
+      ).status,
+    ).toBe(400);
+    await handle.db.insert(account).values({
+      id: crypto.randomUUID(),
+      userId: owner.id,
+      accountId: "google-test",
+      providerId: "google",
+      issuer: "https://accounts.google.com",
+      accessToken: "must-not-leak",
+    });
+    await handle.db
+      .update(user)
+      .set({ googleImage: "https://lh3.googleusercontent.com/test-photo" })
+      .where(eq(user.id, owner.id));
+    expect((await (await owner.request("/account")).json()).account.image).toBeNull();
+    const response = await owner.request("/account", "PATCH", settings);
+    expect(response.status).toBe(200);
+    const profile = (await response.json()).account;
+    expect(profile).toMatchObject({
+      name: "Updated owner",
+      image: "https://lh3.googleusercontent.com/test-photo",
+      theme: "dark",
+      density: "compact",
+      googleConnected: true,
+    });
+    expect(JSON.stringify(profile)).not.toContain("must-not-leak");
+    expect(
+      (await owner.request("/account", "PATCH", settings, "https://evil.example")).status,
+    ).toBe(403);
+    await owner.request("/account", "PATCH", { ...settings, useGoogleImage: false });
+    expect((await (await owner.request("/account")).json()).account.image).toBeNull();
   });
 });
 

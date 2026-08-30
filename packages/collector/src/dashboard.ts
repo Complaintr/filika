@@ -1,13 +1,19 @@
-import { and, count, desc, gte, lte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import type { Db } from "./db/client";
 import { feedback } from "./db/schema";
 
 /** Aggregate in PostgreSQL so dashboard totals never depend on inbox pagination. */
-export async function getDashboard(db: Db, days: 7 | 30 | 90, now = new Date()) {
+export async function getDashboard(
+  db: Db,
+  days: 7 | 30 | 90,
+  now = new Date(),
+  projectId?: string,
+) {
   const start = new Date(now);
   start.setUTCHours(0, 0, 0, 0);
   start.setUTCDate(start.getUTCDate() - days + 1);
   const withinRange = and(
+    projectId === undefined ? undefined : eq(feedback.projectId, projectId),
     gte(feedback.receiptTimestamp, start),
     lte(feedback.receiptTimestamp, now),
   );

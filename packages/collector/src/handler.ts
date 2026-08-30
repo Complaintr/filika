@@ -1,34 +1,13 @@
+import { handleApplicationRoute } from "./application-routes";
 import type { BetterAuth } from "./auth/better-auth";
 import { allowOriginHeaders, buildPreflightResponse } from "./cors";
 import { getDashboard } from "./dashboard";
 import type { Db } from "./db/client";
 import { FEEDBACK_ENDPOINT, INBOX_DETAIL_ENDPOINT, INBOX_LIST_ENDPOINT } from "./endpoint-contract";
 import { getInboxFeedback, listInbox } from "./inbox";
-import { INBOX_PAGE_SIZE_DEFAULT, type InboxListQuery } from "./inbox-contract";
+import { parseListQuery } from "./inbox-query";
 import { ingestFeedback } from "./ingest";
 import { collectAllowedOrigins } from "./project";
-
-function parseListQuery(url: URL): InboxListQuery {
-  const rawLimit = url.searchParams.get("limit");
-  const parsedLimit = rawLimit === null ? Number.NaN : Number.parseInt(rawLimit, 10);
-  const limit = Number.isFinite(parsedLimit) ? parsedLimit : INBOX_PAGE_SIZE_DEFAULT;
-
-  return {
-    cursor: url.searchParams.get("cursor"),
-    limit,
-    search: (url.searchParams.get("search") ?? "").trim().slice(0, 200),
-    ...parseKind(url.searchParams.get("kind")),
-  };
-}
-
-function parseKind(kind: string | null): Pick<InboxListQuery, "kind"> {
-  return kind === "bug" ||
-    kind === "blocked_task" ||
-    kind === "confusing_behavior" ||
-    kind === "idea"
-    ? { kind }
-    : {};
-}
 
 export interface CollectorRouteOptions {
   betterAuth?: BetterAuth | undefined;
@@ -44,6 +23,32 @@ export function createFetchHandler(
 ): (request: Request) => Promise<Response> {
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
+
+    if (
+      url.pathname === "/api/v1/account" ||
+      url.pathname === "/api/v1/apps" ||
+      url.pathname.startsWith("/api/v1/apps/")
+    ) {
+      const session = await options?.betterAuth?.api.getSession({ headers: request.headers });
+      if (!session) return unauthenticatedResponse();
+      try {
+        return await handleApplicationRoute(db, request, session.user.id);
+      } catch {
+        return Response.json({ error: { category: "internal_error" } }, { status: 500 });
+      }
+    }
+
+    // Authenticated reads must name an owned application; never expose the old global inbox.
+    if (
+      options?.betterAuth &&
+      request.method === "GET" &&
+      (url.pathname === "/api/v1/dashboard" ||
+        url.pathname === INBOX_LIST_ENDPOINT ||
+        url.pathname.startsWith(INBOX_DETAIL_ENDPOINT))
+    ) {
+      if (!(await requireSession(request, options))) return unauthenticatedResponse();
+      return Response.json({ error: { category: "application_required" } }, { status: 400 });
+    }
 
     if (request.method === "GET" && url.pathname === "/api/v1/dashboard") {
       if (!(await requireSession(request, options))) {

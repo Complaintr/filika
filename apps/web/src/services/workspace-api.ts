@@ -47,12 +47,13 @@ async function read(path: string, signal: AbortSignal): Promise<unknown> {
 export async function fetchComplaints(
   query: { search: string; kind: string; cursor: string | null },
   signal: AbortSignal,
+  appSlug: string,
 ): Promise<ComplaintPage> {
   const params = new URLSearchParams({ limit: "25" });
   if (query.search) params.set("search", query.search.slice(0, 200));
   if (query.kind) params.set("kind", query.kind);
   if (query.cursor) params.set("cursor", query.cursor);
-  const raw = await read(`/api/v1/inbox?${params}`, signal);
+  const raw = await read(`/api/v1/apps/${encodeURIComponent(appSlug)}/inbox?${params}`, signal);
   if (
     !record(raw) ||
     !Array.isArray(raw.items) ||
@@ -87,8 +88,12 @@ export async function fetchComplaints(
 export async function fetchDashboard(
   days: 7 | 30 | 90,
   signal: AbortSignal,
+  appSlug: string,
 ): Promise<DashboardData> {
-  const raw = await read(`/api/v1/dashboard?days=${days}`, signal);
+  const raw = await read(
+    `/api/v1/apps/${encodeURIComponent(appSlug)}/dashboard?days=${days}`,
+    signal,
+  );
   if (
     !record(raw) ||
     raw.days !== days ||

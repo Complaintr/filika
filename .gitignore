@@ -2,6 +2,7 @@ node_modules/
 dist/
 .env
 .next/
+.next-e2e/
 apps/web/public/*
 !apps/web/public/filika-logo.svg
 apps/web/src/filika.js

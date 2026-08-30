@@ -50,7 +50,11 @@ function toListItem(row: {
   };
 }
 
-export async function listInbox(db: Db, query: InboxListQuery): Promise<InboxListResult> {
+export async function listInbox(
+  db: Db,
+  query: InboxListQuery,
+  projectId?: string,
+): Promise<InboxListResult> {
   const limit = boundPageSize(query.limit);
   const decodedCursor = query.cursor === null ? null : decodeCursor(query.cursor);
   const cursorCondition =
@@ -64,6 +68,7 @@ export async function listInbox(db: Db, query: InboxListQuery): Promise<InboxLis
     .innerJoin(project, eq(feedback.projectId, project.id))
     .where(
       and(
+        projectId === undefined ? undefined : eq(feedback.projectId, projectId),
         cursorCondition,
         query.kind === undefined ? undefined : eq(feedback.kind, query.kind),
         query.search
@@ -94,12 +99,18 @@ export async function listInbox(db: Db, query: InboxListQuery): Promise<InboxLis
 export async function getInboxFeedback(
   db: Db,
   feedbackId: string,
+  projectId?: string,
 ): Promise<InboxFeedbackRecord | null> {
   const rows = await db
     .select({ feedback, retentionHours: project.retentionHours })
     .from(feedback)
     .innerJoin(project, eq(feedback.projectId, project.id))
-    .where(and(eq(feedback.id, feedbackId)))
+    .where(
+      and(
+        eq(feedback.id, feedbackId),
+        projectId === undefined ? undefined : eq(feedback.projectId, projectId),
+      ),
+    )
     .limit(1);
   const row = rows[0];
 

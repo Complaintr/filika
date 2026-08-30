@@ -30,7 +30,7 @@ export async function authRequest(
       response.status === 429
         ? "Too many attempts. Wait a minute and try again."
         : response.status === 503
-          ? "Email delivery is not configured. Contact your workspace administrator."
+          ? "Email delivery is not configured. Contact the service administrator."
           : (messages[code] ?? "We could not complete that request. Please try again."),
     );
   }

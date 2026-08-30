@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
+import { googlePhotoUrl } from "../account-profile";
 
 import type { Db } from "../db/client";
 import * as schema from "../db/schema";
@@ -28,6 +29,14 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
   const emailConfigured = Boolean(config.resendApiKey && config.emailFrom);
   return betterAuth({
     appName: "Filika",
+    user: {
+      additionalFields: {
+        googleImage: { type: "string", required: false, input: false },
+        useGoogleImage: { type: "boolean", defaultValue: false, input: false },
+        theme: { type: "string", defaultValue: "light", input: false },
+        density: { type: "string", defaultValue: "comfortable", input: false },
+      },
+    },
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
@@ -80,12 +89,14 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
     },
     baseURL: config.baseURL ?? "http://localhost:4173",
     secret: config.secret,
-    trustedOrigins: ["http://localhost:4173", "http://127.0.0.1:4173"],
+    trustedOrigins: [new URL(config.baseURL ?? "http://localhost:4173").origin],
     database: drizzleAdapter(db, { provider: "pg", schema }),
     socialProviders: {
       ...(hasGoogleCredentials
         ? {
             google: {
+              overrideUserInfoOnSignIn: true,
+              mapProfileToUser: (profile) => ({ googleImage: googlePhotoUrl(profile.picture) }),
               clientId: config.googleClientId as string,
               clientSecret: config.googleClientSecret as string,
             },

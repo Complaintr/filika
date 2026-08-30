@@ -19,8 +19,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AuthHeader } from "@/auth/auth-header";
+import { applicationPath, createApplication, fetchApplications } from "@/services/applications-api";
 import { fetchSession, type SessionInfo } from "@/services/session";
-import { readPreferences, savePreferences } from "@/workspace/preferences";
 import {
   ONBOARDING_ROLES,
   type OnboardingFocus,
@@ -52,6 +52,11 @@ export function OnboardingExperience() {
   const [role, setRole] = useState<OnboardingRole | null>(null);
   const [focus, setFocus] = useState<OnboardingFocus>("all");
   const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [origin, setOrigin] = useState("");
+  const [slugEdited, setSlugEdited] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const requestRef = useRef<AbortController | null>(null);
   const [session, setSession] = useState<SessionInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -60,19 +65,20 @@ export function OnboardingExperience() {
   useEffect(() => {
     const controller = new AbortController();
     fetchSession(controller.signal)
-      .then((value) => {
+      .then(async (value) => {
         if (controller.signal.aborted) return;
         if (!value) {
           window.location.replace("/login?force=1");
           return;
         }
-        const existing = readOnboarding(value.user.id);
-        if (existing && !new URLSearchParams(window.location.search).has("edit")) {
-          window.location.replace("/dashboard");
+        const applications = await fetchApplications(controller.signal);
+        if (controller.signal.aborted) return;
+        if (applications[0] && !new URLSearchParams(window.location.search).has("new")) {
+          window.location.replace(applicationPath(applications[0].slug, "complaints"));
           return;
         }
+        const existing = readOnboarding(value.user.id);
         setSession(value);
-        setName(existing?.workspaceName ?? readPreferences().workspaceName);
         setRole(existing?.role ?? null);
         setFocus(existing?.focus ?? "all");
         setLoading(false);
@@ -83,7 +89,10 @@ export function OnboardingExperience() {
           setLoading(false);
         }
       });
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      requestRef.current?.abort();
+    };
   }, []);
 
   useEffect(() => {
@@ -92,38 +101,58 @@ export function OnboardingExperience() {
 
   function continueStep() {
     if (step === 0 && !role) return;
-    if (step === 1 && !name.trim()) {
-      setError("Give your workspace a name to continue.");
+    if (
+      step === 1 &&
+      (!name.trim() || !/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(slug) || slug.length < 2)
+    ) {
+      setError(
+        "Enter an application name and a URL using lowercase letters, numbers, and hyphens.",
+      );
       return;
     }
     setError("");
     setStep((value) => Math.min(value + 1, 3));
   }
-  function finish() {
-    if (!session || !role) return;
-    const preferences = { role, focus, workspaceName: name.trim().slice(0, 60) };
-    if (
-      !savePreferences({ ...readPreferences(), workspaceName: preferences.workspaceName }) ||
-      !saveOnboarding(session.user.id, preferences)
-    ) {
-      setError("Your browser couldn’t save this setup. Allow local storage, or skip for now.");
-      return;
+  async function finish() {
+    if (!session || !role || saving) return;
+    setSaving(true);
+    setError("");
+    const controller = new AbortController();
+    requestRef.current = controller;
+    try {
+      const application = await createApplication(
+        {
+          displayName: name.trim(),
+          slug,
+          dashboardDays: 30,
+          allowedOrigins: origin.trim() ? [origin.trim()] : [],
+        },
+        controller.signal,
+      );
+      if (controller.signal.aborted) return;
+      saveOnboarding(session.user.id, { role, focus, applicationName: application.displayName });
+      window.location.assign(
+        applicationPath(application.slug, "complaints") + (focus === "all" ? "" : `?kind=${focus}`),
+      );
+    } catch (error) {
+      if (!controller.signal.aborted) {
+        setError(error instanceof Error ? error.message : "Your application could not be created.");
+        setSaving(false);
+      }
     }
-    window.dispatchEvent(new CustomEvent("filika:preferences"));
-    window.location.assign(focus === "all" ? "/complaints" : `/complaints?kind=${focus}`);
   }
 
   const title = [
     "What brings you to Filika?",
-    "Make yourself at home.",
+    "Create your first application.",
     "What would you like to improve?",
     "A little feedback goes a long way.",
   ][step];
   const description = [
     "Choose the role that describes you best.",
-    "Give your feedback workspace a name you’ll recognize.",
+    "Give your application a name and an address in Filika.",
     "We’ll open your inbox with this focus. You can change it anytime.",
-    "Your space is ready. Here’s how feedback finds its way to you.",
+    "Create your application to start collecting reviewed feedback.",
   ][step];
 
   return (
@@ -141,7 +170,7 @@ export function OnboardingExperience() {
           <span>From a moment of friction</span>
           <strong>to a better product.</strong>
         </div>
-        <ProductPreview step={step} workspaceName={name || "Your workspace"} />
+        <ProductPreview step={step} applicationName={name || "Your application"} />
         <p className="onboarding-example-label">
           Illustrative preview · your actual reports will appear in your inbox
         </p>
@@ -153,7 +182,7 @@ export function OnboardingExperience() {
             className="studio-icon-button"
             type="button"
             aria-label="Previous step"
-            disabled={step === 0 || loading}
+            disabled={step === 0 || loading || saving}
             onClick={() => {
               setStep((value) => Math.max(0, value - 1));
               setError("");
@@ -161,14 +190,14 @@ export function OnboardingExperience() {
           >
             <ChevronLeft />
           </button>
-          <Link href="/dashboard">
-            Skip for now <ArrowRight />
+          <Link href="/account">
+            Account settings <ArrowRight />
           </Link>
         </div>
         {loading ? (
           <div className="onboarding-content" role="status">
             <p className="studio-eyebrow">Make yourself at home</p>
-            <h1>Opening your workspace…</h1>
+            <h1>Loading your account…</h1>
           </div>
         ) : !session ? (
           <div className="onboarding-content">
@@ -220,22 +249,55 @@ export function OnboardingExperience() {
             )}
             {step === 1 && (
               <div className="onboarding-name">
-                <label htmlFor="onboarding-name">Workspace name</label>
+                <label htmlFor="onboarding-name">Application name</label>
                 <input
                   className="studio-input"
                   id="onboarding-name"
                   maxLength={60}
                   value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Acme product team"
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setName(value);
+                    if (!slugEdited)
+                      setSlug(
+                        value
+                          .toLowerCase()
+                          .normalize("NFKD")
+                          .replace(/[\u0300-\u036f]/g, "")
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/^-+|-+$/g, "")
+                          .slice(0, 48),
+                      );
+                  }}
+                  placeholder="Eckra"
                   onKeyDown={(event) => {
                     if (event.key === "Enter") continueStep();
                   }}
                 />
-                <p>
-                  This display name is saved in this browser. It doesn’t create or rename a
-                  collector project.
-                </p>
+                <label htmlFor="onboarding-slug">Application URL</label>
+                <input
+                  className="studio-input"
+                  id="onboarding-slug"
+                  value={slug}
+                  maxLength={48}
+                  placeholder="eckra"
+                  onChange={(event) => {
+                    setSlugEdited(true);
+                    setSlug(event.target.value);
+                  }}
+                />
+                <p className="application-url-preview">/{slug || "eckra"}/complaints</p>
+                <label htmlFor="onboarding-origin">Website origin (optional)</label>
+                <input
+                  className="studio-input"
+                  id="onboarding-origin"
+                  type="url"
+                  placeholder="https://eckra.com"
+                  value={origin}
+                  maxLength={2048}
+                  onChange={(event) => setOrigin(event.target.value)}
+                />
+                <p>You can connect your website later in this application's settings.</p>
               </div>
             )}
             {step === 2 && (
@@ -306,10 +368,10 @@ export function OnboardingExperience() {
             <button
               className="onboarding-continue"
               type="button"
-              disabled={(step === 0 && !role) || (step === 1 && !name.trim())}
-              onClick={step === 3 ? finish : continueStep}
+              disabled={saving || (step === 0 && !role) || (step === 1 && (!name.trim() || !slug))}
+              onClick={step === 3 ? () => void finish() : continueStep}
             >
-              {step === 3 ? "Open your inbox" : "Continue"}
+              {saving ? "Creating application…" : step === 3 ? "Create application" : "Continue"}
               <ArrowRight />
             </button>
             {step === 3 && (
@@ -339,12 +401,12 @@ export function OnboardingExperience() {
   );
 }
 
-function ProductPreview({ step, workspaceName }: { step: number; workspaceName: string }) {
+function ProductPreview({ step, applicationName }: { step: number; applicationName: string }) {
   return (
     <div className="onboarding-product-preview" aria-hidden="true">
       <div className="preview-sidebar">
         <span className="preview-filika">Filika</span>
-        <span className="preview-workspace">{workspaceName}</span>
+        <span className="preview-workspace">{applicationName}</span>
         <div>
           <Inbox />
           Overview
@@ -380,7 +442,7 @@ function ProductPreview({ step, workspaceName }: { step: number; workspaceName: 
           {
             icon: Lightbulb,
             title: "A keyboard shortcut would help",
-            page: "/workspace",
+            page: "/dashboard",
             kind: "Idea",
             time: "12m",
           },
