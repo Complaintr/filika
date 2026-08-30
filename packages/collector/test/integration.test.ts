@@ -1,4 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { copyFile, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { eq, inArray } from "drizzle-orm";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
@@ -1173,6 +1176,87 @@ describe.skipIf(!isDbAvailable)("owned applications and account settings", () =>
     ).toBe(403);
     await owner.request("/account", "PATCH", { ...settings, useGoogleImage: false });
     expect((await (await owner.request("/account")).json()).account.image).toBeNull();
+  });
+});
+
+describe.skipIf(!isDbAvailable)("application schema compatibility", () => {
+  test("upgrades existing non-null unique slugs without losing records or migration history", async () => {
+    const folder = await mkdtemp(join(tmpdir(), "filika-legacy-migrations-"));
+    const ddl = postgres(TEST_DATABASE_URL, { prepare: false });
+    try {
+      const journal = await Bun.file(`${import.meta.dir}/../drizzle/meta/_journal.json`).json();
+      const previousEntries = journal.entries.filter((entry: { idx: number }) => entry.idx < 3);
+      await mkdir(join(folder, "meta"));
+      await writeFile(
+        join(folder, "meta/_journal.json"),
+        JSON.stringify({ ...journal, entries: previousEntries }),
+      );
+      for (const entry of previousEntries) {
+        await copyFile(
+          `${import.meta.dir}/../drizzle/${entry.tag}.sql`,
+          join(folder, `${entry.tag}.sql`),
+        );
+      }
+      // Only the dedicated integration-test database is reset here.
+      await ddl.unsafe("DROP SCHEMA IF EXISTS public CASCADE");
+      await ddl.unsafe("DROP SCHEMA IF EXISTS drizzle CASCADE");
+      await ddl.unsafe("CREATE SCHEMA public");
+      await migrate(handle.db, { migrationsFolder: folder });
+      const projectId = crypto.randomUUID();
+      const feedbackId = crypto.randomUUID();
+      await ddl`INSERT INTO project (id, project_key, display_name, allowed_origins)
+        VALUES (${projectId}, 'legacy-project', 'Legacy application', ARRAY['https://example.test'])`;
+      await ddl`INSERT INTO "user" (id, name, email, email_verified, image)
+        VALUES ('legacy-user', 'Legacy maintainer', 'legacy@example.test', true, 'https://lh3.googleusercontent.com/legacy')`;
+      await ddl`INSERT INTO feedback (id, project_id, event_id, title, description, kind, origin, sdk_version)
+        VALUES (${feedbackId}, ${projectId}, ${crypto.randomUUID()}, 'Legacy report', 'Keep this report.', 'bug', 'https://example.test', '0.0.0')`;
+      await ddl.unsafe("ALTER TABLE project ADD COLUMN slug text");
+      await ddl`UPDATE project SET slug = 'legacy-application'`;
+      await ddl.unsafe("ALTER TABLE project ALTER COLUMN slug SET NOT NULL");
+      await ddl.unsafe("ALTER TABLE project ADD CONSTRAINT project_slug_unique UNIQUE(slug)");
+      await ddl`INSERT INTO drizzle.__drizzle_migrations (hash, created_at) VALUES ('legacy-slug-migration', 1788050928417)`;
+      const history =
+        await ddl`SELECT id, hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`;
+      const records = await ddl`SELECT * FROM feedback`;
+
+      await migrate(handle.db, { migrationsFolder: `${import.meta.dir}/../drizzle` });
+      expect(await ddl`SELECT * FROM feedback`).toEqual(records);
+      const apps = await handle.db.select().from(project);
+      expect(apps).toHaveLength(1);
+      expect(apps[0]).toMatchObject({
+        id: projectId,
+        slug: "legacy-application",
+        displayName: "Legacy application",
+        ownerUserId: null,
+        dashboardDays: 30,
+      });
+      const users = await handle.db.select().from(user);
+      expect(users[0]).toMatchObject({
+        id: "legacy-user",
+        email: "legacy@example.test",
+        image: "https://lh3.googleusercontent.com/legacy",
+        googleImage: null,
+        useGoogleImage: false,
+        theme: "light",
+        density: "comfortable",
+      });
+      const after =
+        await ddl`SELECT id, hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`;
+      expect(after.slice(0, history.length)).toEqual([...history]);
+      expect(after.length).toBe(history.length + 1);
+      await migrate(handle.db, { migrationsFolder: `${import.meta.dir}/../drizzle` });
+      expect(
+        await ddl`SELECT id, hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`,
+      ).toEqual(after);
+      // Nullable slugs remain valid for unassigned legacy collector projects.
+      await seedDemoProject(handle);
+      expect(await ddl`SELECT slug FROM project WHERE project_key = 'filika-demo'`).toEqual([
+        { slug: null },
+      ]);
+    } finally {
+      await ddl.end();
+      await rm(folder, { recursive: true, force: true });
+    }
   });
 });
 
