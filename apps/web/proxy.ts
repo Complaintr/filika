@@ -4,7 +4,9 @@ const SESSION_COOKIE = "better-auth.session_token";
 
 function isPublicPath(pathname: string): boolean {
   return (
-    ["/login", "/register", "/forgot-password", "/reset-password", "/terms"].includes(pathname) ||
+    ["/", "/login", "/register", "/forgot-password", "/reset-password", "/terms"].includes(
+      pathname,
+    ) ||
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/v1") ||

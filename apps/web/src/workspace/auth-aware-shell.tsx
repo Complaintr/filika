@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { WorkspaceShell } from "./workspace-shell";
 
 const STANDALONE_PATHS = new Set([
+  "/",
   "/login",
   "/register",
   "/forgot-password",
