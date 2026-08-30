@@ -62,6 +62,54 @@ const workflow = [
   },
 ];
 
+const agentSignals = [
+  {
+    kind: "Observed bug",
+    scope: "Checkout · Web",
+    title: "The confirmation route never resolves after payment.",
+    copy: "The order request succeeds, but the user remains on the submitting state with no receipt or recovery path.",
+    marker: "UI",
+  },
+  {
+    kind: "Blocked task",
+    scope: "Settings · Permissions",
+    title: "A disabled control has no explanation.",
+    copy: "The agent can identify the blocked action and preserve the exact state that made the task impossible to finish.",
+    marker: "DX",
+  },
+  {
+    kind: "Product idea",
+    scope: "Inbox · Triage",
+    title: "Group repeat reports before they become noise.",
+    copy: "A concrete suggestion stays separate from bugs while retaining the route and release context behind it.",
+    marker: "PX",
+  },
+];
+
+const maintainerReports = [
+  {
+    status: "Ready for triage",
+    tone: "aqua",
+    title: "Checkout confirmation remains pending",
+    copy: "Expected behavior, three reproduction steps, affected route, release, and a source location in one reviewed report.",
+    tags: ["/checkout", "3 steps", "checkout-form.tsx"],
+  },
+  {
+    status: "User reviewed",
+    tone: "violet",
+    title: "Permission state needs an explanation",
+    copy: "The report separates what the agent observed from what the host supplied, so maintainers can trust the boundary.",
+    tags: ["Settings", "Blocked task", "WebMCP"],
+  },
+  {
+    status: "Duplicate-safe",
+    tone: "peach",
+    title: "Repeat feedback keeps one clear trail",
+    copy: "Stable event identity and bounded receipts keep retries honest without creating another copy in the inbox.",
+    tags: ["Idempotent", "Reviewed", "Actionable"],
+  },
+];
+
 function FilikaMark() {
   return (
     <span className={styles.mark} aria-hidden="true">
@@ -249,6 +297,80 @@ export default function HomePage() {
               <p>{copy}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className={styles.reportBoardSection} id="reports" aria-labelledby="reports-title">
+        <div className={styles.reportBoardHeading}>
+          <div>
+            <p className={styles.sectionKicker}>Evidence, not noise</p>
+            <h2 id="reports-title">See the signal. Ship the fix.</h2>
+          </div>
+          <p>
+            Filika turns the moment an agent gets stuck into a report that reads like a useful
+            handoff, not another vague support ticket.
+          </p>
+        </div>
+
+        <div className={styles.reportBoard}>
+          <div className={styles.signalColumn}>
+            <div className={styles.boardColumnHeader}>
+              <div>
+                <span>Agent signals</span>
+                <strong>What agents notice</strong>
+              </div>
+              <span className={styles.boardCount}>03</span>
+            </div>
+
+            <div className={styles.signalList}>
+              {agentSignals.map((signal) => (
+                <article className={styles.signalCard} key={signal.title}>
+                  <div className={styles.signalMeta}>
+                    <span>{signal.kind}</span>
+                    <span>{signal.scope}</span>
+                  </div>
+                  <h3>{signal.title}</h3>
+                  <p>{signal.copy}</p>
+                  <div className={styles.signalFooter}>
+                    <span className={styles.signalMarker}>{signal.marker}</span>
+                    <span>Structured at the point of friction</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.reportColumn}>
+            <div className={styles.boardColumnHeader}>
+              <div>
+                <span>Reviewed reports</span>
+                <strong>What maintainers receive</strong>
+              </div>
+              <span className={styles.boardCount}>03</span>
+            </div>
+
+            <div className={styles.reportList}>
+              {maintainerReports.map((report) => (
+                <article className={styles.reportCard} data-tone={report.tone} key={report.title}>
+                  <div className={styles.reportCardTopline}>
+                    <span>{report.status}</span>
+                    <span className={styles.reportArrow} aria-hidden="true">
+                      <ArrowRight />
+                    </span>
+                  </div>
+                  <div className={styles.reportCardCopy}>
+                    <h3>{report.title}</h3>
+                    <p>{report.copy}</p>
+                  </div>
+                  <div className={styles.reportTags}>
+                    {report.tags.map((tag) => (
+                      <span key={tag}>{tag}</span>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
