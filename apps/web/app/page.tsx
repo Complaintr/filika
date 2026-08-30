@@ -163,7 +163,7 @@ export default function HomePage() {
                   </span>
                   <span>96:14</span>
                 </div>
-                <pre aria-label="Example code context">
+                <pre>
                   <code>
                     <span>94</span> await submitOrder(payload);{"\n"}
                     <span>95</span> setSubmitting(false);{"\n"}
