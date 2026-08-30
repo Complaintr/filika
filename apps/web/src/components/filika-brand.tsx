@@ -7,8 +7,8 @@ export function FilikaBrand({ href, label }: { href: string; label: string }) {
       <Image
         className="filika-brand-symbol"
         src="/filika-logo.svg"
-        width={28}
-        height={28}
+        width={22}
+        height={22}
         alt=""
         unoptimized
       />
