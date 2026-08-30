@@ -4,7 +4,7 @@ import {
   CircleAlert,
   Code2,
   FileCode2,
-  Github,
+  GitFork,
   GitPullRequestArrow,
   MessageSquareText,
   MousePointer2,
@@ -121,7 +121,7 @@ export default function HomePage() {
               rel="noreferrer"
               target="_blank"
             >
-              <Github aria-hidden="true" />
+              <GitFork aria-hidden="true" />
               View source
             </a>
           </div>
