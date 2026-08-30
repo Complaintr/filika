@@ -1009,6 +1009,8 @@
   background:
     radial-gradient(circle at 28% 28%, rgba(95, 221, 198, 0.16), transparent 25%),
     radial-gradient(circle at 74% 45%, rgba(181, 161, 255, 0.15), transparent 28%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 200px);
+  mask-image: linear-gradient(to bottom, transparent 0, black 200px);
   pointer-events: none;
 }
 
