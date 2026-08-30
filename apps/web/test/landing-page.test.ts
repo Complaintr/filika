@@ -55,12 +55,27 @@ describe("public landing page", () => {
 
   test("includes the theme switcher in the header actions with dark mode styles", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
+    const header = await Bun.file(`${import.meta.dir}/../src/components/landing-header.tsx`).text();
     const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
 
-    expect(page).toContain("<ThemeSwitcher");
+    expect(page).toContain("<LandingHeader");
+    expect(header).toContain("<ThemeSwitcher");
     expect(styles).toContain(".themeSwitcher");
     expect(styles).toContain(':root[data-theme="dark"] .page');
     expect(styles).toContain(':root[data-theme="dark"] .productStage');
     expect(styles).toContain(':root[data-theme="dark"] .ctaSection');
+  });
+
+  test("uses numbered badges for safety steps and includes brand watermark", async () => {
+    const page = await Bun.file(`${appDirectory}/page.tsx`).text();
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    expect(page).toContain("01");
+    expect(page).toContain("02");
+    expect(page).toContain("03");
+    expect(page).toContain("brandWatermark");
+    expect(styles).toContain(".safetyIndex");
+    expect(styles).toContain(".brandWatermark");
+    expect(styles).toContain(".headerScrolled");
   });
 });

@@ -12,7 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type { Metadata } from "next";
-import { ThemeSwitcher } from "@/components/theme-switcher";
+import { FilikaMark, LandingHeader } from "@/components/landing-header";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
@@ -111,44 +111,12 @@ const maintainerReports = [
   },
 ];
 
-function FilikaMark() {
-  return (
-    <span className={styles.mark} aria-hidden="true">
-      <span className={styles.markSail} />
-      <span className={styles.markSailSmall} />
-      <span className={styles.markHull} />
-    </span>
-  );
-}
-
 export default function HomePage() {
   return (
     <main className={styles.page} id="app-content">
       <section className={styles.hero}>
+        <LandingHeader />
         <div className={styles.heroTexture} aria-hidden="true" />
-        <header className={styles.header}>
-          <a className={styles.logo} href="/" aria-label="Filika home">
-            <FilikaMark />
-            <span>filika</span>
-          </a>
-
-          <nav className={styles.nav} aria-label="Main navigation">
-            <a href="#product">Product</a>
-            <a href="#workflow">How it works</a>
-            <a href="#safety">Safety</a>
-          </nav>
-
-          <div className={styles.headerActions}>
-            <ThemeSwitcher className={styles.themeSwitcher} />
-            <a className={styles.signInLink} href="/login">
-              Sign in
-            </a>
-            <a className={styles.headerButton} href="/login">
-              Open workspace
-              <ArrowRight aria-hidden="true" />
-            </a>
-          </div>
-        </header>
 
         <div className={styles.heroCopy}>
           <a className={styles.eyebrow} href="#workflow">
@@ -387,25 +355,25 @@ export default function HomePage() {
 
         <div className={styles.safetyChecklist}>
           <div>
-            <Check aria-hidden="true" />
-            <span>
+            <span className={styles.safetyIndex}>01</span>
+            <div className={styles.safetyItemContent}>
               <strong>Explicit review</strong>
-              Users can edit or cancel every draft.
-            </span>
+              <span>Users can edit or cancel every draft.</span>
+            </div>
           </div>
           <div>
-            <Check aria-hidden="true" />
-            <span>
+            <span className={styles.safetyIndex}>02</span>
+            <div className={styles.safetyItemContent}>
               <strong>Bounded context</strong>
-              Only relevant, structured fields enter the report.
-            </span>
+              <span>Only relevant, structured fields enter the report.</span>
+            </div>
           </div>
           <div>
-            <Check aria-hidden="true" />
-            <span>
+            <span className={styles.safetyIndex}>03</span>
+            <div className={styles.safetyItemContent}>
               <strong>Graceful fallback</strong>
-              Manual feedback remains available without an agent.
-            </span>
+              <span>Manual feedback remains available without an agent.</span>
+            </div>
           </div>
         </div>
       </section>
@@ -422,17 +390,23 @@ export default function HomePage() {
       </section>
 
       <footer className={styles.footer}>
-        <a className={styles.logo} href="/" aria-label="Filika home">
-          <FilikaMark />
-          <span>filika</span>
-        </a>
-        <p>User-reviewed feedback infrastructure for AI agents.</p>
-        <div>
-          <a href="#product">Product</a>
-          <a href="#safety">Safety</a>
-          <a href="https://github.com/Complaintr/filika" rel="noreferrer" target="_blank">
-            GitHub
+        <div className={styles.footerContent}>
+          <a className={styles.logo} href="/" aria-label="Filika home">
+            <FilikaMark />
+            <span>filika</span>
           </a>
+          <p>User-reviewed feedback infrastructure for AI agents.</p>
+          <div>
+            <a href="#product">Product</a>
+            <a href="#safety">Safety</a>
+            <a href="https://github.com/Complaintr/filika" rel="noreferrer" target="_blank">
+              GitHub
+            </a>
+          </div>
+        </div>
+
+        <div className={styles.brandWatermark} aria-hidden="true">
+          <span>filika</span>
         </div>
       </footer>
     </main>
