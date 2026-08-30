@@ -151,31 +151,9 @@ html {
   letter-spacing: -1.1px;
 }
 .brand-mark {
-  position: relative;
+  width: 32px;
+  height: 32px;
   display: block;
-  width: 25px;
-  height: 28px;
-}
-.sail-main {
-  position: absolute;
-  inset: 0 10px 8px 2px;
-  background: var(--blue);
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-}
-.sail-small {
-  position: absolute;
-  inset: 6px 2px 8px 17px;
-  background: #8ba6f7;
-  clip-path: polygon(0 0, 100% 100%, 0 100%);
-}
-.sail-hull {
-  position: absolute;
-  bottom: 3px;
-  left: 0;
-  width: 25px;
-  height: 4px;
-  background: var(--blue);
-  clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%);
 }
 .workspace-switcher {
   display: flex;
@@ -1870,8 +1848,8 @@ html {
   padding: 36px 28px 30px;
 }
 .login-brand .brand-mark {
-  width: 34px;
-  height: 38px;
+  width: 64px;
+  height: 64px;
 }
 .login-card h1 {
   margin: 4px 0 0;

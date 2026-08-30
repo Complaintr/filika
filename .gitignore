@@ -2,7 +2,8 @@ node_modules/
 dist/
 .env
 .next/
-apps/web/public/
+apps/web/public/*
+!apps/web/public/filika-logo.svg
 apps/web/src/filika.js
 coverage/
 test-results/

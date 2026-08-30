@@ -81,11 +81,13 @@ function ShellBody({ children }: WorkspaceShellProps) {
         <div className="topbar-inner">
           <div className="workspace-identity">
             <Link className="brand" href="/dashboard" aria-label="Filika dashboard">
-              <span className="brand-mark" aria-hidden="true">
-                <span className="sail-main" />
-                <span className="sail-small" />
-                <span className="sail-hull" />
-              </span>
+              <img
+                className="brand-mark"
+                src="/filika-logo.svg"
+                alt=""
+                width={32}
+                height={32}
+              />
               <span className="brand-name">filika</span>
             </Link>
             <span className="identity-separator" aria-hidden="true">

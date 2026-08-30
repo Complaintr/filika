@@ -9,7 +9,9 @@ function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/api/v1") ||
     pathname.startsWith("/_next") ||
     pathname === "/app.css" ||
-    pathname === "/favicon.ico"
+    pathname === "/favicon.ico" ||
+    pathname === "/filika-logo.svg" ||
+    pathname === "/icon.svg"
   );
 }
 

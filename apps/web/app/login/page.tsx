@@ -40,12 +40,8 @@ export default function LoginPage() {
   return (
     <main className="login-page">
       <div className="panel login-card">
-        <div className="login-brand" aria-hidden="true">
-          <span className="brand-mark">
-            <span className="sail-main" />
-            <span className="sail-small" />
-            <span className="sail-hull" />
-          </span>
+        <div className="login-brand">
+          <img className="brand-mark" src="/filika-logo.svg" alt="" width={64} height={64} />
         </div>
         <h1>Sign in to Filika</h1>
         <p className="muted">Your workspace for reviewing product feedback.</p>
