@@ -838,8 +838,8 @@
 }
 
 .principles article {
-  min-height: 260px;
-  padding: clamp(32px, 4vw, 42px) clamp(24px, 3.5vw, 38px);
+  min-height: 180px;
+  padding: clamp(28px, 3.5vw, 36px) clamp(22px, 3vw, 34px);
   border-right: 1px solid var(--landing-line);
 }
 
@@ -855,21 +855,21 @@
 }
 
 .principles h2 {
-  margin-top: 40px;
+  margin-top: 24px;
   font-size: 20px;
   font-weight: 650;
   letter-spacing: -0.6px;
 }
 
 .principles p {
-  margin-top: 12px;
+  margin-top: 8px;
   color: var(--landing-muted);
   font-size: 14px;
-  line-height: 1.65;
+  line-height: 1.55;
 }
 
 .workflowSection {
-  padding: clamp(90px, 12vw, 158px) 0;
+  padding: clamp(80px, 10vw, 130px) 0;
 }
 
 .sectionHeading {
@@ -882,7 +882,7 @@
 
 .workflowGrid {
   position: relative;
-  margin-top: clamp(48px, 6vw, 76px);
+  margin-top: clamp(36px, 5vw, 56px);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
@@ -899,8 +899,8 @@
 }
 
 .workflowCard {
-  min-height: 350px;
-  padding: clamp(24px, 3vw, 30px);
+  min-height: 220px;
+  padding: clamp(22px, 2.5vw, 28px);
   display: flex;
   flex-direction: column;
   border: 1px solid var(--landing-line);
@@ -936,22 +936,22 @@
 
 .workflowCard h3 {
   margin-top: 13px;
-  font-size: clamp(21px, 2.2vw, 25px);
+  font-size: clamp(20px, 2vw, 23px);
   font-weight: 620;
   letter-spacing: -0.8px;
   line-height: 1.14;
 }
 
 .workflowCard > p:last-child {
-  margin-top: 14px;
+  margin-top: 10px;
   color: var(--landing-muted);
-  font-size: 14px;
-  line-height: 1.65;
+  font-size: 13.5px;
+  line-height: 1.55;
 }
 
 .reportBoardSection {
   position: relative;
-  padding: clamp(24px, 4vw, 36px) 0 clamp(90px, 12vw, 164px);
+  padding: clamp(24px, 4vw, 36px) 0 clamp(80px, 10vw, 130px);
 }
 
 .reportBoardSection::before {
@@ -977,30 +977,22 @@
 }
 
 .reportBoardHeading {
-  display: grid;
-  grid-template-columns: 1.12fr 0.88fr;
-  align-items: end;
-  gap: clamp(32px, 6vw, 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .reportBoardHeading h2 {
-  margin-top: 15px;
+  margin-top: 12px;
   font-size: clamp(36px, 4.5vw, 64px);
   font-weight: 580;
   letter-spacing: -0.04em;
   line-height: 1.02;
 }
 
-.reportBoardHeading > p {
-  max-width: 470px;
-  justify-self: end;
-  color: var(--landing-muted);
-  font-size: clamp(14px, 1.5vw, 16px);
-  line-height: 1.7;
-}
-
 .reportBoard {
-  margin-top: clamp(48px, 6vw, 72px);
+  margin-top: clamp(36px, 5vw, 56px);
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
   overflow: hidden;
@@ -1023,7 +1015,7 @@
 }
 
 .boardColumnHeader {
-  min-height: 58px;
+  min-height: 52px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -1087,8 +1079,8 @@
 .signalCard {
   display: flex;
   flex-direction: column;
-  min-height: 264px;
-  padding: 22px;
+  min-height: 180px;
+  padding: 20px;
   background: rgba(255, 255, 255, 0.88);
 }
 
@@ -1107,48 +1099,24 @@
 }
 
 .signalCard h3 {
-  margin-top: 19px;
-  font-size: 20px;
+  margin-top: 14px;
+  font-size: 17px;
   font-weight: 620;
-  letter-spacing: -0.7px;
-  line-height: 1.2;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
 }
 
 .signalCard > p {
-  margin-top: 10px;
+  margin-top: 8px;
   color: var(--landing-muted);
   font-size: 12px;
-  line-height: 1.62;
-}
-
-.signalFooter {
-  margin-top: auto;
-  padding-top: 16px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  border-top: 1px solid rgba(16, 44, 53, 0.08);
-  color: #859597;
-  font-size: 10px;
-}
-
-.signalMarker {
-  width: 25px;
-  height: 25px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(10, 143, 140, 0.17);
-  border-radius: 50%;
-  color: var(--landing-teal-dark);
-  background: #e8f7f2;
-  font-size: 8px;
-  font-weight: 800;
+  line-height: 1.55;
 }
 
 .reportCard {
   position: relative;
-  min-height: 264px;
-  padding: 26px;
+  min-height: 180px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1212,23 +1180,23 @@
 }
 
 .reportCard h3 {
-  font-size: clamp(24px, 2.5vw, 36px);
+  font-size: clamp(20px, 2.2vw, 28px);
   font-weight: 590;
-  letter-spacing: -1.4px;
-  line-height: 1.06;
+  letter-spacing: -1.1px;
+  line-height: 1.1;
   text-wrap: balance;
 }
 
 .reportCardCopy p {
   max-width: 470px;
-  margin-top: 12px;
+  margin-top: 8px;
   color: #49696d;
   font-size: 12px;
-  line-height: 1.62;
+  line-height: 1.55;
 }
 
 .reportTags {
-  margin-top: 22px;
+  margin-top: 16px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -1245,8 +1213,8 @@
 }
 
 .safetySection {
-  min-height: 500px;
-  padding: clamp(40px, 6vw, 76px);
+  min-height: auto;
+  padding: clamp(40px, 6vw, 68px);
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   align-items: center;
@@ -1269,14 +1237,14 @@
 }
 
 .safetyCopy > p:not(.sectionKicker) {
-  margin-top: 24px;
+  margin-top: 18px;
   color: rgba(232, 255, 249, 0.67);
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
 .safetyCopy > a {
-  margin-top: 28px;
+  margin-top: 24px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
