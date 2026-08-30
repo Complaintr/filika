@@ -8,6 +8,8 @@ export const COLLECTOR_DEFAULT_PORT = 8787 as const;
 
 export interface CollectorServerOptions {
   databaseUrl: string;
+  resendApiKey?: string | undefined;
+  emailFrom?: string | undefined;
   port?: number | undefined;
   baseURL?: string | undefined;
   secret?: string | undefined;
@@ -22,6 +24,8 @@ export function startCollectorServer(
 ): ReturnType<typeof Bun.serve> {
   const handle = createDb(options.databaseUrl);
   const betterAuth = createBetterAuth(handle.db, {
+    resendApiKey: options.resendApiKey,
+    emailFrom: options.emailFrom,
     baseURL: options.baseURL,
     secret: options.secret,
     googleClientId: options.googleClientId,
@@ -48,6 +52,8 @@ export function startCollectorServer(
 if (import.meta.main) {
   startCollectorServer({
     databaseUrl: process.env.DATABASE_URL ?? "postgres://localhost:5432/filika",
+    resendApiKey: process.env.RESEND_API_KEY,
+    emailFrom: process.env.AUTH_EMAIL_FROM,
     baseURL: process.env.BETTER_AUTH_URL,
     secret: process.env.BETTER_AUTH_SECRET,
     googleClientId: process.env.GOOGLE_CLIENT_ID,

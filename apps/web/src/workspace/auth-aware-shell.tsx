@@ -3,7 +3,13 @@
 import { usePathname } from "next/navigation";
 import { WorkspaceShell } from "./workspace-shell";
 
-const STANDALONE_PATHS = new Set(["/login"]);
+const STANDALONE_PATHS = new Set([
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/terms",
+]);
 
 /**
  * Renders the workspace shell (topbar and bottom navigation) for workspace

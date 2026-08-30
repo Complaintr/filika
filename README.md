@@ -39,7 +39,7 @@ Open [localhost:4173](http://localhost:4173).
 
 ### Signing in with Google
 
-The workspace requires a Google account. To enable Google sign-in:
+Google sign-in is optional alongside email/password accounts. To enable it:
 
 1. Create an OAuth client in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
    (Application type: Web application).
@@ -53,8 +53,33 @@ The workspace requires a Google account. To enable Google sign-in:
 
 4. Restart `bun run dev`.
 
-Without credentials the app boots, but sign-in reports that Google is not
-configured. Set `BETTER_AUTH_SECRET` to a long random value in production.
+Without Google credentials the app boots, but Google sign-in is unavailable. Set `BETTER_AUTH_SECRET` to a long random value in production.
+
+### Email accounts and password recovery
+
+Set these server-only values in `.env`, then restart the app:
+
+```sh
+RESEND_API_KEY=re_...
+AUTH_EMAIL_FROM="Filika <auth@your-verified-domain.example>"
+```
+
+Use a sender domain verified in Resend. The key and sender are never sent to the
+browser. Email signup requires verification before login. Verification links
+expire after one hour; signing in with an unverified email sends a fresh link.
+The `/forgot-password` page sends a single-use reset link valid for 30 minutes.
+Resetting a password revokes existing sessions. Responses do not reveal whether
+an email is registered. Email operations have request limits and a ten-second
+provider timeout. Background delivery failures produce a generic server log;
+check Resend delivery logs and retry from sign-in or password recovery.
+
+Without email configuration, signup and recovery return a service-unavailable
+error; Google sign-in remains independent. Authentication routes and `/terms`
+are public. Review the workspace usage terms with your operator before making
+this service available to users.
+
+Implementation references: [Better Auth email/password authentication](https://better-auth.com/docs/authentication/email-password)
+and [Resend email API](https://resend.com/docs/api-reference/emails/send-email).
 
 ## Verification
 
