@@ -9,7 +9,8 @@ describe("landing header component", () => {
 
     const logo = result.container.querySelector('a[aria-label="Filika home"]');
     expect(logo).not.toBeNull();
-    expect(logo?.textContent).toContain("filika");
+    expect(logo?.textContent).toContain("Filika");
+    expect(logo?.querySelector('img[src="/filika-logo.svg"]')).not.toBeNull();
 
     const nav = result.container.querySelector('nav[aria-label="Main navigation"]');
     expect(nav).not.toBeNull();
