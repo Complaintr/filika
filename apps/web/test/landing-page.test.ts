@@ -50,7 +50,9 @@ describe("public landing page", () => {
     const shell = await Bun.file(`${import.meta.dir}/../src/workspace/auth-aware-shell.tsx`).text();
 
     expect(proxy).toContain('pathname === "/"');
-    expect(shell).toContain('new Set(["/", "/login"])');
+    expect(shell).toContain('"/",');
+    expect(shell).toContain('"/login",');
+    expect(shell).toContain('"/onboarding",');
   });
 
   test("includes the theme switcher in the header actions with dark mode styles", async () => {
