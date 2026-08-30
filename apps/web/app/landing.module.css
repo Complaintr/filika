@@ -1864,7 +1864,7 @@
   --landing-teal: #14b8a6;
   --landing-teal-dark: #5eead4;
   --landing-mint: #2dd4bf;
-  --landing-paper: #0b1215;
+  --landing-paper: #0e0e10;
 }
 
 :root[data-theme="dark"] .headerScrolled {
