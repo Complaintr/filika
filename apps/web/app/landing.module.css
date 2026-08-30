@@ -174,6 +174,59 @@
   gap: 9px;
 }
 
+.themeSwitcher {
+  display: inline-grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  padding: 3px;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  background: rgba(6, 55, 61, 0.38);
+  box-shadow: 0 10px 30px rgba(3, 30, 34, 0.12);
+  backdrop-filter: blur(16px);
+}
+
+.themeSwitcher button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(248, 255, 253, 0.68);
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.themeSwitcher button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.themeSwitcher button:focus-visible {
+  outline: 2px solid #5eead4;
+  outline-offset: 2px;
+}
+
+.themeSwitcher button[aria-checked="true"] {
+  background: #f7fffc;
+  color: #0b4145;
+  box-shadow: 0 2px 8px rgba(3, 31, 35, 0.28);
+}
+
+.themeSwitcher svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.9;
+}
+
 .signInLink {
   padding: 9px 12px;
   color: rgba(248, 255, 253, 0.84);
@@ -1611,4 +1664,193 @@
   .reportCard {
     transition: none;
   }
+}
+
+:root[data-theme="dark"] .page {
+  --landing-ink: #e6f4f1;
+  --landing-muted: #8eaab0;
+  --landing-line: rgba(255, 255, 255, 0.09);
+  --landing-teal: #14b8a6;
+  --landing-teal-dark: #5eead4;
+  --landing-mint: #2dd4bf;
+  --landing-paper: #0b1215;
+}
+
+:root[data-theme="dark"] .productStage {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(14, 25, 29, 0.94);
+  box-shadow:
+    0 42px 100px rgba(0, 0, 0, 0.6),
+    0 0 0 10px rgba(20, 184, 166, 0.05);
+}
+
+:root[data-theme="dark"] .windowBar {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: rgba(19, 35, 41, 0.85);
+}
+
+:root[data-theme="dark"] .windowAddress,
+:root[data-theme="dark"] .secureStatus {
+  color: #8daab0;
+}
+
+:root[data-theme="dark"] .productCanvas {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px), #0c191d;
+}
+
+:root[data-theme="dark"] .contextPanel {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(17, 34, 40, 0.92);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="dark"] .contextHeader {
+  color: #8daab0;
+}
+
+:root[data-theme="dark"] .contextStatus {
+  color: #ff9e8a;
+  background: rgba(239, 141, 122, 0.16);
+}
+
+:root[data-theme="dark"] .issueTitle span {
+  color: #8faab0;
+}
+
+:root[data-theme="dark"] .signalGrid > span {
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #c9e4e1;
+  background: #12282e;
+}
+
+:root[data-theme="dark"] .signalGrid small {
+  color: #799a9e;
+}
+
+:root[data-theme="dark"] .widgetReserve {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(17, 34, 40, 0.8);
+}
+
+:root[data-theme="dark"] .reserveBadge {
+  color: #5eead4;
+  background: rgba(45, 212, 191, 0.15);
+}
+
+:root[data-theme="dark"] .reserveFrame {
+  border-color: rgba(94, 234, 212, 0.25);
+  color: #9ab8ba;
+  background:
+    radial-gradient(circle, rgba(94, 234, 212, 0.1) 1px, transparent 1px), rgba(12, 28, 33, 0.6);
+}
+
+:root[data-theme="dark"] .reserveFrame strong {
+  color: #bbf2e7;
+}
+
+:root[data-theme="dark"] .reserveFooter {
+  color: #7e9fa2;
+}
+
+:root[data-theme="dark"] .workflowCard {
+  border-color: rgba(255, 255, 255, 0.09);
+  background: rgba(16, 32, 38, 0.72);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+}
+
+:root[data-theme="dark"] .reportBoard {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(14, 28, 34, 0.85);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="dark"] .signalColumn {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .signalCard {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(19, 39, 46, 0.92);
+  box-shadow: 0 7px 22px rgba(0, 0, 0, 0.25);
+}
+
+:root[data-theme="dark"] .signalCard:hover {
+  border-color: rgba(20, 184, 166, 0.4);
+}
+
+:root[data-theme="dark"] .signalFooter {
+  border-top-color: rgba(255, 255, 255, 0.08);
+  color: #8faab0;
+}
+
+:root[data-theme="dark"] .signalMarker {
+  border-color: rgba(20, 184, 166, 0.3);
+  color: #5eead4;
+  background: rgba(20, 184, 166, 0.18);
+}
+
+:root[data-theme="dark"] .reportCard[data-tone="aqua"] {
+  background: linear-gradient(145deg, #103434 0%, #112d38 55%, #0e1e24 100%);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .reportCard[data-tone="violet"] {
+  background: linear-gradient(145deg, #251b3d 0%, #142833 58%, #0e1e24 100%);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .reportCard[data-tone="peach"] {
+  background: linear-gradient(145deg, #382218 0%, #172d2f 58%, #0e1e24 100%);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .reportCardTopline {
+  color: #6ed6c7;
+}
+
+:root[data-theme="dark"] .reportArrow {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #e6f4f1;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .reportCardCopy p {
+  color: #9cb6b9;
+}
+
+:root[data-theme="dark"] .reportTags span {
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #9dd8d3;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+:root[data-theme="dark"] .ctaSection {
+  border-color: rgba(255, 255, 255, 0.09);
+  background: radial-gradient(circle at 72% 0%, rgba(20, 184, 166, 0.16), transparent 30%), #102428;
+}
+
+:root[data-theme="dark"] .ctaButton {
+  color: #062326;
+  border-color: #14b8a6;
+  background: #14b8a6;
+  box-shadow: 0 16px 32px rgba(20, 184, 166, 0.25);
+}
+
+:root[data-theme="dark"] .ctaButton:hover {
+  background: #2dd4bf;
+  border-color: #2dd4bf;
+}
+
+:root[data-theme="dark"] .footer .logo {
+  color: #5eead4;
+}
+
+:root[data-theme="dark"] .footer > div {
+  color: #8daab0;
+}
+
+:root[data-theme="dark"] .footer > div a:hover {
+  color: #5eead4;
 }

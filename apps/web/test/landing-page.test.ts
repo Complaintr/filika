@@ -52,4 +52,15 @@ describe("public landing page", () => {
     expect(proxy).toContain('pathname === "/"');
     expect(shell).toContain('new Set(["/", "/login"])');
   });
+
+  test("includes the theme switcher in the header actions with dark mode styles", async () => {
+    const page = await Bun.file(`${appDirectory}/page.tsx`).text();
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    expect(page).toContain("<ThemeSwitcher");
+    expect(styles).toContain(".themeSwitcher");
+    expect(styles).toContain(':root[data-theme="dark"] .page');
+    expect(styles).toContain(':root[data-theme="dark"] .productStage');
+    expect(styles).toContain(':root[data-theme="dark"] .ctaSection');
+  });
 });

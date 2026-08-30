@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type { Metadata } from "next";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
@@ -138,6 +139,7 @@ export default function HomePage() {
           </nav>
 
           <div className={styles.headerActions}>
+            <ThemeSwitcher className={styles.themeSwitcher} />
             <a className={styles.signInLink} href="/login">
               Sign in
             </a>
