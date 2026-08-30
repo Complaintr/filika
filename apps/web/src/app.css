@@ -302,7 +302,6 @@ html {
   display: flex;
   flex-direction: column;
   width: min(340px, calc(100vw - 32px));
-  min-height: 438px;
   padding: 18px 13px;
   border: 1px solid #e4e8ef;
   border-radius: 18px;
@@ -439,49 +438,14 @@ html {
   cursor: pointer;
 }
 .profile-menu-links svg,
-.profile-menu-footer svg,
-.profile-other-accounts svg {
+.profile-menu-footer svg {
   width: 17px;
   height: 17px;
   color: #8994a5;
   stroke-width: 1.7;
 }
-.profile-other-accounts {
-  display: grid;
-  gap: 8px;
-  margin: 18px 5px 0;
-}
-.profile-other-accounts-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.profile-other-accounts h2 {
-  color: #8f96a2;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
-}
-.profile-other-accounts small {
-  color: #aeb5c0;
-  font-size: 9px;
-}
-.profile-other-accounts button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 38px;
-  padding: 8px 0;
-  border: 0;
-  background: transparent;
-  color: #9aa2af;
-  font-size: 15px;
-  text-align: left;
-  cursor: not-allowed;
-}
 .profile-menu-footer {
-  margin-top: auto;
+  margin-top: 4px;
   padding-top: 8px;
   border-top: 1px dashed #dfe4eb;
 }
@@ -512,17 +476,12 @@ html {
 }
 :root[data-theme="dark"] .profile-menu-identity span,
 :root[data-theme="dark"] .profile-menu-links svg,
-:root[data-theme="dark"] .profile-menu-footer svg,
-:root[data-theme="dark"] .profile-other-accounts svg {
+:root[data-theme="dark"] .profile-menu-footer svg {
   color: #9b9ba4;
 }
 :root[data-theme="dark"] .profile-menu-links,
 :root[data-theme="dark"] .profile-menu-footer {
   border-color: #303035;
-}
-:root[data-theme="dark"] .profile-other-accounts h2,
-:root[data-theme="dark"] .profile-other-accounts button {
-  color: #9b9ba4;
 }
 :root[data-theme="dark"] .profile-menu-links a:hover,
 :root[data-theme="dark"] .profile-menu-footer button:not(:disabled):hover {

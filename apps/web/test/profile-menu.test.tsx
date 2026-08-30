@@ -4,7 +4,7 @@ import { ProfileMenu } from "../src/workspace/profile-menu";
 import { renderReact } from "./helpers/render-react";
 
 describe("header profile menu", () => {
-  test("opens from the header trigger with unavailable account actions", async () => {
+  test("opens from the header trigger with navigation and sign out actions", async () => {
     const result = await renderReact(createElement(ProfileMenu, { workspaceName: "My workspace" }));
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
@@ -18,11 +18,8 @@ describe("header profile menu", () => {
     expect(result.container.textContent).toContain("Manage Profile");
     expect(result.container.textContent).toContain("Settings");
     expect(result.container.textContent).toContain("Sign out");
-    expect(result.container.textContent).toContain("Other Accounts");
-    const addAccount = result.container.querySelector<HTMLButtonElement>(
-      '[title="Account switching becomes available when account access is enabled."]',
-    );
-    expect(addAccount?.disabled).toBe(true);
+    expect(result.container.textContent).not.toContain("Other Accounts");
+    expect(result.container.textContent).not.toContain("Add another account");
 
     await result.close();
   });
@@ -105,7 +102,6 @@ describe("header profile menu", () => {
     const css = await Bun.file(`${import.meta.dir}/../src/app.css`).text();
 
     expect(css).toContain("width: min(340px, calc(100vw - 32px))");
-    expect(css).toContain("min-height: 438px");
     expect(css).toContain("grid-template-columns: 54px minmax(0, 1fr)");
     expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
     expect(css).toContain("width: 54px");
