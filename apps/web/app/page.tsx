@@ -114,8 +114,8 @@ const maintainerReports = [
 export default function HomePage() {
   return (
     <main className={styles.page} id="app-content">
+      <LandingHeader />
       <section className={styles.hero}>
-        <LandingHeader />
         <div className={styles.heroTexture} aria-hidden="true" />
 
         <div className={styles.heroCopy}>

@@ -11,6 +11,7 @@
   font-family: Inter, "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100dvh;
   overflow-x: clip;
+  position: relative;
 }
 
 .page svg {
@@ -36,7 +37,7 @@
 .hero {
   position: relative;
   min-height: 1080px;
-  padding: 0 28px 80px;
+  padding: 82px 28px 80px;
   color: #f8fffd;
   background:
     radial-gradient(circle at 50% 25%, rgba(134, 255, 226, 0.36), transparent 34%),
@@ -88,8 +89,11 @@
 
 /* Header & Scroll-Adaptive Island Navigation */
 .headerWrapper {
-  position: relative;
-  z-index: 100;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   width: 100%;
   padding-top: 18px;
   transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -100,6 +104,7 @@
   top: 14px;
   left: 0;
   right: 0;
+  z-index: 1000;
   padding-top: 0;
   padding-inline: 16px;
   pointer-events: none;
@@ -720,6 +725,13 @@
 .footer {
   width: min(calc(100% - clamp(28px, 5vw, 64px)), 1180px);
   margin-inline: auto;
+}
+
+.productStage,
+.workflowSection,
+.reportBoardSection,
+.safetySection {
+  scroll-margin-top: 84px;
 }
 
 .introSection {
@@ -1447,6 +1459,7 @@
 @media (max-width: 900px) {
   .hero {
     min-height: auto;
+    padding-top: 82px;
     padding-inline: 20px;
   }
 
@@ -1470,7 +1483,7 @@
 
 @media (max-width: 640px) {
   .hero {
-    padding: 0 14px 42px;
+    padding: 62px 14px 42px;
   }
 
   .hero::after {
