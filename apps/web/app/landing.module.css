@@ -963,6 +963,9 @@
 }
 
 .signalCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 264px;
   padding: 22px;
   background: rgba(255, 255, 255, 0.88);
 }
@@ -997,7 +1000,7 @@
 }
 
 .signalFooter {
-  margin-top: 20px;
+  margin-top: auto;
   padding-top: 16px;
   display: flex;
   align-items: center;
@@ -1022,8 +1025,8 @@
 
 .reportCard {
   position: relative;
-  min-height: 278px;
-  padding: 27px;
+  min-height: 264px;
+  padding: 26px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1063,41 +1066,22 @@
 }
 
 .reportCard[data-tone="violet"] {
-  min-height: 250px;
   background: linear-gradient(145deg, #eee9ff 0%, #dff4f5 58%, #f9faf8 100%);
 }
 
 .reportCard[data-tone="peach"] {
-  min-height: 262px;
   background: linear-gradient(145deg, #ffe8d9 0%, #e8f4ed 58%, #f9faf8 100%);
 }
 
 .reportCardTopline {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 20px;
   color: #376b69;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-
-.reportArrow {
-  width: 29px;
-  height: 29px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(16, 44, 53, 0.13);
-  border-radius: 50%;
-  color: var(--landing-ink);
-  background: rgba(255, 255, 255, 0.38);
-}
-
-.reportArrow svg {
-  width: 13px;
-  height: 13px;
 }
 
 .reportCardCopy {
@@ -1808,12 +1792,6 @@
 
 :root[data-theme="dark"] .reportCardTopline {
   color: #6ed6c7;
-}
-
-:root[data-theme="dark"] .reportArrow {
-  border-color: rgba(255, 255, 255, 0.14);
-  color: #e6f4f1;
-  background: rgba(255, 255, 255, 0.08);
 }
 
 :root[data-theme="dark"] .reportCardCopy p {

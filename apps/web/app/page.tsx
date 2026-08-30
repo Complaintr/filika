@@ -356,9 +356,6 @@ export default function HomePage() {
                 <article className={styles.reportCard} data-tone={report.tone} key={report.title}>
                   <div className={styles.reportCardTopline}>
                     <span>{report.status}</span>
-                    <span className={styles.reportArrow} aria-hidden="true">
-                      <ArrowRight />
-                    </span>
                   </div>
                   <div className={styles.reportCardCopy}>
                     <h3>{report.title}</h3>
