@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { accountSettingsSchema, googlePhotoUrl } from "../src/account-profile";
+import { createApplicationSchema } from "../src/applications";
 
 import { decodeJsonBody } from "../src/parse";
 import { isOriginAllowed } from "../src/project";
@@ -19,6 +21,71 @@ const VALID_ENVELOPE = {
 function bytesOf(value: unknown): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(value));
 }
+
+describe("application and profile validation", () => {
+  const input = {
+    displayName: "Eckra",
+    slug: "eckra",
+    allowedOrigins: ["https://eckra.com"],
+    dashboardDays: 30,
+  };
+  test("rejects reserved paths, invalid origins, and unknown ownership fields", () => {
+    expect(createApplicationSchema.safeParse(input).success).toBe(true);
+    for (const slug of [
+      "account",
+      "api",
+      "onboarding",
+      "login",
+      "../eckra",
+      "Eckra",
+      "eckra/complaints",
+      "x".repeat(49),
+    ]) {
+      expect(createApplicationSchema.safeParse({ ...input, slug }).success).toBe(false);
+    }
+    for (const origin of [
+      "*",
+      "null",
+      "http://eckra.com",
+      "https://eckra.com/path",
+      "https://user:pass@eckra.com",
+    ]) {
+      expect(
+        createApplicationSchema.safeParse({ ...input, allowedOrigins: [origin] }).success,
+      ).toBe(false);
+    }
+    expect(
+      createApplicationSchema.safeParse({ ...input, ownerUserId: "another-account" }).success,
+    ).toBe(false);
+    expect(
+      createApplicationSchema.safeParse({
+        ...input,
+        allowedOrigins: Array(21).fill("https://eckra.com"),
+      }).success,
+    ).toBe(false);
+  });
+  test("Google photo URLs and account patches stay within the supported options", () => {
+    expect(googlePhotoUrl("https://lh3.googleusercontent.com/avatar")).toBe(
+      "https://lh3.googleusercontent.com/avatar",
+    );
+    for (const value of [
+      null,
+      "javascript:alert(1)",
+      "http://lh3.googleusercontent.com/avatar",
+      "https://googleusercontent.com.evil.example/avatar",
+      "https://user:pass@lh3.googleusercontent.com/avatar",
+      "https://lh3.googleusercontent.com:444/avatar",
+    ]) {
+      expect(googlePhotoUrl(value)).toBeNull();
+    }
+    expect(accountSettingsSchema.safeParse({ theme: "dark" }).success).toBe(true);
+    expect(accountSettingsSchema.safeParse({}).success).toBe(false);
+    expect(
+      accountSettingsSchema.safeParse({ googleImage: "https://lh3.googleusercontent.com/avatar" })
+        .success,
+    ).toBe(false);
+  });
+});
 
 describe("envelope and project validation", () => {
   test("requires the strict json content type", () => {

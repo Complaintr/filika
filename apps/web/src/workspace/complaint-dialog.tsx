@@ -8,15 +8,15 @@ import { InboxApiService } from "@/services/inbox-api";
 import { formatDate, kindLabels } from "./dom";
 import { InboxDetailState } from "./inbox-view";
 
-const api = new InboxApiService({ collectorOrigin: "" });
-
 export function ComplaintDialog({
+  appSlug,
   feedbackId,
   onClose,
   previousId,
   nextId,
   onNavigate,
 }: {
+  appSlug: string;
   feedbackId: string;
   onClose: () => void;
   previousId?: string | undefined;
@@ -47,10 +47,11 @@ export function ComplaintDialog({
     requestRef.current = controller;
     setState({ status: "loading" });
     setCopyStatus("");
+    const api = new InboxApiService({ collectorOrigin: "", appSlug });
     api.fetchDetail(feedbackId, controller.signal).then((result) => {
       if (!controller.signal.aborted) setState(result);
     });
-  }, [feedbackId]);
+  }, [feedbackId, appSlug]);
 
   useEffect(() => {
     load();
@@ -60,7 +61,7 @@ export function ComplaintDialog({
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(
-        `${window.location.origin}/complaints/${encodeURIComponent(feedbackId)}`,
+        `${window.location.origin}/${appSlug}/complaints/${encodeURIComponent(feedbackId)}`,
       );
       setCopyStatus("Link copied");
     } catch {
@@ -215,7 +216,7 @@ export function ComplaintDialog({
           <Link
             className="studio-icon-button"
             aria-label="Open report page"
-            href={`/complaints/${encodeURIComponent(feedbackId)}`}
+            href={`/${appSlug}/complaints/${encodeURIComponent(feedbackId)}`}
           >
             <ExternalLink />
           </Link>

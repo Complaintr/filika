@@ -17,9 +17,9 @@ export type OnboardingFocus = (typeof ONBOARDING_FOCUS)[number];
 export interface OnboardingPreferences {
   role: OnboardingRole;
   focus: OnboardingFocus;
-  workspaceName: string;
+  applicationName: string;
 }
-const key = (userId: string) => `filika-onboarding-v1:${userId}`;
+const key = (userId: string) => `filika-onboarding-v2:${userId}`;
 
 export function readOnboarding(userId: string): OnboardingPreferences | null {
   try {
@@ -31,12 +31,12 @@ export function readOnboarding(userId: string): OnboardingPreferences | null {
     if (
       !role ||
       !focus ||
-      typeof value.workspaceName !== "string" ||
-      !value.workspaceName.trim() ||
-      value.workspaceName.length > 60
+      typeof value.applicationName !== "string" ||
+      !value.applicationName.trim() ||
+      value.applicationName.length > 60
     )
       return null;
-    return { role, focus, workspaceName: value.workspaceName };
+    return { role, focus, applicationName: value.applicationName };
   } catch {
     return null;
   }

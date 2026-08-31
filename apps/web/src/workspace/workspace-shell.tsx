@@ -1,12 +1,14 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { EllipsisVertical, Home, type LucideIcon, MessageCircle, Settings } from "lucide-react";
-import Link from "next/link";
+import { Home, type LucideIcon, MessageCircle, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useApplication } from "@/applications/application-context";
+import { ApplicationSwitcher } from "@/applications/application-switcher";
 import { FilikaBrand } from "@/components/filika-brand";
 import BottomNavBar from "@/components/ui/bottom-nav-bar";
+import { applicationPath } from "@/services/applications-api";
 import { ConnectionProvider, connectionLabel, useConnection } from "./connection";
 import { type Preferences, readPreferences } from "./preferences";
 import { ProfileMenu } from "./profile-menu";
@@ -31,6 +33,10 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
 
 function ShellBody({ children }: WorkspaceShellProps) {
   const pathname = usePathname();
+  const { application, applications } = useApplication();
+  const navItems = application
+    ? NAV_ITEMS.map((item) => ({ ...item, href: `/${application.slug}${item.href}` }))
+    : [];
   const prefersReducedMotion = useReducedMotion();
   const { state: connection } = useConnection();
   const [preferences, setPreferences] = useState<Preferences>(() => readPreferences());
@@ -70,8 +76,7 @@ function ShellBody({ children }: WorkspaceShellProps) {
 
   const activeIndex = Math.max(
     0,
-    NAV_ITEMS.findIndex((item) => {
-      if (item.href === "/dashboard") return pathname === "/" || pathname === "/dashboard";
+    navItems.findIndex((item) => {
       return pathname === item.href || pathname.startsWith(`${item.href}/`);
     }),
   );
@@ -81,28 +86,27 @@ function ShellBody({ children }: WorkspaceShellProps) {
       <header className="topbar">
         <div className="topbar-inner">
           <div className="workspace-identity">
-            <FilikaBrand href="/dashboard" label="Filika dashboard" />
+            <FilikaBrand
+              href={
+                application
+                  ? applicationPath(application.slug, "dashboard")
+                  : applications[0]
+                    ? applicationPath(applications[0].slug, "dashboard")
+                    : "/account"
+              }
+              label="Filika dashboard"
+            />
             <span className="identity-separator" aria-hidden="true">
               /
             </span>
-            <Link className="workspace-switcher" href="/settings">
-              <span className="workspace-avatar" aria-hidden="true">
-                {preferences.workspaceName.slice(0, 1).toUpperCase()}
-              </span>
-              <span className="workspace-copy">
-                <strong>{preferences.workspaceName}</strong>
-              </span>
-              <span className="workspace-copy-marker" aria-hidden="true">
-                <EllipsisVertical />
-              </span>
-            </Link>
+            <ApplicationSwitcher />
           </div>
           <div className="topbar-actions">
             <div className="connection-status" data-state={connection} role="status">
               <span className="connection-dot" />
               <span className="sr-only">{connectionLabel(connection)}</span>
             </div>
-            <ProfileMenu workspaceName={preferences.workspaceName} />
+            <ProfileMenu applicationSlug={application?.slug} />
           </div>
         </div>
       </header>
@@ -127,13 +131,19 @@ function ShellBody({ children }: WorkspaceShellProps) {
           </motion.div>
         </AnimatePresence>
       </main>
-      <div className="navigation-root">
-        <BottomNavBar
-          items={NAV_ITEMS.map((item) => ({ href: item.href, icon: item.icon, label: item.label }))}
-          activeIndex={activeIndex}
-          stickyBottom
-        />
-      </div>
+      {application && (
+        <div className="navigation-root">
+          <BottomNavBar
+            items={navItems.map((item) => ({
+              href: item.href,
+              icon: item.icon,
+              label: item.label,
+            }))}
+            activeIndex={activeIndex}
+            stickyBottom
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -53,16 +53,18 @@ export function InboxDetailReady({ feedback }: { feedback: InboxDetailViewModel 
 }
 
 export function InboxDetailShell({
+  complaintsHref = "/complaints",
   children,
   kind,
 }: {
   children: React.ReactNode;
   kind: string | undefined;
+  complaintsHref?: string;
 }) {
   return (
     <div className="page-section" data-view="inbox-detail" data-untrusted="true">
       <div className="inbox-detail-nav">
-        <a className="text-button" href="/complaints">
+        <a className="text-button" href={complaintsHref}>
           ← All complaints
         </a>
         {kind !== undefined && <p className="eyebrow">{kind}</p>}

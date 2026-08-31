@@ -17,10 +17,10 @@ import type {
 import { readBoundedJson } from "./response";
 
 const INBOX_LIST_ENDPOINT = "/api/v1/inbox";
-const INBOX_DETAIL_ENDPOINT_PREFIX = "/api/v1/inbox/";
 
 export interface InboxApiOptions {
   collectorOrigin: string;
+  appSlug?: string;
   fetchFn?: FetchFn;
 }
 
@@ -122,14 +122,18 @@ function validateDetailFeedback(raw: unknown): InboxDetailViewModel | null {
 export class InboxApiService {
   readonly #collectorOrigin: string;
   readonly #fetch: FetchFn;
+  readonly #appPrefix: string;
 
   constructor(options: InboxApiOptions) {
+    this.#appPrefix = options.appSlug
+      ? `/api/v1/apps/${encodeURIComponent(options.appSlug)}/inbox`
+      : INBOX_LIST_ENDPOINT;
     this.#collectorOrigin = options.collectorOrigin.replace(/\/+$/, "");
     this.#fetch = options.fetchFn ?? ((input, init) => fetch(input, init));
   }
 
   async fetchList(signal?: AbortSignal): Promise<InboxListViewState> {
-    const url = `${this.#collectorOrigin}${INBOX_LIST_ENDPOINT}`;
+    const url = `${this.#collectorOrigin}${this.#appPrefix}`;
 
     try {
       const init: RequestInit = {
@@ -170,7 +174,7 @@ export class InboxApiService {
   }
 
   async fetchDetail(feedbackId: string, signal?: AbortSignal): Promise<InboxDetailViewState> {
-    const url = `${this.#collectorOrigin}${INBOX_DETAIL_ENDPOINT_PREFIX}${encodeURIComponent(feedbackId)}`;
+    const url = `${this.#collectorOrigin}${this.#appPrefix}/${encodeURIComponent(feedbackId)}`;
 
     try {
       const init: RequestInit = {

@@ -25,6 +25,10 @@ export function POST(request: Request): Promise<Response> {
   return fetchHandler(request);
 }
 
+export function PATCH(request: Request): Promise<Response> {
+  return fetchHandler(request);
+}
+
 export function OPTIONS(request: Request): Promise<Response> {
   return fetchHandler(request);
 }

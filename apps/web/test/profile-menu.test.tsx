@@ -4,8 +4,8 @@ import { ProfileMenu } from "../src/workspace/profile-menu";
 import { renderReact } from "./helpers/render-react";
 
 describe("header profile menu", () => {
-  test("opens from the header trigger with navigation and sign out actions", async () => {
-    const result = await renderReact(createElement(ProfileMenu, { workspaceName: "My workspace" }));
+  test("opens from the header trigger with unavailable account actions", async () => {
+    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
     );
@@ -15,9 +15,12 @@ describe("header profile menu", () => {
 
     expect(trigger?.getAttribute("aria-expanded")).toBe("true");
     expect(result.container.querySelector('[role="menu"]')).not.toBeNull();
-    expect(result.container.textContent).toContain("Manage Profile");
-    expect(result.container.textContent).toContain("Settings");
+    expect(result.container.textContent).toContain("Manage profile");
+    expect(result.container.textContent).toContain("Application settings");
     expect(result.container.textContent).toContain("Sign out");
+    expect(result.container.textContent).toContain("Profile photo");
+    expect(result.container.querySelector('a[href="/account"]')).not.toBeNull();
+    expect(result.container.querySelector('a[href="/eckra/settings"]')).not.toBeNull();
     expect(result.container.textContent).not.toContain("Other Accounts");
     expect(result.container.textContent).not.toContain("Add another account");
 
@@ -25,7 +28,7 @@ describe("header profile menu", () => {
   });
 
   test("escape closes the menu and restores focus to its trigger", async () => {
-    const result = await renderReact(createElement(ProfileMenu, { workspaceName: "Filika" }));
+    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
     );
@@ -45,7 +48,7 @@ describe("header profile menu", () => {
   });
 
   test("an outside pointer closes the open menu", async () => {
-    const result = await renderReact(createElement(ProfileMenu, { workspaceName: "Filika" }));
+    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
     );
@@ -63,7 +66,7 @@ describe("header profile menu", () => {
   });
 
   test("light, dark, and system choices share the workspace theme preference", async () => {
-    const result = await renderReact(createElement(ProfileMenu, { workspaceName: "Filika" }));
+    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
     const themeColor = result.window.document.createElement("meta");
     themeColor.name = "theme-color";
     result.window.document.head.append(themeColor);

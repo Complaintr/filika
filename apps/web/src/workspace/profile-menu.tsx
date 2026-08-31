@@ -1,12 +1,14 @@
 "use client";
 
-import { CircleUserRound, LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
+import { Camera, CircleUserRound, LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
-import { fetchSession, type SessionInfo, signOut } from "@/services/session";
+import { type AccountProfile, fetchAccount, saveAccount } from "@/services/applications-api";
+import { signOut } from "@/services/session";
+import { readPreferences, savePreferences } from "./preferences";
 
 export interface ProfileMenuProps {
-  workspaceName: string;
+  applicationSlug?: string | undefined;
 }
 
 type ProfileTheme = "light" | "dark" | "system";
@@ -58,10 +60,10 @@ function saveProfileTheme(theme: ProfileTheme): void {
   window.dispatchEvent(new CustomEvent("filika:preferences"));
 }
 
-export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
+export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<ProfileTheme>("light");
-  const [session, setSession] = useState<SessionInfo | null>(null);
+  const [session, setSession] = useState<AccountProfile | null>(null);
   const [imageFailed, setImageFailed] = useState(false);
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -69,13 +71,25 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchSession(controller.signal)
-      .then((res) => {
-        setSession(res);
-        setImageFailed(false);
-      })
-      .catch(() => setSession(null));
-    return () => controller.abort();
+    const load = () => {
+      fetchAccount(controller.signal)
+        .then((value) => {
+          if (controller.signal.aborted) return;
+          setSession(value);
+          setImageFailed(false);
+          savePreferences({ ...readPreferences(), theme: value.theme, density: value.density });
+          window.dispatchEvent(new Event("filika:preferences"));
+        })
+        .catch(() => {
+          if (!controller.signal.aborted) setSession(null);
+        });
+    };
+    load();
+    window.addEventListener("filika:account", load);
+    return () => {
+      controller.abort();
+      window.removeEventListener("filika:account", load);
+    };
   }, []);
 
   useEffect(() => {
@@ -120,14 +134,19 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
     };
   }, [open]);
 
-  const displayName = session?.user.name?.trim() || workspaceName;
-  const displaySubtitle = session?.user.email || "Local workspace";
-  const avatarImage = session?.user.image;
+  const displayName = session?.name?.trim() || "Your account";
+  const displaySubtitle = session?.email || "Filika account";
+  const avatarImage = session?.image;
   const initial = displayName.trim().slice(0, 1).toUpperCase() || "F";
 
   function selectTheme(nextTheme: ProfileTheme): void {
     setTheme(nextTheme);
     saveProfileTheme(nextTheme);
+    if (session) {
+      void saveAccount({ theme: nextTheme }, new AbortController().signal)
+        .then(setSession)
+        .catch(() => {});
+    }
   }
 
   const showAvatarImage = Boolean(avatarImage && !imageFailed);
@@ -213,14 +232,24 @@ export function ProfileMenu({ workspaceName }: ProfileMenuProps) {
             </button>
           </fieldset>
           <div className="profile-menu-links">
-            <Link role="menuitem" href="/settings#workspace-name" onClick={() => setOpen(false)}>
+            <Link role="menuitem" href="/account" onClick={() => setOpen(false)}>
               <CircleUserRound aria-hidden="true" />
-              <span>Manage Profile</span>
+              <span>Manage profile</span>
             </Link>
-            <Link role="menuitem" href="/settings" onClick={() => setOpen(false)}>
-              <Settings aria-hidden="true" />
-              <span>Settings</span>
+            <Link role="menuitem" href="/account#profile-photo" onClick={() => setOpen(false)}>
+              <Camera aria-hidden="true" />
+              <span>Profile photo</span>
             </Link>
+            {applicationSlug && (
+              <Link
+                role="menuitem"
+                href={`/${applicationSlug}/settings`}
+                onClick={() => setOpen(false)}
+              >
+                <Settings aria-hidden="true" />
+                <span>Application settings</span>
+              </Link>
+            )}
           </div>
           <div className="profile-menu-footer">
             <button

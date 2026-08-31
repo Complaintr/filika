@@ -1,7 +1,7 @@
 import { expect, type Route, test } from "@playwright/test";
 import { signInAsE2eUser } from "../sign-in";
 
-const INBOX = "**/api/v1/inbox**";
+const INBOX = "**/api/v1/apps/*/inbox**";
 
 const items = [
   {
@@ -76,7 +76,7 @@ test("complaints kind filter narrows the list to the selected type", async ({ pa
   });
   await page.goto("/complaints");
   const kindRequest = page.waitForRequest(
-    (request) => request.url().includes("/api/v1/inbox") && request.url().includes("kind=bug"),
+    (request) => request.url().includes("/inbox") && request.url().includes("kind=bug"),
   );
   await page
     .getByRole("group", { name: "Feedback types" })

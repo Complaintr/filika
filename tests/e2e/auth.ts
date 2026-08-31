@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { makeSignature } from "better-auth/crypto";
 import postgres from "postgres";
+import { webOrigin } from "./web-origin";
 
 /**
  * Produces the same cookie value Better Auth sets for a session token:
@@ -23,7 +24,14 @@ async function signSessionToken(token: string, secret: string): Promise<string> 
 export async function seedE2eSession(
   databaseUrl: string,
   secret: string,
-): Promise<{ cookieName: string; cookieValue: string }> {
+  options: { application?: boolean; google?: boolean } = {},
+): Promise<{
+  cookieName: string;
+  cookieValue: string;
+  userId: string;
+  slug: string;
+  projectKey: string;
+}> {
   const sql = postgres(databaseUrl, { prepare: false, max: 1 });
   try {
     const token = randomBytes(32).toString("hex");
@@ -40,7 +48,21 @@ export async function seedE2eSession(
       VALUES (${randomUUID()}, ${token}, ${userId}, ${expiresAt}, '127.0.0.1', 'playwright', ${now}, ${now})
     `;
 
+    const slug = `app-${userId}`;
+    const projectKey = `app_${userId.replaceAll("-", "")}`;
+    if (options.application !== false) {
+      await sql`INSERT INTO project (project_key, display_name, allowed_origins, owner_user_id, slug)
+        VALUES (${projectKey}, 'Eckra', ARRAY[${webOrigin}], ${userId}, ${slug})`;
+    }
+    if (options.google) {
+      await sql`UPDATE "user" SET google_image = 'https://lh3.googleusercontent.com/test-avatar' WHERE id = ${userId}`;
+      await sql`INSERT INTO account (id, user_id, account_id, provider_id, issuer)
+        VALUES (${randomUUID()}, ${userId}, ${userId}, 'google', 'https://accounts.google.com')`;
+    }
     return {
+      userId,
+      slug,
+      projectKey,
       cookieName: "better-auth.session_token",
       cookieValue: await signSessionToken(token, secret),
     };

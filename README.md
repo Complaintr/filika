@@ -2,7 +2,7 @@
 
 Filika is a WebMCP-enabled feedback system. A user's browser AI drafts a bug,
 complaint, or product suggestion; the user reviews and confirms it; maintainers
-receive it in their project workspace.
+receive it in their application inbox.
 
 Filika never sends agent-authored feedback before explicit user confirmation and
 does not provide an AI model. Manual feedback remains available without WebMCP.
@@ -13,13 +13,13 @@ does not provide an AI model. Manual feedback remains available without WebMCP.
 2. The browser AI drafts structured feedback through WebMCP.
 3. The user reviews, edits, confirms, or cancels it.
 4. The collector validates and stores confirmed feedback.
-5. Maintainers read it in the Filika workspace.
+5. Maintainers read it in the application’s Filika inbox.
 
 ## Repository
 
 - `packages/sdk`: browser SDK and WebMCP protocol.
 - `packages/collector`: validation, API, and PostgreSQL persistence.
-- `apps/web`: review UI and maintainer workspace.
+- `apps/web`: review UI and maintainer application pages.
 - `tests/e2e`: browser integration tests.
 
 ## Local development
@@ -75,24 +75,48 @@ check Resend delivery logs and retry from sign-in or password recovery.
 
 Without email configuration, signup and recovery return a service-unavailable
 error; Google sign-in remains independent. Authentication routes and `/terms`
-are public. Review the workspace usage terms with your operator before making
+are public. Review the application usage terms with your operator before making
 this service available to users.
 
 Implementation references: [Better Auth email/password authentication](https://better-auth.com/docs/authentication/email-password)
 and [Resend email API](https://resend.com/docs/api-reference/emails/send-email).
 
-### Workspace introduction
+### Applications and account settings
 
-Email and Google sign-in open `/onboarding`. The four-step introduction lets a
-maintainer choose a role, a local workspace display name, and an initial inbox
-filter before reviewing how Filika collects user-confirmed feedback. Completion
-is saved per account in this browser; it does not create a collector project or
-install the SDK. Settings includes a link to reopen the guide. A completed guide
-is skipped on subsequent sign-ins in the same browser.
+After sign-in, `/onboarding` creates a real application owned by the account.
+Choose its display name, unique URL slug (for example `eckra`), and an optional
+website origin. Returning users open their existing application. The header
+switcher lists only their own applications and offers **Create application**.
 
-Complaint details open in a keyboard-accessible dialog without leaving the list.
-Direct report links remain available for sharing. Settings separates workspace,
-appearance, account, connection, and privacy preferences with sidebar navigation.
+- `/eckra/dashboard`: statistics for Eckra only.
+- `/eckra/complaints`: Eckra's reports and shareable complaint detail links.
+- `/eckra/settings`: its name, default date range, SDK key, allowed origins,
+  collector connection, and retention details.
+- `/account`: account identity, Google profile photo, theme, spacing, and security.
+
+Application slugs stay fixed when the display name changes. The collector
+rejects unapproved website origins; an application without allowed origins
+cannot receive feedback. All app reads and updates require the owner's session.
+The old global read APIs are unavailable to signed-in clients; use
+`/api/v1/apps/{slug}/inbox` and `/api/v1/apps/{slug}/dashboard` instead.
+Existing `/dashboard` and `/complaints` links redirect to the first owned
+application; `/settings` redirects to `/account`.
+
+Google profile photos are optional. After Google sign-in, enable **Use Google
+profile photo** on `/account` to show the provider's photo in the header, or
+turn it off to use an initial. Password-only accounts cannot enable it; uploads
+and arbitrary image URLs are not supported. Existing Google users should sign
+in with Google again after this update to populate the new provider-photo field.
+When enabled, the browser loads the image from Google's HTTPS image service
+without a referrer. No additional Google scopes are requested.
+
+Apply `bun run db:migrate` before starting the updated application. Migration
+`0003_applications-and-account` adds ownership, slugs, application preferences,
+and account settings without deleting existing records. Existing collector
+projects without an owner remain unassigned and are hidden from account pages;
+an operator must explicitly assign verified owners and unique slugs before
+making historical reports available. Ownership is never guessed from an email
+address or local browser preferences.
 
 ## Verification
 
@@ -105,6 +129,10 @@ bun run test:browser
 ```
 
 Use only dedicated disposable databases for unit and browser integration tests.
+Set `TEST_DATABASE_URL` for unit tests and `E2E_DATABASE_URL` to a loopback database
+named `filika_e2e` for browser tests. Prepare it with `bun run test:browser:prepare`.
+If the development server occupies port 4173, set `E2E_WEB_PORT=4183`; Playwright
+uses its own `.next-e2e` output and never reuses the running development server.
 
 Filika is under active development and is not yet a hosted or published service.
 

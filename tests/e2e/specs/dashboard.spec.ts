@@ -1,7 +1,7 @@
 import { expect, type Route, test } from "@playwright/test";
 import { signInAsE2eUser } from "../sign-in";
 
-const DASHBOARD = "**/api/v1/dashboard**";
+const DASHBOARD = "**/api/v1/apps/*/dashboard**";
 
 function dashboardBody(days: number) {
   return {

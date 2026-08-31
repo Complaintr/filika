@@ -12,7 +12,7 @@ interface ConnectionContextValue {
 const ConnectionContext = createContext<ConnectionContextValue | null>(null);
 
 export function ConnectionProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<ConnectionState>("checking");
+  const [state, setState] = useState<ConnectionState>("connected");
 
   const reportConnection = useCallback((connected: boolean) => {
     setState(connected ? "connected" : "offline");

@@ -1,15 +1,19 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { copyFile, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { eq, inArray } from "drizzle-orm";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { runCleanup } from "../src/db/cleanup";
 import { createDb, type DbHandle } from "../src/db/client";
-import { feedback, project, rateLimit } from "../src/db/schema";
+import { account, feedback, project, rateLimit, user } from "../src/db/schema";
 import { DEMO_PROJECT_KEY, seedDemoProject } from "../src/db/seed";
 import {
   ABUSE_CONTROL_MATRIX,
   type AbuseControlScenarioId,
 } from "../src/foundation/abuse-control-matrix";
+import type { CollectorRouteOptions } from "../src/handler";
 import { windowKey } from "../src/rate-limit";
 import { consumeProjectRateLimit, windowStartFor } from "../src/rate-limiting";
 import { createFetchHandler, startCollectorServer } from "../src/server";
@@ -1040,6 +1044,218 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
       expect(fkNames).toMatch(/rate_limit_project_id_project_id_fk/);
     } finally {
       await ddl.end();
+    }
+  });
+});
+
+describe.skipIf(!isDbAvailable)("owned applications and account settings", () => {
+  async function identity() {
+    const id = crypto.randomUUID();
+    await handle.db.insert(user).values({ id, name: "App owner", email: `${id}@filika.test` });
+    const betterAuth = {
+      api: { getSession: async () => ({ user: { id } }) },
+    } as unknown as CollectorRouteOptions["betterAuth"];
+    const handler = createFetchHandler(handle.db, { betterAuth });
+    const request = (
+      path: string,
+      method = "GET",
+      body?: unknown,
+      origin = "http://localhost:4173",
+    ) =>
+      handler(
+        new Request(`http://localhost:4173/api/v1${path}`, {
+          method,
+          headers: { Origin: origin, "Content-Type": "application/json" },
+          ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        }),
+      );
+    return { id, request };
+  }
+  const settings = { displayName: "Eckra", allowedOrigins: [ALLOWED_ORIGIN], dashboardDays: 30 };
+
+  test("creates persisted applications and rejects invalid, reserved, duplicate and cross-origin writes", async () => {
+    const owner = await identity();
+    const slug = `app-${crypto.randomUUID()}`;
+    expect((await owner.request("/apps", "POST", { ...settings, slug: "account" })).status).toBe(
+      400,
+    );
+    expect(
+      (await owner.request("/apps", "POST", { ...settings, slug, ownerUserId: "other" })).status,
+    ).toBe(400);
+    expect(
+      (await owner.request("/apps", "POST", { ...settings, slug }, "https://evil.example")).status,
+    ).toBe(403);
+    const responses = await Promise.all([
+      owner.request("/apps", "POST", { ...settings, slug }),
+      owner.request("/apps", "POST", { ...settings, slug }),
+    ]);
+    expect(responses.map((response) => response.status).sort()).toEqual([201, 409]);
+    const list = await (await owner.request("/apps")).json();
+    expect(list.applications).toHaveLength(1);
+    expect(list.applications[0]).toMatchObject({ slug, displayName: "Eckra", dashboardDays: 30 });
+    expect(list.applications[0]).not.toHaveProperty("ownerUserId");
+    expect(
+      (await owner.request(`/apps/${slug}`, "PATCH", { ...settings, displayName: "Renamed" }))
+        .status,
+    ).toBe(200);
+    expect((await (await owner.request(`/apps/${slug}`)).json()).application.displayName).toBe(
+      "Renamed",
+    );
+    expect((await owner.request("/inbox")).status).toBe(400);
+    expect((await owner.request("/dashboard")).status).toBe(400);
+  });
+
+  test("isolates inbox, detail, dashboard and settings by application and owner", async () => {
+    const owner = await identity();
+    const other = await identity();
+    const first = `one-${crypto.randomUUID()}`;
+    const second = `two-${crypto.randomUUID()}`;
+    const app = (await (await owner.request("/apps", "POST", { ...settings, slug: first })).json())
+      .application;
+    await owner.request("/apps", "POST", { ...settings, slug: second });
+    const eventId = crypto.randomUUID();
+    const accepted = await postRaw(postEnvelope(eventId, { projectKey: app.projectKey }));
+    expect(accepted.status).toBe(201);
+    const receipt = await accepted.json();
+    expect((await (await owner.request(`/apps/${first}/inbox`)).json()).items).toHaveLength(1);
+    expect((await (await owner.request(`/apps/${second}/inbox`)).json()).items).toHaveLength(0);
+    expect((await (await owner.request(`/apps/${first}/dashboard`)).json()).total).toBe(1);
+    expect((await (await owner.request(`/apps/${second}/dashboard`)).json()).total).toBe(0);
+    expect((await owner.request(`/apps/${first}/inbox/${receipt.feedbackId}`)).status).toBe(200);
+    expect((await owner.request(`/apps/${second}/inbox/${receipt.feedbackId}`)).status).toBe(404);
+    for (const suffix of ["", "/inbox", "/dashboard", `/inbox/${receipt.feedbackId}`]) {
+      expect((await other.request(`/apps/${first}${suffix}`)).status).toBe(404);
+    }
+    expect((await other.request(`/apps/${first}`, "PATCH", settings)).status).toBe(404);
+    expect((await (await other.request("/apps")).json()).applications).toEqual([]);
+  });
+
+  test("Google photo is opt-in, verified against the linked provider, and never accepts arbitrary URLs", async () => {
+    const owner = await identity();
+    const settings = {
+      name: "Updated owner",
+      theme: "dark",
+      density: "compact",
+      useGoogleImage: true,
+    };
+    expect((await owner.request("/account", "PATCH", settings)).status).toBe(400);
+    expect(
+      (
+        await owner.request("/account", "PATCH", {
+          ...settings,
+          image: "https://evil.example/photo",
+        })
+      ).status,
+    ).toBe(400);
+    await handle.db.insert(account).values({
+      id: crypto.randomUUID(),
+      userId: owner.id,
+      accountId: "google-test",
+      providerId: "google",
+      issuer: "https://accounts.google.com",
+      accessToken: "must-not-leak",
+    });
+    await handle.db
+      .update(user)
+      .set({ googleImage: "https://lh3.googleusercontent.com/test-photo" })
+      .where(eq(user.id, owner.id));
+    expect((await (await owner.request("/account")).json()).account.image).toBeNull();
+    const response = await owner.request("/account", "PATCH", settings);
+    expect(response.status).toBe(200);
+    const profile = (await response.json()).account;
+    expect(profile).toMatchObject({
+      name: "Updated owner",
+      image: "https://lh3.googleusercontent.com/test-photo",
+      theme: "dark",
+      density: "compact",
+      googleConnected: true,
+    });
+    expect(JSON.stringify(profile)).not.toContain("must-not-leak");
+    expect(
+      (await owner.request("/account", "PATCH", settings, "https://evil.example")).status,
+    ).toBe(403);
+    await owner.request("/account", "PATCH", { ...settings, useGoogleImage: false });
+    expect((await (await owner.request("/account")).json()).account.image).toBeNull();
+  });
+});
+
+describe.skipIf(!isDbAvailable)("application schema compatibility", () => {
+  test("upgrades existing non-null unique slugs without losing records or migration history", async () => {
+    const folder = await mkdtemp(join(tmpdir(), "filika-legacy-migrations-"));
+    const ddl = postgres(TEST_DATABASE_URL, { prepare: false });
+    try {
+      const journal = await Bun.file(`${import.meta.dir}/../drizzle/meta/_journal.json`).json();
+      const previousEntries = journal.entries.filter((entry: { idx: number }) => entry.idx < 3);
+      await mkdir(join(folder, "meta"));
+      await writeFile(
+        join(folder, "meta/_journal.json"),
+        JSON.stringify({ ...journal, entries: previousEntries }),
+      );
+      for (const entry of previousEntries) {
+        await copyFile(
+          `${import.meta.dir}/../drizzle/${entry.tag}.sql`,
+          join(folder, `${entry.tag}.sql`),
+        );
+      }
+      // Only the dedicated integration-test database is reset here.
+      await ddl.unsafe("DROP SCHEMA IF EXISTS public CASCADE");
+      await ddl.unsafe("DROP SCHEMA IF EXISTS drizzle CASCADE");
+      await ddl.unsafe("CREATE SCHEMA public");
+      await migrate(handle.db, { migrationsFolder: folder });
+      const projectId = crypto.randomUUID();
+      const feedbackId = crypto.randomUUID();
+      await ddl`INSERT INTO project (id, project_key, display_name, allowed_origins)
+        VALUES (${projectId}, 'legacy-project', 'Legacy application', ARRAY['https://example.test'])`;
+      await ddl`INSERT INTO "user" (id, name, email, email_verified, image)
+        VALUES ('legacy-user', 'Legacy maintainer', 'legacy@example.test', true, 'https://lh3.googleusercontent.com/legacy')`;
+      await ddl`INSERT INTO feedback (id, project_id, event_id, title, description, kind, origin, sdk_version)
+        VALUES (${feedbackId}, ${projectId}, ${crypto.randomUUID()}, 'Legacy report', 'Keep this report.', 'bug', 'https://example.test', '0.0.0')`;
+      await ddl.unsafe("ALTER TABLE project ADD COLUMN slug text");
+      await ddl`UPDATE project SET slug = 'legacy-application'`;
+      await ddl.unsafe("ALTER TABLE project ALTER COLUMN slug SET NOT NULL");
+      await ddl.unsafe("ALTER TABLE project ADD CONSTRAINT project_slug_unique UNIQUE(slug)");
+      await ddl`INSERT INTO drizzle.__drizzle_migrations (hash, created_at) VALUES ('legacy-slug-migration', 1788050928417)`;
+      const history =
+        await ddl`SELECT id, hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`;
+      const records = await ddl`SELECT * FROM feedback`;
+
+      await migrate(handle.db, { migrationsFolder: `${import.meta.dir}/../drizzle` });
+      expect(await ddl`SELECT * FROM feedback`).toEqual(records);
+      const apps = await handle.db.select().from(project);
+      expect(apps).toHaveLength(1);
+      expect(apps[0]).toMatchObject({
+        id: projectId,
+        slug: "legacy-application",
+        displayName: "Legacy application",
+        ownerUserId: null,
+        dashboardDays: 30,
+      });
+      const users = await handle.db.select().from(user);
+      expect(users[0]).toMatchObject({
+        id: "legacy-user",
+        email: "legacy@example.test",
+        image: "https://lh3.googleusercontent.com/legacy",
+        googleImage: null,
+        useGoogleImage: false,
+        theme: "light",
+        density: "comfortable",
+      });
+      const after =
+        await ddl`SELECT id, hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`;
+      expect(after.slice(0, history.length)).toEqual([...history]);
+      expect(after.length).toBe(history.length + 1);
+      await migrate(handle.db, { migrationsFolder: `${import.meta.dir}/../drizzle` });
+      expect(
+        await ddl`SELECT id, hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`,
+      ).toEqual(after);
+      // Nullable slugs remain valid for unassigned legacy collector projects.
+      await seedDemoProject(handle);
+      expect(await ddl`SELECT slug FROM project WHERE project_key = 'filika-demo'`).toEqual([
+        { slug: null },
+      ]);
+    } finally {
+      await ddl.end();
+      await rm(folder, { recursive: true, force: true });
     }
   });
 });
