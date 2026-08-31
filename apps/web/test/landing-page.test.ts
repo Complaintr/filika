@@ -64,6 +64,15 @@ describe("public landing page", () => {
     expect(page).toContain('rel="noreferrer"');
   });
 
+  test("uses a publicly accessible hero background image", async () => {
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+    const heroImage = Bun.file(`${appDirectory}/landing-hero-coast.png`);
+
+    expect(styles).toContain('url("./landing-hero-coast.png")');
+    expect(await heroImage.exists()).toBe(true);
+    expect(heroImage.size).toBeGreaterThan(0);
+  });
+
   test("serves the home route without authentication or workspace chrome", async () => {
     const proxy = await Bun.file(`${import.meta.dir}/../proxy.ts`).text();
     const shell = await Bun.file(`${import.meta.dir}/../src/workspace/auth-aware-shell.tsx`).text();

@@ -39,52 +39,11 @@
   min-height: 1080px;
   padding: 82px 28px 80px;
   color: #f8fffd;
-  background:
-    radial-gradient(circle at 50% 25%, rgba(134, 255, 226, 0.36), transparent 34%),
-    radial-gradient(circle at 8% 68%, rgba(65, 214, 202, 0.2), transparent 25%),
-    linear-gradient(155deg, #082f38 0%, #07575c 50%, #0a7876 100%);
-  isolation: isolate;
-}
-
-.hero::before,
-.hero::after {
-  position: absolute;
-  z-index: -1;
-  content: "";
-  pointer-events: none;
-}
-
-.hero::before {
-  inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: linear-gradient(to bottom, black, transparent 68%);
-}
-
-.hero::after {
-  right: -180px;
-  top: 180px;
-  width: 540px;
-  height: 540px;
-  border: 1px solid rgba(196, 255, 240, 0.22);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 84px rgba(196, 255, 240, 0.035),
-    0 0 0 168px rgba(196, 255, 240, 0.025);
-}
-
-.heroTexture {
-  position: absolute;
-  z-index: -1;
-  bottom: 180px;
-  left: -120px;
-  width: 420px;
-  height: 420px;
-  border: 1px solid rgba(191, 245, 232, 0.22);
-  border-radius: 42% 58% 54% 46%;
-  transform: rotate(22deg);
+    linear-gradient(rgba(3, 31, 35, 0.26), rgba(3, 31, 35, 0.26)), url("./landing-hero-coast.png");
+  background-position: center;
+  background-size: cover;
+  isolation: isolate;
 }
 
 /* Header & Scroll-Adaptive Island Navigation */
@@ -2401,10 +2360,6 @@
 @media (max-width: 640px) {
   .hero {
     padding: 62px 14px 42px;
-  }
-
-  .hero::after {
-    display: none;
   }
 
   .headerWrapper {

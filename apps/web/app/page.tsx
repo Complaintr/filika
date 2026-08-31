@@ -63,8 +63,6 @@ export default function HomePage() {
     <main className={styles.page} id="app-content">
       <LandingHeader />
       <section className={styles.hero}>
-        <div className={styles.heroTexture} aria-hidden="true" />
-
         <div className={styles.heroCopy}>
           <h1>Turn agent friction into feedback your team can ship.</h1>
           <p>User-reviewed agent feedback, linked directly to code.</p>
