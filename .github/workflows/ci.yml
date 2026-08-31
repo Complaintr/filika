@@ -21,50 +21,39 @@ jobs:
     name: Install
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: ${{ env.BUN_VERSION }}
-      - name: Install dependencies
-        run: bun install
+      # Preserve the required check name while allowing every real job to start
+      # immediately. Each job installs from the shared Bun download cache.
+      - name: Release parallel jobs
+        run: echo "Dependency setup runs independently in each parallel job."
 
   typecheck:
     name: Typecheck
-    needs: install
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Set up workspace
+        uses: ./.github/actions/setup-bun
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install dependencies
-        run: bun install
       - name: Type-check workspaces
         run: bun run typecheck
 
   lint:
     name: Lint and formatting
-    needs: install
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Set up workspace
+        uses: ./.github/actions/setup-bun
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install dependencies
-        run: bun install
-      - name: Check formatting, lint rules, and types
-        run: bun run lint
+      - name: Check formatting and lint rules
+        run: bun run check
 
   unit-tests:
     name: Unit tests
-    needs: install
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -82,12 +71,10 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Set up workspace
+        uses: ./.github/actions/setup-bun
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install dependencies
-        run: bun install
       - name: Run unit tests
         env:
           TEST_DATABASE_URL: postgres://postgres@localhost:5432/filika_test
@@ -95,27 +82,23 @@ jobs:
 
   build:
     name: Build
-    needs: install
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Set up workspace
+        uses: ./.github/actions/setup-bun
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install dependencies
-        run: bun install
       - name: Build workspaces
         run: bun run build
 
   browser-tests:
     name: Browser tests (${{ matrix.shard }}/${{ strategy.job-total }})
-    needs: install
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         shard: [1, 2, 3]
     env:
@@ -136,14 +119,21 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Set up workspace
+        uses: ./.github/actions/setup-bun
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install dependencies
-        run: bun install
-      - name: Install Chromium and system dependencies
-        run: bunx --no-install playwright install --with-deps chromium --only-shell
+      - name: Restore Chromium cache
+        id: chromium-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+      - name: Install Chromium system dependencies
+        run: bunx --no-install playwright install-deps chromium
+      - name: Install Chromium
+        if: steps.chromium-cache.outputs.cache-hit != 'true'
+        run: bunx --no-install playwright install chromium --only-shell
       - name: Apply local database migrations
         run: bun run tests/e2e/database.ts migrate
       - name: Seed the local demo project
