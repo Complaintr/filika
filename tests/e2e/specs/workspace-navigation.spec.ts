@@ -41,11 +41,20 @@ test("complaints list is reachable from the dashboard and renders its empty stat
 });
 
 test("settings is reachable and reports the connected collector", async ({ page }) => {
+  let releaseDashboard: (() => void) | undefined;
+  const dashboardPending = new Promise<void>((resolve) => {
+    releaseDashboard = resolve;
+  });
+  await page.route("**/api/v1/apps/*/dashboard**", async (route) => {
+    await dashboardPending;
+    await route.continue();
+  });
   await openDashboard(page);
   await page.evaluate(() => {
     document.documentElement.dataset.navigationProbe = "preserved";
   });
   await navItem(page, "Settings").click();
+  releaseDashboard?.();
   await expect(page.getByRole("heading", { name: "Settings", level: 1 })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Settings sections" })).toBeVisible();
   await expect(connectionStatus(page)).toContainText("Collector connected");
