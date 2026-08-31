@@ -40,6 +40,7 @@
   padding: 82px 28px 80px;
   color: #f8fffd;
   background-image:
+    linear-gradient(to bottom, transparent calc(100% - 200px), var(--landing-paper) 100%),
     linear-gradient(rgba(3, 31, 35, 0.26), rgba(3, 31, 35, 0.26)), url("./landing-hero-coast.png");
   background-position: center;
   background-size: cover;

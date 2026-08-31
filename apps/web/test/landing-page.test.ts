@@ -69,6 +69,7 @@ describe("public landing page", () => {
     const heroImage = Bun.file(`${appDirectory}/landing-hero-coast.png`);
 
     expect(styles).toContain('url("./landing-hero-coast.png")');
+    expect(styles).toContain("transparent calc(100% - 200px), var(--landing-paper) 100%");
     expect(await heroImage.exists()).toBe(true);
     expect(heroImage.size).toBeGreaterThan(0);
   });
