@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Home, type LucideIcon, MessageCircle, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useApplication } from "@/applications/application-context";
@@ -72,25 +72,18 @@ function ShellBody({ children }: WorkspaceShellProps) {
         </div>
       </header>
       <main className="workspace-content" id="app-content" tabIndex={-1}>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={pathname}
-            className="workspace-page"
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 10, scale: 0.995 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={
-              prefersReducedMotion
-                ? { opacity: 1, y: 0, scale: 1 }
-                : { opacity: 0, y: -8, scale: 0.997 }
-            }
-            transition={{
-              duration: prefersReducedMotion ? 0 : 0.24,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={pathname}
+          className="workspace-page"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 10, scale: 0.995 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{
+            duration: prefersReducedMotion ? 0 : 0.24,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          {children}
+        </motion.div>
       </main>
       {application && (
         <div className="navigation-root">
