@@ -22,6 +22,8 @@ export default defineConfig({
         DATABASE_URL: browserDatabaseUrl(),
         BETTER_AUTH_URL: webOrigin,
         FILIKA_E2E: "1",
+        // GitHub is mocked in integration UI tests; never use developer credentials.
+        GITHUB_APP_ID: "",
         BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? "test-secret",
       },
     },

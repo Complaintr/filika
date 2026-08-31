@@ -2,7 +2,7 @@ import { lt } from "drizzle-orm";
 
 import { FEEDBACK_RETENTION_HOURS } from "../foundation/data-lifecycle";
 import { createDb, type Db } from "./client";
-import { feedback, rateLimit } from "./schema";
+import { feedback, githubAuthorization, githubOauthState, rateLimit } from "./schema";
 
 export const CLEANUP_COMMAND_NAME = "db:cleanup" as const;
 
@@ -22,6 +22,8 @@ export interface CleanupResult {
 
 export async function runCleanup(db: Db, now: Date): Promise<CleanupResult> {
   return db.transaction(async (transaction) => {
+    await transaction.delete(githubAuthorization).where(lt(githubAuthorization.expiresAt, now));
+    await transaction.delete(githubOauthState).where(lt(githubOauthState.expiresAt, now));
     const deadline = cleanupDeadline(now, FEEDBACK_RETENTION_HOURS);
     const expiredFeedback = await transaction
       .delete(feedback)

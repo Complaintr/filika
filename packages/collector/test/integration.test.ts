@@ -17,6 +17,7 @@ import type { CollectorRouteOptions } from "../src/handler";
 import { windowKey } from "../src/rate-limit";
 import { consumeProjectRateLimit, windowStartFor } from "../src/rate-limiting";
 import { createFetchHandler, startCollectorServer } from "../src/server";
+import { registerGitHubIntegrationTests } from "./github-integration-cases";
 
 const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/filika_test";
 
@@ -1243,7 +1244,7 @@ describe.skipIf(!isDbAvailable)("application schema compatibility", () => {
       const after =
         await ddl`SELECT id, hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`;
       expect(after.slice(0, history.length)).toEqual([...history]);
-      expect(after.length).toBe(history.length + 1);
+      expect(after.length).toBe(history.length + journal.entries.length - previousEntries.length);
       await migrate(handle.db, { migrationsFolder: `${import.meta.dir}/../drizzle` });
       expect(
         await ddl`SELECT id, hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`,
@@ -1314,3 +1315,5 @@ function matrixRequest(scenario: AbuseControlScenarioId, eventId: string): Reque
 function uuidFor(index: number): string {
   return `00000000-0000-4000-8000-${index.toString(16).padStart(12, "0")}`;
 }
+
+registerGitHubIntegrationTests(() => handle.db, isDbAvailable);
