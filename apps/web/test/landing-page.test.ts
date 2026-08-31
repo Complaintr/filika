@@ -29,11 +29,19 @@ describe("public landing page", () => {
 
     expect(page).toContain("See the signal. Ship the fix.");
     expect(page).toContain("<RealtimeFlowBoard");
-    expect(flow).toContain("What agents notice");
-    expect(flow).toContain("What maintainers receive");
-    expect(flow).toContain("Ready for triage");
+    expect(flow).toContain("What agent sees");
+    expect(flow).toContain("What user sees");
     expect(flow).toContain("User reviewed");
-    expect(flow).toContain("Duplicate-safe");
+    expect(flow).not.toContain("User verification gate");
+    expect(flow).not.toContain("Zero ambient data · Approved");
+    expect(flow).not.toContain("agent_session.log");
+    expect(flow).not.toContain("Agent signals");
+    expect(flow).not.toContain("Reviewed reports");
+    expect(flow).not.toContain("Observed bug");
+    expect(flow).not.toContain("Live stream");
+    expect(flow).not.toContain("Ready for triage");
+    expect(flow).not.toContain("Maintainer workspace");
+    expect(flow).not.toContain("checkout-form.tsx");
     expect(styles).toContain('.reportCard[data-tone="aqua"]');
     expect(styles).toContain('.reportCard[data-tone="violet"]');
     expect(styles).toContain('.reportCard[data-tone="peach"]');

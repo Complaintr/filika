@@ -274,27 +274,17 @@ export function RealtimeFlowBoard() {
         <div className={styles.signalColumn}>
           <div className={styles.boardColumnHeader}>
             <div>
-              <span>Agent signals</span>
-              <strong>What agents notice</strong>
+              <strong>What agent sees</strong>
             </div>
           </div>
 
           <div className={styles.signalList}>
             {/* Card 1: Live Friction Intercept */}
             <article className={styles.signalCard}>
-              <div className={styles.signalMeta}>
-                <span className={styles.pulseTag}>
-                  <span className={styles.pulseDot} />
-                  Observed bug
-                </span>
-                <span>/checkout · retry 3/3</span>
-              </div>
-
               <h3>Confirmation route hangs after payment</h3>
 
               <div className={styles.miniConsole}>
                 <div className={styles.consoleHeader}>
-                  <span>agent_session.log</span>
                   <span className={consoleStatus.className}>{consoleStatus.label}</span>
                 </div>
                 <div className={styles.consoleLogBody}>
@@ -321,14 +311,6 @@ export function RealtimeFlowBoard() {
 
             {/* Card 2: Real-time Live Incoming Bug Stream (Stacking from top) */}
             <article className={styles.signalCard}>
-              <div className={styles.signalMeta}>
-                <span className={styles.liveStreamHeader}>
-                  <span className={styles.liveStreamRadio} />
-                  Live stream
-                </span>
-                <span>id: flk_stream_live</span>
-              </div>
-
               <h3>Real-time agent friction stream</h3>
 
               <div className={styles.miniInboxList}>
@@ -366,32 +348,19 @@ export function RealtimeFlowBoard() {
         <div className={styles.reportColumn}>
           <div className={styles.boardColumnHeader}>
             <div>
-              <span>Reviewed reports</span>
-              <strong>What maintainers receive</strong>
+              <strong>What user sees</strong>
             </div>
           </div>
 
           <div className={styles.reportList}>
             {/* Card 3: User Review Gate */}
             <article className={styles.reportCard} data-tone="aqua">
-              <div className={styles.reportCardTopline}>
-                <span className={styles.statusBadgeTriage}>Ready for triage</span>
-                <span className={styles.dupBadge}>Duplicate-safe</span>
-              </div>
-
               <div className={styles.reportCardCopy}>
                 <h3>Checkout confirmation pending</h3>
               </div>
 
-              <div className={styles.reportTags}>
-                <span>/checkout</span>
-                <span>3 steps</span>
-                <span>checkout-form.tsx</span>
-              </div>
-
               <div className={styles.reviewSimulatorBox}>
                 <div className={styles.simReviewHeader}>
-                  <span>User verification gate</span>
                   <span className={styles.simStatusPill}>
                     <span className={styles.simStatusDot} />
                     Active draft
@@ -407,9 +376,6 @@ export function RealtimeFlowBoard() {
                       <MousePointer2 aria-hidden="true" />
                     </div>
                   </div>
-                  <div className={styles.simVerifyNotice}>
-                    <span>Zero ambient data · Approved</span>
-                  </div>
                 </div>
                 <div className={styles.flowCardFooter}>
                   <span className={styles.flowStageBadgeGreen}>
@@ -421,11 +387,6 @@ export function RealtimeFlowBoard() {
 
             {/* Card 4: Maintainer Triage & Resolution Dashboard */}
             <article className={styles.reportCard} data-tone="violet">
-              <div className={styles.reportCardTopline}>
-                <span>Maintainer workspace</span>
-                <span className={styles.velocityPill}>+34% velocity</span>
-              </div>
-
               <div className={styles.reportCardCopy}>
                 <h3>Triage velocity & live resolution</h3>
               </div>
