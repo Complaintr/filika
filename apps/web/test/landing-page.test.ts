@@ -47,6 +47,15 @@ describe("public landing page", () => {
     expect(styles).toContain('.reportCard[data-tone="peach"]');
   });
 
+  test("keeps the live report board readable on narrow mobile screens", async () => {
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    expect(styles).toContain("padding: 4px 10px;");
+    expect(styles).toContain(".reportBoardSection {\n    width: calc(100% - 20px);");
+    expect(styles).toContain("grid-template-columns: repeat(2, minmax(0, 1fr));");
+    expect(styles).toContain(".badgeTime,\n  .statusOpen,\n  .statusResolved");
+  });
+
   test("offers workspace and source calls to action", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
 
