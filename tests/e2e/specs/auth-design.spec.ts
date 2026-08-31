@@ -1,5 +1,53 @@
 import { expect, test } from "@playwright/test";
 
+test("standalone pages share canvas colors across theme changes and navigation", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  for (const [theme, color] of [
+    ["light", "rgb(255, 255, 255)"],
+    ["dark", "rgb(14, 14, 16)"],
+  ] as const) {
+    if (theme === "dark") await page.getByRole("button", { name: "Switch to dark theme" }).click();
+    for (const path of ["/login", "/register", "/terms", "/forgot-password", "/reset-password"]) {
+      await page.goto(path);
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      for (const selector of [
+        "html",
+        "body",
+        "main",
+        path === "/terms" ? ".terms-card" : ".auth-card",
+      ]) {
+        await expect(page.locator(selector)).toHaveCSS("background-color", color);
+      }
+    }
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/terms");
+  await expect(page.locator(".terms-page")).toHaveCSS("background-color", "rgb(14, 14, 16)");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+});
+
+test("standalone pages follow a saved system theme when the device appearance changes", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("filika-workspace-v1", JSON.stringify({ theme: "system" }));
+  });
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/login");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator(".auth-page")).toHaveCSS("background-color", "rgb(14, 14, 16)");
+  await page.goto("/terms");
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.locator(".terms-page")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+});
+
 test("registration swaps panels and images, with reversible navigation", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/login");

@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="referrer" content="no-referrer" />
         <meta name="color-scheme" content="light dark" />
-        <meta name="theme-color" content="#f7f8fa" />
+        <meta name="theme-color" content="#ffffff" />
         <link rel="stylesheet" href="/app.css" />
         <Script id="filika-theme" strategy="beforeInteractive">
           {`try {
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     : preference;
   document.documentElement.dataset.theme = theme;
   const themeColor = document.querySelector('meta[name="theme-color"]');
-  if (themeColor) themeColor.setAttribute("content", theme === "dark" ? "#0e0e10" : "#f7f8fa");
+  if (themeColor) themeColor.setAttribute("content", theme === "dark" ? "#0e0e10" : "#ffffff");
 } catch {
   document.documentElement.dataset.theme = "light";
 }`}

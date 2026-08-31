@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { ApplicationProvider } from "@/applications/application-context";
+import { AppearanceSync } from "./appearance-sync";
 import { WorkspaceShell } from "./workspace-shell";
 
 const STANDALONE_PATHS = new Set([
@@ -24,11 +25,17 @@ export function AuthAwareShell({ children }: { children: React.ReactNode }) {
   const standalone = STANDALONE_PATHS.has(pathname);
 
   if (standalone) {
-    return <>{children}</>;
+    return (
+      <>
+        <AppearanceSync />
+        {children}
+      </>
+    );
   }
 
   return (
     <ApplicationProvider>
+      <AppearanceSync />
       <WorkspaceShell>{children}</WorkspaceShell>
     </ApplicationProvider>
   );
