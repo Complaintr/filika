@@ -42,22 +42,16 @@ const principles = [
 
 const workflow = [
   {
-    step: "01",
-    label: "Notice",
     title: "Agent encounters blocker",
     copy: "Captures friction during task execution.",
     icon: CircleAlert,
   },
   {
-    step: "02",
-    label: "Review",
     title: "Structured draft",
     copy: "WebMCP bundles relevant context for user approval.",
     icon: MousePointer2,
   },
   {
-    step: "03",
-    label: "Resolve",
     title: "Actionable report",
     copy: "Delivers directly to maintainers with code links.",
     icon: GitPullRequestArrow,
@@ -183,13 +177,11 @@ export default function HomePage() {
         </div>
 
         <div className={styles.workflowGrid}>
-          {workflow.map(({ step, label, title, copy, icon: Icon }) => (
-            <article key={step} className={styles.workflowCard}>
+          {workflow.map(({ title, copy, icon: Icon }) => (
+            <article key={title} className={styles.workflowCard}>
               <div className={styles.workflowTopline}>
-                <span>{step}</span>
                 <Icon aria-hidden="true" />
               </div>
-              <p className={styles.workflowLabel}>{label}</p>
               <h3>{title}</h3>
               <p>{copy}</p>
             </article>

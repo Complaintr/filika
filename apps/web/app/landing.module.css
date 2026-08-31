@@ -912,10 +912,7 @@
 .workflowTopline {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  color: #7b9192;
-  font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 11px;
+  justify-content: flex-end;
 }
 
 .workflowTopline svg {
@@ -925,17 +922,9 @@
   stroke-width: 1.6;
 }
 
-.workflowLabel {
-  margin-top: auto;
-  color: var(--landing-teal-dark);
-  font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
 .workflowCard h3 {
-  margin-top: 13px;
+  margin-top: auto;
+  padding-top: 18px;
   font-size: clamp(20px, 2vw, 23px);
   font-weight: 620;
   letter-spacing: -0.8px;
