@@ -1,5 +1,6 @@
 import { createBetterAuth } from "./auth/better-auth";
 import { createDb } from "./db/client";
+import { type GitHubConfig, githubConfigFromEnv } from "./github/config";
 import { createFetchHandler } from "./handler";
 
 export { createBetterAuth, createFetchHandler };
@@ -7,6 +8,7 @@ export { createBetterAuth, createFetchHandler };
 export const COLLECTOR_DEFAULT_PORT = 8787 as const;
 
 export interface CollectorServerOptions {
+  github?: GitHubConfig | undefined;
   databaseUrl: string;
   resendApiKey?: string | undefined;
   emailFrom?: string | undefined;
@@ -33,6 +35,7 @@ export function startCollectorServer(
   });
   const fetchHandler = createFetchHandler(handle.db, {
     betterAuth: options.enableAuth === false ? undefined : betterAuth,
+    github: options.github,
   });
 
   return Bun.serve({
@@ -51,6 +54,7 @@ export function startCollectorServer(
 
 if (import.meta.main) {
   startCollectorServer({
+    github: githubConfigFromEnv(),
     databaseUrl: process.env.DATABASE_URL ?? "postgres://localhost:5432/filika",
     resendApiKey: process.env.RESEND_API_KEY,
     emailFrom: process.env.AUTH_EMAIL_FROM,

@@ -7,7 +7,8 @@ export const githubId = z
 export const repositoryName = z
   .string()
   .max(200)
-  .regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/);
+  .regex(/^[A-Za-z0-9][A-Za-z0-9-]*\/[A-Za-z0-9_.-]+$/)
+  .refine((name) => ![".", ".."].includes(name.split("/")[1] ?? ""));
 export const repositorySelection = z
   .object({ installationId: githubId, repositoryId: githubId })
   .strict();
