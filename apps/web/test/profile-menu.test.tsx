@@ -65,6 +65,69 @@ describe("header profile menu", () => {
     await result.close();
   });
 
+  test("keyboard navigation moves between menu actions and closes when focus leaves", async () => {
+    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
+    try {
+      result.container
+        .querySelector<HTMLButtonElement>('[aria-label="Open profile menu"]')
+        ?.click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      const menu = result.container.querySelector<HTMLElement>('[role="menu"]');
+      expect(result.window.document.activeElement?.getAttribute("aria-label")).toBe("Light theme");
+      menu?.dispatchEvent(
+        new result.window.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+      );
+      expect(result.window.document.activeElement?.getAttribute("aria-label")).toBe("Dark theme");
+      menu?.dispatchEvent(
+        new result.window.KeyboardEvent("keydown", { key: "End", bubbles: true }),
+      );
+      expect(result.window.document.activeElement?.getAttribute("href")).toBe("/eckra/settings");
+      const outside = result.window.document.createElement("button");
+      result.window.document.body.append(outside);
+      outside.focus();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(result.container.querySelector('[role="menu"]')).toBeNull();
+    } finally {
+      await result.close();
+    }
+  });
+
+  test("failed account theme saves restore the previous theme and show a bounded message", async () => {
+    const originalFetch = globalThis.fetch;
+    const profile = {
+      id: "test-user",
+      name: "Test User",
+      email: "test@example.test",
+      image: null,
+      googleConnected: false,
+      googleImageAvailable: false,
+      useGoogleImage: false,
+      theme: "light",
+      density: "comfortable",
+    };
+    globalThis.fetch = (async (_input, init) =>
+      init?.method === "PATCH"
+        ? Response.json({ error: { category: "internal_error" } }, { status: 500 })
+        : Response.json({ account: profile })) as typeof fetch;
+    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
+    try {
+      result.container
+        .querySelector<HTMLButtonElement>('[aria-label="Open profile menu"]')
+        ?.click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      result.container.querySelector<HTMLButtonElement>('[aria-label="Dark theme"]')?.click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(result.window.document.documentElement.dataset.theme).toBe("light");
+      expect(result.container.querySelector('[role="alert"]')?.textContent).toBe(
+        "Theme could not be saved. Try again.",
+      );
+      expect(result.container.querySelector('[role="menu"]')).not.toBeNull();
+    } finally {
+      await result.close();
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   test("light, dark, and system choices share the workspace theme preference", async () => {
     const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
     const themeColor = result.window.document.createElement("meta");

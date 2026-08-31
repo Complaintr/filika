@@ -9,6 +9,7 @@ export function SettingsLayout({
   sections,
   active,
   onSelect,
+  headerAction,
   children,
 }: {
   title: string;
@@ -16,6 +17,7 @@ export function SettingsLayout({
   sections: readonly { id: string; label: string; icon: LucideIcon; description: string }[];
   active: string;
   onSelect(id: string): void;
+  headerAction?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const section = sections.find((value) => value.id === active) ?? sections[0];
@@ -28,6 +30,7 @@ export function SettingsLayout({
           <h1>{title}</h1>
           <p className="muted">{description}</p>
         </div>
+        {headerAction}
       </header>
       <div className="settings-layout">
         <aside className="settings-sidebar analytics-surface">
