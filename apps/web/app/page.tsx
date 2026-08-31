@@ -1,6 +1,5 @@
 import {
   ArrowRight,
-  Check,
   CircleAlert,
   Code2,
   FileCode2,
@@ -14,6 +13,7 @@ import {
 import type { Metadata } from "next";
 import { FilikaBrand } from "@/components/filika-brand";
 import { LandingHeader } from "@/components/landing-header";
+import { RealtimeFlowBoard } from "@/components/realtime-flow-board";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
@@ -26,89 +26,35 @@ const principles = [
   {
     icon: MessageSquareText,
     title: "More than a screenshot",
-    copy: "Capture the problem, expected behavior, reproduction steps, and useful technical context in one report.",
+    copy: "Full repro steps, expected behavior, and technical context in one report.",
   },
   {
     icon: Code2,
-    title: "Context that reaches the code",
-    copy: "Help maintainers move from a user-visible issue to the relevant route, component, or source location.",
+    title: "Direct code context",
+    copy: "Pinpoints the affected route, component, and source file.",
   },
   {
     icon: ShieldCheck,
     title: "Reviewed before it leaves",
-    copy: "The user sees and approves every agent-authored report before Filika sends anything.",
+    copy: "Users review and approve every report before transmission.",
   },
 ];
 
 const workflow = [
   {
-    step: "01",
-    label: "Notice",
-    title: "An agent reaches a blocker.",
-    copy: "A broken interaction, confusing flow, missing state, or product idea appears while the agent is working.",
+    title: "Agent encounters blocker",
+    copy: "Captures friction during task execution.",
     icon: CircleAlert,
   },
   {
-    step: "02",
-    label: "Review",
-    title: "Filika prepares a precise report.",
-    copy: "WebMCP gives the agent a structured path to draft what happened and attach only the context that matters.",
+    title: "Structured draft",
+    copy: "WebMCP bundles relevant context for user approval.",
     icon: MousePointer2,
   },
   {
-    step: "03",
-    label: "Resolve",
-    title: "Maintainers receive something actionable.",
-    copy: "The approved report arrives ready to triage, with a clear trail back to the affected product surface and code.",
+    title: "Actionable report",
+    copy: "Delivers directly to maintainers with code links.",
     icon: GitPullRequestArrow,
-  },
-];
-
-const agentSignals = [
-  {
-    kind: "Observed bug",
-    scope: "Checkout · Web",
-    title: "The confirmation route never resolves after payment.",
-    copy: "The order request succeeds, but the user remains on the submitting state with no receipt or recovery path.",
-    marker: "UI",
-  },
-  {
-    kind: "Blocked task",
-    scope: "Settings · Permissions",
-    title: "A disabled control has no explanation.",
-    copy: "The agent can identify the blocked action and preserve the exact state that made the task impossible to finish.",
-    marker: "DX",
-  },
-  {
-    kind: "Product idea",
-    scope: "Inbox · Triage",
-    title: "Group repeat reports before they become noise.",
-    copy: "A concrete suggestion stays separate from bugs while retaining the route and release context behind it.",
-    marker: "PX",
-  },
-];
-
-const maintainerReports = [
-  {
-    status: "Ready for triage",
-    tone: "aqua",
-    title: "Checkout confirmation remains pending",
-    copy: "Expected behavior, three reproduction steps, affected route, release, and a source location in one reviewed report.",
-    tags: ["/checkout", "3 steps", "checkout-form.tsx"],
-  },
-  {
-    status: "User reviewed",
-    tone: "violet",
-    title: "Permission state needs an explanation",
-    copy: "The report separates what the agent observed from what the host supplied, so maintainers can trust the boundary.",
-    tags: ["Settings", "Blocked task", "WebMCP"],
-  },
-  {
-    status: "Duplicate-safe",
-    tone: "peach",
-    title: "Repeat feedback keeps one clear trail",
-    copy: "Stable event identity and bounded receipts keep retries honest without creating another copy in the inbox.",
-    tags: ["Idempotent", "Reviewed", "Actionable"],
   },
 ];
 
@@ -117,18 +63,9 @@ export default function HomePage() {
     <main className={styles.page} id="app-content">
       <LandingHeader />
       <section className={styles.hero}>
-        <div className={styles.heroTexture} aria-hidden="true" />
-
         <div className={styles.heroCopy}>
-          <a className={styles.eyebrow} href="#workflow">
-            WebMCP-native feedback infrastructure
-            <ArrowRight aria-hidden="true" />
-          </a>
           <h1>Turn agent friction into feedback your team can ship.</h1>
-          <p>
-            Filika helps AI agents report bugs, blockers, and product feedback with the context
-            maintainers need, down to the relevant code, after the user reviews every word.
-          </p>
+          <p>User-reviewed agent feedback, linked directly to code.</p>
           <div className={styles.heroActions}>
             <a className={styles.primaryButton} href="/login">
               Open workspace
@@ -144,9 +81,6 @@ export default function HomePage() {
               View source
             </a>
           </div>
-          <p className={styles.heroNote}>
-            <Check aria-hidden="true" /> Open source · User-reviewed · Built on WebMCP
-          </p>
         </div>
 
         <div className={styles.productStage} id="product">
@@ -225,17 +159,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className={styles.introSection} aria-labelledby="intro-title">
-        <p className={styles.sectionKicker}>A better feedback loop</p>
-        <h2 id="intro-title">
-          The useful details should arrive with the report, not three meetings later.
-        </h2>
-        <p>
-          Filika connects the moment an agent encounters friction to the place maintainers already
-          work. It keeps the report structured, scoped, and human-approved.
-        </p>
-      </section>
-
       <section className={styles.principles} aria-label="Filika product principles">
         {principles.map(({ icon: Icon, title, copy }) => (
           <article key={title}>
@@ -248,22 +171,15 @@ export default function HomePage() {
 
       <section className={styles.workflowSection} id="workflow" aria-labelledby="workflow-title">
         <div className={styles.sectionHeading}>
-          <p className={styles.sectionKicker}>From friction to fix</p>
           <h2 id="workflow-title">A feedback path designed for people and agents.</h2>
-          <p>
-            No black box. No ambient page collection. Just a clear sequence with the user in
-            control.
-          </p>
         </div>
 
         <div className={styles.workflowGrid}>
-          {workflow.map(({ step, label, title, copy, icon: Icon }) => (
-            <article key={step} className={styles.workflowCard}>
+          {workflow.map(({ title, copy, icon: Icon }) => (
+            <article key={title} className={styles.workflowCard}>
               <div className={styles.workflowTopline}>
-                <span>{step}</span>
                 <Icon aria-hidden="true" />
               </div>
-              <p className={styles.workflowLabel}>{label}</p>
               <h3>{title}</h3>
               <p>{copy}</p>
             </article>
@@ -273,85 +189,15 @@ export default function HomePage() {
 
       <section className={styles.reportBoardSection} id="reports" aria-labelledby="reports-title">
         <div className={styles.reportBoardHeading}>
-          <div>
-            <p className={styles.sectionKicker}>Evidence, not noise</p>
-            <h2 id="reports-title">See the signal. Ship the fix.</h2>
-          </div>
-          <p>
-            Filika turns the moment an agent gets stuck into a report that reads like a useful
-            handoff, not another vague support ticket.
-          </p>
+          <h2 id="reports-title">See the signal. Ship the fix.</h2>
         </div>
 
-        <div className={styles.reportBoard}>
-          <div className={styles.signalColumn}>
-            <div className={styles.boardColumnHeader}>
-              <div>
-                <span>Agent signals</span>
-                <strong>What agents notice</strong>
-              </div>
-            </div>
-
-            <div className={styles.signalList}>
-              {agentSignals.map((signal) => (
-                <article className={styles.signalCard} key={signal.title}>
-                  <div className={styles.signalMeta}>
-                    <span>{signal.kind}</span>
-                    <span>{signal.scope}</span>
-                  </div>
-                  <h3>{signal.title}</h3>
-                  <p>{signal.copy}</p>
-                  <div className={styles.signalFooter}>
-                    <span className={styles.signalMarker}>{signal.marker}</span>
-                    <span>Structured at the point of friction</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.reportColumn}>
-            <div className={styles.boardColumnHeader}>
-              <div>
-                <span>Reviewed reports</span>
-                <strong>What maintainers receive</strong>
-              </div>
-            </div>
-
-            <div className={styles.reportList}>
-              {maintainerReports.map((report) => (
-                <article className={styles.reportCard} data-tone={report.tone} key={report.title}>
-                  <div className={styles.reportCardTopline}>
-                    <span>{report.status}</span>
-                  </div>
-                  <div className={styles.reportCardCopy}>
-                    <h3>{report.title}</h3>
-                    <p>{report.copy}</p>
-                  </div>
-                  <div className={styles.reportTags}>
-                    {report.tags.map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </div>
+        <RealtimeFlowBoard />
       </section>
 
       <section className={styles.safetySection} id="safety" aria-labelledby="safety-title">
         <div className={styles.safetyCopy}>
-          <p className={styles.sectionKicker}>Human control is the protocol</p>
           <h2 id="safety-title">Nothing is transmitted before the user confirms it.</h2>
-          <p>
-            Filika provides the feedback workflow, not the AI assistant. Agents draft through a
-            bounded WebMCP tool, users review the result, and maintainers receive only what was
-            approved.
-          </p>
-          <a href="https://github.com/Complaintr/filika" rel="noreferrer" target="_blank">
-            Explore the open-source protocol <ArrowRight aria-hidden="true" />
-          </a>
         </div>
 
         <div className={styles.safetyChecklist}>
@@ -359,21 +205,18 @@ export default function HomePage() {
             <span className={styles.safetyIndex}>01</span>
             <div className={styles.safetyItemContent}>
               <strong>Explicit review</strong>
-              <span>Users can edit or cancel every draft.</span>
             </div>
           </div>
           <div>
             <span className={styles.safetyIndex}>02</span>
             <div className={styles.safetyItemContent}>
               <strong>Bounded context</strong>
-              <span>Only relevant, structured fields enter the report.</span>
             </div>
           </div>
           <div>
             <span className={styles.safetyIndex}>03</span>
             <div className={styles.safetyItemContent}>
               <strong>Graceful fallback</strong>
-              <span>Manual feedback remains available without an agent.</span>
             </div>
           </div>
         </div>
@@ -381,7 +224,6 @@ export default function HomePage() {
 
       <section className={styles.ctaSection}>
         <div>
-          <p className={styles.sectionKicker}>Build a shorter path to the fix</p>
           <h2>Feedback should arrive ready to act on.</h2>
         </div>
         <a className={styles.ctaButton} href="/login">
