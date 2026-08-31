@@ -1,0 +1,27 @@
+name: Set up Bun workspace
+description: Install the pinned Bun release and restore its package cache.
+
+inputs:
+  bun-version:
+    description: Bun version from the workflow environment.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: ${{ inputs.bun-version }}
+
+    - name: Restore Bun package cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.bun/install/cache
+        key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+        restore-keys: |
+          bun-${{ runner.os }}-
+
+    - name: Install dependencies
+      shell: bash
+      run: bun install --frozen-lockfile
