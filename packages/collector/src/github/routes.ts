@@ -1,4 +1,4 @@
-import { and, eq, gt, inArray } from "drizzle-orm";
+import { and, eq, gt, inArray, lt, sql } from "drizzle-orm";
 import { z } from "zod";
 import { ownedApplication } from "../applications";
 import { hasFeedbackExpired } from "../cleanup";
@@ -11,6 +11,7 @@ import {
   githubOauthState,
   type Project,
   project,
+  rateLimit,
 } from "../db/schema";
 import { boundedText, GitHubClient, GitHubError } from "./client";
 import {
@@ -97,6 +98,25 @@ export class GitHubRoutes {
         await this.db.select().from(githubConnection).where(eq(githubConnection.projectId, app.id))
       )[0] ?? null
     );
+  }
+
+  private async rateLimit(app: Project) {
+    const minute = Math.floor(Date.now() / 60_000);
+    const rows = await this.db
+      .insert(rateLimit)
+      .values({
+        projectId: app.id,
+        windowKey: `github:${minute}`,
+        count: 1,
+        expiresAt: new Date((minute + 2) * 60_000),
+      })
+      .onConflictDoUpdate({
+        target: [rateLimit.projectId, rateLimit.windowKey],
+        set: { count: sql`${rateLimit.count} + 1` },
+        setWhere: lt(rateLimit.count, 30),
+      })
+      .returning({ id: rateLimit.id });
+    if (rows.length === 0) return fail("rate_limited", 429);
   }
 
   private async status(app: Project, userId: string) {
@@ -500,7 +520,6 @@ export class GitHubRoutes {
       if (!match?.[1]) return fail("not_found", 404);
       const app = await ownedApplication(this.db, userId, match[1]);
       if (!app) return fail("not_found", 404);
-      if (!match[2] && request.method === "GET") return json(await this.status(app, userId));
       const method = request.method;
       let input: unknown;
       if (method === "POST") {
@@ -519,6 +538,8 @@ export class GitHubRoutes {
           await boundedText(request, 65_536, AbortSignal.timeout(5000)),
         ) as unknown;
       }
+      if (this.config) await this.rateLimit(app);
+      if (!match[2] && method === "GET") return json(await this.status(app, userId));
       if (method === "POST" && match[2] === "connect" && !match[3]) {
         empty.parse(input);
         return await this.start(app, userId);

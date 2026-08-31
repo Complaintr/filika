@@ -11,6 +11,7 @@ import {
 import { readBoundedJson } from "./response";
 
 const errors: Record<string, string> = {
+  rate_limited: "Too many GitHub requests for this application. Wait a minute before trying again.",
   github_not_configured: "GitHub integration is not configured on this server.",
   reauthorize:
     "Your GitHub authorization expired or was revoked. Reconnect in application settings.",

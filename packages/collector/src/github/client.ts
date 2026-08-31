@@ -108,7 +108,13 @@ export class GitHubClient {
         [401, 403, 404, 410, 422, 429].includes(response.status),
       );
     }
-    return JSON.parse(await boundedText(response, 2_000_000, signal)) as unknown;
+    try {
+      return JSON.parse(await boundedText(response, 2_000_000, signal)) as unknown;
+    } catch {
+      // A successful HTTP status may already have created an issue. An unreadable
+      // response (including a size limit) must never become a retryable rejection.
+      throw new GitHubError("github_response_invalid");
+    }
   }
 
   async exchangeCode(code: string): Promise<{ token: string; expiresAt: Date; userId: string }> {

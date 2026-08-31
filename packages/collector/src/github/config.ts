@@ -46,6 +46,7 @@ export function githubConfigFromEnv(): GitHubConfig | undefined {
     webhookSecret.length < 32
   )
     return undefined;
+  if (!URL.canParse(baseUrl)) return undefined;
   const url = new URL(baseUrl);
   if (
     url.origin !== baseUrl ||

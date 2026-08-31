@@ -10,6 +10,7 @@ import {
   githubIssue,
   githubOauthState,
   project,
+  rateLimit,
   user,
 } from "../src/db/schema";
 import { GitHubClient, GitHubError } from "../src/github/client";
@@ -154,12 +155,24 @@ export function registerGitHubIntegrationTests(getDb: () => Db, available: boole
       });
     } finally {
       await db.delete(feedback).where(eq(feedback.projectId, projectId));
+      await db.delete(rateLimit).where(eq(rateLimit.projectId, projectId));
       await db.delete(project).where(eq(project.id, projectId));
       await db.delete(user).where(eq(user.id, userId));
     }
   }
 
   describe.skipIf(!available)("GitHub integration with PostgreSQL", () => {
+    test("integration rate limits do not consume the feedback ingestion budget", async () =>
+      fixture(async (f) => {
+        for (let i = 0; i < 30; i++) expect((await f.call("")).status).toBe(200);
+        expect((await f.call("")).status).toBe(429);
+        const rows = await f.db
+          .select()
+          .from(rateLimit)
+          .where(eq(rateLimit.projectId, f.projectId));
+        expect(rows).toHaveLength(1);
+        expect(rows[0]?.windowKey).toMatch(/^github:/);
+      }));
     test("isolates owners, rejects CSRF and preview changes, and never posts on reads", async () =>
       fixture(async (f) => {
         expect((await f.call("", undefined, null)).status).toBe(401);

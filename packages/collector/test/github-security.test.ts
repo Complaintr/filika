@@ -110,4 +110,24 @@ describe("GitHub security boundaries", () => {
       new GitHubClient(config, fetcher).accessibleRepository("user-token", "3"),
     ).rejects.toBeInstanceOf(GitHubError);
   });
+  test("unreadable successful responses never authorize a second issue POST", async () => {
+    for (const body of ["not-json", "x".repeat(2_000_001), null]) {
+      let calls = 0;
+      const fetcher: typeof fetch = Object.assign(
+        async () => {
+          calls++;
+          return new Response(body, { status: 201 });
+        },
+        { preconnect: fetch.preconnect },
+      );
+      try {
+        await new GitHubClient(config, fetcher).createIssue("token", "owner/repo", "Title", "Body");
+        throw new Error("Expected an unreadable response failure");
+      } catch (error) {
+        expect(error).toBeInstanceOf(GitHubError);
+        expect((error as GitHubError).definite).toBe(false);
+      }
+      expect(calls).toBe(1);
+    }
+  });
 });
