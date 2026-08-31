@@ -2270,7 +2270,7 @@
 }
 
 .footer .logo {
-  color: var(--landing-teal-dark);
+  color: #292b2d;
 }
 
 .footerContent > p {
@@ -2631,7 +2631,7 @@
 }
 
 :root:not([data-theme="dark"]) .headerScrolled .logo {
-  color: #0b4145;
+  color: #292b2d;
 }
 
 :root:not([data-theme="dark"]) .headerScrolled .nav a {
@@ -3076,7 +3076,7 @@
 }
 
 :root[data-theme="dark"] .footer .logo {
-  color: #5eead4;
+  color: #f8fffd;
 }
 
 :root[data-theme="dark"] .footerContent > div {
