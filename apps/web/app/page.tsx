@@ -13,6 +13,7 @@ import {
 import type { Metadata } from "next";
 import { FilikaBrand } from "@/components/filika-brand";
 import { LandingHeader } from "@/components/landing-header";
+import { RealtimeFlowBoard } from "@/components/realtime-flow-board";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
@@ -60,54 +61,6 @@ const workflow = [
     title: "Actionable report",
     copy: "Delivers directly to maintainers with code links.",
     icon: GitPullRequestArrow,
-  },
-];
-
-const agentSignals = [
-  {
-    kind: "Observed bug",
-    scope: "Checkout · Web",
-    title: "Confirmation route hangs after payment",
-    copy: "Order succeeds but view stays in submitting state.",
-    marker: "UI",
-  },
-  {
-    kind: "Blocked task",
-    scope: "Settings · Permissions",
-    title: "Disabled action missing explanation",
-    copy: "Agent cannot finish task due to unstated prerequisite.",
-    marker: "DX",
-  },
-  {
-    kind: "Product idea",
-    scope: "Inbox · Triage",
-    title: "Group repeat reports automatically",
-    copy: "Keeps feedback deduplicated across sessions.",
-    marker: "PX",
-  },
-];
-
-const maintainerReports = [
-  {
-    status: "Ready for triage",
-    tone: "aqua",
-    title: "Checkout confirmation pending",
-    copy: "Repro steps, route, and source file attached.",
-    tags: ["/checkout", "3 steps", "checkout-form.tsx"],
-  },
-  {
-    status: "User reviewed",
-    tone: "violet",
-    title: "Permission state explanation",
-    copy: "Separates observed issue from host context.",
-    tags: ["Settings", "Blocked task", "WebMCP"],
-  },
-  {
-    status: "Duplicate-safe",
-    tone: "peach",
-    title: "Repeat feedback deduplicated",
-    copy: "Idempotent event keys prevent duplicate tickets.",
-    tags: ["Idempotent", "Reviewed", "Actionable"],
   },
 ];
 
@@ -254,57 +207,7 @@ export default function HomePage() {
           <h2 id="reports-title">See the signal. Ship the fix.</h2>
         </div>
 
-        <div className={styles.reportBoard}>
-          <div className={styles.signalColumn}>
-            <div className={styles.boardColumnHeader}>
-              <div>
-                <span>Agent signals</span>
-                <strong>What agents notice</strong>
-              </div>
-            </div>
-
-            <div className={styles.signalList}>
-              {agentSignals.map((signal) => (
-                <article className={styles.signalCard} key={signal.title}>
-                  <div className={styles.signalMeta}>
-                    <span>{signal.kind}</span>
-                    <span>{signal.scope}</span>
-                  </div>
-                  <h3>{signal.title}</h3>
-                  <p>{signal.copy}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.reportColumn}>
-            <div className={styles.boardColumnHeader}>
-              <div>
-                <span>Reviewed reports</span>
-                <strong>What maintainers receive</strong>
-              </div>
-            </div>
-
-            <div className={styles.reportList}>
-              {maintainerReports.map((report) => (
-                <article className={styles.reportCard} data-tone={report.tone} key={report.title}>
-                  <div className={styles.reportCardTopline}>
-                    <span>{report.status}</span>
-                  </div>
-                  <div className={styles.reportCardCopy}>
-                    <h3>{report.title}</h3>
-                    <p>{report.copy}</p>
-                  </div>
-                  <div className={styles.reportTags}>
-                    {report.tags.map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </div>
+        <RealtimeFlowBoard />
       </section>
 
       <section className={styles.safetySection} id="safety" aria-labelledby="safety-title">
