@@ -7,6 +7,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { AuthHeader } from "./auth-header";
 import { authRequest } from "./auth-request";
+import { GithubIcon } from "./github-icon";
 import { GoogleIcon } from "./google-icon";
 
 type Mode = "login" | "register" | "forgot-password" | "reset-password";
@@ -168,6 +169,22 @@ function AuthForm({ mode }: { mode: Mode }) {
     });
   }
 
+  async function github() {
+    await run(async (signal) => {
+      const data = await authRequest(
+        "sign-in/social",
+        { provider: "github", callbackURL: "/onboarding", errorCallbackURL: "/login?error=oauth" },
+        signal,
+      );
+      if (typeof data.url !== "string" || data.url.length > 4096)
+        throw new Error("GitHub sign-in is unavailable. Please try again later.");
+      const destination = new URL(data.url);
+      if (destination.protocol !== "https:" || destination.hostname !== "github.com")
+        throw new Error("GitHub sign-in returned an unexpected address.");
+      window.location.assign(destination.href);
+    });
+  }
+
   return (
     <div className="auth-form-content">
       <div className="auth-intro">
@@ -217,6 +234,15 @@ function AuthForm({ mode }: { mode: Mode }) {
               >
                 <GoogleIcon />
                 Continue with Google
+              </button>
+              <button
+                className="auth-google"
+                type="button"
+                onClick={() => void github()}
+                disabled={pending}
+              >
+                <GithubIcon />
+                Continue with GitHub
               </button>
               <div className="auth-divider">
                 <span>or continue with email</span>

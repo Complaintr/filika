@@ -1,5 +1,11 @@
 import { expect, test } from "@playwright/test";
 
+test("login offers google and github sign-in options", async ({ page }) => {
+  await page.goto("/login");
+  await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Continue with GitHub" })).toBeVisible();
+});
+
 test("standalone pages share canvas colors across theme changes and navigation", async ({
   page,
 }) => {
