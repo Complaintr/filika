@@ -75,6 +75,32 @@ export const repositoriesSchema = z
 export type GitHubStatus = z.infer<typeof githubStatusSchema>;
 export type GitHubIssueView = z.infer<typeof issueViewSchema>;
 
+export const issuePreviewSchema = githubStatusSchema.extend({
+  draft: z.object({ title: z.string().max(160), body: z.string().max(12_000) }).strict(),
+  issue: issueViewSchema.nullable(),
+});
+export const issueResultSchema = z.object({ issue: issueViewSchema }).strict();
+export const authorizationUrlSchema = z
+  .object({
+    url: z
+      .string()
+      .max(2048)
+      .url()
+      .refine((value) => {
+        const url = new URL(value);
+        return (
+          url.origin === "https://github.com" &&
+          url.pathname === "/login/oauth/authorize" &&
+          !url.username &&
+          !url.password
+        );
+      }),
+  })
+  .strict();
+export const disconnectResultSchema = z.object({ disconnected: z.literal(true) }).strict();
+export type IssuePreview = z.infer<typeof issuePreviewSchema>;
+export type IssueApproval = z.infer<typeof issueApproval>;
+
 export function issueMarker(operationId: string): string {
   return `<!-- filika-issue:${operationId} -->`;
 }

@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import type { InboxDetailViewState } from "@/contracts/inbox-view-model";
 import { InboxApiService } from "@/services/inbox-api";
+import { GitHubIssuePanel } from "@/workspace/github-issue-panel";
 import { InboxDetailShell, InboxDetailState } from "@/workspace/inbox-view";
 
 export default function ComplaintDetailPage({
@@ -31,6 +32,11 @@ export default function ComplaintDetailPage({
         <>
           <h1>{state.feedback.title}</h1>
           <InboxDetailState state={state} />
+          <GitHubIssuePanel
+            key={`${appSlug}:${feedbackId}`}
+            appSlug={appSlug}
+            feedbackId={feedbackId}
+          />
         </>
       ) : (
         <>

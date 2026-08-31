@@ -1,14 +1,21 @@
 "use client";
 
-import { Copy, Globe2, RefreshCw, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { Copy, GitBranch, Globe2, RefreshCw, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useApplication } from "@/applications/application-context";
+import { GitHubSettings } from "@/applications/github-settings";
 import { SaveSettings, SettingsLayout } from "@/applications/settings-layout";
 import { type ApplicationSettings, saveApplication } from "@/services/applications-api";
 import { fetchDashboard } from "@/services/workspace-api";
 import { useConnection } from "@/workspace/connection";
 
 const sections = [
+  {
+    id: "github",
+    label: "GitHub",
+    icon: GitBranch,
+    description: "Connect a repository and export reports after review.",
+  },
   {
     id: "application",
     label: "Application",
@@ -41,6 +48,9 @@ export default function ApplicationSettingsPage() {
   const [connection, setConnection] = useState("idle");
   const controller = useRef<AbortController | null>(null);
   useEffect(() => () => controller.current?.abort(), []);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("github")) setActive("github");
+  }, []);
   if (!application) return null;
   const app = application;
   const dirty =
@@ -123,6 +133,7 @@ export default function ApplicationSettingsPage() {
     >
       <form onSubmit={save}>
         <fieldset className="settings-form-fields" disabled={saving}>
+          {active === "github" && <GitHubSettings key={app.slug} appSlug={app.slug} />}
           {active === "application" && (
             <div className="settings-section-body">
               <div className="workspace-name-preview">
@@ -255,7 +266,7 @@ export default function ApplicationSettingsPage() {
               </p>
             </div>
           )}
-          {active !== "privacy" && (
+          {active !== "privacy" && active !== "github" && (
             <SaveSettings dirty={dirty} saving={saving} onDiscard={discard} />
           )}
         </fieldset>

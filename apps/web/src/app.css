@@ -5230,3 +5230,33 @@ html {
     gap: 10px;
   }
 }
+
+.github-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.github-issue-panel {
+  border-top: 1px solid var(--border);
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  overflow-wrap: anywhere;
+}
+.github-issue-panel p {
+  margin-block: 0.75rem;
+}
+.github-issue-review {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.github-issue-review .studio-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.github-issue-review textarea {
+  resize: vertical;
+  font: inherit;
+}

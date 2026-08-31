@@ -83,48 +83,40 @@ export function registerGitHubIntegrationTests(getDb: () => Db, available: boole
     const reportId = crypto.randomUUID();
     const slug = `github-${projectId}`;
     await db.insert(user).values({ id: userId, name: "Owner", email: `${userId}@example.test` });
-    await db
-      .insert(project)
-      .values({
-        id: projectId,
-        ownerUserId: userId,
-        slug,
-        displayName: "GitHub test",
-        projectKey: projectId,
-        allowedOrigins: [],
-      });
-    await db
-      .insert(feedback)
-      .values({
-        id: reportId,
-        projectId,
-        eventId: crypto.randomUUID(),
-        title: "Save fails",
-        description: "Nothing happens",
-        kind: "bug",
-        origin: "https://example.test",
-        sdkVersion: "1.0.0",
-      });
+    await db.insert(project).values({
+      id: projectId,
+      ownerUserId: userId,
+      slug,
+      displayName: "GitHub test",
+      projectKey: projectId,
+      allowedOrigins: [],
+    });
+    await db.insert(feedback).values({
+      id: reportId,
+      projectId,
+      eventId: crypto.randomUUID(),
+      title: "Save fails",
+      description: "Nothing happens",
+      kind: "bug",
+      origin: "https://example.test",
+      sdkVersion: "1.0.0",
+    });
     const version = crypto.randomUUID();
-    await db
-      .insert(githubAuthorization)
-      .values({
-        projectId,
-        userId,
-        githubUserId: "42",
-        encryptedToken: encryptToken("token", config.encryptionKey, `${projectId}:${userId}`),
-        expiresAt: new Date(Date.now() + 600000),
-      });
-    await db
-      .insert(githubConnection)
-      .values({
-        projectId,
-        version,
-        installationId: "2",
-        repositoryId: "3",
-        fullName: "owner/repo",
-        isPrivate: true,
-      });
+    await db.insert(githubAuthorization).values({
+      projectId,
+      userId,
+      githubUserId: "42",
+      encryptedToken: encryptToken("token", config.encryptionKey, `${projectId}:${userId}`),
+      expiresAt: new Date(Date.now() + 600000),
+    });
+    await db.insert(githubConnection).values({
+      projectId,
+      version,
+      installationId: "2",
+      repositoryId: "3",
+      fullName: "owner/repo",
+      isPrivate: true,
+    });
     const client = new FakeGitHub(config);
     const routes = new GitHubRoutes(db, config, client);
     const prefix = `${config.baseUrl}/api/v1/apps/${slug}/github`;

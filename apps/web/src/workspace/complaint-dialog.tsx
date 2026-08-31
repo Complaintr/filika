@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { InboxDetailViewState } from "@/contracts/inbox-view-model";
 import { InboxApiService } from "@/services/inbox-api";
 import { formatDate, kindLabels } from "./dom";
+import { GitHubIssuePanel } from "./github-issue-panel";
 import { InboxDetailState } from "./inbox-view";
 
 export function ComplaintDialog({
@@ -202,6 +203,13 @@ export function ComplaintDialog({
               </button>
             )}
           </>
+        )}
+        {state.status === "ready" && (
+          <GitHubIssuePanel
+            key={`${appSlug}:${feedbackId}`}
+            appSlug={appSlug}
+            feedbackId={feedbackId}
+          />
         )}
       </div>
       <footer className="report-dialog-footer">
