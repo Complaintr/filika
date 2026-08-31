@@ -13,6 +13,8 @@ export interface BetterAuthConfig extends AuthEmailConfig {
   secret?: string | undefined;
   googleClientId?: string | undefined;
   googleClientSecret?: string | undefined;
+  githubClientId?: string | undefined;
+  githubClientSecret?: string | undefined;
 }
 
 export type BetterAuth = ReturnType<typeof createBetterAuth>;
@@ -24,6 +26,12 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
     config.googleClientSecret !== undefined &&
     config.googleClientId !== "" &&
     config.googleClientSecret !== "";
+
+  const hasGithubCredentials =
+    config.githubClientId !== undefined &&
+    config.githubClientSecret !== undefined &&
+    config.githubClientId !== "" &&
+    config.githubClientSecret !== "";
 
   const sendEmail = createAuthMailer(config);
   const emailConfigured = Boolean(config.resendApiKey && config.emailFrom);
@@ -99,6 +107,18 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
               mapProfileToUser: (profile) => ({ googleImage: googlePhotoUrl(profile.picture) }),
               clientId: config.googleClientId as string,
               clientSecret: config.googleClientSecret as string,
+            },
+          }
+        : {}),
+      ...(hasGithubCredentials
+        ? {
+            github: {
+              overrideUserInfoOnSignIn: true,
+              // Never persist an unvalidated avatar into the default user.image
+              // column; the collector keeps images behind its own validator.
+              mapProfileToUser: () => ({}),
+              clientId: config.githubClientId as string,
+              clientSecret: config.githubClientSecret as string,
             },
           }
         : {}),
