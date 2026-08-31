@@ -811,7 +811,7 @@
 .safetyCopy h2,
 .ctaSection h2 {
   max-width: 820px;
-  margin: 18px auto 0;
+  margin: 0 auto;
   font-size: clamp(32px, 4.2vw, 56px);
   font-weight: 580;
   letter-spacing: -0.035em;
@@ -951,7 +951,7 @@
 
 .reportBoardSection {
   position: relative;
-  padding: clamp(24px, 4vw, 36px) 0 clamp(80px, 10vw, 130px);
+  padding: clamp(60px, 8vw, 100px) 0 clamp(80px, 10vw, 130px);
 }
 
 .reportBoardSection::before {
@@ -984,7 +984,7 @@
 }
 
 .reportBoardHeading h2 {
-  margin-top: 12px;
+  margin: 0 auto;
   font-size: clamp(36px, 4.5vw, 64px);
   font-weight: 580;
   letter-spacing: -0.04em;
@@ -992,7 +992,7 @@
 }
 
 .flowBoardContainer {
-  margin-top: clamp(28px, 4vw, 44px);
+  margin-top: clamp(32px, 4.5vw, 48px);
   display: flex;
   flex-direction: column;
   gap: 16px;

@@ -27,7 +27,7 @@ describe("public landing page", () => {
     ).text();
     const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
 
-    expect(page).toContain("Evidence, not noise");
+    expect(page).toContain("See the signal. Ship the fix.");
     expect(page).toContain("<RealtimeFlowBoard");
     expect(flow).toContain("What agents notice");
     expect(flow).toContain("What maintainers receive");

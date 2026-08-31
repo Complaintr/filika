@@ -179,7 +179,6 @@ export default function HomePage() {
 
       <section className={styles.workflowSection} id="workflow" aria-labelledby="workflow-title">
         <div className={styles.sectionHeading}>
-          <p className={styles.sectionKicker}>Workflow</p>
           <h2 id="workflow-title">A feedback path designed for people and agents.</h2>
         </div>
 
@@ -200,7 +199,6 @@ export default function HomePage() {
 
       <section className={styles.reportBoardSection} id="reports" aria-labelledby="reports-title">
         <div className={styles.reportBoardHeading}>
-          <p className={styles.sectionKicker}>Evidence, not noise</p>
           <h2 id="reports-title">See the signal. Ship the fix.</h2>
         </div>
 
@@ -209,7 +207,6 @@ export default function HomePage() {
 
       <section className={styles.safetySection} id="safety" aria-labelledby="safety-title">
         <div className={styles.safetyCopy}>
-          <p className={styles.sectionKicker}>Safety</p>
           <h2 id="safety-title">Nothing is transmitted before the user confirms it.</h2>
         </div>
 
