@@ -14,7 +14,7 @@ export default defineConfig({
   use: { baseURL: webOrigin, browserName: "chromium", trace: "retain-on-failure" },
   webServer: [
     {
-      command: `bun run build:spa && bun run --bun next dev -p ${webPort}`,
+      command: `bun run build:spa && bun run --bun next build && bun run --bun next start -p ${webPort}`,
       cwd: fileURLToPath(new URL("../../apps/web", import.meta.url)),
       url: `${webOrigin}/api/v1/inbox`,
       reuseExistingServer: false,
