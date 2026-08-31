@@ -1700,24 +1700,11 @@
   isolation: isolate;
 }
 
-.reportCard::before,
 .reportCard::after {
   position: absolute;
   z-index: -1;
   content: "";
   pointer-events: none;
-}
-
-.reportCard::before {
-  inset: 0;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-  background-size: 31px 31px;
-  mask-image: linear-gradient(to bottom right, black, transparent 70%);
-}
-
-.reportCard::after {
   top: -90px;
   right: -65px;
   width: 250px;
