@@ -1,412 +1,376 @@
 import {
   ArrowRight,
+  Bot,
+  Bug,
   Check,
-  CircleAlert,
-  Code2,
-  FileCode2,
-  GitFork,
-  GitPullRequestArrow,
-  MessageSquareText,
-  MousePointer2,
-  Send,
+  ChevronDown,
+  Circle,
+  Cpu,
+  Layers,
+  Lock,
+  Radio,
   ShieldCheck,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
-import { FilikaBrand } from "@/components/filika-brand";
 import { LandingHeader } from "@/components/landing-header";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
-  title: "Feedback infrastructure for AI agents",
+  title: "Filika — Open Source WebMCP Agentic Bug Discovery Platform",
   description:
-    "Turn bugs, blockers, and product feedback into precise, user-reviewed reports with WebMCP and code context.",
+    "Filika is an open-source, 100% free platform that uses WebMCP browser agents to discover code crashes, runtime exceptions, and behavioral bugs in web applications.",
 };
 
-const principles = [
+const sampleBugs = [
   {
-    icon: MessageSquareText,
-    title: "More than a screenshot",
-    copy: "Capture the problem, expected behavior, reproduction steps, and useful technical context in one report.",
+    type: "Observed Bug",
+    path: "/checkout",
+    title: "Uncaught TypeError in promo apply",
+    tag: "Code Error",
   },
   {
-    icon: Code2,
-    title: "Context that reaches the code",
-    copy: "Help maintainers move from a user-visible issue to the relevant route, component, or source location.",
+    type: "Blocked Task",
+    path: "/onboarding",
+    title: "Step 2 Next button remains disabled",
+    tag: "Behavioral",
   },
   {
-    icon: ShieldCheck,
-    title: "Reviewed before it leaves",
-    copy: "The user sees and approves every agent-authored report before Filika sends anything.",
+    type: "Confusing Behavior",
+    path: "/settings/team",
+    title: "Role toggle reverts without warning",
+    tag: "UX Flow",
   },
-];
+  { type: "Concrete Idea", path: "/inbox", title: "Filter by agent session ID", tag: "Feature" },
+] as const;
 
-const workflow = [
-  {
-    step: "01",
-    label: "Notice",
-    title: "An agent reaches a blocker.",
-    copy: "A broken interaction, confusing flow, missing state, or product idea appears while the agent is working.",
-    icon: CircleAlert,
-  },
-  {
-    step: "02",
-    label: "Review",
-    title: "Filika prepares a precise report.",
-    copy: "WebMCP gives the agent a structured path to draft what happened and attach only the context that matters.",
-    icon: MousePointer2,
-  },
-  {
-    step: "03",
-    label: "Resolve",
-    title: "Maintainers receive something actionable.",
-    copy: "The approved report arrives ready to triage, with a clear trail back to the affected product surface and code.",
-    icon: GitPullRequestArrow,
-  },
-];
+const extras = [
+  ["WebMCP Protocol", "Native browser tool integration built on document.modelContext standards."],
+  ["Code Context", "Captures stack traces, runtime exceptions, and failed network calls."],
+  [
+    "Behavioral Detection",
+    "Spots confusing interaction loops, dead-end states, and broken UI controls.",
+  ],
+  [
+    "Zero Performance Impact",
+    "Ultralight async script loads instantly without slowing down host pages.",
+  ],
+  [
+    "Safe Data Sanitization",
+    "Automatically strips credentials, tokens, and sensitive fields before review.",
+  ],
+  [
+    "Self-Hostable",
+    "Deploy on your own infrastructure with Bun and PostgreSQL for full data control.",
+  ],
+  [
+    "Manual Feedback Mode",
+    "Allows users to submit feedback directly even when an AI agent is not present.",
+  ],
+  [
+    "Developer Triage Workspace",
+    "Filter, search, and manage verified bug reports in a unified inbox.",
+  ],
+  [
+    "Privacy by Default",
+    "No cookies, no user tracking, and no ambient recording. Fully GDPR compliant.",
+  ],
+] as const;
 
-const agentSignals = [
-  {
-    kind: "Observed bug",
-    scope: "Checkout · Web",
-    title: "The confirmation route never resolves after payment.",
-    copy: "The order request succeeds, but the user remains on the submitting state with no receipt or recovery path.",
-    marker: "UI",
-  },
-  {
-    kind: "Blocked task",
-    scope: "Settings · Permissions",
-    title: "A disabled control has no explanation.",
-    copy: "The agent can identify the blocked action and preserve the exact state that made the task impossible to finish.",
-    marker: "DX",
-  },
-  {
-    kind: "Product idea",
-    scope: "Inbox · Triage",
-    title: "Group repeat reports before they become noise.",
-    copy: "A concrete suggestion stays separate from bugs while retaining the route and release context behind it.",
-    marker: "PX",
-  },
-];
+const faqs = [
+  [
+    "What is Filika?",
+    "Filika is an open-source platform that uses WebMCP browser agents to discover code errors, runtime bugs, and behavioral issues across web applications.",
+  ],
+  [
+    "Is Filika completely free?",
+    "Yes. Filika is 100% free and open source. There are no fees, no subscriptions, no seat limits, and no paid tiers.",
+  ],
+  [
+    "How do WebMCP agents find bugs?",
+    "When a WebMCP-enabled browser agent interacts with your website, it uses structured tools to inspect runtime state, detect broken flows, and draft detailed reports on problems it encounters.",
+  ],
+  [
+    "How is user privacy protected?",
+    "Nothing is sent without user review and confirmation. Filika never records cookies, passwords, browsing history, or ambient session data.",
+  ],
+  [
+    "Can I self-host Filika?",
+    "Yes. Both the WebMCP collector and web workspace are open source and easy to self-host with Bun and PostgreSQL on your own servers.",
+  ],
+  [
+    "How do I install Filika on my website?",
+    "Add one lightweight <script> tag to your HTML or install the @filika/sdk package. It registers WebMCP tools in milliseconds with zero configuration.",
+  ],
+] as const;
 
-const maintainerReports = [
-  {
-    status: "Ready for triage",
-    tone: "aqua",
-    title: "Checkout confirmation remains pending",
-    copy: "Expected behavior, three reproduction steps, affected route, release, and a source location in one reviewed report.",
-    tags: ["/checkout", "3 steps", "checkout-form.tsx"],
-  },
-  {
-    status: "User reviewed",
-    tone: "violet",
-    title: "Permission state needs an explanation",
-    copy: "The report separates what the agent observed from what the host supplied, so maintainers can trust the boundary.",
-    tags: ["Settings", "Blocked task", "WebMCP"],
-  },
-  {
-    status: "Duplicate-safe",
-    tone: "peach",
-    title: "Repeat feedback keeps one clear trail",
-    copy: "Stable event identity and bounded receipts keep retries honest without creating another copy in the inbox.",
-    tags: ["Idempotent", "Reviewed", "Actionable"],
-  },
-];
+function SectionTitle({ children, muted }: { children: React.ReactNode; muted: React.ReactNode }) {
+  return (
+    <h2 className={styles.sectionTitle}>
+      {children} <span>{muted}</span>
+    </h2>
+  );
+}
 
 export default function HomePage() {
   return (
-    <main className={styles.page} id="app-content">
+    <div className={styles.page} id="app-content">
       <LandingHeader />
-      <section className={styles.hero}>
-        <div className={styles.heroTexture} aria-hidden="true" />
 
-        <div className={styles.heroCopy}>
-          <a className={styles.eyebrow} href="#workflow">
-            WebMCP-native feedback infrastructure
-            <ArrowRight aria-hidden="true" />
-          </a>
-          <h1>Turn agent friction into feedback your team can ship.</h1>
-          <p>
-            Filika helps AI agents report bugs, blockers, and product feedback with the context
-            maintainers need, down to the relevant code, after the user reviews every word.
-          </p>
-          <div className={styles.heroActions}>
-            <a className={styles.primaryButton} href="/login">
-              Open workspace
-              <ArrowRight aria-hidden="true" />
-            </a>
-            <a
-              className={styles.secondaryButton}
-              href="https://github.com/Complaintr/filika"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <GitFork aria-hidden="true" />
-              View source
-            </a>
-          </div>
-          <p className={styles.heroNote}>
-            <Check aria-hidden="true" /> Open source · User-reviewed · Built on WebMCP
-          </p>
-        </div>
-
-        <div className={styles.productStage} id="product">
-          <div className={styles.windowBar}>
-            <div className={styles.windowDots} aria-hidden="true">
-              <span />
-              <span />
-              <span />
+      <main className={styles.main}>
+        <section className={styles.hero}>
+          <div className={styles.heroGrid}>
+            <div>
+              <h1>
+                Open-source bug discovery <span>powered by WebMCP agents</span>
+              </h1>
             </div>
-            <span className={styles.windowAddress}>app.filika.dev · Checkout</span>
-            <span className={styles.secureStatus}>
-              <ShieldCheck aria-hidden="true" /> Review required
-            </span>
-          </div>
-
-          <div className={styles.productCanvas}>
-            <div className={styles.contextPanel}>
-              <div className={styles.contextHeader}>
-                <span>Agent context</span>
-                <span className={styles.contextStatus}>Issue detected</span>
+            <div className={styles.heroPitch}>
+              <p>
+                Let browser agents autonomously detect runtime code errors, broken flows, and
+                behavioral friction across your apps. Free, open source, and privacy-first.
+              </p>
+              <div className={styles.heroCta}>
+                <a className={styles.primaryButton} href="/login">
+                  Get Started <ArrowRight aria-hidden="true" />
+                </a>
               </div>
-              <div className={styles.issueTitle}>
-                <CircleAlert aria-hidden="true" />
+            </div>
+          </div>
+          <div className={styles.heroMedia}>
+            <div className={styles.widgetArea}>Widget Area</div>
+          </div>
+        </section>
+
+        <section className={styles.section} id="how-it-works">
+          <SectionTitle muted="in three safe steps.">
+            From agent discovery to resolution,
+          </SectionTitle>
+          <ol className={styles.steps}>
+            <li>
+              <div className={styles.cardHeading}>
+                <span>01</span>
+                <h3>Connect in seconds</h3>
+              </div>
+              <div className={styles.stepVisual}>
+                <div className={styles.codeWindow}>
+                  <div>
+                    <i />
+                    <i />
+                    <i />
+                    <span>Installation</span>
+                  </div>
+                  <code>bun add @filika/sdk</code>
+                  <code>&lt;script async src=&quot;filika.js&quot;&gt;&lt;/script&gt;</code>
+                </div>
+              </div>
+              <p>
+                One lightweight tag or package install. Native WebMCP integration with zero build
+                configuration.
+              </p>
+            </li>
+            <li>
+              <div className={styles.cardHeading}>
+                <span>02</span>
+                <h3>Agents detect issues</h3>
+              </div>
+              <div className={styles.stepVisual}>
+                <div className={styles.installCard}>
+                  <h4>Active Inspection</h4>
+                  <div className={styles.waiting}>
+                    <Radio aria-hidden="true" />
+                    <span>Monitoring runtime &amp; behavioral events…</span>
+                  </div>
+                  <p>
+                    WebMCP agents catch exceptions, broken flows, and UI traps as they navigate.
+                  </p>
+                </div>
+              </div>
+              <p>
+                Browser agents detect runtime crashes, unhandled rejections, and confusing states
+                automatically.
+              </p>
+            </li>
+            <li>
+              <div className={styles.cardHeading}>
+                <span>03</span>
+                <h3>Review and resolve</h3>
+              </div>
+              <div className={styles.stepVisual}>
+                <div className={styles.referrers}>
+                  <h4>Discovered Reports</h4>
+                  {[
+                    ["Observed Bug", "Runtime crash in form", "Code"],
+                    ["Blocked Task", "Submit button hangs", "Flow"],
+                    ["Confusing Behavior", "Dialog closes on click", "UX"],
+                    ["Concrete Idea", "Add auto-save draft", "Feature"],
+                  ].map((row) => (
+                    <div key={row[1]}>
+                      <Circle aria-hidden="true" />
+                      <span>{row[1]}</span>
+                      <b>{row[0]}</b>
+                      <small>{row[2]}</small>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p>
+                Users review and confirm sanitized reports before sending. Maintainers triage in a
+                unified inbox.
+              </p>
+            </li>
+          </ol>
+        </section>
+
+        <section className={styles.section} id="features">
+          <SectionTitle muted="Everything you need.">
+            Built for intelligent agent workflows.
+          </SectionTitle>
+          <ul className={styles.featureGrid}>
+            <li>
+              <div className={styles.visitorList}>
+                {sampleBugs.map((bug) => (
+                  <div key={bug.title}>
+                    <span className={styles.avatar} />
+                    <b>{bug.type}</b>
+                    <code>{bug.path}</code>
+                    <small>{bug.tag}</small>
+                  </div>
+                ))}
+              </div>
+              <h3>
+                <Bot aria-hidden="true" /> WebMCP native
+              </h3>
+              <p>
+                Exposes standard browser tools for AI agents to draft structured bug reports on the
+                fly.
+              </p>
+            </li>
+            <li>
+              <div className={styles.cookieVisual}>
+                <div>Runtime exception &amp; behavior captured without cookies or tracking…</div>
+                <button type="button">100% Privacy Preserving</button>
+                <Lock aria-hidden="true" />
+              </div>
+              <h3>
+                <Bug aria-hidden="true" /> Code &amp; behavioral bugs
+              </h3>
+              <p>
+                Finds silent runtime exceptions, console errors, broken interactions, and UX
+                friction.
+              </p>
+            </li>
+            <li>
+              <div className={styles.globeVisual}>
+                <Cpu aria-hidden="true" />
+                <i />
+                <i />
+                <i />
+              </div>
+              <h3>
+                <Sparkles aria-hidden="true" /> 100% Free &amp; Open Source
+              </h3>
+              <p>
+                No paywalls, subscriptions, or seat fees. Free, open source, and fully
+                self-hostable.
+              </p>
+            </li>
+            <li>
+              <div className={styles.integrationsVisual}>
+                {[
+                  ["React & Next.js", "SDK & Script integration", "Active"],
+                  ["WebMCP Agent", "Standard document.modelContext", "Connected"],
+                  ["PostgreSQL", "Open collector persistence", "Ready"],
+                  ["Maintainer Inbox", "Realtime feedback triage", "Live"],
+                ].map(([name, detail, action]) => (
+                  <div key={name}>
+                    <Layers aria-hidden="true" />
+                    <span>
+                      <b>{name}</b>
+                      <small>{detail}</small>
+                    </span>
+                    <button type="button">{action}</button>
+                  </div>
+                ))}
+              </div>
+              <h3>
+                <Layers aria-hidden="true" /> Seamless integrations
+              </h3>
+              <p>Works with standard web frameworks, browser agents, and PostgreSQL databases.</p>
+            </li>
+            <li>
+              <div className={styles.chatVisual}>
+                <div>Agent drafted report: Broken checkout step</div>
+                <p>
+                  <ShieldCheck aria-hidden="true" /> User confirmed: Sent to maintainer inbox
+                  without private data.
+                </p>
+              </div>
+              <h3>
+                <ShieldCheck aria-hidden="true" /> Human in the loop
+              </h3>
+              <p>
+                No data is sent without explicit user review and confirmation. Safe by construction.
+              </p>
+            </li>
+            <li>
+              <div className={styles.revenueVisual}>
+                <span>Open Source</span>
+                <strong>$0</strong>
+                <small>Free forever · No credit card</small>
                 <div>
-                  <span>Checkout blocker</span>
-                  <strong>Order confirmation never appears</strong>
+                  <Check aria-hidden="true" /> Self-host or run cloud
                 </div>
               </div>
-              <div className={styles.codeCard}>
-                <div className={styles.codeHeader}>
-                  <span>
-                    <FileCode2 aria-hidden="true" /> checkout-form.tsx
-                  </span>
-                  <span>96:14</span>
-                </div>
-                <pre>
-                  <code>
-                    <span>94</span> await submitOrder(payload);{"\n"}
-                    <span>95</span> setSubmitting(false);{"\n"}
-                    <mark>
-                      <span>96</span> router.push(receiptUrl);
-                    </mark>
-                  </code>
-                </pre>
-              </div>
-              <div className={styles.signalGrid}>
-                <span>
-                  <small>Reproduced</small>3 of 3 attempts
-                </span>
-                <span>
-                  <small>Route</small>
-                  /checkout
-                </span>
-                <span>
-                  <small>Impact</small>
-                  Task blocked
-                </span>
-              </div>
-            </div>
+              <h3>
+                <Zap aria-hidden="true" /> Zero cost &amp; overhead
+              </h3>
+              <p>Ultralight bundle, zero performance degradation, and completely free forever.</p>
+            </li>
+          </ul>
+        </section>
 
-            <div className={styles.widgetReserve}>
-              <div className={styles.reserveBadge}>Reserved product surface</div>
-              <div className={styles.reserveFrame}>
-                <MessageSquareText aria-hidden="true" />
-                <strong>Interactive widget preview</strong>
-                <span>This area is ready for the real Filika widget.</span>
-              </div>
-              <div className={styles.reserveFooter}>
-                <span>User reviews the report</span>
-                <span>
-                  Nothing is sent yet <Send aria-hidden="true" />
-                </span>
-              </div>
-            </div>
+        <section className={styles.section}>
+          <SectionTitle muted="and none of it costs anything.">
+            Complete feedback infrastructure,
+          </SectionTitle>
+          <ul className={styles.extras}>
+            {extras.map(([title, copy], index) => (
+              <li key={title}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <h3>{title}</h3>
+                <p>{copy}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className={styles.section}>
+          <SectionTitle muted="straight answers.">Fair questions,</SectionTitle>
+          <div className={styles.faqs}>
+            {faqs.map(([question, answer]) => (
+              <details key={question}>
+                <summary>
+                  {question}
+                  <ChevronDown aria-hidden="true" />
+                </summary>
+                <p>{answer}</p>
+              </details>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className={styles.introSection} aria-labelledby="intro-title">
-        <p className={styles.sectionKicker}>A better feedback loop</p>
-        <h2 id="intro-title">
-          The useful details should arrive with the report, not three meetings later.
-        </h2>
-        <p>
-          Filika connects the moment an agent encounters friction to the place maintainers already
-          work. It keeps the report structured, scoped, and human-approved.
-        </p>
-      </section>
-
-      <section className={styles.principles} aria-label="Filika product principles">
-        {principles.map(({ icon: Icon, title, copy }) => (
-          <article key={title}>
-            <Icon aria-hidden="true" />
-            <h2>{title}</h2>
-            <p>{copy}</p>
-          </article>
-        ))}
-      </section>
-
-      <section className={styles.workflowSection} id="workflow" aria-labelledby="workflow-title">
-        <div className={styles.sectionHeading}>
-          <p className={styles.sectionKicker}>From friction to fix</p>
-          <h2 id="workflow-title">A feedback path designed for people and agents.</h2>
-          <p>
-            No black box. No ambient page collection. Just a clear sequence with the user in
-            control.
-          </p>
-        </div>
-
-        <div className={styles.workflowGrid}>
-          {workflow.map(({ step, label, title, copy, icon: Icon }) => (
-            <article key={step} className={styles.workflowCard}>
-              <div className={styles.workflowTopline}>
-                <span>{step}</span>
-                <Icon aria-hidden="true" />
-              </div>
-              <p className={styles.workflowLabel}>{label}</p>
-              <h3>{title}</h3>
-              <p>{copy}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.reportBoardSection} id="reports" aria-labelledby="reports-title">
-        <div className={styles.reportBoardHeading}>
-          <div>
-            <p className={styles.sectionKicker}>Evidence, not noise</p>
-            <h2 id="reports-title">See the signal. Ship the fix.</h2>
-          </div>
-          <p>
-            Filika turns the moment an agent gets stuck into a report that reads like a useful
-            handoff, not another vague support ticket.
-          </p>
-        </div>
-
-        <div className={styles.reportBoard}>
-          <div className={styles.signalColumn}>
-            <div className={styles.boardColumnHeader}>
-              <div>
-                <span>Agent signals</span>
-                <strong>What agents notice</strong>
-              </div>
-            </div>
-
-            <div className={styles.signalList}>
-              {agentSignals.map((signal) => (
-                <article className={styles.signalCard} key={signal.title}>
-                  <div className={styles.signalMeta}>
-                    <span>{signal.kind}</span>
-                    <span>{signal.scope}</span>
-                  </div>
-                  <h3>{signal.title}</h3>
-                  <p>{signal.copy}</p>
-                  <div className={styles.signalFooter}>
-                    <span className={styles.signalMarker}>{signal.marker}</span>
-                    <span>Structured at the point of friction</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.reportColumn}>
-            <div className={styles.boardColumnHeader}>
-              <div>
-                <span>Reviewed reports</span>
-                <strong>What maintainers receive</strong>
-              </div>
-            </div>
-
-            <div className={styles.reportList}>
-              {maintainerReports.map((report) => (
-                <article className={styles.reportCard} data-tone={report.tone} key={report.title}>
-                  <div className={styles.reportCardTopline}>
-                    <span>{report.status}</span>
-                  </div>
-                  <div className={styles.reportCardCopy}>
-                    <h3>{report.title}</h3>
-                    <p>{report.copy}</p>
-                  </div>
-                  <div className={styles.reportTags}>
-                    {report.tags.map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.safetySection} id="safety" aria-labelledby="safety-title">
-        <div className={styles.safetyCopy}>
-          <p className={styles.sectionKicker}>Human control is the protocol</p>
-          <h2 id="safety-title">Nothing is transmitted before the user confirms it.</h2>
-          <p>
-            Filika provides the feedback workflow, not the AI assistant. Agents draft through a
-            bounded WebMCP tool, users review the result, and maintainers receive only what was
-            approved.
-          </p>
-          <a href="https://github.com/Complaintr/filika" rel="noreferrer" target="_blank">
-            Explore the open-source protocol <ArrowRight aria-hidden="true" />
+        <section className={styles.finalCta}>
+          <h2>
+            Find code and behavioral bugs before your users do.{" "}
+            <span>100% Free &amp; Open Source.</span>
+          </h2>
+          <a className={styles.primaryButton} href="/login">
+            Get Started <ArrowRight aria-hidden="true" />
           </a>
-        </div>
-
-        <div className={styles.safetyChecklist}>
-          <div>
-            <span className={styles.safetyIndex}>01</span>
-            <div className={styles.safetyItemContent}>
-              <strong>Explicit review</strong>
-              <span>Users can edit or cancel every draft.</span>
-            </div>
-          </div>
-          <div>
-            <span className={styles.safetyIndex}>02</span>
-            <div className={styles.safetyItemContent}>
-              <strong>Bounded context</strong>
-              <span>Only relevant, structured fields enter the report.</span>
-            </div>
-          </div>
-          <div>
-            <span className={styles.safetyIndex}>03</span>
-            <div className={styles.safetyItemContent}>
-              <strong>Graceful fallback</strong>
-              <span>Manual feedback remains available without an agent.</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.ctaSection}>
-        <div>
-          <p className={styles.sectionKicker}>Build a shorter path to the fix</p>
-          <h2>Feedback should arrive ready to act on.</h2>
-        </div>
-        <a className={styles.ctaButton} href="/login">
-          Open Filika
-          <ArrowRight aria-hidden="true" />
-        </a>
-      </section>
-
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <FilikaBrand href="/" label="Filika home" className={styles.logo} />
-          <p>User-reviewed feedback infrastructure for AI agents.</p>
-          <div>
-            <a href="#product">Product</a>
-            <a href="#safety">Safety</a>
-            <a href="https://github.com/Complaintr/filika" rel="noreferrer" target="_blank">
-              GitHub
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.brandWatermark} aria-hidden="true">
-          <span>filika</span>
-        </div>
-      </footer>
-    </main>
+        </section>
+      </main>
+    </div>
   );
 }
