@@ -111,7 +111,7 @@ jobs:
 
   browser-tests:
     name: Browser tests (${{ matrix.shard }}/${{ strategy.job-total }})
-    needs: build
+    needs: install
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
