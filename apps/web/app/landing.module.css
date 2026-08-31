@@ -385,7 +385,7 @@
 }
 
 .heroCopy {
-  width: min(100%, 860px);
+  width: min(100%, 960px);
   margin: clamp(72px, 9vw, 96px) auto clamp(40px, 6vw, 62px);
   text-align: center;
 }
@@ -422,8 +422,8 @@
 }
 
 .heroCopy > p:not(.heroNote) {
-  max-width: 690px;
-  margin: 24px auto 0;
+  max-width: 620px;
+  margin: 20px auto 0;
   color: rgba(238, 255, 251, 0.82);
   font-size: clamp(15px, 1.7vw, 18px);
   line-height: 1.65;

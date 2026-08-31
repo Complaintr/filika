@@ -7,9 +7,7 @@ describe("public landing page", () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
 
     expect(page).toContain("Turn agent friction into feedback your team can ship.");
-    expect(page).toContain("AI agents report bugs, blockers, and product feedback");
-    expect(page).toContain("down to the relevant code");
-    expect(page).toContain("the user reviews every word");
+    expect(page).toContain("User-reviewed agent feedback, linked directly to code.");
     expect(page).toContain("Nothing is transmitted before the user confirms it.");
   });
 

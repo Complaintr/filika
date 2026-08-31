@@ -73,10 +73,7 @@ export default function HomePage() {
 
         <div className={styles.heroCopy}>
           <h1>Turn agent friction into feedback your team can ship.</h1>
-          <p>
-            AI agents report bugs, blockers, and product feedback down to the relevant code, after
-            the user reviews every word.
-          </p>
+          <p>User-reviewed agent feedback, linked directly to code.</p>
           <div className={styles.heroActions}>
             <a className={styles.primaryButton} href="/login">
               Open workspace
