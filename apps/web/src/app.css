@@ -1907,6 +1907,10 @@ html {
 .auth-google:hover {
   border-color: var(--auth-muted);
 }
+.auth-social {
+  display: grid;
+  gap: 10px;
+}
 .auth-google svg {
   width: 17px;
   height: 17px;

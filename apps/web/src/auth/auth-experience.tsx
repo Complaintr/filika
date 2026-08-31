@@ -226,24 +226,26 @@ function AuthForm({ mode }: { mode: Mode }) {
         <>
           {social && (
             <>
-              <button
-                className="auth-google"
-                type="button"
-                onClick={() => void google()}
-                disabled={pending}
-              >
-                <GoogleIcon />
-                Continue with Google
-              </button>
-              <button
-                className="auth-google"
-                type="button"
-                onClick={() => void github()}
-                disabled={pending}
-              >
-                <GithubIcon />
-                Continue with GitHub
-              </button>
+              <div className="auth-social">
+                <button
+                  className="auth-google"
+                  type="button"
+                  onClick={() => void google()}
+                  disabled={pending}
+                >
+                  <GoogleIcon />
+                  Continue with Google
+                </button>
+                <button
+                  className="auth-google"
+                  type="button"
+                  onClick={() => void github()}
+                  disabled={pending}
+                >
+                  <GithubIcon />
+                  Continue with GitHub
+                </button>
+              </div>
               <div className="auth-divider">
                 <span>or continue with email</span>
               </div>
