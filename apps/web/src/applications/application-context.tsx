@@ -7,11 +7,13 @@ import { type Application, applicationPath, fetchApplications } from "@/services
 
 interface ApplicationContextValue {
   application: Application | null;
+  returnApplication: Application | null;
   applications: Application[];
   refresh(): void;
 }
 const Context = createContext<ApplicationContextValue>({
   application: null,
+  returnApplication: null,
   applications: [],
   refresh: () => {},
 });
@@ -24,6 +26,7 @@ export function ApplicationProvider({ children }: { children: React.ReactNode })
   const [applications, setApplications] = useState<Application[] | null>(null);
   const [error, setError] = useState(false);
   const [version, setVersion] = useState(0);
+  const [lastSlug, setLastSlug] = useState<string | null>(null);
   // biome-ignore lint/correctness/useExhaustiveDependencies: version explicitly retries the request.
   useEffect(() => {
     const controller = new AbortController();
@@ -38,6 +41,12 @@ export function ApplicationProvider({ children }: { children: React.ReactNode })
     return () => controller.abort();
   }, [version]);
   const application = applications?.find((app) => app.slug === params.appSlug) ?? null;
+  const activeSlug = application?.slug;
+  useEffect(() => {
+    if (activeSlug) setLastSlug(activeSlug);
+  }, [activeSlug]);
+  const returnApplication =
+    application ?? applications?.find((app) => app.slug === lastSlug) ?? applications?.[0] ?? null;
   const legacy =
     ["/", "/dashboard", "/complaints", "/settings"].includes(pathname) ||
     pathname.startsWith("/complaints/");
@@ -86,7 +95,12 @@ export function ApplicationProvider({ children }: { children: React.ReactNode })
     );
   return (
     <Context.Provider
-      value={{ application, applications, refresh: () => setVersion((n) => n + 1) }}
+      value={{
+        application,
+        returnApplication,
+        applications,
+        refresh: () => setVersion((n) => n + 1),
+      }}
     >
       {children}
     </Context.Provider>

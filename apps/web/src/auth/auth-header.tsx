@@ -3,7 +3,7 @@
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FilikaBrand } from "@/components/filika-brand";
-import { readPreferences, savePreferences } from "@/workspace/preferences";
+import { applyPreferences, readPreferences, savePreferences } from "@/workspace/preferences";
 
 export function AuthHeader() {
   const [dark, setDark] = useState(false);
@@ -20,11 +20,10 @@ export function AuthHeader() {
 
   function toggleTheme() {
     const theme = dark ? "light" : "dark";
-    savePreferences({ ...readPreferences(), theme });
-    document.documentElement.dataset.theme = theme;
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", dark ? "#f7f8fa" : "#0e0e10");
+    const preferences: ReturnType<typeof readPreferences> = { ...readPreferences(), theme };
+    savePreferences(preferences);
+    applyPreferences(preferences);
+    window.dispatchEvent(new Event("filika:preferences"));
     setDark(!dark);
   }
 

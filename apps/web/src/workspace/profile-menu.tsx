@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { type AccountProfile, fetchAccount, saveAccount } from "@/services/applications-api";
 import { signOut } from "@/services/session";
-import { readPreferences, savePreferences } from "./preferences";
+import { applyPreferences, readPreferences, savePreferences } from "./preferences";
 
 export interface ProfileMenuProps {
   applicationSlug?: string | undefined;
@@ -13,51 +13,11 @@ export interface ProfileMenuProps {
 
 type ProfileTheme = "light" | "dark" | "system";
 
-const PREFERENCES_KEY = "filika-workspace-v1";
-
-function readProfileTheme(): ProfileTheme {
-  if (typeof window === "undefined") return "light";
-  try {
-    const value: unknown = JSON.parse(window.localStorage.getItem(PREFERENCES_KEY) ?? "null");
-    if (typeof value === "object" && value !== null && "theme" in value) {
-      const storedTheme = (value as { theme?: unknown }).theme;
-      if (storedTheme === "dark" || storedTheme === "system") return storedTheme;
-      return "light";
-    }
-  } catch {
-    return "light";
-  }
-  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
-}
-
-function resolvedProfileTheme(theme: ProfileTheme): "light" | "dark" {
-  if (theme !== "system") return theme;
-  return typeof window.matchMedia === "function" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-}
-
-function applyProfileTheme(theme: ProfileTheme): void {
-  const resolvedTheme = resolvedProfileTheme(theme);
-  document.documentElement.dataset.theme = resolvedTheme;
-  document
-    .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-    ?.setAttribute("content", resolvedTheme === "dark" ? "#0e0e10" : "#f7f8fa");
-}
-
 function saveProfileTheme(theme: ProfileTheme): void {
-  applyProfileTheme(theme);
-
-  try {
-    const value: unknown = JSON.parse(window.localStorage.getItem(PREFERENCES_KEY) ?? "null");
-    const current = typeof value === "object" && value !== null ? value : {};
-    window.localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ ...current, theme }));
-  } catch {
-    // The visible theme can still change when browser storage is unavailable.
-  }
-
-  window.dispatchEvent(new CustomEvent("filika:preferences"));
+  const preferences = { ...readPreferences(), theme };
+  savePreferences(preferences);
+  applyPreferences(preferences);
+  window.dispatchEvent(new Event("filika:preferences"));
 }
 
 export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
@@ -65,6 +25,10 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
   const [theme, setTheme] = useState<ProfileTheme>("light");
   const [session, setSession] = useState<AccountProfile | null>(null);
   const [imageFailed, setImageFailed] = useState(false);
+  const [themeError, setThemeError] = useState("");
+  const [themeSaving, setThemeSaving] = useState(false);
+  const themeRequest = useRef<AbortController | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -88,15 +52,16 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
     window.addEventListener("filika:account", load);
     return () => {
       controller.abort();
+      themeRequest.current?.abort();
       window.removeEventListener("filika:account", load);
     };
   }, []);
 
   useEffect(() => {
     const syncTheme = () => {
-      const nextTheme = readProfileTheme();
+      const nextTheme = readPreferences().theme;
       setTheme(nextTheme);
-      applyProfileTheme(nextTheme);
+      applyPreferences({ ...readPreferences(), theme: nextTheme });
     };
     const systemTheme =
       typeof window.matchMedia === "function"
@@ -115,6 +80,9 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
 
   useEffect(() => {
     if (!open) return;
+    menuRef.current
+      ?.querySelector<HTMLElement>('[role="menuitemradio"][aria-checked="true"]')
+      ?.focus();
 
     function closeOnOutsidePointer(event: PointerEvent): void {
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
@@ -139,13 +107,31 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
   const avatarImage = session?.image;
   const initial = displayName.trim().slice(0, 1).toUpperCase() || "F";
 
-  function selectTheme(nextTheme: ProfileTheme): void {
+  async function selectTheme(nextTheme: ProfileTheme): Promise<void> {
+    if (themeSaving || themeRequest.current) return;
+    const previous = theme;
     setTheme(nextTheme);
+    setThemeError("");
     saveProfileTheme(nextTheme);
-    if (session) {
-      void saveAccount({ theme: nextTheme }, new AbortController().signal)
-        .then(setSession)
-        .catch(() => {});
+    if (!session) return;
+    const request = new AbortController();
+    themeRequest.current = request;
+    setThemeSaving(true);
+    try {
+      const value = await saveAccount({ theme: nextTheme }, request.signal);
+      if (!request.signal.aborted) {
+        setSession(value);
+        window.dispatchEvent(new Event("filika:account"));
+      }
+    } catch {
+      if (!request.signal.aborted) {
+        setTheme(previous);
+        saveProfileTheme(previous);
+        setThemeError("Theme could not be saved. Try again.");
+      }
+    } finally {
+      themeRequest.current = null;
+      if (!request.signal.aborted) setThemeSaving(false);
     }
   }
 
@@ -173,11 +159,38 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
             onError={() => setImageFailed(true)}
           />
         ) : (
-          <CircleUserRound aria-hidden="true" />
+          <span aria-hidden="true">{initial}</span>
         )}
       </button>
       {open ? (
-        <div className="profile-menu" id={menuId} role="menu" aria-label="Profile">
+        <div
+          className="profile-menu"
+          id={menuId}
+          role="menu"
+          aria-label="Profile"
+          ref={menuRef}
+          onBlur={(event) => {
+            if (!rootRef.current?.contains(event.relatedTarget)) setOpen(false);
+          }}
+          onKeyDown={(event) => {
+            if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+            const items = Array.from(
+              event.currentTarget.querySelectorAll<HTMLElement>(
+                '[role="menuitem"], [role="menuitemradio"]',
+              ),
+            ).filter((item) => !item.matches(":disabled"));
+            if (!items.length) return;
+            event.preventDefault();
+            const index = items.indexOf(document.activeElement as HTMLElement);
+            const next =
+              event.key === "Home"
+                ? 0
+                : event.key === "End"
+                  ? items.length - 1
+                  : (index + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+            items[next]?.focus();
+          }}
+        >
           <div className="profile-menu-summary">
             <span className="profile-menu-avatar" aria-hidden="true">
               {showAvatarImage ? (
@@ -205,7 +218,8 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
               role="menuitemradio"
               aria-label="Light theme"
               aria-checked={theme === "light"}
-              onClick={() => selectTheme("light")}
+              aria-disabled={themeSaving}
+              onClick={() => void selectTheme("light")}
             >
               <Sun aria-hidden="true" />
               <span className="sr-only">Light</span>
@@ -215,7 +229,8 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
               role="menuitemradio"
               aria-label="Dark theme"
               aria-checked={theme === "dark"}
-              onClick={() => selectTheme("dark")}
+              aria-disabled={themeSaving}
+              onClick={() => void selectTheme("dark")}
             >
               <Moon aria-hidden="true" />
               <span className="sr-only">Dark</span>
@@ -225,18 +240,31 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
               role="menuitemradio"
               aria-label="System theme"
               aria-checked={theme === "system"}
-              onClick={() => selectTheme("system")}
+              aria-disabled={themeSaving}
+              onClick={() => void selectTheme("system")}
             >
               <Monitor aria-hidden="true" />
               <span className="sr-only">System</span>
             </button>
           </fieldset>
+          {themeError && (
+            <p className="profile-menu-error" role="alert">
+              {themeError}
+            </p>
+          )}
           <div className="profile-menu-links">
             <Link role="menuitem" href="/account" onClick={() => setOpen(false)}>
               <CircleUserRound aria-hidden="true" />
               <span>Manage profile</span>
             </Link>
-            <Link role="menuitem" href="/account#profile-photo" onClick={() => setOpen(false)}>
+            <Link
+              role="menuitem"
+              href="/account#profile-photo"
+              onClick={() => {
+                setOpen(false);
+                window.dispatchEvent(new Event("filika:profile-photo"));
+              }}
+            >
               <Camera aria-hidden="true" />
               <span>Profile photo</span>
             </Link>
