@@ -7,6 +7,8 @@ export type ThemeChoice = "light" | "dark" | "system";
 
 const PREFERENCES_KEY = "filika-workspace-v1";
 
+const CYCLE_ORDER: readonly ThemeChoice[] = ["light", "dark", "system"];
+
 export function readTheme(): ThemeChoice {
   if (typeof window === "undefined") return "light";
   try {
@@ -56,6 +58,7 @@ export interface ThemeSwitcherProps {
   className?: string | undefined;
 }
 
+/** Single toggle button that cycles light → dark → system on each click. */
 export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
   const [theme, setTheme] = useState<ThemeChoice>("light");
 
@@ -82,44 +85,27 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
     };
   }, []);
 
-  function selectTheme(nextTheme: ThemeChoice): void {
-    setTheme(nextTheme);
-    saveTheme(nextTheme);
+  function cycleTheme(): void {
+    const currentIndex = CYCLE_ORDER.indexOf(theme);
+    const next = CYCLE_ORDER[(currentIndex + 1) % CYCLE_ORDER.length];
+    setTheme(next);
+    saveTheme(next);
   }
 
+  const label =
+    theme === "light" ? "Light theme" : theme === "dark" ? "Dark theme" : "System theme";
+
   return (
-    <fieldset className={className} aria-label="Appearance">
-      <legend className="sr-only">Appearance</legend>
-      <button
-        type="button"
-        role="menuitemradio"
-        aria-label="Light theme"
-        aria-checked={theme === "light"}
-        onClick={() => selectTheme("light")}
-      >
-        <Sun aria-hidden="true" />
-        <span className="sr-only">Light</span>
-      </button>
-      <button
-        type="button"
-        role="menuitemradio"
-        aria-label="Dark theme"
-        aria-checked={theme === "dark"}
-        onClick={() => selectTheme("dark")}
-      >
-        <Moon aria-hidden="true" />
-        <span className="sr-only">Dark</span>
-      </button>
-      <button
-        type="button"
-        role="menuitemradio"
-        aria-label="System theme"
-        aria-checked={theme === "system"}
-        onClick={() => selectTheme("system")}
-      >
-        <Monitor aria-hidden="true" />
-        <span className="sr-only">System</span>
-      </button>
-    </fieldset>
+    <button
+      type="button"
+      className={className}
+      aria-label={label}
+      data-theme-choice={theme}
+      onClick={cycleTheme}
+    >
+      {theme === "light" && <Sun aria-hidden="true" />}
+      {theme === "dark" && <Moon aria-hidden="true" />}
+      {theme === "system" && <Monitor aria-hidden="true" />}
+    </button>
   );
 }

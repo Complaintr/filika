@@ -17,7 +17,7 @@ describe("landing header component", () => {
     expect(nav?.textContent).toContain("How it works");
     expect(nav?.textContent).not.toContain("Docs");
 
-    const switcher = result.container.querySelector('fieldset[aria-label="Appearance"]');
+    const switcher = result.container.querySelector('button[aria-label="Light theme"]');
     expect(switcher).not.toBeNull();
 
     const getStartedBtn = result.container.querySelector('a[href="/login"]');
@@ -43,6 +43,22 @@ describe("landing header component", () => {
     await new Promise((resolve) => setTimeout(resolve, 20));
 
     expect(wrapper.className).toContain("headerWrapperScrolled");
+
+    await result.close();
+  });
+
+  test("mobile menu button toggles the drawer with navigation links", async () => {
+    const result = await renderReact(createElement(LandingHeader));
+
+    const menuBtn = result.container.querySelector('button[aria-label="Open menu"]');
+    expect(menuBtn).not.toBeNull();
+    expect(menuBtn?.getAttribute("aria-expanded")).toBe("false");
+
+    const mobileNav = result.container.querySelector('nav[aria-label="Mobile navigation"]');
+    expect(mobileNav).not.toBeNull();
+    expect(mobileNav?.textContent).toContain("Features");
+    expect(mobileNav?.textContent).toContain("How it works");
+    expect(mobileNav?.textContent).toContain("GitHub");
 
     await result.close();
   });
