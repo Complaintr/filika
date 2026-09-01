@@ -24,7 +24,6 @@ describe("landing header component", () => {
     expect(getStartedBtn).not.toBeNull();
     expect(getStartedBtn?.textContent).toContain("Get Started");
     expect(getStartedBtn?.className).not.toContain("headerGetStartedVisible");
-    expect(getStartedBtn?.getAttribute("aria-hidden")).toBe("true");
     expect(getStartedBtn?.getAttribute("tabindex")).toBe("-1");
 
     await result.close();
@@ -42,7 +41,6 @@ describe("landing header component", () => {
 
     const getStartedBtn = result.container.querySelector('a[href="/login"]');
     expect(getStartedBtn?.className).toContain("headerGetStartedVisible");
-    expect(getStartedBtn?.getAttribute("aria-hidden")).toBe("false");
     expect(getStartedBtn?.hasAttribute("tabindex")).toBe(false);
 
     await result.close();

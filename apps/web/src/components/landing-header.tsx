@@ -93,12 +93,9 @@ export function LandingHeader() {
             className={`${styles.primaryButton ?? "primaryButton"} ${
               styles.headerGetStarted ?? "headerGetStarted"
             } ${
-              showGetStarted
-                ? (styles.headerGetStartedVisible ?? "headerGetStartedVisible")
-                : ""
+              showGetStarted ? (styles.headerGetStartedVisible ?? "headerGetStartedVisible") : ""
             }`}
             href="/login"
-            aria-hidden={!showGetStarted}
             tabIndex={showGetStarted ? undefined : -1}
           >
             Get Started <ArrowRight aria-hidden="true" />
