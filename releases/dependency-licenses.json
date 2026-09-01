@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
-  "auditedOn": "2026-08-29",
-  "lockfileSha256": "7d4f63e7051fdcb42cb73c6b0179516377c6ed84952497330aa38de22868eb9c",
+  "auditedOn": "2026-09-01",
+  "lockfileSha256": "c51bf5d9666613c0145bbc3847b04faee0f741f9af7b5f23ea7ccc13dd46d429",
   "method": "Exact-version npm registry license declarations; all distribution integrity values match bun.lock. This inventory does not replace package license and notice texts.",
   "packages": [
     {
@@ -2127,6 +2127,15 @@
       "platformOptional": false,
       "registryMetadata": "https://registry.npmjs.org/micromatch/4.0.8",
       "integrity": "sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA=="
+    },
+    {
+      "name": "motion",
+      "version": "13.1.1",
+      "license": "MIT",
+      "scope": "runtime",
+      "platformOptional": false,
+      "registryMetadata": "https://registry.npmjs.org/motion/13.1.1",
+      "integrity": "sha512-WNZoK6xiF+kkTqkZ5K7FDDh6A8BG4i5Hc7KXtW8gtTxkpJFds+hIOrDaQGKjQj/AE/i4hJqAaUHEqp/Qo02y6Q=="
     },
     {
       "name": "motion-dom",
