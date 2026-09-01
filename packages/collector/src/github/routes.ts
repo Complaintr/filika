@@ -22,7 +22,14 @@ import {
   newState,
   validWebhook,
 } from "./config";
-import { githubId, issueApproval, issueDraft, issueMarker, repositorySelection } from "./contracts";
+import {
+  githubId,
+  githubIssueModeInputSchema,
+  issueApproval,
+  issueDraft,
+  issueMarker,
+  repositorySelection,
+} from "./contracts";
 
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -141,6 +148,7 @@ export class GitHubRoutes {
           return {
             configured: Boolean(this.config),
             authorized: false,
+            issueMode: connection.issueMode,
             installUrl: this.installUrl(),
             connection: connectionView(connection),
           };
@@ -150,6 +158,7 @@ export class GitHubRoutes {
     return {
       configured: Boolean(this.config),
       authorized,
+      issueMode: connection?.issueMode ?? "manual",
       installUrl: this.installUrl(),
       connection: connection ? connectionView(connection) : null,
     };
@@ -286,10 +295,48 @@ export class GitHubRoutes {
             fullName: repo.fullName,
             isPrivate: repo.isPrivate,
             active: true,
+            issueMode: "manual",
+            automaticApprovedBy: null,
             version: crypto.randomUUID(),
           },
         });
     });
+    return json(await this.status(app, userId));
+  }
+
+  private async setMode(app: Project, userId: string, input: unknown) {
+    const { mode } = githubIssueModeInputSchema.parse(input);
+    const connection = await this.connection(app);
+    if (!connection) return fail("connection_changed", 409);
+    if (mode === "automatic") {
+      if (!connection.active) return fail("connection_changed", 409);
+      const { client } = this.configured();
+      const repo = await client.accessibleRepository(
+        await this.userToken(app, userId),
+        connection.repositoryId,
+      );
+      if (repo.fullName !== connection.fullName || repo.isPrivate !== connection.isPrivate)
+        return fail("connection_changed", 409);
+      await client.installationToken(connection.installationId, connection.repositoryId);
+    }
+    const updated = await this.db.transaction(async (tx) => {
+      await tx.select({ id: project.id }).from(project).where(eq(project.id, app.id)).for("update");
+      const [current] = await tx
+        .select()
+        .from(githubConnection)
+        .where(eq(githubConnection.projectId, app.id));
+      if (!current || (mode === "automatic" && !current.active)) return null;
+      const [row] = await tx
+        .update(githubConnection)
+        .set({
+          issueMode: mode,
+          automaticApprovedBy: mode === "automatic" ? userId : null,
+        })
+        .where(eq(githubConnection.projectId, app.id))
+        .returning();
+      return row ?? null;
+    });
+    if (!updated) return fail("connection_changed", 409);
     return json(await this.status(app, userId));
   }
 
@@ -481,7 +528,12 @@ export class GitHubRoutes {
     if (event === "installation" && ["deleted", "suspend"].includes(data.action)) {
       await this.db
         .update(githubConnection)
-        .set({ active: false, version: crypto.randomUUID() })
+        .set({
+          active: false,
+          issueMode: "manual",
+          automaticApprovedBy: null,
+          version: crypto.randomUUID(),
+        })
         .where(eq(githubConnection.installationId, String(data.installation.id)));
     } else if (
       event === "installation_repositories" &&
@@ -490,7 +542,12 @@ export class GitHubRoutes {
     ) {
       await this.db
         .update(githubConnection)
-        .set({ active: false, version: crypto.randomUUID() })
+        .set({
+          active: false,
+          issueMode: "manual",
+          automaticApprovedBy: null,
+          version: crypto.randomUUID(),
+        })
         .where(
           and(
             eq(githubConnection.installationId, String(data.installation.id)),
@@ -514,7 +571,7 @@ export class GitHubRoutes {
       if (url.pathname === "/api/v1/github/callback" && request.method === "GET")
         return await this.callback(request, userId);
       const match =
-        /^\/api\/v1\/apps\/([^/]+)\/github(?:\/(connect|disconnect|repositories|installations|connection|issues)(?:\/([^/]+)(?:\/(reconcile))?)?)?$/.exec(
+        /^\/api\/v1\/apps\/([^/]+)\/github(?:\/(connect|disconnect|repositories|installations|connection|mode|issues)(?:\/([^/]+)(?:\/(reconcile))?)?)?$/.exec(
           url.pathname,
         );
       if (!match?.[1]) return fail("not_found", 404);
@@ -550,6 +607,8 @@ export class GitHubRoutes {
       }
       if (method === "POST" && match[2] === "connection" && !match[3])
         return await this.bind(app, userId, input);
+      if (method === "POST" && match[2] === "mode" && !match[3])
+        return await this.setMode(app, userId, input);
       if (
         method === "GET" &&
         ["installations", "repositories"].includes(match[2] ?? "") &&

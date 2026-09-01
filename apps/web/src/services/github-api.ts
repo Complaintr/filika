@@ -1,6 +1,7 @@
 import {
   authorizationUrlSchema,
   disconnectResultSchema,
+  type GitHubIssueMode,
   githubStatusSchema,
   type IssueApproval,
   installationsSchema,
@@ -84,6 +85,8 @@ export function githubApi(slug: string) {
       ),
     bind: (installationId: string, repositoryId: string, signal: AbortSignal) =>
       request(`${base}/connection`, githubStatusSchema, signal, { installationId, repositoryId }),
+    mode: (mode: GitHubIssueMode, signal: AbortSignal) =>
+      request(`${base}/mode`, githubStatusSchema, signal, { mode }),
     preview: (id: string, signal: AbortSignal) => request(issue(id), issuePreviewSchema, signal),
     create: (id: string, approval: IssueApproval, signal: AbortSignal) =>
       request(issue(id), issueResultSchema, signal, approval),
