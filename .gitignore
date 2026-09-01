@@ -5,6 +5,7 @@ dist/
 .next-e2e/
 apps/web/public/*
 !apps/web/public/filika-logo.svg
+!apps/web/public/cta-bg.jpg
 apps/web/src/filika.js
 coverage/
 test-results/
