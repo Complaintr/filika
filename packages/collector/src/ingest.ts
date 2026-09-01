@@ -1,6 +1,7 @@
 import { readBoundedBody } from "./body";
 import { allowOriginHeaders, isAllowedOrigin } from "./cors";
 import type { Db } from "./db/client";
+import type { Feedback, Project } from "./db/schema";
 import { buildAcceptedReceipt, buildDuplicateReceipt } from "./duplicate";
 import { rejectionResponse } from "./errors";
 import { checkIdempotency } from "./idempotency";
@@ -32,10 +33,15 @@ async function dbAttempt<T>(operation: () => Promise<T>): Promise<T | undefined>
   }
 }
 
+export interface IngestFeedbackOptions {
+  onCreated?(app: Project, feedback: Feedback): Promise<void> | void;
+}
+
 export async function ingestFeedback(
   db: Db,
   request: Request,
   logger: Logger = consoleLogger,
+  options: IngestFeedbackOptions = {},
 ): Promise<Response> {
   const originCheck = checkOrigin(request);
   const allowedOrigins =
@@ -46,7 +52,7 @@ export async function ingestFeedback(
     originCheck.status === "accepted" && isAllowedOrigin(originCheck.origin, allowedOrigins)
       ? allowOriginHeaders(request, allowedOrigins)
       : new Headers();
-  const response = await processIngest(db, request, originCheck, logger);
+  const response = await processIngest(db, request, originCheck, logger, options);
 
   for (const [name, value] of corsHeaders) {
     response.headers.set(name, value);
@@ -60,6 +66,7 @@ async function processIngest(
   request: Request,
   originCheck: OriginCheck,
   logger: Logger,
+  options: IngestFeedbackOptions,
 ): Promise<Response> {
   if (originCheck.status === "rejected") {
     return reject(logger, "denied_origin");
@@ -156,6 +163,11 @@ async function processIngest(
       source: "web_sdk_unverified",
       type: "ingest_accepted",
     });
+    try {
+      await options.onCreated?.(resolvedProject, stored);
+    } catch {
+      // Optional downstream integrations cannot change an accepted feedback receipt.
+    }
   }
 
   const receipt =

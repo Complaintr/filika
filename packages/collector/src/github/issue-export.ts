@@ -1,9 +1,16 @@
 import { and, eq } from "drizzle-orm";
 import { hasFeedbackExpired } from "../cleanup";
 import type { Db } from "../db/client";
-import { feedback, githubConnection, githubIssue, type Project, project } from "../db/schema";
+import {
+  type Feedback,
+  feedback,
+  githubConnection,
+  githubIssue,
+  type Project,
+  project,
+} from "../db/schema";
 import { type GitHubClient, GitHubError } from "./client";
-import { issueMarker } from "./contracts";
+import { issueDraft, issueMarker } from "./contracts";
 
 export type GitHubIssueRow = typeof githubIssue.$inferSelect;
 export type GitHubIssueTrigger = GitHubIssueRow["trigger"];
@@ -17,7 +24,7 @@ export async function reserveGitHubIssue(
   input: {
     app: Project;
     feedbackId: string;
-    approvedBy: string;
+    approvedBy?: string;
     trigger: GitHubIssueTrigger;
     connectionVersion?: string;
   },
@@ -34,9 +41,13 @@ export async function reserveGitHubIssue(
       .where(eq(githubConnection.projectId, input.app.id));
     if (
       !connection?.active ||
-      (input.connectionVersion !== undefined && connection.version !== input.connectionVersion)
+      (input.connectionVersion !== undefined && connection.version !== input.connectionVersion) ||
+      (input.trigger === "automatic" && connection.issueMode !== "automatic")
     )
       return fail("connection_changed", 409);
+    const approvedBy =
+      input.trigger === "automatic" ? connection.automaticApprovedBy : input.approvedBy;
+    if (!approvedBy) return fail("connection_changed", 409);
     const [report] = await tx
       .select()
       .from(feedback)
@@ -55,7 +66,7 @@ export async function reserveGitHubIssue(
     const values = {
       feedbackId: input.feedbackId,
       projectId: input.app.id,
-      approvedBy: input.approvedBy,
+      approvedBy,
       installationId: connection.installationId,
       repositoryId: connection.repositoryId,
       fullName: connection.fullName,
@@ -73,6 +84,41 @@ export async function reserveGitHubIssue(
     if (!row) return fail("internal_error", 500);
     return { row, send: true };
   });
+}
+
+function neutralizeGitHubMentions(value: string): string {
+  return value.replaceAll("@", "@\u200b");
+}
+
+export async function prepareAutomaticGitHubIssue(
+  db: Db,
+  app: Project,
+  report: Feedback,
+): Promise<{ row: GitHubIssueRow; draft: { title: string; body: string } } | null> {
+  const [connection] = await db
+    .select()
+    .from(githubConnection)
+    .where(eq(githubConnection.projectId, app.id));
+  if (
+    !connection?.active ||
+    connection.issueMode !== "automatic" ||
+    !connection.automaticApprovedBy
+  )
+    return null;
+  const reserved = await reserveGitHubIssue(db, {
+    app,
+    feedbackId: report.id,
+    trigger: "automatic",
+  });
+  if (!reserved.send) return null;
+  const draft = issueDraft(report);
+  return {
+    row: reserved.row,
+    draft: {
+      title: neutralizeGitHubMentions(draft.title),
+      body: neutralizeGitHubMentions(draft.body),
+    },
+  };
 }
 
 export async function sendReservedGitHubIssue(

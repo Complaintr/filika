@@ -36,6 +36,7 @@ export function startCollectorServer(
   const fetchHandler = createFetchHandler(handle.db, {
     betterAuth: options.enableAuth === false ? undefined : betterAuth,
     github: options.github,
+    runInBackground: (task) => void task().catch(() => {}),
   });
 
   return Bun.serve({
