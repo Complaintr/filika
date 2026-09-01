@@ -16,6 +16,7 @@ import {
 import { GitHubClient, GitHubError } from "../src/github/client";
 import { encryptToken, type GitHubConfig, hashState } from "../src/github/config";
 import { GitHubRoutes } from "../src/github/routes";
+import { createFetchHandler } from "../src/handler";
 
 const config: GitHubConfig = {
   appId: "1",
@@ -34,6 +35,7 @@ class FakeGitHub extends GitHubClient {
   writable = true;
   isPrivate = true;
   marker = "";
+  title = "";
   override async exchangeCode() {
     this.exchanges++;
     return { token: "token", expiresAt: new Date(Date.now() + 600000), userId: "42" };
@@ -45,8 +47,9 @@ class FakeGitHub extends GitHubClient {
   override async installationToken() {
     return "installation-token";
   }
-  override async createIssue(_token: string, _repo: string, _title: string, body: string) {
+  override async createIssue(_token: string, _repo: string, title: string, body: string) {
     this.posts++;
+    this.title = title;
     this.marker = body;
     if (this.mode === "timeout") throw new Error("network timeout");
     if (this.mode === "denied") throw new GitHubError("github_denied_or_limited", 502, true);
@@ -90,7 +93,7 @@ export function registerGitHubIntegrationTests(getDb: () => Db, available: boole
       slug,
       displayName: "GitHub test",
       projectKey: projectId,
-      allowedOrigins: [],
+      allowedOrigins: [config.baseUrl],
     });
     await db.insert(feedback).values({
       id: reportId,
@@ -162,6 +165,160 @@ export function registerGitHubIntegrationTests(getDb: () => Db, available: boole
   }
 
   describe.skipIf(!available)("GitHub integration with PostgreSQL", () => {
+    test("mode defaults to manual and automatic feedback creates one durable issue", async () =>
+      fixture(async (f) => {
+        expect((await (await f.call("")).json()).issueMode).toBe("manual");
+        expect((await f.call("/mode", { mode: "automatic" }, "other-owner")).status).toBe(404);
+        f.client.writable = false;
+        expect((await f.call("/mode", { mode: "automatic" })).status).toBe(409);
+        f.client.writable = true;
+        expect((await (await f.call("/mode", { mode: "automatic" })).json()).issueMode).toBe(
+          "automatic",
+        );
+        const [connection] = await f.db
+          .select()
+          .from(githubConnection)
+          .where(eq(githubConnection.projectId, f.projectId));
+        expect(connection?.automaticApprovedBy).toBe(f.userId);
+
+        const tasks: Array<() => Promise<void>> = [];
+        const handler = createFetchHandler(f.db, {
+          github: config,
+          githubClient: f.client,
+          runInBackground: (task) => tasks.push(task),
+        });
+        const eventId = crypto.randomUUID();
+        const request = () =>
+          new Request(`${config.baseUrl}/api/v1/feedback`, {
+            method: "POST",
+            headers: {
+              Origin: config.baseUrl,
+              "Content-Type": "application/json",
+              "Idempotency-Key": eventId,
+            },
+            body: JSON.stringify({
+              schemaVersion: 1,
+              projectKey: f.projectId,
+              eventId,
+              feedback: {
+                kind: "bug",
+                title: "Notify @team",
+                description: "The save failed for @owner.",
+              },
+              context: { sdkVersion: "1.0.0" },
+            }),
+          });
+        const responses = await Promise.all([handler(request()), handler(request())]);
+        expect(responses.map((response) => response.status).sort()).toEqual([200, 201]);
+        expect(tasks).toHaveLength(1);
+        const [pending] = await f.db
+          .select()
+          .from(githubIssue)
+          .where(eq(githubIssue.projectId, f.projectId));
+        expect(pending?.trigger).toBe("automatic");
+        expect(pending?.approvedBy).toBe(f.userId);
+        expect(pending?.status).toBe("pending");
+        expect(f.client.posts).toBe(0);
+        await tasks[0]?.();
+        const [created] = await f.db
+          .select()
+          .from(githubIssue)
+          .where(eq(githubIssue.projectId, f.projectId));
+        expect(created?.status).toBe("created");
+        expect(f.client.title).toContain("@\u200bteam");
+        expect(f.client.marker).toContain("@\u200bowner");
+        expect(f.client.posts).toBe(1);
+        expect((await handler(request())).status).toBe(200);
+        expect(tasks).toHaveLength(1);
+        expect(f.client.posts).toBe(1);
+      }));
+
+    test("switching back to manual and repository revocation stop future automatic exports", async () =>
+      fixture(async (f) => {
+        await f.call("/mode", { mode: "automatic" });
+        expect((await (await f.call("/mode", { mode: "manual" })).json()).issueMode).toBe("manual");
+        let [connection] = await f.db
+          .select()
+          .from(githubConnection)
+          .where(eq(githubConnection.projectId, f.projectId));
+        expect(connection?.automaticApprovedBy).toBeNull();
+
+        await f.call("/mode", { mode: "automatic" });
+        const body = JSON.stringify({ action: "deleted", installation: { id: 2 } });
+        const signature = `sha256=${createHmac("sha256", config.webhookSecret).update(body).digest("hex")}`;
+        await f.routes.handle(
+          new Request(`${config.baseUrl}/api/v1/github/webhook`, {
+            method: "POST",
+            body,
+            headers: {
+              "x-hub-signature-256": signature,
+              "x-github-event": "installation",
+            },
+          }),
+          null,
+        );
+        [connection] = await f.db
+          .select()
+          .from(githubConnection)
+          .where(eq(githubConnection.projectId, f.projectId));
+        expect(connection?.active).toBe(false);
+        expect(connection?.issueMode).toBe("manual");
+        expect(connection?.automaticApprovedBy).toBeNull();
+      }));
+
+    test("a definite automatic rejection can be reviewed and retried manually", async () =>
+      fixture(async (f) => {
+        await f.call("/mode", { mode: "automatic" });
+        f.client.mode = "denied";
+        const tasks: Array<() => Promise<void>> = [];
+        const handler = createFetchHandler(f.db, {
+          github: config,
+          githubClient: f.client,
+          runInBackground: (task) => tasks.push(task),
+        });
+        const eventId = crypto.randomUUID();
+        const accepted = await handler(
+          new Request(`${config.baseUrl}/api/v1/feedback`, {
+            method: "POST",
+            headers: {
+              Origin: config.baseUrl,
+              "Content-Type": "application/json",
+              "Idempotency-Key": eventId,
+            },
+            body: JSON.stringify({
+              schemaVersion: 1,
+              projectKey: f.projectId,
+              eventId,
+              feedback: {
+                kind: "bug",
+                title: "Automatic export failure",
+                description: "The observed save failed.",
+              },
+              context: { sdkVersion: "1.0.0" },
+            }),
+          }),
+        );
+        const receipt: { feedbackId: string } = await accepted.json();
+        expect(tasks).toHaveLength(1);
+        await tasks[0]?.();
+        let [row] = await f.db
+          .select()
+          .from(githubIssue)
+          .where(eq(githubIssue.feedbackId, receipt.feedbackId));
+        expect(row?.status).toBe("failed");
+        expect(row?.trigger).toBe("automatic");
+
+        f.client.mode = "success";
+        const retried = await f.call(`/issues/${receipt.feedbackId}`, f.approval);
+        expect((await retried.json()).issue.status).toBe("created");
+        [row] = await f.db
+          .select()
+          .from(githubIssue)
+          .where(eq(githubIssue.feedbackId, receipt.feedbackId));
+        expect(row?.trigger).toBe("manual");
+        expect(f.client.posts).toBe(2);
+      }));
+
     test("integration rate limits do not consume the feedback ingestion budget", async () =>
       fixture(async (f) => {
         for (let i = 0; i < 30; i++) expect((await f.call("")).status).toBe(200);

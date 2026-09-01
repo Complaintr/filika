@@ -16,6 +16,7 @@ import { collectAllowedOrigins } from "./project";
 export interface CollectorRouteOptions {
   betterAuth?: BetterAuth | undefined;
   github?: GitHubConfig | undefined;
+  githubClient?: GitHubClient | undefined;
   runInBackground?(task: () => Promise<void>): void;
 }
 
@@ -27,8 +28,10 @@ export function createFetchHandler(
   db: Db,
   options?: CollectorRouteOptions,
 ): (request: Request) => Promise<Response> {
-  const github = new GitHubRoutes(db, options?.github);
-  const automaticClient = options?.github ? new GitHubClient(options.github) : null;
+  const automaticClient = options?.github
+    ? (options.githubClient ?? new GitHubClient(options.github))
+    : null;
+  const github = new GitHubRoutes(db, options?.github, automaticClient ?? undefined);
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
 

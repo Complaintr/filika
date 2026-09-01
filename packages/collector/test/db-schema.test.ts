@@ -6,6 +6,8 @@ import {
   FEEDBACK_UNIQUE_CONSTRAINT,
   feedback,
   feedbackKind,
+  githubConnection,
+  githubIssue,
   PROJECT_TABLE_NAME,
   project,
   RATE_LIMIT_TABLE_NAME,
@@ -67,6 +69,13 @@ describe("drizzle tables", () => {
       ["id", "projectId", "windowKey", "count", "expiresAt"].sort(),
     );
     expect(RATE_LIMIT_TABLE_NAME).toBe("rate_limit");
+  });
+
+  test("persists GitHub issue mode and trigger audit fields", () => {
+    const connectionColumns = Object.keys(getTableColumns(githubConnection));
+    expect(connectionColumns).toContain("issueMode");
+    expect(connectionColumns).toContain("automaticApprovedBy");
+    expect(Object.keys(getTableColumns(githubIssue))).toContain("trigger");
   });
 
   test("pins the unique feedback constraint on project and event", () => {
