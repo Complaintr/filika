@@ -94,13 +94,9 @@ jobs:
         run: bun run build
 
   browser-tests:
-    name: Browser tests (${{ matrix.shard }}/${{ strategy.job-total }})
+    name: Browser tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    strategy:
-      fail-fast: true
-      matrix:
-        shard: [1, 2, 3]
     env:
       E2E_DATABASE_URL: postgres://postgres@localhost:5432/filika_e2e
     services:
@@ -138,8 +134,8 @@ jobs:
         run: bun run tests/e2e/database.ts migrate
       - name: Seed the local demo project
         run: bun run tests/e2e/database.ts seed
-      - name: Run workspace browser tests (shard ${{ matrix.shard }})
-        run: bun run test:browser -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+      - name: Run workspace browser tests
+        run: bun run test:browser
       - name: Run retention cleanup
         if: always()
         run: bun run tests/e2e/database.ts cleanup
@@ -147,6 +143,6 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: browser-test-results-${{ matrix.shard }}
+          name: browser-test-results
           path: tests/e2e/test-results/
           retention-days: 7
