@@ -131,7 +131,6 @@ export default function HomePage() {
           <ol className={styles.steps}>
             <li>
               <div className={styles.cardHeading}>
-                <span>01</span>
                 <h3>Connect in seconds</h3>
               </div>
               <div className={styles.stepVisual}>
@@ -141,7 +140,6 @@ export default function HomePage() {
             </li>
             <li>
               <div className={styles.cardHeading}>
-                <span>02</span>
                 <h3>Agents detect issues</h3>
               </div>
               <div className={styles.stepVisual}>
@@ -157,13 +155,11 @@ export default function HomePage() {
                 </div>
               </div>
               <p>
-                Browser agents detect runtime crashes, unhandled rejections, and confusing states
-                automatically.
+                Browser agents detect crashes and broken flows automatically.
               </p>
             </li>
             <li>
               <div className={styles.cardHeading}>
-                <span>03</span>
                 <h3>Review and resolve</h3>
               </div>
               <div className={styles.stepVisual}>
@@ -185,8 +181,7 @@ export default function HomePage() {
                 </div>
               </div>
               <p>
-                Users review and confirm sanitized reports before sending. Maintainers triage in a
-                unified inbox.
+                Review sanitized reports and triage in a unified inbox.
               </p>
             </li>
           </ol>
