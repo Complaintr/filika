@@ -11,6 +11,7 @@ interface WorldGeoData {
 }
 
 const geoData = worldGeo as WorldGeoData;
+const GLOBE_RADIUS_SCALE = 0.4;
 
 // Visitor / Agent avatar markers across regions
 interface AvatarPin {
@@ -329,7 +330,7 @@ export function WorldGlobeDemo() {
 
       // Perfectly framed globe geometry:
       // High visibility for mid-latitudes (Turkey 39°N, Europe, Mediterranean, Americas, Asia)
-      const R = Math.min(width * 0.46, height * 0.46, 160);
+      const R = Math.min(width * GLOBE_RADIUS_SCALE, height * GLOBE_RADIUS_SCALE, 160);
       const cx = width / 2;
       const cy = height * 0.48;
 

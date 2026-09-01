@@ -82,6 +82,9 @@ describe("public landing page", () => {
     const flowDemos = await Bun.file(
       `${import.meta.dir}/../src/components/animated-beam-demo.tsx`,
     ).text();
+    const globeDemo = await Bun.file(
+      `${import.meta.dir}/../src/components/world-globe-demo.tsx`,
+    ).text();
     const featureDemos = await Bun.file(`${appDirectory}/landing-feature-demos.tsx`).text();
 
     expect(page).toContain("Widget Area");
@@ -113,6 +116,7 @@ describe("public landing page", () => {
     expect(featureDemos).toContain("WorldGlobeDemo");
     expect(styles).toContain(".globeContainer");
     expect(styles).toContain(".globeCanvas");
+    expect(globeDemo).toContain("GLOBE_RADIUS_SCALE = 0.4");
     expect(flowDemos).toContain("WebMCP agent scanning the website");
     expect(flowDemos).toContain("Website under agent inspection");
     expect(flowDemos).toContain('data-site-scanner="true"');
