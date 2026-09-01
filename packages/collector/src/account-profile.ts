@@ -2,23 +2,9 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "./db/client";
 import { account, user } from "./db/schema";
+import { googlePhotoUrl } from "./photo-url";
 
-/** Accept only Google's HTTPS photo hosts, never a user-provided remote URL. */
-export function googlePhotoUrl(value: unknown): string | null {
-  if (typeof value !== "string" || value.length > 2048) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" &&
-      !url.username &&
-      !url.password &&
-      !url.port &&
-      (url.hostname === "googleusercontent.com" || url.hostname.endsWith(".googleusercontent.com"))
-      ? url.href
-      : null;
-  } catch {
-    return null;
-  }
-}
+export { googlePhotoUrl };
 
 export const accountSettingsSchema = z
   .object({
