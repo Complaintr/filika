@@ -68,11 +68,16 @@ describe("application and profile validation", () => {
     expect(googlePhotoUrl("https://lh3.googleusercontent.com/avatar")).toBe(
       "https://lh3.googleusercontent.com/avatar",
     );
+    expect(googlePhotoUrl("https://lh5.ggpht.com/avatar")).toBe("https://lh5.ggpht.com/avatar");
+    expect(googlePhotoUrl("https://ssl.gstatic.com/accounts/avatar")).toBe(
+      "https://ssl.gstatic.com/accounts/avatar",
+    );
     for (const value of [
       null,
       "javascript:alert(1)",
       "http://lh3.googleusercontent.com/avatar",
       "https://googleusercontent.com.evil.example/avatar",
+      "https://ggpht.com.evil.example/avatar",
       "https://user:pass@lh3.googleusercontent.com/avatar",
       "https://lh3.googleusercontent.com:444/avatar",
     ]) {
