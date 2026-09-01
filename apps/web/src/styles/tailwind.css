@@ -5,6 +5,7 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 @source "../components";
 @source "../workspace";
+@source "../../app";
 
 /* Keep the existing pages' native styles; no global Tailwind preflight reset. */
 @theme inline {

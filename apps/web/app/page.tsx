@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import { LandingHeader } from "@/components/landing-header";
+import { AnimatedBeamDemo } from "@/components/animated-beam-demo";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
@@ -154,21 +155,9 @@ export default function HomePage() {
                 <h3>Connect in seconds</h3>
               </div>
               <div className={styles.stepVisual}>
-                <div className={styles.codeWindow}>
-                  <div>
-                    <i />
-                    <i />
-                    <i />
-                    <span>Installation</span>
-                  </div>
-                  <code>bun add @filika/sdk</code>
-                  <code>&lt;script async src=&quot;filika.js&quot;&gt;&lt;/script&gt;</code>
-                </div>
+                <AnimatedBeamDemo />
               </div>
-              <p>
-                One lightweight tag or package install. Native WebMCP integration with zero build
-                configuration.
-              </p>
+              <p>One lightweight install with zero build configuration.</p>
             </li>
             <li>
               <div className={styles.cardHeading}>
