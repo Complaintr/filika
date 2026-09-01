@@ -35,7 +35,7 @@ describe("public landing page", () => {
     expect(header).toContain("<ThemeSwitcher");
   });
 
-  test("includes WebMCP, bug discovery, and FAQ data", async () => {
+  test("includes WebMCP, bug discovery, extras, and FAQ data", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
 
     expect(page).toContain("WebMCP native");
@@ -45,6 +45,17 @@ describe("public landing page", () => {
     expect(page).toContain("What is Filika?");
     expect(page).toContain("Is Filika completely free?");
     expect(page).toContain("How do WebMCP agents find bugs?");
+
+    // Extras section items
+    expect(page).toContain("WebMCP Protocol");
+    expect(page).toContain("Code Context");
+    expect(page).toContain("Behavioral Detection");
+    expect(page).toContain("Self-Hostable");
+    expect(page).toContain("Developer Triage Workspace");
+    expect(page).toContain("Privacy by Default");
+    expect(page).not.toContain("Zero Performance Impact");
+    expect(page).not.toContain("Manual Feedback Mode");
+    expect(page).not.toContain("Safe Data Sanitization");
   });
 
   test("matches the light visual system and responsive composition", async () => {

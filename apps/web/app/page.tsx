@@ -50,20 +50,8 @@ const extras = [
     "Spots confusing interaction loops, dead-end states, and broken UI controls.",
   ],
   [
-    "Zero Performance Impact",
-    "Ultralight async script loads instantly without slowing down host pages.",
-  ],
-  [
-    "Safe Data Sanitization",
-    "Automatically strips credentials, tokens, and sensitive fields before review.",
-  ],
-  [
     "Self-Hostable",
     "Deploy on your own infrastructure with Bun and PostgreSQL for full data control.",
-  ],
-  [
-    "Manual Feedback Mode",
-    "Allows users to submit feedback directly even when an AI agent is not present.",
   ],
   [
     "Developer Triage Workspace",
@@ -71,7 +59,7 @@ const extras = [
   ],
   [
     "Privacy by Default",
-    "No cookies, no user tracking, and no ambient recording. Fully GDPR compliant.",
+    "Automatically strips credentials and tokens before review. No cookies, no tracking, and no ambient recording.",
   ],
 ] as const;
 
