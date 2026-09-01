@@ -1,15 +1,8 @@
-import {
-  Bot,
-  Bug,
-  Check,
-  Database,
-  Inbox,
-  Layers,
-  Lock,
-  Route,
-  ShieldCheck,
-} from "lucide-react";
+import { Bot, Bug, Check, Database, Inbox, Layers, Lock, Route, ShieldCheck } from "lucide-react";
+import { WorldGlobeDemo } from "@/components/world-globe-demo";
 import styles from "./landing.module.css";
+
+export { WorldGlobeDemo };
 
 const discoveries = [
   ["Observed bug", "/checkout", "Code error"],
@@ -33,6 +26,10 @@ function DemoHeader({ title, label }: { title: string; label: string }) {
       </span>
     </div>
   );
+}
+
+export function InstallTerminalDemo() {
+  return <WorldGlobeDemo />;
 }
 
 export function DiscoveryDashboardDemo() {
@@ -87,7 +84,12 @@ export function BugAnalyticsDemo() {
             data-free-size="true"
           >
             <defs>
-              <pattern id="landing-dashboard-dots" width="14" height="14" patternUnits="userSpaceOnUse">
+              <pattern
+                id="landing-dashboard-dots"
+                width="14"
+                height="14"
+                patternUnits="userSpaceOnUse"
+              >
                 <circle cx="1" cy="1" r="1" />
               </pattern>
               <linearGradient id="landing-chart-line" x1="0" x2="1">

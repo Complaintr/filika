@@ -1,18 +1,15 @@
 import { ArrowRight, Bot, Bug, ChevronDown, Layers, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
-import {
-  AnimatedBeamDemo,
-  ResolutionFlowDemo,
-  SiteScanFlowDemo,
-} from "@/components/animated-beam-demo";
+import { ResolutionFlowDemo, SiteScanFlowDemo } from "@/components/animated-beam-demo";
 import { LandingHeader } from "@/components/landing-header";
+import styles from "./landing.module.css";
 import {
   ApprovalFlowDemo,
   BugAnalyticsDemo,
   DiscoveryDashboardDemo,
+  InstallTerminalDemo,
   IntegrationHealthDemo,
 } from "./landing-feature-demos";
-import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
   title: "Filika — Open Source WebMCP Agentic Bug Discovery Platform",
@@ -107,12 +104,12 @@ export default function HomePage() {
             From agent discovery to resolution,
           </SectionTitle>
           <ol className={styles.steps}>
-            <li>
+            <li className={styles.installStep}>
               <div className={styles.cardHeading}>
                 <h3>Connect in seconds</h3>
               </div>
               <div className={styles.stepVisual}>
-                <AnimatedBeamDemo />
+                <InstallTerminalDemo />
               </div>
               <p>One lightweight install with zero build configuration.</p>
             </li>
