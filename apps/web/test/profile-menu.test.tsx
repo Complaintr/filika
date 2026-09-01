@@ -78,11 +78,17 @@ describe("header profile menu", () => {
       const menu = result.container.querySelector<HTMLElement>('[role="menu"]');
       expect(result.window.document.activeElement?.getAttribute("aria-label")).toBe("Light theme");
       menu?.dispatchEvent(
-        new result.window.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }) as unknown as Event,
+        new result.window.KeyboardEvent("keydown", {
+          key: "ArrowDown",
+          bubbles: true,
+        }) as unknown as Event,
       );
       expect(result.window.document.activeElement?.getAttribute("aria-label")).toBe("Dark theme");
       menu?.dispatchEvent(
-        new result.window.KeyboardEvent("keydown", { key: "End", bubbles: true }) as unknown as Event,
+        new result.window.KeyboardEvent("keydown", {
+          key: "End",
+          bubbles: true,
+        }) as unknown as Event,
       );
       expect(result.window.document.activeElement?.getAttribute("href")).toBe("/eckra/settings");
       const outside = result.window.document.createElement("button");

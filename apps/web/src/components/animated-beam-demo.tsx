@@ -159,9 +159,9 @@ export function SiteScanFlowDemo({ className }: { className?: string | undefined
           viewBox="0 0 320 220"
           data-flow-canvas="site-scan"
         >
-          <FlowBeamPath d="M 40 110 Q 92 72 152 95" />
-          <FlowBeamPath d="M 40 110 Q 170 78 289 124" delay={0.6} />
-          <FlowBeamPath d="M 40 110 Q 122 168 204 189" delay={1.2} />
+          <FlowBeamPath d="M 10 110 Q 75 70 140 95" />
+          <FlowBeamPath d="M 10 110 Q 150 78 289 124" delay={0.6} />
+          <FlowBeamPath d="M 10 110 Q 100 168 191 189" delay={1.2} />
         </svg>
       </div>
     </div>
