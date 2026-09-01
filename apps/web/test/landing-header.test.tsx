@@ -4,7 +4,7 @@ import { LandingHeader } from "../src/components/landing-header";
 import { renderReact } from "./helpers/render-react";
 
 describe("landing header component", () => {
-  test("renders logo, navigation links, theme switcher, and get started button", async () => {
+  test("renders logo, navigation links, theme switcher, and a hidden get started button", async () => {
     const result = await renderReact(createElement(LandingHeader));
 
     const logo = result.container.querySelector('a[aria-label="Filika home"]');
@@ -23,6 +23,27 @@ describe("landing header component", () => {
     const getStartedBtn = result.container.querySelector('a[href="/login"]');
     expect(getStartedBtn).not.toBeNull();
     expect(getStartedBtn?.textContent).toContain("Get Started");
+    expect(getStartedBtn?.className).not.toContain("headerGetStartedVisible");
+    expect(getStartedBtn?.getAttribute("aria-hidden")).toBe("true");
+    expect(getStartedBtn?.getAttribute("tabindex")).toBe("-1");
+
+    await result.close();
+  });
+
+  test("shows get started after the hero scrolls out of view", async () => {
+    const result = await renderReact(createElement(LandingHeader));
+    const hero = result.window.document.createElement("section");
+    hero.setAttribute("data-landing-hero", "");
+    hero.getBoundingClientRect = () => ({ bottom: -1 }) as DOMRect;
+    result.window.document.body.appendChild(hero);
+
+    result.window.dispatchEvent(new result.window.Event("scroll"));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    const getStartedBtn = result.container.querySelector('a[href="/login"]');
+    expect(getStartedBtn?.className).toContain("headerGetStartedVisible");
+    expect(getStartedBtn?.getAttribute("aria-hidden")).toBe("false");
+    expect(getStartedBtn?.hasAttribute("tabindex")).toBe(false);
 
     await result.close();
   });

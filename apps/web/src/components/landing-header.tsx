@@ -8,17 +8,22 @@ import styles from "../../app/landing.module.css";
 
 export function LandingHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showGetStarted, setShowGetStarted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
+    const updateViewportState = () => {
       setIsScrolled(window.scrollY > 20);
+      const hero = document.querySelector<HTMLElement>("[data-landing-hero]");
+      setShowGetStarted(hero !== null && hero.getBoundingClientRect().bottom <= 0);
     };
 
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    updateViewportState();
+    window.addEventListener("scroll", updateViewportState, { passive: true });
+    window.addEventListener("resize", updateViewportState);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", updateViewportState);
+      window.removeEventListener("resize", updateViewportState);
     };
   }, []);
 
@@ -84,7 +89,18 @@ export function LandingHeader() {
             </svg>
             <span>GitHub</span>
           </a>
-          <a className={styles.primaryButton} href="/login">
+          <a
+            className={`${styles.primaryButton ?? "primaryButton"} ${
+              styles.headerGetStarted ?? "headerGetStarted"
+            } ${
+              showGetStarted
+                ? (styles.headerGetStartedVisible ?? "headerGetStartedVisible")
+                : ""
+            }`}
+            href="/login"
+            aria-hidden={!showGetStarted}
+            tabIndex={showGetStarted ? undefined : -1}
+          >
             Get Started <ArrowRight aria-hidden="true" />
           </a>
           <button

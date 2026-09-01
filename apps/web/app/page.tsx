@@ -78,7 +78,7 @@ export default function HomePage() {
       <LandingHeader />
 
       <main className={styles.main}>
-        <section className={styles.hero}>
+        <section className={styles.hero} data-landing-hero>
           <div className={styles.heroGrid}>
             <div>
               <h1>
