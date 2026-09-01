@@ -87,9 +87,9 @@ export default function HomePage() {
             </div>
             <div className={styles.heroPitch}>
               <p>
-                Filika gives AI agents a WebMCP feedback tool for problems they encounter in your
-                web app, connects each reviewed report to the relevant code, and prepares a GitHub
-                issue for your approval.
+                Filika gives browser agents a WebMCP tool to report problems they encounter in your
+                web app. After the user reviews and confirms a report, Filika can create a GitHub
+                issue automatically or let your team create it manually.
               </p>
               <div className={styles.heroCta}>
                 <a className={styles.primaryButton} href="/login">

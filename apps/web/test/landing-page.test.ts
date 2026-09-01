@@ -3,11 +3,19 @@ import { describe, expect, test } from "bun:test";
 const appDirectory = `${import.meta.dir}/../app`;
 
 describe("public landing page", () => {
+  test("describes automatic and manual issue creation without claiming code access", async () => {
+    const page = await Bun.file(`${appDirectory}/page.tsx`).text();
+
+    expect(page).toContain("After the user reviews and confirms a report");
+    expect(page).toContain("issue automatically or let your team create it manually");
+    expect(page).not.toContain("connects each reviewed report to the relevant code");
+  });
+
   test("renders the Filika landing content and sections in their intended order", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
 
     const sections = [
-      "Open-source bug discovery",
+      "Turn agent-found bugs into reviewed GitHub issues",
       "From agent discovery to resolution,",
       "Built for intelligent agent workflows.",
       "Complete feedback infrastructure,",
