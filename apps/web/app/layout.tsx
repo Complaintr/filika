@@ -4,7 +4,7 @@ import { AuthAwareShell } from "@/workspace/auth-aware-shell";
 
 export const metadata: Metadata = {
   title: {
-    default: "Filika · Feedback infrastructure for AI agents",
+    default: "Filika",
     template: "%s · Filika",
   },
   description:

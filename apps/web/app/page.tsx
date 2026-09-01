@@ -12,7 +12,9 @@ import {
 } from "./landing-feature-demos";
 
 export const metadata: Metadata = {
-  title: "Filika — Open Source WebMCP Agentic Bug Discovery Platform",
+  title: {
+    absolute: "Filika",
+  },
   description:
     "Filika is an open-source, 100% free platform that uses WebMCP browser agents to discover code crashes, runtime exceptions, and behavioral bugs in web applications.",
 };
