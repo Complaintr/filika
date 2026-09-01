@@ -101,12 +101,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -238,12 +234,8 @@
           "name": "feedback_project_id_project_id_fk",
           "tableFrom": "feedback",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -295,12 +287,8 @@
           "name": "github_authorization_project_id_project_id_fk",
           "tableFrom": "github_authorization",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -308,12 +296,8 @@
           "name": "github_authorization_user_id_user_id_fk",
           "tableFrom": "github_authorization",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -392,12 +376,8 @@
           "name": "github_connection_project_id_project_id_fk",
           "tableFrom": "github_connection",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -405,12 +385,8 @@
           "name": "github_connection_automatic_approved_by_user_id_fk",
           "tableFrom": "github_connection",
           "tableTo": "user",
-          "columnsFrom": [
-            "automatic_approved_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["automatic_approved_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -507,12 +483,8 @@
           "name": "github_issue_feedback_id_feedback_id_fk",
           "tableFrom": "github_issue",
           "tableTo": "feedback",
-          "columnsFrom": [
-            "feedback_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["feedback_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -520,12 +492,8 @@
           "name": "github_issue_project_id_project_id_fk",
           "tableFrom": "github_issue",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -533,12 +501,8 @@
           "name": "github_issue_approved_by_user_id_fk",
           "tableFrom": "github_issue",
           "tableTo": "user",
-          "columnsFrom": [
-            "approved_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["approved_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -584,12 +548,8 @@
           "name": "github_oauth_state_project_id_project_id_fk",
           "tableFrom": "github_oauth_state",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -597,12 +557,8 @@
           "name": "github_oauth_state_user_id_user_id_fk",
           "tableFrom": "github_oauth_state",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -612,9 +568,7 @@
         "github_oauth_state_project_id_unique": {
           "name": "github_oauth_state_project_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id"
-          ]
+          "columns": ["project_id"]
         }
       },
       "policies": {},
@@ -703,12 +657,8 @@
           "name": "project_owner_user_id_user_id_fk",
           "tableFrom": "project",
           "tableTo": "user",
-          "columnsFrom": [
-            "owner_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -718,16 +668,12 @@
         "project_slug_unique": {
           "name": "project_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         },
         "project_project_key_unique": {
           "name": "project_project_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_key"
-          ]
+          "columns": ["project_key"]
         }
       },
       "policies": {},
@@ -799,12 +745,8 @@
           "name": "rate_limit_project_id_project_id_fk",
           "tableFrom": "rate_limit",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -876,12 +818,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -891,9 +829,7 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -984,9 +920,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -1049,12 +983,7 @@
     "public.feedback_kind": {
       "name": "feedback_kind",
       "schema": "public",
-      "values": [
-        "bug",
-        "blocked_task",
-        "confusing_behavior",
-        "idea"
-      ]
+      "values": ["bug", "blocked_task", "confusing_behavior", "idea"]
     }
   },
   "schemas": {},
