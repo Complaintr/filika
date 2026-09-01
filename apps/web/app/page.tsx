@@ -1,4 +1,4 @@
-import { ArrowRight, Bot, Bug, ChevronDown, Layers, Lock, ShieldCheck } from "lucide-react";
+import { ArrowRight, Bot, Bug, ChevronDown, Layers, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import {
   AnimatedBeamDemo,
@@ -6,6 +6,12 @@ import {
   SiteScanFlowDemo,
 } from "@/components/animated-beam-demo";
 import { LandingHeader } from "@/components/landing-header";
+import {
+  ApprovalFlowDemo,
+  BugAnalyticsDemo,
+  DiscoveryDashboardDemo,
+  IntegrationHealthDemo,
+} from "./landing-feature-demos";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
@@ -13,28 +19,6 @@ export const metadata: Metadata = {
   description:
     "Filika is an open-source, 100% free platform that uses WebMCP browser agents to discover code crashes, runtime exceptions, and behavioral bugs in web applications.",
 };
-
-const sampleBugs = [
-  {
-    type: "Observed Bug",
-    path: "/checkout",
-    title: "Uncaught TypeError in promo apply",
-    tag: "Code Error",
-  },
-  {
-    type: "Blocked Task",
-    path: "/onboarding",
-    title: "Step 2 Next button remains disabled",
-    tag: "Behavioral",
-  },
-  {
-    type: "Confusing Behavior",
-    path: "/settings/team",
-    title: "Role toggle reverts without warning",
-    tag: "UX Flow",
-  },
-  { type: "Concrete Idea", path: "/inbox", title: "Filter by agent session ID", tag: "Feature" },
-] as const;
 
 const extras = [
   ["WebMCP Protocol", "Native browser tool integration built on document.modelContext standards."],
@@ -159,16 +143,7 @@ export default function HomePage() {
           </SectionTitle>
           <ul className={styles.featureGrid}>
             <li>
-              <div className={styles.visitorList}>
-                {sampleBugs.map((bug) => (
-                  <div key={bug.title}>
-                    <span className={styles.avatar} />
-                    <b>{bug.type}</b>
-                    <code>{bug.path}</code>
-                    <small>{bug.tag}</small>
-                  </div>
-                ))}
-              </div>
+              <DiscoveryDashboardDemo />
               <h3>
                 <Bot aria-hidden="true" /> WebMCP native
               </h3>
@@ -178,11 +153,7 @@ export default function HomePage() {
               </p>
             </li>
             <li>
-              <div className={styles.cookieVisual}>
-                <div>Runtime exception &amp; behavior captured without cookies or tracking…</div>
-                <button type="button">100% Privacy Preserving</button>
-                <Lock aria-hidden="true" />
-              </div>
+              <BugAnalyticsDemo />
               <h3>
                 <Bug aria-hidden="true" /> Code &amp; behavioral bugs
               </h3>
@@ -192,36 +163,14 @@ export default function HomePage() {
               </p>
             </li>
             <li>
-              <div className={styles.integrationsVisual}>
-                {[
-                  ["React & Next.js", "SDK & Script integration", "Active"],
-                  ["WebMCP Agent", "Standard document.modelContext", "Connected"],
-                  ["PostgreSQL", "Open collector persistence", "Ready"],
-                  ["Maintainer Inbox", "Realtime feedback triage", "Live"],
-                ].map(([name, detail, action]) => (
-                  <div key={name}>
-                    <Layers aria-hidden="true" />
-                    <span>
-                      <b>{name}</b>
-                      <small>{detail}</small>
-                    </span>
-                    <button type="button">{action}</button>
-                  </div>
-                ))}
-              </div>
+              <IntegrationHealthDemo />
               <h3>
                 <Layers aria-hidden="true" /> Seamless integrations
               </h3>
               <p>Works with standard web frameworks, browser agents, and PostgreSQL databases.</p>
             </li>
             <li>
-              <div className={styles.chatVisual}>
-                <div>Agent drafted report: Broken checkout step</div>
-                <p>
-                  <ShieldCheck aria-hidden="true" /> User confirmed: Sent to maintainer inbox
-                  without private data.
-                </p>
-              </div>
+              <ApprovalFlowDemo />
               <h3>
                 <ShieldCheck aria-hidden="true" /> Human in the loop
               </h3>
