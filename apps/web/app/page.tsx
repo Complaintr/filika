@@ -218,6 +218,10 @@ export default function HomePage() {
           </a>
         </section>
       </main>
+
+      <footer className={styles.bottomWatermark} aria-hidden="true">
+        <span className={styles.bottomWatermarkText}>filika</span>
+      </footer>
     </div>
   );
 }
