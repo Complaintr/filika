@@ -1,11 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { createElement } from "react";
-import { ProfileMenu } from "../src/workspace/profile-menu";
+import { ProfileMenu, type ProfileMenuProps } from "../src/workspace/profile-menu";
 import { renderReact } from "./helpers/render-react";
+
+function menu(props: ProfileMenuProps = {}) {
+  return <ProfileMenu {...props} />;
+}
 
 describe("header profile menu", () => {
   test("opens from the header trigger with unavailable account actions", async () => {
-    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "eckra" }));
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
     );
@@ -28,7 +31,7 @@ describe("header profile menu", () => {
   });
 
   test("escape closes the menu and restores focus to its trigger", async () => {
-    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "eckra" }));
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
     );
@@ -48,7 +51,7 @@ describe("header profile menu", () => {
   });
 
   test("an outside pointer closes the open menu", async () => {
-    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "eckra" }));
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
     );
@@ -66,7 +69,7 @@ describe("header profile menu", () => {
   });
 
   test("keyboard navigation moves between menu actions and closes when focus leaves", async () => {
-    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "eckra" }));
     try {
       result.container
         .querySelector<HTMLButtonElement>('[aria-label="Open profile menu"]')
@@ -75,11 +78,11 @@ describe("header profile menu", () => {
       const menu = result.container.querySelector<HTMLElement>('[role="menu"]');
       expect(result.window.document.activeElement?.getAttribute("aria-label")).toBe("Light theme");
       menu?.dispatchEvent(
-        new result.window.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+        new result.window.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }) as unknown as Event,
       );
       expect(result.window.document.activeElement?.getAttribute("aria-label")).toBe("Dark theme");
       menu?.dispatchEvent(
-        new result.window.KeyboardEvent("keydown", { key: "End", bubbles: true }),
+        new result.window.KeyboardEvent("keydown", { key: "End", bubbles: true }) as unknown as Event,
       );
       expect(result.window.document.activeElement?.getAttribute("href")).toBe("/eckra/settings");
       const outside = result.window.document.createElement("button");
@@ -109,7 +112,7 @@ describe("header profile menu", () => {
       init?.method === "PATCH"
         ? Response.json({ error: { category: "internal_error" } }, { status: 500 })
         : Response.json({ account: profile })) as typeof fetch;
-    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "eckra" }));
     try {
       result.container
         .querySelector<HTMLButtonElement>('[aria-label="Open profile menu"]')
@@ -129,7 +132,7 @@ describe("header profile menu", () => {
   });
 
   test("light, dark, and system choices share the workspace theme preference", async () => {
-    const result = await renderReact(createElement(ProfileMenu, { applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "eckra" }));
     const themeColor = result.window.document.createElement("meta");
     themeColor.name = "theme-color";
     result.window.document.head.append(themeColor);
