@@ -26,6 +26,14 @@ export function LandingHeader() {
     setMenuOpen(false);
   }, []);
 
+  const navigateToSection = useCallback(
+    (sectionId: string) => {
+      window.location.hash = sectionId;
+      closeMenu();
+    },
+    [closeMenu],
+  );
+
   /* Close the drawer on Escape */
   useEffect(() => {
     if (!menuOpen) return;
@@ -99,12 +107,12 @@ export function LandingHeader() {
         aria-hidden={!menuOpen}
       >
         <nav aria-label="Mobile navigation">
-          <a href="#features" onClick={closeMenu}>
+          <button type="button" onClick={() => navigateToSection("features")}>
             Features
-          </a>
-          <a href="#how-it-works" onClick={closeMenu}>
+          </button>
+          <button type="button" onClick={() => navigateToSection("how-it-works")}>
             How it works
-          </a>
+          </button>
           <a
             href="https://github.com/Complaintr/filika"
             rel="noreferrer"

@@ -316,24 +316,33 @@
   flex-direction: column;
   gap: 2px;
 }
-.mobileDrawer nav a {
+.mobileDrawer nav a,
+.mobileDrawer nav button {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
+  border: 0;
   border-radius: 12px;
+  background: transparent;
   color: var(--ink);
+  cursor: pointer;
+  font-family: inherit;
   font-size: 16px;
   font-weight: 500;
+  text-align: left;
   transition: background 140ms ease;
 }
-.mobileDrawer nav a:hover {
+.mobileDrawer nav a:hover,
+.mobileDrawer nav button:hover {
   background: rgba(0, 0, 0, 0.05);
 }
-:root[data-theme="dark"] .mobileDrawer nav a:hover {
+:root[data-theme="dark"] .mobileDrawer nav a:hover,
+:root[data-theme="dark"] .mobileDrawer nav button:hover {
   background: rgba(255, 255, 255, 0.08);
 }
-.mobileDrawer nav a svg {
+.mobileDrawer nav a svg,
+.mobileDrawer nav button svg {
   width: 18px;
   height: 18px;
   flex-shrink: 0;

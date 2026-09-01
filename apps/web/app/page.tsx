@@ -232,11 +232,7 @@ export default function HomePage() {
           <nav className={styles.footerNav} aria-label="Footer navigation">
             <a href="#features">Features</a>
             <a href="#how-it-works">How it works</a>
-            <a
-              href="https://github.com/Complaintr/filika"
-              rel="noreferrer"
-              target="_blank"
-            >
+            <a href="https://github.com/Complaintr/filika" rel="noreferrer" target="_blank">
               GitHub
             </a>
             <a href="/terms">Terms</a>
