@@ -1804,13 +1804,18 @@
 }
 .finalCta {
   display: flex;
-  justify-content: space-between;
-  gap: 40px;
-  align-items: end;
+  flex-direction: column;
+  gap: 48px;
   margin-top: 20px;
   padding: 72px;
   border-radius: 12px;
   background: var(--paper);
+}
+.finalCtaMain {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  align-items: end;
 }
 .finalCta h2 {
   max-width: 760px;
@@ -1825,6 +1830,13 @@
 }
 .finalCta .primaryButton {
   flex: 0 0 auto;
+}
+.finalCtaCopyright {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+  letter-spacing: -0.01em;
 }
 
 :root[data-theme="dark"] .codeWindow {
@@ -1957,9 +1969,13 @@
     grid-template-columns: repeat(2, 1fr);
   }
   .finalCta {
+    padding: 44px;
+    gap: 36px;
+  }
+  .finalCtaMain {
     flex-direction: column;
     align-items: flex-start;
-    padding: 44px;
+    gap: 28px;
   }
 }
 
@@ -2038,6 +2054,7 @@
     margin-inline: -16px;
     padding: 36px 24px;
     border-radius: 0;
+    gap: 28px;
   }
 }
 

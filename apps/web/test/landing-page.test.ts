@@ -42,6 +42,7 @@ describe("public landing page", () => {
     expect(page).toContain("WebMCP native");
     expect(page).toContain("Code &amp; behavioral bugs");
     expect(page).toContain("100% Free &amp; Open Source");
+    expect(page).toContain("2026 Complaintr. All rights reserved.");
     expect(page).toContain("Human in the loop");
     expect(page).toContain("What is Filika?");
     expect(page).toContain("How do WebMCP agents find bugs?");

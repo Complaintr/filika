@@ -87,7 +87,7 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
 
   function cycleTheme(): void {
     const currentIndex = CYCLE_ORDER.indexOf(theme);
-    const next = CYCLE_ORDER[(currentIndex + 1) % CYCLE_ORDER.length];
+    const next = CYCLE_ORDER[(currentIndex + 1) % CYCLE_ORDER.length] ?? "light";
     setTheme(next);
     saveTheme(next);
   }

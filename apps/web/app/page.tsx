@@ -209,13 +209,18 @@ export default function HomePage() {
         </section>
 
         <section className={styles.finalCta}>
-          <h2>
-            Find code and behavioral bugs before your users do.{" "}
-            <span>100% Free &amp; Open Source.</span>
-          </h2>
-          <a className={styles.primaryButton} href="/login">
-            Get Started <ArrowRight aria-hidden="true" />
-          </a>
+          <div className={styles.finalCtaMain}>
+            <h2>
+              Find code and behavioral bugs before your users do.{" "}
+              <span>100% Free &amp; Open Source.</span>
+            </h2>
+            <a className={styles.primaryButton} href="/login">
+              Get Started <ArrowRight aria-hidden="true" />
+            </a>
+          </div>
+          <p className={styles.finalCtaCopyright}>
+            &copy; 2026 Complaintr. All rights reserved.
+          </p>
         </section>
       </main>
 
