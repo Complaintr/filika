@@ -6,6 +6,7 @@ describe("public landing page", () => {
   test("describes automatic and manual issue creation without claiming code access", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
 
+    expect(page).toMatch(/reviewed GitHub issues\s*<br \/>/);
     expect(page).toContain("After the user reviews and confirms a report");
     expect(page).toContain("issue automatically or let your team create it manually");
     expect(page).not.toContain("connects each reviewed report to the relevant code");
@@ -90,6 +91,8 @@ describe("public landing page", () => {
     expect(styles).toContain(".headerScrolled");
     expect(styles).toContain(".themeSwitcher");
     expect(styles).toContain("line-height: 1.2");
+    expect(styles).toContain("align-items: flex-start");
+    expect(styles).toContain("align-self: flex-start");
     expect(styles).toContain("padding-bottom: 0.1em");
     expect(styles).toContain("overflow: visible");
     expect(styles).toContain("background: var(--primary)");

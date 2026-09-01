@@ -80,11 +80,11 @@ export default function HomePage() {
       <main className={styles.main}>
         <section className={styles.hero} data-landing-hero>
           <div className={styles.heroGrid}>
-            <div>
-              <h1>
-                Turn agent-found bugs into reviewed GitHub issues <span>with WebMCP.</span>
-              </h1>
-            </div>
+            <h1>
+              Turn agent-found bugs into reviewed GitHub issues
+              <br />
+              <span>with WebMCP.</span>
+            </h1>
             <div className={styles.heroPitch}>
               <p>
                 Filika gives browser agents a WebMCP tool to report problems they encounter in your

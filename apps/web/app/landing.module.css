@@ -401,8 +401,12 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
   gap: 56px;
-  align-items: start;
+  align-items: flex-start;
   margin: 28px 0 56px;
+}
+.heroPitch {
+  align-self: flex-start;
+  padding-top: 0;
 }
 .hero h1 {
   max-width: 576px;
