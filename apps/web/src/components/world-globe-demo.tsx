@@ -2,427 +2,17 @@
 
 import { useEffect, useRef } from "react";
 import styles from "../../app/landing.module.css";
+import worldGeo from "../data/world-geo.json";
 
-// Comprehensive high-fidelity world landmass polygon coordinates [longitude, latitude]
-const WORLD_LANDMASSES: Array<[number, number][]> = [
-  // Eurasia & North Africa connected continental landmass
-  [
-    [-9.5, 38.7],
-    [-9.0, 43.0],
-    [-1.8, 43.4],
-    [-4.8, 48.4],
-    [1.8, 50.9],
-    [8.5, 54.5],
-    [9.8, 57.7],
-    [10.5, 54.5],
-    [19.0, 54.4],
-    [24.0, 56.8],
-    [28.0, 59.8],
-    [30.2, 59.9],
-    [32.0, 65.0],
-    [40.0, 67.0],
-    [44.0, 68.5],
-    [60.0, 69.5],
-    [75.0, 72.0],
-    [86.0, 73.5],
-    [104.0, 77.5],
-    [115.0, 74.0],
-    [130.0, 72.0],
-    [140.0, 74.0],
-    [160.0, 70.0],
-    [170.0, 66.5],
-    [180.0, 65.5],
-    [170.0, 60.0],
-    [160.0, 55.0],
-    [156.0, 51.0],
-    [143.0, 49.0],
-    [135.0, 46.0],
-    [131.0, 43.0],
-    [129.5, 41.0],
-    [126.0, 39.0],
-    [127.0, 35.0],
-    [129.0, 35.5],
-    [129.0, 37.5],
-    [125.0, 38.0],
-    [122.0, 39.5],
-    [118.0, 39.0],
-    [121.5, 31.5],
-    [119.5, 25.0],
-    [113.5, 22.0],
-    [108.5, 19.5],
-    [109.0, 13.5],
-    [105.0, 10.0],
-    [101.0, 6.0],
-    [103.8, 1.3],
-    [100.0, 7.5],
-    [98.0, 12.0],
-    [92.5, 20.5],
-    [89.0, 22.0],
-    [80.0, 16.0],
-    [77.5, 8.5],
-    [73.0, 19.0],
-    [67.0, 24.5],
-    [62.0, 25.5],
-    [56.5, 26.0],
-    [59.0, 22.5],
-    [54.0, 17.0],
-    [45.0, 12.5],
-    [43.5, 12.5],
-    [36.0, 22.0],
-    [32.5, 29.5],
-    [34.5, 31.5],
-    [36.0, 36.5],
-    [30.0, 36.5],
-    [27.0, 38.0],
-    [23.5, 38.0],
-    [20.0, 39.8],
-    [16.0, 41.0],
-    [12.5, 42.0],
-    [15.5, 38.0],
-    [12.0, 44.0],
-    [13.5, 45.8],
-    [9.0, 43.8],
-    [3.5, 43.4],
-    [0.0, 40.0],
-    [-2.0, 36.7],
-    [-5.5, 36.0],
-    [-8.0, 37.0],
-    [-9.5, 38.7],
-  ],
-  // Scandinavia
-  [
-    [5.0, 59.0],
-    [5.5, 62.0],
-    [12.0, 66.0],
-    [15.0, 68.5],
-    [26.0, 71.0],
-    [31.0, 70.0],
-    [30.0, 65.0],
-    [25.0, 65.0],
-    [21.0, 60.5],
-    [18.0, 59.0],
-    [13.0, 55.5],
-    [10.0, 58.0],
-    [5.0, 59.0],
-  ],
-  // Great Britain & Ireland
-  [
-    [-5.0, 50.0],
-    [-0.5, 51.0],
-    [1.5, 52.5],
-    [0.0, 54.5],
-    [-2.0, 57.0],
-    [-4.0, 58.5],
-    [-6.0, 56.5],
-    [-4.5, 53.5],
-    [-5.0, 50.0],
-  ],
-  [
-    [-10.0, 51.5],
-    [-6.0, 52.0],
-    [-6.0, 54.0],
-    [-8.0, 55.0],
-    [-10.5, 54.0],
-    [-10.0, 51.5],
-  ],
-  // Japan (Honshu, Hokkaido, Kyushu)
-  [
-    [131.0, 31.5],
-    [131.5, 34.0],
-    [135.0, 34.5],
-    [139.0, 35.5],
-    [141.5, 38.5],
-    [141.0, 41.5],
-    [140.0, 40.0],
-    [136.5, 36.5],
-    [133.0, 35.5],
-    [131.0, 31.5],
-  ],
-  [
-    [140.0, 42.0],
-    [144.0, 44.0],
-    [145.5, 43.5],
-    [142.0, 42.0],
-    [140.0, 42.0],
-  ],
-  // Africa
-  [
-    [-5.5, 36.0],
-    [10.5, 37.0],
-    [11.5, 33.0],
-    [15.0, 32.5],
-    [20.0, 32.0],
-    [25.0, 31.5],
-    [32.0, 31.5],
-    [34.0, 27.5],
-    [38.5, 18.0],
-    [43.0, 12.5],
-    [51.0, 10.5],
-    [49.0, 4.0],
-    [41.0, -2.0],
-    [39.0, -5.0],
-    [40.5, -15.0],
-    [35.5, -24.0],
-    [32.0, -28.0],
-    [28.0, -32.5],
-    [18.5, -34.5],
-    [15.0, -28.0],
-    [12.0, -17.0],
-    [9.0, 1.0],
-    [4.5, 4.5],
-    [-4.0, 5.0],
-    [-7.5, 4.5],
-    [-13.0, 9.0],
-    [-17.0, 14.5],
-    [-16.0, 21.0],
-    [-10.0, 28.0],
-    [-6.0, 35.0],
-    [-5.5, 36.0],
-  ],
-  // Madagascar
-  [
-    [49.5, -12.5],
-    [50.5, -16.0],
-    [47.5, -25.0],
-    [44.0, -25.5],
-    [44.0, -18.0],
-    [49.5, -12.5],
-  ],
-  // North America
-  [
-    [-168.0, 66.0],
-    [-162.0, 71.0],
-    [-140.0, 70.0],
-    [-125.0, 70.0],
-    [-105.0, 69.0],
-    [-85.0, 68.0],
-    [-80.0, 62.0],
-    [-65.0, 58.0],
-    [-55.0, 52.0],
-    [-60.0, 46.0],
-    [-66.0, 44.0],
-    [-71.0, 42.0],
-    [-74.0, 40.5],
-    [-76.0, 36.0],
-    [-80.0, 32.0],
-    [-80.5, 25.5],
-    [-82.5, 28.0],
-    [-89.0, 30.0],
-    [-97.0, 26.0],
-    [-97.5, 20.0],
-    [-90.0, 19.0],
-    [-87.0, 14.0],
-    [-79.5, 9.0],
-    [-83.0, 8.5],
-    [-92.0, 14.5],
-    [-105.0, 20.0],
-    [-110.0, 24.0],
-    [-117.0, 32.5],
-    [-122.0, 37.5],
-    [-124.5, 43.0],
-    [-125.0, 49.0],
-    [-131.0, 54.5],
-    [-136.0, 58.5],
-    [-150.0, 60.0],
-    [-160.0, 56.0],
-    [-165.0, 60.0],
-    [-168.0, 66.0],
-  ],
-  // Greenland
-  [
-    [-45.0, 60.0],
-    [-35.0, 66.0],
-    [-20.0, 72.0],
-    [-20.0, 80.0],
-    [-40.0, 83.5],
-    [-55.0, 80.0],
-    [-55.0, 70.0],
-    [-50.0, 64.0],
-    [-45.0, 60.0],
-  ],
-  // South America
-  [
-    [-75.0, 11.0],
-    [-62.0, 10.0],
-    [-50.0, 0.0],
-    [-35.0, -5.0],
-    [-38.0, -13.0],
-    [-42.0, -22.5],
-    [-50.0, -30.0],
-    [-58.0, -38.0],
-    [-65.0, -45.0],
-    [-68.0, -54.0],
-    [-75.0, -50.0],
-    [-73.0, -40.0],
-    [-71.0, -30.0],
-    [-77.0, -10.0],
-    [-81.0, -5.0],
-    [-79.0, 2.0],
-    [-77.0, 8.0],
-    [-75.0, 11.0],
-  ],
-  // Australia
-  [
-    [114.0, -22.0],
-    [122.0, -18.0],
-    [131.0, -12.0],
-    [136.0, -12.0],
-    [142.0, -11.0],
-    [153.5, -28.0],
-    [150.0, -36.0],
-    [144.0, -38.5],
-    [137.0, -35.0],
-    [128.0, -32.0],
-    [115.0, -34.0],
-    [113.0, -26.0],
-    [114.0, -22.0],
-  ],
-  // New Zealand
-  [
-    [173.0, -35.0],
-    [178.0, -38.0],
-    [175.0, -41.5],
-    [172.0, -41.0],
-    [173.0, -35.0],
-  ],
-  [
-    [168.0, -46.5],
-    [171.0, -43.5],
-    [174.0, -41.5],
-    [169.0, -44.0],
-    [168.0, -46.5],
-  ],
-  // Indonesia & Philippines Islands
-  [
-    [95.5, 5.5],
-    [106.0, -6.0],
-    [105.0, -5.0],
-    [98.0, 3.0],
-    [95.5, 5.5],
-  ],
-  [
-    [109.0, 1.0],
-    [117.0, 4.0],
-    [119.0, -3.5],
-    [111.0, -2.5],
-    [109.0, 1.0],
-  ],
-  [
-    [120.0, 14.0],
-    [125.0, 12.0],
-    [126.0, 7.0],
-    [122.0, 7.0],
-    [120.0, 14.0],
-  ],
-];
+// 1:1 Natural Earth Landmasses and Country Borders data
+interface WorldGeoData {
+  land: Array<Array<Array<[number, number]>>>;
+  borders: Array<Array<[number, number]>>;
+}
 
-// Inner country border dividers [ [lon, lat], [lon, lat] ]
-const COUNTRY_BORDERS: Array<[number, number][]> = [
-  // Europe & Mediterranean dividers
-  [
-    [-1.8, 43.4],
-    [3.0, 42.5],
-  ],
-  [
-    [2.5, 51.0],
-    [6.0, 49.5],
-    [7.5, 47.5],
-  ],
-  [
-    [8.0, 45.8],
-    [13.0, 46.5],
-  ],
-  [
-    [14.0, 54.0],
-    [15.0, 50.0],
-    [17.0, 48.0],
-  ],
-  [
-    [22.0, 44.0],
-    [28.0, 41.5],
-    [26.0, 38.0],
-  ],
-  [
-    [30.0, 60.0],
-    [30.0, 50.0],
-    [35.0, 46.0],
-  ], // Eastern Europe / Finland / Belarus border
-  [
-    [36.0, 36.5],
-    [44.0, 37.0],
-    [48.0, 38.0],
-  ],
-  // Central & East Asia dividers
-  [
-    [50.0, 45.0],
-    [70.0, 48.0],
-    [82.0, 46.0],
-  ], // Kazakhstan-Russia border
-  [
-    [60.0, 38.0],
-    [68.0, 40.0],
-    [75.0, 39.0],
-  ], // Central Asia / Uzbekistan / Tajikistan
-  [
-    [60.0, 30.0],
-    [75.0, 35.0],
-    [88.0, 27.5],
-    [97.0, 28.0],
-  ], // Pakistan / India / Himalaya border
-  [
-    [84.0, 28.0],
-    [88.0, 28.0],
-  ], // Nepal
-  [
-    [89.0, 27.0],
-    [92.0, 27.0],
-  ], // Bhutan
-  [
-    [90.0, 50.0],
-    [105.0, 50.0],
-    [118.0, 48.0],
-    [115.0, 44.0],
-    [100.0, 42.0],
-    [90.0, 50.0],
-  ], // Mongolia loop
-  [
-    [124.0, 40.0],
-    [129.0, 42.0],
-  ], // China-North Korea
-  [
-    [126.0, 38.0],
-    [128.5, 38.5],
-  ], // DMZ (Korea)
-  // Americas dividers
-  [
-    [-123.0, 49.0],
-    [-95.0, 49.0],
-    [-75.0, 45.0],
-  ], // US-Canada
-  [
-    [-117.0, 32.5],
-    [-106.0, 31.8],
-    [-97.0, 26.0],
-  ], // US-Mexico
-  [
-    [-75.0, 8.0],
-    [-70.0, 0.0],
-    [-60.0, -10.0],
-    [-55.0, -22.0],
-  ], // South America interior
-  // Africa dividers
-  [
-    [-10.0, 27.0],
-    [10.0, 25.0],
-    [25.0, 22.0],
-  ],
-  [
-    [10.0, 5.0],
-    [30.0, 5.0],
-  ],
-];
+const geoData = worldGeo as WorldGeoData;
 
-// Visitor / Agent avatar markers spanning across all continents
+// Visitor / Agent avatar markers across regions
 interface AvatarPin {
   id: string;
   avatar: string;
@@ -433,24 +23,31 @@ interface AvatarPin {
 
 const AVATAR_PINS: AvatarPin[] = [
   {
-    id: "pin-seoul",
-    avatar: "👩‍💼",
-    lat: 37.5665,
-    lng: 126.978,
+    id: "pin-istanbul",
+    avatar: "👩‍💻",
+    lat: 41.0082,
+    lng: 28.9784,
     color: "#009fe3",
-  },
-  {
-    id: "pin-tokyo",
-    avatar: "🧑‍💻",
-    lat: 35.6762,
-    lng: 139.6503,
-    color: "#6366f1",
   },
   {
     id: "pin-london",
     avatar: "👨‍🔬",
     lat: 51.5074,
     lng: -0.1278,
+    color: "#0284c7",
+  },
+  {
+    id: "pin-berlin",
+    avatar: "🤖",
+    lat: 52.52,
+    lng: 13.405,
+    color: "#0ea5e9",
+  },
+  {
+    id: "pin-ny",
+    avatar: "🧑‍🎨",
+    lat: 40.7128,
+    lng: -74.006,
     color: "#0284c7",
   },
   {
@@ -461,25 +58,25 @@ const AVATAR_PINS: AvatarPin[] = [
     color: "#8b5cf6",
   },
   {
-    id: "pin-berlin",
-    avatar: "🤖",
-    lat: 52.52,
-    lng: 13.405,
-    color: "#0ea5e9",
+    id: "pin-tokyo",
+    avatar: "🧑‍💻",
+    lat: 35.6762,
+    lng: 139.6503,
+    color: "#6366f1",
   },
   {
-    id: "pin-istanbul",
-    avatar: "👩‍💻",
-    lat: 41.0082,
-    lng: 28.9784,
+    id: "pin-seoul",
+    avatar: "👩‍💼",
+    lat: 37.5665,
+    lng: 126.978,
     color: "#009fe3",
   },
   {
-    id: "pin-ny",
-    avatar: "🧑‍🎨",
-    lat: 40.7128,
-    lng: -74.006,
-    color: "#0284c7",
+    id: "pin-singapore",
+    avatar: "🧑‍💼",
+    lat: 1.3521,
+    lng: 103.8198,
+    color: "#10b981",
   },
   {
     id: "pin-sydney",
@@ -495,16 +92,9 @@ const AVATAR_PINS: AvatarPin[] = [
     lng: -46.6333,
     color: "#8b5cf6",
   },
-  {
-    id: "pin-singapore",
-    avatar: "🧑‍💼",
-    lat: 1.3521,
-    lng: 103.8198,
-    color: "#10b981",
-  },
 ];
 
-// Region / Sea text labels
+// Curated geographic labels (positioned cleanly without overlap)
 interface GlobeLabel {
   text: string;
   lat: number;
@@ -513,41 +103,27 @@ interface GlobeLabel {
 }
 
 const GLOBE_LABELS: GlobeLabel[] = [
-  { text: "Russia", lat: 60.0, lng: 95.0 },
-  { text: "China", lat: 34.0, lng: 104.0 },
-  { text: "Mongolia", lat: 46.5, lng: 105.0 },
-  { text: "Kazakhstan", lat: 48.0, lng: 66.0 },
-  { text: "Uzbekistan", lat: 42.0, lng: 63.0 },
-  { text: "Tajikistan", lat: 39.0, lng: 70.0 },
-  { text: "Pakistan", lat: 30.0, lng: 70.0 },
-  { text: "Nepal", lat: 28.0, lng: 84.0 },
-  { text: "Bhutan", lat: 27.5, lng: 90.0 },
-  { text: "Bangladesh", lat: 24.0, lng: 90.0 },
-  { text: "Finland", lat: 63.0, lng: 27.0 },
-  { text: "Belarus", lat: 54.0, lng: 27.0 },
-  { text: "Japan", lat: 36.5, lng: 142.0 },
-  { text: "South Korea", lat: 36.0, lng: 125.5 },
-  { text: "North Korea", lat: 39.5, lng: 126.0 },
-  { text: "Europe", lat: 49.0, lng: 15.0 },
-  { text: "North America", lat: 44.0, lng: -100.0 },
+  { text: "Turkey", lat: 39.0, lng: 35.0 },
+  { text: "Europe", lat: 50.0, lng: 14.0 },
+  { text: "Mediterranean", lat: 33.5, lng: 18.0, isSea: true },
+  { text: "United States", lat: 39.0, lng: -98.0 },
   { text: "South America", lat: -15.0, lng: -55.0 },
-  { text: "Africa", lat: 10.0, lng: 20.0 },
-  { text: "Australia", lat: -25.0, lng: 135.0 },
-  { text: "Sea of Okhotsk", lat: 54.0, lng: 150.0, isSea: true },
-  { text: "East China Sea", lat: 28.0, lng: 126.0, isSea: true },
-  { text: "Laptev Sea", lat: 75.0, lng: 128.0, isSea: true },
-  { text: "Chukchi Sea", lat: 69.0, lng: 175.0, isSea: true },
-  { text: "Pacific Ocean", lat: 20.0, lng: 165.0, isSea: true },
-  { text: "Atlantic Ocean", lat: 25.0, lng: -40.0, isSea: true },
+  { text: "Africa", lat: 7.0, lng: 22.0 },
+  { text: "Asia", lat: 48.0, lng: 92.0 },
+  { text: "Japan", lat: 36.5, lng: 138.0 },
+  { text: "Australia", lat: -25.0, lng: 134.0 },
+  { text: "Atlantic Ocean", lat: 24.0, lng: -38.0, isSea: true },
+  { text: "Pacific Ocean", lat: 18.0, lng: 165.0, isSea: true },
+  { text: "Indian Ocean", lat: -18.0, lng: 75.0, isSea: true },
 ];
 
 export function WorldGlobeDemo() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Rotation angles: rotY = longitude rotation (yaw), rotX = tilt (pitch)
-  const rotYRef = useRef(140);
-  const rotXRef = useRef(20); // ~20 degrees tilt down looking at curved horizon
+  // Initial angle centered on Turkey (lon: 35°E, lat: 39°N) with 22° downward perspective
+  const rotYRef = useRef(-32); // Centers Turkey, Mediterranean & Europe
+  const rotXRef = useRef(22); // 22 degrees tilt down looking at Northern Hemisphere
   const isDraggingRef = useRef(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
   const dragStartRot = useRef({ y: 0, x: 0 });
@@ -564,54 +140,173 @@ export function WorldGlobeDemo() {
 
     const toRad = (deg: number) => (deg * Math.PI) / 180;
 
-    // 3D Orthographic Spherical Projection
-    const project = (
+    // 3D Spherical Orthographic Projection Math
+    const project3D = (
       lng: number,
       lat: number,
-      cx: number,
-      cy: number,
-      R: number,
-      rotYRad: number,
-      rotXRad: number,
-    ): { x: number; y: number; z: number; visible: boolean } => {
+      yawDeg: number,
+      pitchDeg: number,
+    ): [number, number, number] => {
       const phi = toRad(lat);
       const lambda = toRad(lng);
+      const rotYRad = toRad(yawDeg);
+      const rotXRad = toRad(pitchDeg);
 
-      // Point on unit sphere
       const x0 = Math.cos(phi) * Math.sin(lambda);
       const y0 = Math.sin(phi);
       const z0 = Math.cos(phi) * Math.cos(lambda);
 
-      // Rotate around Y-axis by rotY
-      const x1 = x0 * Math.cos(rotYRad) - z0 * Math.sin(rotYRad);
+      // Rotate around Y-axis (Yaw)
+      const x1 = x0 * Math.cos(rotYRad) + z0 * Math.sin(rotYRad);
       const y1 = y0;
-      const z1 = x0 * Math.sin(rotYRad) + z0 * Math.cos(rotYRad);
+      const z1 = -x0 * Math.sin(rotYRad) + z0 * Math.cos(rotYRad);
 
-      // Rotate around X-axis by rotX (tilt)
+      // Rotate around X-axis (Pitch)
       const x2 = x1;
       const y2 = y1 * Math.cos(rotXRad) - z1 * Math.sin(rotXRad);
       const z2 = y1 * Math.sin(rotXRad) + z1 * Math.cos(rotXRad);
 
-      const screenX = cx + x2 * R;
-      const screenY = cy - y2 * R;
+      return [x2, y2, z2];
+    };
 
-      return {
-        x: screenX,
-        y: screenY,
-        z: z2,
-        visible: z2 > 0,
-      };
+    // Sutherland-Hodgman spherical hemisphere polygon clipping (z >= 0)
+    const clipPolygonRing = (
+      ring: Array<[number, number]>,
+      yaw: number,
+      pitch: number,
+    ): Array<[number, number, number]> => {
+      const v3d: Array<[number, number, number]> = [];
+      for (const p of ring) {
+        if (p && typeof p[0] === "number" && typeof p[1] === "number") {
+          v3d.push(project3D(p[0], p[1], yaw, pitch));
+        }
+      }
+      if (v3d.length < 3) return [];
+
+      const clipped: Array<[number, number, number]> = [];
+      const n = v3d.length;
+
+      for (let i = 0; i < n; i++) {
+        const a = v3d[i];
+        const nextIdx = (i + 1) % n;
+        const b = v3d[nextIdx];
+        if (!a || !b) continue;
+
+        const aVis = a[2] >= 0;
+        const bVis = b[2] >= 0;
+
+        if (aVis && bVis) {
+          clipped.push(b);
+        } else if (aVis && !bVis) {
+          const denom = a[2] - b[2];
+          const t = denom !== 0 ? a[2] / denom : 0;
+          const x = (1 - t) * a[0] + t * b[0];
+          const y = (1 - t) * a[1] + t * b[1];
+          const len = Math.hypot(x, y) || 1;
+          clipped.push([x / len, y / len, 0]);
+        } else if (!aVis && bVis) {
+          const denom = b[2] - a[2];
+          const t = denom !== 0 ? -a[2] / denom : 0;
+          const x = (1 - t) * a[0] + t * b[0];
+          const y = (1 - t) * a[1] + t * b[1];
+          const len = Math.hypot(x, y) || 1;
+          clipped.push([x / len, y / len, 0]);
+          clipped.push(b);
+        }
+      }
+
+      if (clipped.length < 3) return [];
+
+      // Interpolate along the curved horizon arc between any consecutive horizon points (z = 0)
+      const smoothed: Array<[number, number, number]> = [];
+      const lenClipped = clipped.length;
+      for (let i = 0; i < lenClipped; i++) {
+        const p1 = clipped[i];
+        const nextPIdx = (i + 1) % lenClipped;
+        const p2 = clipped[nextPIdx];
+        if (!p1 || !p2) continue;
+
+        smoothed.push(p1);
+
+        if (
+          Math.abs(p1[2]) < 0.001 &&
+          Math.abs(p2[2]) < 0.001 &&
+          Math.hypot(p1[0] - p2[0], p1[1] - p2[1]) > 0.08
+        ) {
+          const angle1 = Math.atan2(p1[1], p1[0]);
+          const angle2 = Math.atan2(p2[1], p2[0]);
+          let diff = angle2 - angle1;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+
+          const steps = Math.min(8, Math.max(1, Math.ceil(Math.abs(diff) / 0.25)));
+          for (let s = 1; s < steps; s++) {
+            const ang = angle1 + (diff * s) / steps;
+            smoothed.push([Math.cos(ang), Math.sin(ang), 0]);
+          }
+        }
+      }
+
+      return smoothed;
+    };
+
+    // Draw clipped 3D line string on canvas with horizon intersection clipping
+    const drawClippedLine = (
+      points: Array<[number, number]>,
+      yaw: number,
+      pitch: number,
+      cx: number,
+      cy: number,
+      R: number,
+    ) => {
+      if (points.length < 2) return;
+      let prev3D: [number, number, number] | null = null;
+
+      for (let i = 0; i < points.length; i++) {
+        const pt = points[i];
+        if (!pt || typeof pt[0] !== "number" || typeof pt[1] !== "number") continue;
+
+        const curr3D = project3D(pt[0], pt[1], yaw, pitch);
+
+        if (prev3D) {
+          const prevVis = prev3D[2] >= 0;
+          const currVis = curr3D[2] >= 0;
+
+          if (prevVis && currVis) {
+            ctx.lineTo(cx + curr3D[0] * R, cy - curr3D[1] * R);
+          } else if (prevVis && !currVis) {
+            const denom = prev3D[2] - curr3D[2];
+            const t = denom !== 0 ? prev3D[2] / denom : 0;
+            const x = (1 - t) * prev3D[0] + t * curr3D[0];
+            const y = (1 - t) * prev3D[1] + t * curr3D[1];
+            const len = Math.hypot(x, y) || 1;
+            ctx.lineTo(cx + (x / len) * R, cy - (y / len) * R);
+          } else if (!prevVis && currVis) {
+            const denom = curr3D[2] - prev3D[2];
+            const t = denom !== 0 ? -prev3D[2] / denom : 0;
+            const x = (1 - t) * prev3D[0] + t * curr3D[0];
+            const y = (1 - t) * prev3D[1] + t * curr3D[1];
+            const len = Math.hypot(x, y) || 1;
+            ctx.moveTo(cx + (x / len) * R, cy - (y / len) * R);
+            ctx.lineTo(cx + curr3D[0] * R, cy - curr3D[1] * R);
+          }
+        } else if (curr3D[2] >= 0) {
+          ctx.moveTo(cx + curr3D[0] * R, cy - curr3D[1] * R);
+        }
+
+        prev3D = curr3D;
+      }
     };
 
     const render = (time: number) => {
       const dt = lastTimeRef.current ? Math.min((time - lastTimeRef.current) / 1000, 0.1) : 0.016;
       lastTimeRef.current = time;
 
-      // Active continuous smooth planetary orbit rotation (~18 deg/sec like getopen.so)
+      // Smooth continuous planetary rotation (~11 deg/sec)
       if (!isDraggingRef.current) {
-        rotYRef.current += 18 * dt;
-        if (rotYRef.current >= 360) {
-          rotYRef.current -= 360;
+        rotYRef.current -= 11 * dt;
+        if (rotYRef.current <= -360) {
+          rotYRef.current += 360;
         }
       }
 
@@ -632,30 +327,31 @@ export function WorldGlobeDemo() {
       // Check dark mode
       const isDark = document.documentElement.getAttribute("data-theme") === "dark";
 
-      // Globe Geometry: Edge-to-edge curved sphere horizon rising right to the top
-      const R = Math.max(width * 0.94, height * 0.94, 290);
+      // Perfectly framed globe geometry:
+      // High visibility for mid-latitudes (Turkey 39°N, Europe, Mediterranean, Americas, Asia)
+      const R = Math.min(width * 0.46, height * 0.46, 160);
       const cx = width / 2;
-      const cy = R + 18; // Sphere apex reaches y = 18px giving room for soft top glow
+      const cy = height * 0.48;
 
-      const rotYRad = toRad(rotYRef.current);
-      const rotXRad = toRad(rotXRef.current);
+      const yaw = rotYRef.current;
+      const pitch = rotXRef.current;
 
-      // 1. Atmosphere Rim Glow (soft luminous sky halo above the curved horizon)
-      const glowGrad = ctx.createRadialGradient(cx, cy, R * 0.94, cx, cy, R * 1.25);
+      // 1. Atmosphere Rim Halo (soft luminous planetary glow)
+      const glowGrad = ctx.createRadialGradient(cx, cy, R * 0.95, cx, cy, R * 1.34);
       if (isDark) {
-        glowGrad.addColorStop(0, "rgba(56, 189, 248, 0.4)");
-        glowGrad.addColorStop(0.3, "rgba(0, 159, 227, 0.18)");
-        glowGrad.addColorStop(0.7, "rgba(0, 159, 227, 0.05)");
+        glowGrad.addColorStop(0, "rgba(56, 189, 248, 0.35)");
+        glowGrad.addColorStop(0.35, "rgba(0, 159, 227, 0.16)");
+        glowGrad.addColorStop(0.7, "rgba(0, 159, 227, 0.04)");
         glowGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
       } else {
-        glowGrad.addColorStop(0, "rgba(90, 190, 255, 0.6)");
-        glowGrad.addColorStop(0.3, "rgba(140, 215, 255, 0.3)");
-        glowGrad.addColorStop(0.65, "rgba(180, 230, 255, 0.1)");
+        glowGrad.addColorStop(0, "rgba(90, 190, 255, 0.55)");
+        glowGrad.addColorStop(0.35, "rgba(140, 215, 255, 0.25)");
+        glowGrad.addColorStop(0.7, "rgba(180, 230, 255, 0.08)");
         glowGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
       }
 
       ctx.beginPath();
-      ctx.arc(cx, cy, R * 1.15, 0, Math.PI * 2);
+      ctx.arc(cx, cy, R * 1.34, 0, Math.PI * 2);
       ctx.fillStyle = glowGrad;
       ctx.fill();
 
@@ -665,216 +361,168 @@ export function WorldGlobeDemo() {
       ctx.arc(cx, cy, R, 0, Math.PI * 2);
       ctx.clip();
 
-      // 3. Ocean Base with 3D Spherical Light Gradient (getopen.so styling)
+      // 3. Ocean Base with 3D Spherical Light Gradient
       const oceanGrad = ctx.createRadialGradient(
-        cx - R * 0.28,
+        cx - R * 0.3,
         cy - R * 0.35,
-        R * 0.1,
+        R * 0.05,
         cx,
         cy,
-        R * 1.02,
+        R * 1.05,
       );
 
       if (isDark) {
-        oceanGrad.addColorStop(0, "#193556");
-        oceanGrad.addColorStop(0.5, "#0f233c");
-        oceanGrad.addColorStop(1, "#091728");
+        oceanGrad.addColorStop(0, "#1d3d63");
+        oceanGrad.addColorStop(0.45, "#0f233c");
+        oceanGrad.addColorStop(1, "#081626");
       } else {
         oceanGrad.addColorStop(0, "#8ed4fa");
-        oceanGrad.addColorStop(0.5, "#79bef8");
-        oceanGrad.addColorStop(1, "#5cb0f4");
+        oceanGrad.addColorStop(0.45, "#74bef8");
+        oceanGrad.addColorStop(1, "#4da6f2");
       }
 
       ctx.fillStyle = oceanGrad;
-      ctx.fillRect(cx - R - 4, cy - R - 4, R * 2 + 8, R * 2 + 8);
+      ctx.fillRect(cx - R - 2, cy - R - 2, R * 2 + 4, R * 2 + 4);
 
-      // 4. Subtle Graticule Lines (Latitude / Longitude)
-      ctx.strokeStyle = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.2)";
-      ctx.lineWidth = 0.8;
+      // 4. Subtle Graticule Lines (Parallels & Meridians)
+      ctx.strokeStyle = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.24)";
+      ctx.lineWidth = 0.65;
+      ctx.beginPath();
 
-      // Latitude circles
-      const latSteps = [-60, -30, 0, 30, 60];
-      for (const lat of latSteps) {
-        ctx.beginPath();
-        let first = true;
-        for (let lng = -180; lng <= 180; lng += 6) {
-          const p = project(lng, lat, cx, cy, R, rotYRad, rotXRad);
-          if (p.visible) {
-            if (first) {
-              ctx.moveTo(p.x, p.y);
-              first = false;
-            } else {
-              ctx.lineTo(p.x, p.y);
-            }
-          } else {
-            first = true;
-          }
+      // Parallels (Latitudes)
+      for (let lat = -60; lat <= 60; lat += 30) {
+        const line: Array<[number, number]> = [];
+        for (let lng = -180; lng <= 180; lng += 8) {
+          line.push([lng, lat]);
         }
-        ctx.stroke();
+        drawClippedLine(line, yaw, pitch, cx, cy, R);
       }
 
-      // Longitude meridians
+      // Meridians (Longitudes)
       for (let lng = -180; lng < 180; lng += 30) {
-        ctx.beginPath();
-        let first = true;
-        for (let lat = -80; lat <= 80; lat += 4) {
-          const p = project(lng, lat, cx, cy, R, rotYRad, rotXRad);
-          if (p.visible) {
-            if (first) {
-              ctx.moveTo(p.x, p.y);
-              first = false;
-            } else {
-              ctx.lineTo(p.x, p.y);
-            }
-          } else {
-            first = true;
-          }
+        const line: Array<[number, number]> = [];
+        for (let lat = -80; lat <= 80; lat += 5) {
+          line.push([lng, lat]);
         }
-        ctx.stroke();
+        drawClippedLine(line, yaw, pitch, cx, cy, R);
       }
+      ctx.stroke();
 
-      // 5. Continents / Landmass Polygons (getopen.so pastel styling: #daf5db)
-      ctx.fillStyle = isDark ? "#1d3a58" : "#daf5db";
-      ctx.strokeStyle = isDark ? "#28527c" : "#c2e8c4";
+      // 5. Authentic 1:1 Continents & Landmasses (Natural Earth data)
+      ctx.fillStyle = isDark ? "#1e3b5c" : "#daf5db";
+      ctx.strokeStyle = isDark ? "#2a5480" : "#bfe8c2";
       ctx.lineWidth = 0.9;
 
-      for (const polygon of WORLD_LANDMASSES) {
-        ctx.beginPath();
-        let anyVisible = false;
-        let started = false;
-
-        for (const point of polygon) {
-          const [lng, lat] = point;
-          const p = project(lng, lat, cx, cy, R, rotYRad, rotXRad);
-
-          if (p.visible) {
-            anyVisible = true;
-            if (!started) {
-              ctx.moveTo(p.x, p.y);
-              started = true;
-            } else {
-              ctx.lineTo(p.x, p.y);
+      ctx.beginPath();
+      for (const poly of geoData.land) {
+        for (const ring of poly) {
+          const clipped = clipPolygonRing(ring, yaw, pitch);
+          const first = clipped[0];
+          if (clipped.length >= 3 && first) {
+            ctx.moveTo(cx + first[0] * R, cy - first[1] * R);
+            for (let i = 1; i < clipped.length; i++) {
+              const pt = clipped[i];
+              if (pt) {
+                ctx.lineTo(cx + pt[0] * R, cy - pt[1] * R);
+              }
             }
-          } else if (started) {
-            const dx = p.x - cx;
-            const dy = p.y - cy;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > 0) {
-              const edgeX = cx + (dx / dist) * R;
-              const edgeY = cy + (dy / dist) * R;
-              ctx.lineTo(edgeX, edgeY);
-            }
-            started = false;
+            ctx.closePath();
           }
         }
-
-        if (anyVisible) {
-          ctx.closePath();
-          ctx.fill();
-          ctx.stroke();
-        }
       }
+      ctx.fill();
+      ctx.stroke();
 
-      // 6. Country Divider Borders (delicate coral lines like getopen.so)
-      ctx.strokeStyle = isDark ? "rgba(56, 189, 248, 0.45)" : "rgba(240, 165, 155, 0.75)";
+      // 6. Authentic 1:1 Country Borders (Warm coral lines in light mode, cyan in dark mode)
+      ctx.strokeStyle = isDark ? "rgba(56, 189, 248, 0.48)" : "rgba(240, 115, 105, 0.85)";
       ctx.lineWidth = 0.85;
 
-      for (const line of COUNTRY_BORDERS) {
-        ctx.beginPath();
-        let started = false;
-        for (const point of line) {
-          const [lng, lat] = point;
-          const p = project(lng, lat, cx, cy, R, rotYRad, rotXRad);
-          if (p.visible) {
-            if (!started) {
-              ctx.moveTo(p.x, p.y);
-              started = true;
-            } else {
-              ctx.lineTo(p.x, p.y);
-            }
-          } else {
-            started = false;
-          }
-        }
-        ctx.stroke();
+      ctx.beginPath();
+      for (const borderLine of geoData.borders) {
+        drawClippedLine(borderLine, yaw, pitch, cx, cy, R);
       }
+      ctx.stroke();
 
-      // 7. Geographic Text Labels (Cities, Countries, Seas)
+      // 7. Geographic Text Labels (Fades in when facing camera, no overlaps)
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
       for (const item of GLOBE_LABELS) {
-        const p = project(item.lng, item.lat, cx, cy, R, rotYRad, rotXRad);
-        if (p.visible && p.z > 0.1) {
-          const alpha = Math.min(1, (p.z - 0.1) * 2.4);
+        const p3d = project3D(item.lng, item.lat, yaw, pitch);
+        if (p3d[2] > 0.2) {
+          const px = cx + p3d[0] * R;
+          const py = cy - p3d[1] * R;
+          const alpha = Math.min(1, (p3d[2] - 0.2) * 2.8);
           ctx.font = item.isSea
             ? "italic 500 10.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
             : "600 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 
           if (isDark) {
             ctx.fillStyle = item.isSea
-              ? `rgba(125, 211, 252, ${alpha * 0.75})`
-              : `rgba(224, 242, 254, ${alpha * 0.88})`;
+              ? `rgba(125, 211, 252, ${alpha * 0.8})`
+              : `rgba(224, 242, 254, ${alpha * 0.92})`;
           } else {
             ctx.fillStyle = item.isSea
-              ? `rgba(32, 108, 172, ${alpha * 0.75})`
-              : `rgba(45, 75, 55, ${alpha * 0.88})`;
+              ? `rgba(24, 98, 160, ${alpha * 0.8})`
+              : `rgba(38, 68, 48, ${alpha * 0.92})`;
           }
-          ctx.fillText(item.text, p.x, p.y);
+          ctx.fillText(item.text, px, py);
         }
       }
 
-      // 8. 3D Spherical Edge Shadow (Atmospheric Depth)
-      const edgeShadow = ctx.createRadialGradient(cx, cy, R * 0.75, cx, cy, R);
+      // 8. 3D Spherical Edge Vignette (Atmospheric Depth & Horizon Shading)
+      const edgeShadow = ctx.createRadialGradient(cx, cy, R * 0.72, cx, cy, R);
       edgeShadow.addColorStop(0, "rgba(0, 0, 0, 0)");
-      edgeShadow.addColorStop(0.85, "rgba(0, 70, 140, 0.08)");
-      edgeShadow.addColorStop(1, "rgba(0, 45, 100, 0.22)");
+      edgeShadow.addColorStop(0.82, "rgba(0, 60, 120, 0.1)");
+      edgeShadow.addColorStop(1, "rgba(0, 35, 80, 0.28)");
 
       ctx.fillStyle = edgeShadow;
       ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
 
       ctx.restore(); // end clip
 
-      // 9. Render Floating Avatar Pins with Pulse Animation
+      // 9. Floating Agent Avatar Pins with Animated Pulse
       const pulsePhase = (time % 1800) / 1800; // 0 to 1
 
       for (const pin of AVATAR_PINS) {
-        const p = project(pin.lng, pin.lat, cx, cy, R, rotYRad, rotXRad);
+        const p3d = project3D(pin.lng, pin.lat, yaw, pitch);
 
-        if (p.visible && p.z > 0.04) {
-          const depthScale = 0.75 + p.z * 0.35;
-          const alpha = Math.min(1, (p.z - 0.04) * 3);
+        if (p3d[2] > 0.05) {
+          const depthScale = 0.75 + p3d[2] * 0.35;
+          const alpha = Math.min(1, (p3d[2] - 0.05) * 3.2);
 
           const stalkHeight = 22 * depthScale;
-          const avatarSize = 26 * depthScale;
-          const avatarX = p.x;
-          const avatarY = p.y - stalkHeight;
+          const avatarSize = 25 * depthScale;
+          const pinX = cx + p3d[0] * R;
+          const pinY = cy - p3d[1] * R;
+          const avatarX = pinX;
+          const avatarY = pinY - stalkHeight;
 
           ctx.save();
           ctx.globalAlpha = alpha;
 
           // Ground Anchor Dot
           ctx.beginPath();
-          ctx.arc(p.x, p.y, 3 * depthScale, 0, Math.PI * 2);
+          ctx.arc(pinX, pinY, 3 * depthScale, 0, Math.PI * 2);
           ctx.fillStyle = pin.color;
           ctx.fill();
 
           ctx.beginPath();
-          ctx.arc(p.x, p.y, 4.5 * depthScale, 0, Math.PI * 2);
+          ctx.arc(pinX, pinY, 4.5 * depthScale, 0, Math.PI * 2);
           ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
           ctx.lineWidth = 1.2 * depthScale;
           ctx.stroke();
 
           // Connecting Stalk Line
           ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
+          ctx.moveTo(pinX, pinY);
           ctx.lineTo(avatarX, avatarY + avatarSize / 2);
           ctx.strokeStyle = isDark ? "rgba(56, 189, 248, 0.7)" : "rgba(0, 159, 227, 0.7)";
-          ctx.lineWidth = 1.4 * depthScale;
+          ctx.lineWidth = 1.3 * depthScale;
           ctx.stroke();
 
           // Expanding Pulse Ring around Avatar
-          const pulseRadius = avatarSize / 2 + 3 + pulsePhase * (14 * depthScale);
+          const pulseRadius = avatarSize / 2 + 3 + pulsePhase * (13 * depthScale);
           const pulseAlpha = Math.max(0, (1 - pulsePhase) * 0.75 * alpha);
 
           ctx.beginPath();
@@ -882,22 +530,22 @@ export function WorldGlobeDemo() {
           ctx.strokeStyle = isDark
             ? `rgba(56, 189, 248, ${pulseAlpha})`
             : `rgba(0, 159, 227, ${pulseAlpha})`;
-          ctx.lineWidth = 2 * depthScale;
+          ctx.lineWidth = 1.8 * depthScale;
           ctx.stroke();
 
-          // Avatar Badge Bubble Shadow
+          // Avatar Badge Shadow
           ctx.shadowColor = isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 40, 100, 0.22)";
-          ctx.shadowBlur = 8 * depthScale;
-          ctx.shadowOffsetY = 3 * depthScale;
+          ctx.shadowBlur = 7 * depthScale;
+          ctx.shadowOffsetY = 2.5 * depthScale;
 
-          // Outer White/Glow Border Circle
+          // Outer White/Dark Circle
           ctx.beginPath();
           ctx.arc(avatarX, avatarY, avatarSize / 2, 0, Math.PI * 2);
           ctx.fillStyle = isDark ? "#1e293b" : "#ffffff";
           ctx.fill();
 
-          // Glowing Border Ring
-          ctx.lineWidth = 2 * depthScale;
+          // Outer Ring
+          ctx.lineWidth = 1.8 * depthScale;
           ctx.strokeStyle = isDark ? "#38bdf8" : "#009fe3";
           ctx.stroke();
 
@@ -905,13 +553,11 @@ export function WorldGlobeDemo() {
           ctx.shadowColor = "transparent";
           ctx.beginPath();
           ctx.arc(avatarX, avatarY, avatarSize / 2 - 2 * depthScale, 0, Math.PI * 2);
-          ctx.fillStyle = isDark
-            ? "linear-gradient(135deg, #334155, #1e293b)"
-            : "linear-gradient(135deg, #e0f2fe, #bae6fd)";
+          ctx.fillStyle = isDark ? "#283b54" : "#e0f2fe";
           ctx.fill();
 
-          // Avatar Emoji / Graphic
-          ctx.font = `${14 * depthScale}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+          // Avatar Emoji
+          ctx.font = `${13 * depthScale}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(pin.avatar, avatarX, avatarY + 1 * depthScale);
@@ -927,7 +573,7 @@ export function WorldGlobeDemo() {
 
     animationFrameId = requestAnimationFrame(render);
 
-    // Mouse / Touch Drag Handlers for Interactive Rotation
+    // Mouse / Touch Drag Handlers for Interactive Planetary Exploration
     const handleMouseDown = (e: MouseEvent) => {
       isDraggingRef.current = true;
       dragStartPos.current = { x: e.clientX, y: e.clientY };
@@ -940,7 +586,7 @@ export function WorldGlobeDemo() {
       const dy = e.clientY - dragStartPos.current.y;
 
       rotYRef.current = dragStartRot.current.y + dx * 0.45;
-      rotXRef.current = Math.max(5, Math.min(65, dragStartRot.current.x - dy * 0.3));
+      rotXRef.current = Math.max(-30, Math.min(75, dragStartRot.current.x - dy * 0.35));
     };
 
     const handleMouseUp = () => {
@@ -963,7 +609,7 @@ export function WorldGlobeDemo() {
       const dy = touch.clientY - dragStartPos.current.y;
 
       rotYRef.current = dragStartRot.current.y + dx * 0.45;
-      rotXRef.current = Math.max(5, Math.min(65, dragStartRot.current.x - dy * 0.3));
+      rotXRef.current = Math.max(-30, Math.min(75, dragStartRot.current.x - dy * 0.35));
     };
 
     const handleTouchEnd = () => {
@@ -975,8 +621,12 @@ export function WorldGlobeDemo() {
       container.addEventListener("mousedown", handleMouseDown);
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
-      container.addEventListener("touchstart", handleTouchStart, { passive: true });
-      window.addEventListener("touchmove", handleTouchMove, { passive: true });
+      container.addEventListener("touchstart", handleTouchStart, {
+        passive: true,
+      });
+      window.addEventListener("touchmove", handleTouchMove, {
+        passive: true,
+      });
       window.addEventListener("touchend", handleTouchEnd);
     }
 
