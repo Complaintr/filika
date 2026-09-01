@@ -333,7 +333,7 @@ export function OnboardingExperience() {
                   <summary>Workspace URL</summary>
                   <label htmlFor="onboarding-slug">Filika address</label>
                   <div className="onboarding-slug-field">
-                    <span>/</span>
+                    <span className="onboarding-slug-prefix">/</span>
                     <input
                       id="onboarding-slug"
                       value={slug}
@@ -344,7 +344,7 @@ export function OnboardingExperience() {
                         setSlug(event.target.value);
                       }}
                     />
-                    <span>/complaints</span>
+                    <span className="onboarding-slug-suffix">/complaints</span>
                   </div>
                 </details>
               </div>
@@ -474,13 +474,13 @@ export function OnboardingExperience() {
               </p>
               {firstReport && (
                 <div className="onboarding-first-report">
-                  <Inbox />
+                  <Inbox className="onboarding-first-report-icon" />
                   <div>
                     <span>{firstReport.kind.replaceAll("_", " ")}</span>
                     <strong>{firstReport.title}</strong>
                     <small>{firstReport.requestOrigin}</small>
                   </div>
-                  <Check />
+                  <Check className="onboarding-first-report-check" />
                 </div>
               )}
               <Link
