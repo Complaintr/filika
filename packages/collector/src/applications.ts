@@ -62,6 +62,7 @@ export function applicationView(row: Project) {
   return {
     slug: row.slug,
     displayName: row.displayName,
+    integrationVerifiedAt: row.integrationVerifiedAt?.toISOString() ?? null,
     projectKey: row.projectKey,
     allowedOrigins: row.allowedOrigins,
     dashboardDays: row.dashboardDays,

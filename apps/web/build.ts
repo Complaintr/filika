@@ -1,4 +1,19 @@
-/** Compile the workspace stylesheet into Next.js's public directory. */
+import { mkdir } from "node:fs/promises";
+import { bundleSdk } from "../../packages/sdk/build";
+
+async function buildSdkAssets(outdir: string) {
+  const sdkDirectory = `${outdir}/sdk`;
+  await mkdir(sdkDirectory, { recursive: true });
+  // esbuild's Bun service is process-global; keep the two modes sequential.
+  const production = await bundleSdk(false);
+  const development = await bundleSdk(true);
+  await Promise.all([
+    Bun.write(`${sdkDirectory}/${production.metadata.file}`, production.code),
+    Bun.write(`${sdkDirectory}/${development.metadata.file}`, development.code),
+  ]);
+}
+
+/** Compile the workspace assets into Next.js's public directory. */
 export async function buildWorkspace(outdir = `${import.meta.dir}/public`) {
   const webRoot = import.meta.dir;
   const styles = Bun.spawn(
@@ -15,7 +30,9 @@ export async function buildWorkspace(outdir = `${import.meta.dir}/public`) {
     ],
     { cwd: webRoot, stdout: "inherit", stderr: "inherit" },
   );
-  if ((await styles.exited) !== 0) throw new Error("Workspace stylesheet build failed");
+  const styleExit = await styles.exited;
+  if (styleExit !== 0) throw new Error("Workspace stylesheet build failed");
+  await buildSdkAssets(outdir);
 }
 
 export const buildLocalDemo = buildWorkspace;
