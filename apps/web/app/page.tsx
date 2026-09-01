@@ -7,7 +7,7 @@ import {
   ApprovalFlowDemo,
   BugAnalyticsDemo,
   DiscoveryDashboardDemo,
-  InstallTerminalDemo,
+  GlobeDemo,
   IntegrationHealthDemo,
 } from "./landing-feature-demos";
 
@@ -48,8 +48,8 @@ const faqs = [
     "When a WebMCP-enabled browser agent interacts with your website, it uses structured tools to inspect runtime state, detect broken flows, and draft detailed reports on problems it encounters.",
   ],
   [
-    "How do I install Filika on my website?",
-    "Add one lightweight <script> tag to your HTML or install the @filika/sdk package. It registers WebMCP tools in milliseconds with zero configuration.",
+    "How do I connect Filika to my website?",
+    "Filika works directly with WebMCP-compliant browser environments and tools with zero client libraries or setup required.",
   ],
   [
     "How is user privacy protected?",
@@ -109,9 +109,9 @@ export default function HomePage() {
                 <h3>Connect in seconds</h3>
               </div>
               <div className={styles.stepVisual}>
-                <InstallTerminalDemo />
+                <GlobeDemo />
               </div>
-              <p>One lightweight install with zero build configuration.</p>
+              <p>Direct WebMCP agent connectivity with zero client configuration.</p>
             </li>
             <li>
               <div className={styles.cardHeading}>

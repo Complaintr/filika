@@ -37,6 +37,7 @@ describe("public landing page", () => {
 
   test("includes WebMCP, bug discovery, extras, and FAQ data", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
+    const featureDemos = await Bun.file(`${appDirectory}/landing-feature-demos.tsx`).text();
 
     expect(page).toContain("WebMCP native");
     expect(page).toContain("Code &amp; behavioral bugs");
@@ -44,10 +45,12 @@ describe("public landing page", () => {
     expect(page).toContain("Human in the loop");
     expect(page).toContain("What is Filika?");
     expect(page).toContain("How do WebMCP agents find bugs?");
-    expect(page).toContain("How do I install Filika on my website?");
+    expect(page).toContain("How do I connect Filika to my website?");
     expect(page).toContain("How is user privacy protected?");
     expect(page).toContain("Can I self-host Filika?");
     expect(page).not.toContain("Is Filika completely free?");
+    expect(page.toLowerCase()).not.toContain("sdk");
+    expect(featureDemos.toLowerCase()).not.toContain("sdk");
 
     // Extras section items
     expect(page).toContain("WebMCP Protocol");
@@ -91,7 +94,7 @@ describe("public landing page", () => {
     expect(styles).toContain(".widgetArea");
     expect(page).toContain("<SiteScanFlowDemo />");
     expect(page).toContain("<ResolutionFlowDemo />");
-    expect(page).toContain("<InstallTerminalDemo />");
+    expect(page).toContain("<GlobeDemo />");
     expect(page).not.toContain("<AnimatedBeamDemo />");
     expect(featureDemos).toContain("WorldGlobeDemo");
     expect(styles).toContain(".globeContainer");

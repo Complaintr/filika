@@ -11,7 +11,7 @@ const discoveries = [
 ] as const;
 
 const integrations = [
-  ["React & Next.js", "SDK connected", Layers],
+  ["React & Next.js", "WebMCP ready", Layers],
   ["WebMCP Agent", "Tools registered", Bot],
   ["PostgreSQL", "Collector ready", Database],
   ["Maintainer Inbox", "Realtime triage", Inbox],
@@ -28,7 +28,7 @@ function DemoHeader({ title, label }: { title: string; label: string }) {
   );
 }
 
-export function InstallTerminalDemo() {
+export function GlobeDemo() {
   return <WorldGlobeDemo />;
 }
 
