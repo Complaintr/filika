@@ -1,3 +1,4 @@
+import { googlePhotoUrl } from "@filika/collector/photo-url";
 import { readBoundedJson } from "./response";
 
 export interface Application {
@@ -79,16 +80,8 @@ function parseAccount(value: unknown): AccountProfile {
   )
     throw new Error("Invalid account response.");
   let image: string | null = null;
-  if (typeof value.image === "string" && value.useGoogleImage && value.googleConnected) {
-    const url = new URL(value.image);
-    if (
-      url.protocol === "https:" &&
-      !url.username &&
-      !url.password &&
-      !url.port &&
-      (url.hostname === "googleusercontent.com" || url.hostname.endsWith(".googleusercontent.com"))
-    )
-      image = url.href;
+  if (value.useGoogleImage && value.googleConnected) {
+    image = googlePhotoUrl(value.image);
   }
   return {
     id: value.id,
