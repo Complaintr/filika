@@ -2052,7 +2052,7 @@ html {
 }
 .auth-photo {
   object-fit: cover;
-  object-position: 48% center;
+  object-position: 58% center;
   transition: opacity 700ms ease;
 }
 .auth-photo-register {
