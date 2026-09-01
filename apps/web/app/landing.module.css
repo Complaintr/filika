@@ -1815,7 +1815,7 @@
   background-size: cover;
   background-position: center 35%;
   background-repeat: no-repeat;
-  border: 1px solid var(--line);
+  border: none;
   box-shadow: none;
   overflow: hidden;
 }
