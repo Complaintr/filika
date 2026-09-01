@@ -2052,7 +2052,7 @@ html {
 }
 .auth-photo {
   object-fit: cover;
-  object-position: 48% center;
+  object-position: 58% center;
   transition: opacity 700ms ease;
 }
 .auth-photo-register {
@@ -3263,7 +3263,7 @@ html {
 }
 .density-choices {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: 15px;
 }
 .density-choices label {

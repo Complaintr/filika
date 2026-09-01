@@ -3,75 +3,125 @@ import { describe, expect, test } from "bun:test";
 const appDirectory = `${import.meta.dir}/../app`;
 
 describe("public landing page", () => {
-  test("positions Filika as user-reviewed WebMCP feedback infrastructure", async () => {
+  test("describes automatic and manual issue creation without claiming code access", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
 
-    expect(page).toContain("Turn agent friction into feedback your team can ship.");
-    expect(page).toContain("User-reviewed agent feedback, linked directly to code.");
-    expect(page).toContain("Nothing is transmitted before the user confirms it.");
+    expect(page).toMatch(/reviewed GitHub issues\s*<br \/>/);
+    expect(page).toContain("After the user reviews and confirms a report");
+    expect(page).toContain("issue automatically or let your team create it manually");
+    expect(page).not.toContain("connects each reviewed report to the relevant code");
   });
 
-  test("keeps a dedicated surface for the future interactive widget", async () => {
+  test("renders the Filika landing content and sections in their intended order", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
 
-    expect(page).toContain("Reserved product surface");
-    expect(page).toContain("Interactive widget preview");
-    expect(page).toContain("This area is ready for the real Filika widget.");
-    expect(page).toContain("Nothing is sent yet");
+    const sections = [
+      "Turn agent-found bugs into reviewed GitHub issues",
+      "From agent discovery to resolution,",
+      "Built for intelligent agent workflows.",
+      "Complete feedback infrastructure,",
+      "Fair questions,",
+      "Find code and behavioral bugs before your users do.",
+    ];
+
+    for (const section of sections) {
+      expect(page).toContain(section);
+    }
+
+    const positions = sections.map((section) => page.indexOf(section));
+    expect(positions).toEqual([...positions].sort((left, right) => left - right));
   });
 
-  test("pairs agent signals with maintainer-ready reviewed reports", async () => {
+  test("uses the official Filika brand logo and external links", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
-    const flow = await Bun.file(
-      `${import.meta.dir}/../src/components/realtime-flow-board.tsx`,
+    const header = await Bun.file(`${import.meta.dir}/../src/components/landing-header.tsx`).text();
+
+    expect(page).toContain("<LandingHeader");
+    expect(header).toContain("<FilikaBrand");
+    expect(header).toContain('href="/login"');
+    expect(header).toContain('href="https://github.com/Complaintr/filika"');
+    expect(header).toContain("Get Started");
+    expect(header).toContain("<ThemeSwitcher");
+  });
+
+  test("includes WebMCP, bug discovery, extras, and FAQ data", async () => {
+    const page = await Bun.file(`${appDirectory}/page.tsx`).text();
+    const featureDemos = await Bun.file(`${appDirectory}/landing-feature-demos.tsx`).text();
+
+    expect(page).toContain("WebMCP native");
+    expect(page).toContain("Code &amp; behavioral bugs");
+    expect(page).toContain("100% Free &amp; Open Source");
+    expect(page).toContain("2026 Complaintr. All rights reserved.");
+    expect(page).toContain("User-reviewed feedback infrastructure for AI agents.");
+    expect(page).toContain('href="/terms"');
+    expect(page).toContain("Human in the loop");
+    expect(page).toContain("What is Filika?");
+    expect(page).toContain("How do WebMCP agents find bugs?");
+    expect(page).toContain("How do I connect Filika to my website?");
+    expect(page).toContain("How is user privacy protected?");
+    expect(page).toContain("Can I self-host Filika?");
+    expect(page).not.toContain("Is Filika completely free?");
+    expect(page.toLowerCase()).not.toContain("sdk");
+    expect(featureDemos.toLowerCase()).not.toContain("sdk");
+
+    // Extras section items
+    expect(page).toContain("WebMCP Protocol");
+    expect(page).toContain("Code Context");
+    expect(page).toContain("Behavioral Detection");
+    expect(page).toContain("Self-Hostable");
+    expect(page).toContain("Developer Triage Workspace");
+    expect(page).toContain("Privacy by Default");
+    expect(page).not.toContain("Zero Performance Impact");
+    expect(page).not.toContain("Manual Feedback Mode");
+    expect(page).not.toContain("Safe Data Sanitization");
+  });
+
+  test("matches the light visual system and responsive composition", async () => {
+    const page = await Bun.file(`${appDirectory}/page.tsx`).text();
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+    const flowDemos = await Bun.file(
+      `${import.meta.dir}/../src/components/animated-beam-demo.tsx`,
     ).text();
-    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+    const globeDemo = await Bun.file(
+      `${import.meta.dir}/../src/components/world-globe-demo.tsx`,
+    ).text();
+    const featureDemos = await Bun.file(`${appDirectory}/landing-feature-demos.tsx`).text();
 
-    expect(page).toContain("See the signal. Ship the fix.");
-    expect(page).toContain("<RealtimeFlowBoard");
-    expect(flow).toContain("What agent sees");
-    expect(flow).toContain("What user sees");
-    expect(flow).toContain("User reviewed");
-    expect(flow).not.toContain("User verification gate");
-    expect(flow).not.toContain("Zero ambient data · Approved");
-    expect(flow).not.toContain("agent_session.log");
-    expect(flow).not.toContain("Agent signals");
-    expect(flow).not.toContain("Reviewed reports");
-    expect(flow).not.toContain("Observed bug");
-    expect(flow).not.toContain("Live stream");
-    expect(flow).not.toContain("Ready for triage");
-    expect(flow).not.toContain("Maintainer workspace");
-    expect(flow).not.toContain("checkout-form.tsx");
-    expect(styles).toContain('.reportCard[data-tone="aqua"]');
-    expect(styles).toContain('.reportCard[data-tone="violet"]');
-    expect(styles).toContain('.reportCard[data-tone="peach"]');
-  });
-
-  test("keeps the live report board readable on narrow mobile screens", async () => {
-    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
-
-    expect(styles).toContain("padding: 4px 10px;");
-    expect(styles).toContain(".reportBoardSection {\n    width: calc(100% - 20px);");
-    expect(styles).toContain("grid-template-columns: repeat(2, minmax(0, 1fr));");
-    expect(styles).toContain(".badgeTime,\n  .statusOpen,\n  .statusResolved");
-  });
-
-  test("offers workspace and source calls to action", async () => {
-    const page = await Bun.file(`${appDirectory}/page.tsx`).text();
-
-    expect(page).toContain('href="/login"');
-    expect(page).toContain('href="https://github.com/Complaintr/filika"');
-    expect(page).toContain('rel="noreferrer"');
-  });
-
-  test("uses a publicly accessible hero background image", async () => {
-    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
-    const heroImage = Bun.file(`${appDirectory}/landing-hero-coast.png`);
-
-    expect(styles).toContain('url("./landing-hero-coast.png")');
-    expect(styles).toContain("transparent calc(100% - 200px), var(--landing-paper) 100%");
-    expect(await heroImage.exists()).toBe(true);
-    expect(heroImage.size).toBeGreaterThan(0);
+    expect(page).toContain("Widget Area");
+    expect(styles).toContain("--primary: #009fe3");
+    expect(styles.match(/--primary: #009fe3/g)).toHaveLength(2);
+    expect(styles).toContain(".headerWrapper");
+    expect(styles).toContain(".headerScrolled");
+    expect(styles).toContain(".themeSwitcher");
+    expect(styles).toContain("line-height: 1.2");
+    expect(styles).toContain("align-items: flex-start");
+    expect(styles).toContain("align-self: flex-start");
+    expect(styles).toContain("padding-bottom: 0.1em");
+    expect(styles).toContain("overflow: visible");
+    expect(styles).toContain("background: var(--primary)");
+    expect(styles).toContain("box-shadow: none");
+    expect(styles).not.toContain("primary-gradient");
+    expect(styles).not.toContain("#0081c3");
+    expect(styles).not.toContain("#38d6ff");
+    expect(styles).not.toContain("rgba(0, 136, 204");
+    expect(styles).not.toContain("rgba(56, 189, 248");
+    expect(styles).not.toContain("rgba(48, 93, 222");
+    expect(styles).toContain("grid-template-columns: repeat(3, 1fr)");
+    expect(styles).toContain("@media (max-width: 560px)");
+    expect(styles).toContain(".widgetArea");
+    expect(page).toContain("<SiteScanFlowDemo />");
+    expect(page).toContain("<ResolutionFlowDemo />");
+    expect(page).toContain("<GlobeDemo />");
+    expect(page).not.toContain("<AnimatedBeamDemo />");
+    expect(featureDemos).toContain("WorldGlobeDemo");
+    expect(styles).toContain(".globeContainer");
+    expect(styles).toContain(".globeCanvas");
+    expect(globeDemo).toContain("GLOBE_RADIUS_SCALE = 0.4");
+    expect(flowDemos).toContain("WebMCP agent scanning the website");
+    expect(flowDemos).toContain("Website under agent inspection");
+    expect(flowDemos).toContain('data-site-scanner="true"');
+    expect(flowDemos).toContain("Unified review inbox");
+    expect(flowDemos.match(/<FlowBeamPath/g)).toHaveLength(7);
   });
 
   test("serves the home route without authentication or workspace chrome", async () => {
@@ -82,31 +132,5 @@ describe("public landing page", () => {
     expect(shell).toContain('"/",');
     expect(shell).toContain('"/login",');
     expect(shell).toContain('"/onboarding",');
-  });
-
-  test("includes the theme switcher in the header actions with dark mode styles", async () => {
-    const page = await Bun.file(`${appDirectory}/page.tsx`).text();
-    const header = await Bun.file(`${import.meta.dir}/../src/components/landing-header.tsx`).text();
-    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
-
-    expect(page).toContain("<LandingHeader");
-    expect(header).toContain("<ThemeSwitcher");
-    expect(styles).toContain(".themeSwitcher");
-    expect(styles).toContain(':root[data-theme="dark"] .page');
-    expect(styles).toContain(':root[data-theme="dark"] .productStage');
-    expect(styles).toContain(':root[data-theme="dark"] .ctaSection');
-  });
-
-  test("uses numbered badges for safety steps and includes brand watermark", async () => {
-    const page = await Bun.file(`${appDirectory}/page.tsx`).text();
-    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
-
-    expect(page).toContain("01");
-    expect(page).toContain("02");
-    expect(page).toContain("03");
-    expect(page).toContain("brandWatermark");
-    expect(styles).toContain(".safetyIndex");
-    expect(styles).toContain(".brandWatermark");
-    expect(styles).toContain(".headerScrolled");
   });
 });
