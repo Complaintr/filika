@@ -100,7 +100,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2]
     env:
       E2E_DATABASE_URL: postgres://postgres@localhost:5432/filika_e2e
     services:
