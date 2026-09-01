@@ -2,16 +2,12 @@ import {
   ArrowRight,
   Bot,
   Bug,
-  Check,
   ChevronDown,
   Circle,
-  Cpu,
   Layers,
   Lock,
   Radio,
   ShieldCheck,
-  Sparkles,
-  Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
 import { LandingHeader } from "@/components/landing-header";
@@ -251,21 +247,6 @@ export default function HomePage() {
               </p>
             </li>
             <li>
-              <div className={styles.globeVisual}>
-                <Cpu aria-hidden="true" />
-                <i />
-                <i />
-                <i />
-              </div>
-              <h3>
-                <Sparkles aria-hidden="true" /> 100% Free &amp; Open Source
-              </h3>
-              <p>
-                No paywalls, subscriptions, or seat fees. Free, open source, and fully
-                self-hostable.
-              </p>
-            </li>
-            <li>
               <div className={styles.integrationsVisual}>
                 {[
                   ["React & Next.js", "SDK & Script integration", "Active"],
@@ -302,20 +283,6 @@ export default function HomePage() {
               <p>
                 No data is sent without explicit user review and confirmation. Safe by construction.
               </p>
-            </li>
-            <li>
-              <div className={styles.revenueVisual}>
-                <span>Open Source</span>
-                <strong>$0</strong>
-                <small>Free forever · No credit card</small>
-                <div>
-                  <Check aria-hidden="true" /> Self-host or run cloud
-                </div>
-              </div>
-              <h3>
-                <Zap aria-hidden="true" /> Zero cost &amp; overhead
-              </h3>
-              <p>Ultralight bundle, zero performance degradation, and completely free forever.</p>
             </li>
           </ul>
         </section>
