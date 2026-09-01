@@ -15,7 +15,7 @@ describe("landing header component", () => {
     expect(nav).not.toBeNull();
     expect(nav?.textContent).toContain("Features");
     expect(nav?.textContent).toContain("How it works");
-    expect(nav?.textContent).toContain("Docs");
+    expect(nav?.textContent).not.toContain("Docs");
 
     const switcher = result.container.querySelector('fieldset[aria-label="Appearance"]');
     expect(switcher).not.toBeNull();

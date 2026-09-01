@@ -42,7 +42,6 @@ export function LandingHeader() {
           <nav className={styles.nav} aria-label="Main navigation">
             <a href="#features">Features</a>
             <a href="#how-it-works">How it works</a>
-            <a href="/docs">Docs</a>
           </nav>
         </div>
 

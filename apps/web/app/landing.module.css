@@ -675,15 +675,13 @@
   place-items: center;
   width: 27px;
   height: 27px;
-  border-radius: 9px;
-  background: #eaf1ff;
   color: var(--demo-blue);
 }
 .discoveryIcon svg,
 .integrationIcon svg,
 .approvalReportIcon svg {
-  width: 13px;
-  height: 13px;
+  width: 16px;
+  height: 16px;
 }
 .discoveryRow > span:nth-child(2),
 .integrationRow > span:nth-child(2),
@@ -824,13 +822,11 @@
   place-items: center;
   width: 27px;
   height: 27px;
-  border-radius: 9px;
-  background: #eaf1ff;
   color: var(--demo-blue);
 }
 .bugAlert svg {
-  width: 13px;
-  height: 13px;
+  width: 16px;
+  height: 16px;
 }
 .bugAlert > span:nth-child(2) {
   display: grid;
@@ -999,10 +995,7 @@
 .approvalStage svg {
   width: 29px;
   height: 29px;
-  padding: 7px;
-  border: 1px solid var(--demo-line);
-  border-radius: 10px;
-  background: var(--demo-surface);
+  padding: 6px;
 }
 .approvalAction {
   position: relative;
@@ -1623,10 +1616,6 @@
   --demo-blue: #78a1ff;
 }
 
-:root[data-theme="dark"] .discoveryIcon,
-:root[data-theme="dark"] .integrationIcon,
-:root[data-theme="dark"] .approvalReportIcon,
-:root[data-theme="dark"] .bugAlert > span:first-child,
 :root[data-theme="dark"] .bugAlert em,
 :root[data-theme="dark"] .integrationReady {
   background: #202b45;
