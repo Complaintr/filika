@@ -43,6 +43,8 @@ describe("public landing page", () => {
     expect(page).toContain("Code &amp; behavioral bugs");
     expect(page).toContain("100% Free &amp; Open Source");
     expect(page).toContain("2026 Complaintr. All rights reserved.");
+    expect(page).toContain("User-reviewed feedback infrastructure for AI agents.");
+    expect(page).toContain('href="/terms"');
     expect(page).toContain("Human in the loop");
     expect(page).toContain("What is Filika?");
     expect(page).toContain("How do WebMCP agents find bugs?");

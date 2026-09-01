@@ -1,6 +1,7 @@
 import { ArrowRight, Bot, Bug, ChevronDown, Layers, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { ResolutionFlowDemo, SiteScanFlowDemo } from "@/components/animated-beam-demo";
+import { FilikaBrand } from "@/components/filika-brand";
 import { LandingHeader } from "@/components/landing-header";
 import styles from "./landing.module.css";
 import {
@@ -224,8 +225,26 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className={styles.bottomWatermark} aria-hidden="true">
-        <span className={styles.bottomWatermarkText}>filika</span>
+      <footer className={styles.bottomWatermark}>
+        <div className={styles.footerTop}>
+          <FilikaBrand href="/" label="Filika home" className={styles.footerBrand} />
+          <p>User-reviewed feedback infrastructure for AI agents.</p>
+          <nav className={styles.footerNav} aria-label="Footer navigation">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How it works</a>
+            <a
+              href="https://github.com/Complaintr/filika"
+              rel="noreferrer"
+              target="_blank"
+            >
+              GitHub
+            </a>
+            <a href="/terms">Terms</a>
+          </nav>
+        </div>
+        <span className={styles.bottomWatermarkText} aria-hidden="true">
+          filika
+        </span>
       </footer>
     </div>
   );
