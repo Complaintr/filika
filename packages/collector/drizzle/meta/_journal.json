@@ -36,6 +36,13 @@
       "when": 1788208245996,
       "tag": "0004_github-issue-integration",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788270719556,
+      "tag": "0005_onboarding-integration-verification",
+      "breakpoints": true
     }
   ]
 }

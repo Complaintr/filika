@@ -184,6 +184,11 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     expect(rows?.description).toBe("The save button did nothing.");
     expect(rows?.origin).toBe(ALLOWED_ORIGIN);
     expect(rows?.source).toBe("web_sdk_unverified");
+
+    const verifiedProject = await handle.db.query.project.findFirst({
+      where: eq(project.id, demoProjectId),
+    });
+    expect(verifiedProject?.integrationVerifiedAt).toEqual(rows?.receiptTimestamp);
   });
 
   test("returns the original receipt for a duplicate retry", async () => {
@@ -1093,7 +1098,12 @@ describe.skipIf(!isDbAvailable)("owned applications and account settings", () =>
     expect(responses.map((response) => response.status).sort()).toEqual([201, 409]);
     const list = await (await owner.request("/apps")).json();
     expect(list.applications).toHaveLength(1);
-    expect(list.applications[0]).toMatchObject({ slug, displayName: "Eckra", dashboardDays: 30 });
+    expect(list.applications[0]).toMatchObject({
+      slug,
+      displayName: "Eckra",
+      dashboardDays: 30,
+      integrationVerifiedAt: null,
+    });
     expect(list.applications[0]).not.toHaveProperty("ownerUserId");
     expect(
       (await owner.request(`/apps/${slug}`, "PATCH", { ...settings, displayName: "Renamed" }))
@@ -1118,6 +1128,8 @@ describe.skipIf(!isDbAvailable)("owned applications and account settings", () =>
     const accepted = await postRaw(postEnvelope(eventId, { projectKey: app.projectKey }));
     expect(accepted.status).toBe(201);
     const receipt = await accepted.json();
+    const verified = (await (await owner.request(`/apps/${first}`)).json()).application;
+    expect(Date.parse(verified.integrationVerifiedAt)).not.toBeNaN();
     expect((await (await owner.request(`/apps/${first}/inbox`)).json()).items).toHaveLength(1);
     expect((await (await owner.request(`/apps/${second}/inbox`)).json()).items).toHaveLength(0);
     expect((await (await owner.request(`/apps/${first}/dashboard`)).json()).total).toBe(1);

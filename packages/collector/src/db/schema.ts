@@ -42,6 +42,7 @@ export const project = pgTable(PROJECT_TABLE_NAME, {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   displayName: text("display_name").notNull(),
   id: uuid("id").defaultRandom().primaryKey(),
+  integrationVerifiedAt: timestamp("integration_verified_at", { withTimezone: true }),
   projectKey: text("project_key").notNull().unique(),
   rateLimitMax: integer("rate_limit_max").notNull().default(100),
   retentionHours: integer("retention_hours").notNull().default(24),
