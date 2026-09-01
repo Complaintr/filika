@@ -4,6 +4,8 @@ import { allowOriginHeaders, buildPreflightResponse } from "./cors";
 import { getDashboard } from "./dashboard";
 import type { Db } from "./db/client";
 import { FEEDBACK_ENDPOINT, INBOX_DETAIL_ENDPOINT, INBOX_LIST_ENDPOINT } from "./endpoint-contract";
+import type { GitHubConfig } from "./github/config";
+import { GitHubRoutes, isGitHubRoute } from "./github/routes";
 import { getInboxFeedback, listInbox } from "./inbox";
 import { parseListQuery } from "./inbox-query";
 import { ingestFeedback } from "./ingest";
@@ -11,6 +13,7 @@ import { collectAllowedOrigins } from "./project";
 
 export interface CollectorRouteOptions {
   betterAuth?: BetterAuth | undefined;
+  github?: GitHubConfig | undefined;
 }
 
 function unauthenticatedResponse(): Response {
@@ -21,8 +24,17 @@ export function createFetchHandler(
   db: Db,
   options?: CollectorRouteOptions,
 ): (request: Request) => Promise<Response> {
+  const github = new GitHubRoutes(db, options?.github);
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
+
+    if (isGitHubRoute(url.pathname)) {
+      const session =
+        url.pathname === "/api/v1/github/webhook"
+          ? null
+          : await options?.betterAuth?.api.getSession({ headers: request.headers });
+      return github.handle(request, session?.user.id ?? null);
+    }
 
     if (
       url.pathname === "/api/v1/account" ||

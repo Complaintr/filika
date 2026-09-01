@@ -3,6 +3,7 @@ import { readBoundedJson } from "./response";
 export interface Application {
   slug: string;
   displayName: string;
+  integrationVerifiedAt: string | null;
   projectKey: string;
   allowedOrigins: string[];
   dashboardDays: 7 | 30 | 90;
@@ -37,6 +38,11 @@ function parseApplication(value: unknown): Application {
     !text(value.slug, 48) ||
     !/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(value.slug) ||
     !text(value.displayName, 60) ||
+    !(
+      value.integrationVerifiedAt === null ||
+      (text(value.integrationVerifiedAt, 40) &&
+        Number.isFinite(Date.parse(value.integrationVerifiedAt)))
+    ) ||
     !text(value.projectKey, 128) ||
     !Array.isArray(value.allowedOrigins) ||
     value.allowedOrigins.length > 20 ||
@@ -51,6 +57,7 @@ function parseApplication(value: unknown): Application {
   return {
     slug: value.slug,
     displayName: value.displayName,
+    integrationVerifiedAt: value.integrationVerifiedAt as string | null,
     projectKey: value.projectKey,
     allowedOrigins: value.allowedOrigins as string[],
     dashboardDays: value.dashboardDays as 7 | 30 | 90,
@@ -131,6 +138,10 @@ export async function fetchApplications(signal: AbortSignal): Promise<Applicatio
   if (!Array.isArray(raw.applications) || raw.applications.length > 100)
     throw new Error("Invalid application list.");
   return raw.applications.map(parseApplication);
+}
+export async function fetchApplication(slug: string, signal: AbortSignal): Promise<Application> {
+  const raw = await request(`/api/v1/apps/${encodeURIComponent(slug)}`, signal);
+  return parseApplication(raw.application);
 }
 export async function createApplication(
   input: ApplicationSettings & { slug: string },

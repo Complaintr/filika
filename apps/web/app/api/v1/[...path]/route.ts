@@ -1,5 +1,6 @@
 import { createBetterAuth } from "@filika/collector/auth/better-auth";
 import { createDb } from "@filika/collector/db/client";
+import { githubConfigFromEnv } from "@filika/collector/github/config";
 import { createFetchHandler } from "@filika/collector/handler";
 import { after } from "next/server";
 
@@ -14,8 +15,10 @@ const betterAuth = createBetterAuth(handle.db, {
   secret: process.env.BETTER_AUTH_SECRET,
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  githubClientId: process.env.GITHUB_CLIENT_ID,
+  githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
 });
-const fetchHandler = createFetchHandler(handle.db, { betterAuth });
+const fetchHandler = createFetchHandler(handle.db, { betterAuth, github: githubConfigFromEnv() });
 
 export function GET(request: Request): Promise<Response> {
   return fetchHandler(request);

@@ -1,7 +1,7 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 import type { Db } from "./db/client";
-import { type Feedback, feedback } from "./db/schema";
+import { type Feedback, feedback, project } from "./db/schema";
 import type { FilikaFeedbackEnvelopeV1 } from "./envelope";
 
 export interface PersistFeedbackInput {
@@ -63,6 +63,10 @@ export async function persistFeedback(db: Db, input: PersistFeedbackInput): Prom
     const created = inserted[0];
 
     if (created !== undefined) {
+      await transaction
+        .update(project)
+        .set({ integrationVerifiedAt: created.receiptTimestamp })
+        .where(and(eq(project.id, values.projectId), isNull(project.integrationVerifiedAt)));
       return { feedback: created, outcome: "created" };
     }
 

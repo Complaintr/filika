@@ -17,6 +17,7 @@ import type { CollectorRouteOptions } from "../src/handler";
 import { windowKey } from "../src/rate-limit";
 import { consumeProjectRateLimit, windowStartFor } from "../src/rate-limiting";
 import { createFetchHandler, startCollectorServer } from "../src/server";
+import { registerGitHubIntegrationTests } from "./github-integration-cases";
 
 const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/filika_test";
 
@@ -183,6 +184,11 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     expect(rows?.description).toBe("The save button did nothing.");
     expect(rows?.origin).toBe(ALLOWED_ORIGIN);
     expect(rows?.source).toBe("web_sdk_unverified");
+
+    const verifiedProject = await handle.db.query.project.findFirst({
+      where: eq(project.id, demoProjectId),
+    });
+    expect(verifiedProject?.integrationVerifiedAt).toEqual(rows?.receiptTimestamp);
   });
 
   test("returns the original receipt for a duplicate retry", async () => {
@@ -1092,7 +1098,12 @@ describe.skipIf(!isDbAvailable)("owned applications and account settings", () =>
     expect(responses.map((response) => response.status).sort()).toEqual([201, 409]);
     const list = await (await owner.request("/apps")).json();
     expect(list.applications).toHaveLength(1);
-    expect(list.applications[0]).toMatchObject({ slug, displayName: "Eckra", dashboardDays: 30 });
+    expect(list.applications[0]).toMatchObject({
+      slug,
+      displayName: "Eckra",
+      dashboardDays: 30,
+      integrationVerifiedAt: null,
+    });
     expect(list.applications[0]).not.toHaveProperty("ownerUserId");
     expect(
       (await owner.request(`/apps/${slug}`, "PATCH", { ...settings, displayName: "Renamed" }))
@@ -1117,6 +1128,8 @@ describe.skipIf(!isDbAvailable)("owned applications and account settings", () =>
     const accepted = await postRaw(postEnvelope(eventId, { projectKey: app.projectKey }));
     expect(accepted.status).toBe(201);
     const receipt = await accepted.json();
+    const verified = (await (await owner.request(`/apps/${first}`)).json()).application;
+    expect(Date.parse(verified.integrationVerifiedAt)).not.toBeNaN();
     expect((await (await owner.request(`/apps/${first}/inbox`)).json()).items).toHaveLength(1);
     expect((await (await owner.request(`/apps/${second}/inbox`)).json()).items).toHaveLength(0);
     expect((await (await owner.request(`/apps/${first}/dashboard`)).json()).total).toBe(1);
@@ -1243,7 +1256,7 @@ describe.skipIf(!isDbAvailable)("application schema compatibility", () => {
       const after =
         await ddl`SELECT id, hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`;
       expect(after.slice(0, history.length)).toEqual([...history]);
-      expect(after.length).toBe(history.length + 1);
+      expect(after.length).toBe(history.length + journal.entries.length - previousEntries.length);
       await migrate(handle.db, { migrationsFolder: `${import.meta.dir}/../drizzle` });
       expect(
         await ddl`SELECT id, hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`,
@@ -1314,3 +1327,5 @@ function matrixRequest(scenario: AbuseControlScenarioId, eventId: string): Reque
 function uuidFor(index: number): string {
   return `00000000-0000-4000-8000-${index.toString(16).padStart(12, "0")}`;
 }
+
+registerGitHubIntegrationTests(() => handle.db, isDbAvailable);

@@ -83,10 +83,32 @@ and [Resend email API](https://resend.com/docs/api-reference/emails/send-email).
 
 ### Applications and account settings
 
-After sign-in, `/onboarding` creates a real application owned by the account.
-Choose its display name, unique URL slug (for example `eckra`), and an optional
-website origin. Returning users open their existing application. The header
-switcher lists only their own applications and offers **Create application**.
+After sign-in, `/onboarding` creates a real application owned by the account and
+guides the user through a working connection. The user names the application,
+approves one exact website origin, installs the generated browser script, and
+sends one reviewed test report. The application is marked as verified only when
+that report reaches its inbox. Setup can be finished later; an unverified
+application keeps a **Continue setup** link in its workspace. Returning users
+open their existing application, while **Create application** starts a shorter
+version of the same connection flow.
+
+The setup screen generates the application-specific script. A production
+installation has this shape:
+
+```html
+<script
+  src="https://your-filika-host.example/sdk/filika.js"
+  data-project-key="app_your_public_application_key"
+  data-endpoint="https://your-filika-host.example/api/v1/feedback"
+  defer
+></script>
+```
+
+The web build publishes both `/sdk/filika.js` and the loopback-only
+`/sdk/filika.development.js`. The latter accepts HTTP only for localhost
+development. The script registers the static Filika WebMCP feedback tool; it
+does not read ambient page content. A person still reviews and confirms every
+report before transmission.
 
 - `/eckra/dashboard`: statistics for Eckra only.
 - `/eckra/complaints`: Eckra's reports and shareable complaint detail links.

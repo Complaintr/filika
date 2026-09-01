@@ -29,6 +29,20 @@
       "when": 1788119137952,
       "tag": "0003_applications-and-account",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788208245996,
+      "tag": "0004_github-issue-integration",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788270719556,
+      "tag": "0005_onboarding-integration-verification",
+      "breakpoints": true
     }
   ]
 }

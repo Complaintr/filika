@@ -14,7 +14,7 @@ export default defineConfig({
   use: { baseURL: webOrigin, browserName: "chromium", trace: "retain-on-failure" },
   webServer: [
     {
-      command: `bun run build:spa && bun run --bun next dev -p ${webPort}`,
+      command: `bun run build:spa && bun run --bun next build && bun run --bun next start -p ${webPort}`,
       cwd: fileURLToPath(new URL("../../apps/web", import.meta.url)),
       url: `${webOrigin}/api/v1/inbox`,
       reuseExistingServer: false,
@@ -22,6 +22,8 @@ export default defineConfig({
         DATABASE_URL: browserDatabaseUrl(),
         BETTER_AUTH_URL: webOrigin,
         FILIKA_E2E: "1",
+        // GitHub is mocked in integration UI tests; never use developer credentials.
+        GITHUB_APP_ID: "",
         BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? "test-secret",
       },
     },

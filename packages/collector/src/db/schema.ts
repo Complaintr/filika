@@ -42,6 +42,7 @@ export const project = pgTable(PROJECT_TABLE_NAME, {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   displayName: text("display_name").notNull(),
   id: uuid("id").defaultRandom().primaryKey(),
+  integrationVerifiedAt: timestamp("integration_verified_at", { withTimezone: true }),
   projectKey: text("project_key").notNull().unique(),
   rateLimitMax: integer("rate_limit_max").notNull().default(100),
   retentionHours: integer("retention_hours").notNull().default(24),
@@ -146,3 +147,60 @@ export const verification = pgTable(VERIFICATION_TABLE_NAME, {
 export type Project = typeof project.$inferSelect;
 export type Feedback = typeof feedback.$inferSelect;
 export type RateLimit = typeof rateLimit.$inferSelect;
+
+// Integration credentials are separate from login-provider credentials.
+export const githubAuthorization = pgTable("github_authorization", {
+  projectId: uuid("project_id")
+    .primaryKey()
+    .references(() => project.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  githubUserId: text("github_user_id").notNull(),
+  encryptedToken: text("encrypted_token").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+
+export const githubOauthState = pgTable("github_oauth_state", {
+  stateHash: text("state_hash").primaryKey(),
+  projectId: uuid("project_id")
+    .notNull()
+    .unique()
+    .references(() => project.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+
+export const githubConnection = pgTable("github_connection", {
+  projectId: uuid("project_id")
+    .primaryKey()
+    .references(() => project.id, { onDelete: "cascade" }),
+  version: uuid("version").notNull().defaultRandom(),
+  installationId: text("installation_id").notNull(),
+  repositoryId: text("repository_id").notNull(),
+  fullName: text("full_name").notNull(),
+  isPrivate: boolean("is_private").notNull(),
+  active: boolean("active").notNull().default(true),
+});
+
+export const githubIssue = pgTable("github_issue", {
+  feedbackId: uuid("feedback_id")
+    .primaryKey()
+    .references(() => feedback.id, { onDelete: "cascade" }),
+  projectId: uuid("project_id")
+    .notNull()
+    .references(() => project.id, { onDelete: "cascade" }),
+  operationId: uuid("operation_id").notNull().defaultRandom(),
+  approvedBy: text("approved_by")
+    .notNull()
+    .references(() => user.id),
+  installationId: text("installation_id").notNull(),
+  repositoryId: text("repository_id").notNull(),
+  fullName: text("full_name").notNull(),
+  status: text("status", { enum: ["pending", "created", "uncertain", "failed"] }).notNull(),
+  issueNumber: integer("issue_number"),
+  issueUrl: text("issue_url"),
+  startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+});
