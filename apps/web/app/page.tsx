@@ -69,12 +69,12 @@ const faqs = [
     "Filika is an open-source platform that uses WebMCP browser agents to discover code errors, runtime bugs, and behavioral issues across web applications.",
   ],
   [
-    "Is Filika completely free?",
-    "Yes. Filika is 100% free and open source. There are no fees, no subscriptions, no seat limits, and no paid tiers.",
-  ],
-  [
     "How do WebMCP agents find bugs?",
     "When a WebMCP-enabled browser agent interacts with your website, it uses structured tools to inspect runtime state, detect broken flows, and draft detailed reports on problems it encounters.",
+  ],
+  [
+    "How do I install Filika on my website?",
+    "Add one lightweight <script> tag to your HTML or install the @filika/sdk package. It registers WebMCP tools in milliseconds with zero configuration.",
   ],
   [
     "How is user privacy protected?",
@@ -83,10 +83,6 @@ const faqs = [
   [
     "Can I self-host Filika?",
     "Yes. Both the WebMCP collector and web workspace are open source and easy to self-host with Bun and PostgreSQL on your own servers.",
-  ],
-  [
-    "How do I install Filika on my website?",
-    "Add one lightweight <script> tag to your HTML or install the @filika/sdk package. It registers WebMCP tools in milliseconds with zero configuration.",
   ],
 ] as const;
 

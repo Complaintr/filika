@@ -43,8 +43,11 @@ describe("public landing page", () => {
     expect(page).toContain("100% Free &amp; Open Source");
     expect(page).toContain("Human in the loop");
     expect(page).toContain("What is Filika?");
-    expect(page).toContain("Is Filika completely free?");
     expect(page).toContain("How do WebMCP agents find bugs?");
+    expect(page).toContain("How do I install Filika on my website?");
+    expect(page).toContain("How is user privacy protected?");
+    expect(page).toContain("Can I self-host Filika?");
+    expect(page).not.toContain("Is Filika completely free?");
 
     // Extras section items
     expect(page).toContain("WebMCP Protocol");
