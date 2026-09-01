@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { signInAsE2eUser } from "../sign-in";
 import { webOrigin } from "../web-origin";
@@ -8,35 +9,81 @@ test("onboarding creates an application and the header switches between isolated
   const identity = await signInAsE2eUser(page, { application: false });
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/onboarding$/);
-  await page.getByRole("radio", { name: "Developer", exact: true }).check();
-  await page.getByRole("button", { name: "Continue", exact: true }).click();
-  await page.getByLabel(/^Application name/).fill("Eckra");
+  await page.getByLabel("Application name", { exact: true }).fill("Eckra");
   const slug = `eckra-${identity.userId.slice(0, 8)}`;
-  await page.getByLabel("Application URL", { exact: true }).fill(slug);
-  await page.getByLabel("Website origin (optional)").fill(webOrigin);
-  await page.getByRole("button", { name: "Continue", exact: true }).click();
-  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByText("Workspace URL", { exact: true }).click();
+  await page.getByLabel("Filika address", { exact: true }).fill(slug);
+  await page.getByLabel("Website origin", { exact: true }).fill(webOrigin);
   await page.getByRole("button", { name: "Create application", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/${slug}/complaints`));
-  await expect(page.getByRole("button", { name: "Switch application" })).toContainText("Eckra");
-  const response = await page.request.post("/api/v1/apps", {
-    headers: { Origin: webOrigin },
+  await expect(page).toHaveURL(new RegExp(`/onboarding\\?app=${slug}$`));
+  await expect(page.getByRole("heading", { name: "Add Filika to Eckra." })).toBeVisible();
+  await expect(page.getByText(`/sdk/filika.development.js`, { exact: false })).toBeVisible();
+  await page.screenshot({
+    path: test.info().outputPath("onboarding-install.png"),
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "I installed it", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Send one real signal." })).toBeVisible();
+
+  const applications = (await (await page.request.get("/api/v1/apps")).json()).applications as {
+    projectKey: string;
+    slug: string;
+  }[];
+  const created = applications.find((application) => application.slug === slug);
+  expect(created).toBeDefined();
+  const eventId = randomUUID();
+  const title = `First onboarding signal ${eventId}`;
+  const feedback = await page.request.post("/api/v1/feedback", {
+    headers: { "Idempotency-Key": eventId, Origin: webOrigin },
     data: {
-      displayName: "Second application",
-      slug: `second-${identity.userId.slice(0, 8)}`,
-      allowedOrigins: [],
-      dashboardDays: 7,
+      schemaVersion: 1,
+      projectKey: created?.projectKey,
+      eventId,
+      feedback: {
+        kind: "bug",
+        title,
+        description: "A reviewed test report for onboarding verification.",
+      },
+      context: { sdkVersion: "0.0.0", routeLabel: "/onboarding-test" },
     },
   });
-  expect(response.status()).toBe(201);
-  const second = (await response.json()).application;
+  expect(feedback.status()).toBe(201);
+  await expect(page.getByRole("heading", { name: "Eckra is connected." })).toBeVisible({
+    timeout: 10_000,
+  });
+  await expect(page.getByText(title, { exact: true })).toBeVisible();
+  await page.screenshot({
+    path: test.info().outputPath("onboarding-connected.png"),
+    fullPage: true,
+  });
+  await page.getByRole("link", { name: "Open the first report", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/${slug}/complaints/`));
+  await expect(page.getByRole("button", { name: "Switch application" })).toContainText("Eckra");
+
+  const secondSlug = `second-${identity.userId.slice(0, 8)}`;
+  await page.goto("/onboarding?new=1");
+  await expect(page.getByRole("heading", { name: "Connect another product." })).toBeVisible();
+  await page.getByLabel("Application name", { exact: true }).fill("Second application");
+  await page.getByLabel("Website origin", { exact: true }).fill(webOrigin);
+  await page.getByText("Workspace URL", { exact: true }).click();
+  await page.getByLabel("Filika address", { exact: true }).fill(secondSlug);
+  await page.getByRole("button", { name: "Create application", exact: true }).click();
+  await page.getByRole("button", { name: "Finish later", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/${secondSlug}/complaints$`));
+  await expect(page.getByText("Setup incomplete", { exact: true })).toBeVisible();
   await page.reload();
+  await page.getByRole("button", { name: "Switch application" }).click();
+  await page
+    .getByRole("navigation", { name: "Your applications" })
+    .getByRole("link", { name: /Eckra/ })
+    .click();
+  await expect(page).toHaveURL(new RegExp(`/${slug}/complaints$`));
   await page.getByRole("button", { name: "Switch application" }).click();
   await page
     .getByRole("navigation", { name: "Your applications" })
     .getByRole("link", { name: /Second application/ })
     .click();
-  await expect(page).toHaveURL(new RegExp(`/${second.slug}/complaints$`));
+  await expect(page).toHaveURL(new RegExp(`/${secondSlug}/complaints$`));
   await page.locator(".bottom-nav-item", { hasText: "Settings" }).click();
   await expect(page.getByLabel(/^Application name/)).toHaveValue("Second application");
   await page.getByLabel(/^Application name/).fill("Renamed second app");

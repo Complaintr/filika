@@ -130,7 +130,7 @@ h3 {
   border: 1px solid var(--blue);
   border-radius: 8px;
 }
-.skip-link:focus {
+.skip-link:focus-visible {
   top: 12px;
 }
 .workspace-shell {
@@ -6174,7 +6174,7 @@ html {
   }
   .onboarding-signal-board {
     grid-column: auto;
-    min-height: 255px;
+    min-height: 275px;
     padding: 23px;
   }
   .onboarding-signal-route {
@@ -6188,7 +6188,15 @@ html {
     margin: 0 auto;
   }
   .onboarding-signal-node > div {
+    margin-top: 8px;
+  }
+  .onboarding-signal-node small {
     display: none;
+  }
+  .onboarding-signal-node strong {
+    margin: 0 auto;
+    font-size: 8px;
+    line-height: 1.35;
   }
   .onboarding-signal-node > i {
     left: calc(50% + 17px);
