@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Menu } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FilikaBrand } from "@/components/filika-brand";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -61,9 +61,6 @@ export function LandingHeader() {
           <a className={styles.primaryButton} href="/login">
             Get Started <ArrowRight aria-hidden="true" />
           </a>
-          <button className={styles.menuButton} type="button" aria-label="Menu">
-            <Menu aria-hidden="true" />
-          </button>
         </div>
       </header>
     </div>
