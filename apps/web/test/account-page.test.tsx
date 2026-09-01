@@ -57,3 +57,9 @@ test("the profile photo action opens Profile from another account section", asyn
     globalThis.fetch = originalFetch;
   }
 });
+
+test("inbox spacing choices reflow instead of overflowing a narrow settings column", async () => {
+  const css = await Bun.file(`${import.meta.dir}/../src/app.css`).text();
+
+  expect(css).toContain("grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));");
+});
