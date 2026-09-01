@@ -105,6 +105,9 @@ describe("feedback-dialog-component", () => {
     expect(root.textContent).toContain("Example project");
     expect(root.textContent).toContain("https://collector.example.test");
     expect(root.textContent).toContain("Feedback is retained for 24 hours.");
+    expect(root.textContent).toContain(
+      "may export confirmed feedback to a connected GitHub repository automatically",
+    );
     expect(requiredElement<HTMLAnchorElement>(root, ".privacy a").href).toBe(
       "https://example.test/privacy",
     );

@@ -74,11 +74,14 @@ export function GitHubIssuePanel({ appSlug, feedbackId }: { appSlug: string; fee
     <section className="github-issue-panel" aria-labelledby={`${id}-heading`} aria-busy={busy}>
       <h3 id={`${id}-heading`}>GitHub issue</h3>
       {issue?.status === "created" && issue.url ? (
-        <p>
-          <a href={issue.url} target="_blank" rel="noreferrer">
-            View {issue.fullName} #{issue.number} ↗
-          </a>
-        </p>
+        <>
+          <p>
+            <a href={issue.url} target="_blank" rel="noreferrer">
+              View {issue.fullName} #{issue.number} ↗
+            </a>
+          </p>
+          <p>Created {issue.trigger === "automatic" ? "automatically" : "after manual review"}.</p>
+        </>
       ) : (
         <>
           {!data && !error && <p role="status">Loading GitHub status…</p>}
@@ -115,7 +118,16 @@ export function GitHubIssuePanel({ appSlug, feedbackId }: { appSlug: string; fee
             </>
           )}
           {issue?.status === "failed" && (
-            <p>GitHub rejected the previous request. Review the issue before trying again.</p>
+            <p>
+              GitHub rejected the previous {issue.trigger} request. Review the issue before trying
+              again.
+            </p>
+          )}
+          {data?.issueMode === "automatic" && !issue && (
+            <p>
+              Automatic issue creation has not completed. Refresh the status or create this issue
+              manually.
+            </p>
           )}
           {canCreate && !reviewing && (
             <button
@@ -124,7 +136,7 @@ export function GitHubIssuePanel({ appSlug, feedbackId }: { appSlug: string; fee
               disabled={busy}
               onClick={() => setReviewing(true)}
             >
-              Create GitHub issue
+              {data?.issueMode === "automatic" ? "Create manually" : "Create GitHub issue"}
             </button>
           )}
           {canCreate && reviewing && data.connection && (

@@ -13,6 +13,7 @@ const connection = {
 const connected = {
   configured: true,
   authorized: true,
+  issueMode: "manual" as const,
   installUrl: "https://github.com/apps/filika-test/installations/new",
   connection,
 };
@@ -21,6 +22,7 @@ test("GitHub settings selects a repository and confirms disconnect", async ({ pa
   const identity = await signInAsE2eUser(page);
   let bound = false;
   let disconnected = false;
+  let issueMode: "manual" | "automatic" = "manual";
   await page.route("**/github**", async (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/installations"))
@@ -37,7 +39,12 @@ test("GitHub settings selects a repository and confirms disconnect", async ({ pa
     if (path.endsWith("/connection")) {
       expect(route.request().postDataJSON()).toEqual({ installationId: "2", repositoryId: "3" });
       bound = true;
-      return route.fulfill({ json: connected });
+      return route.fulfill({ json: { ...connected, issueMode } });
+    }
+    if (path.endsWith("/mode")) {
+      const body: { mode: "manual" | "automatic" } = route.request().postDataJSON();
+      issueMode = body.mode;
+      return route.fulfill({ json: { ...connected, issueMode } });
     }
     if (path.endsWith("/disconnect")) {
       disconnected = true;
@@ -46,6 +53,7 @@ test("GitHub settings selects a repository and confirms disconnect", async ({ pa
     return route.fulfill({
       json: {
         ...connected,
+        issueMode,
         authorized: !disconnected,
         connection: bound && !disconnected ? connection : null,
       },
@@ -59,6 +67,11 @@ test("GitHub settings selects a repository and confirms disconnect", async ({ pa
     page.getByText("Repository connected. Reports are exported only after your approval."),
   ).toBeVisible();
   expect(bound).toBe(true);
+  await page.getByLabel("Issue creation").selectOption("automatic");
+  await expect(
+    page.getByText("Automatic issue creation enabled for newly confirmed feedback."),
+  ).toBeVisible();
+  await expect(page.getByText(/without another maintainer review/)).toBeVisible();
   await page.getByRole("button", { name: "Disconnect GitHub", exact: true }).click();
   expect(disconnected).toBe(false);
   await page.getByRole("button", { name: "Cancel disconnect" }).click();
@@ -90,6 +103,7 @@ test("issue review sends nothing until confirmation and preserves the GitHub lin
   let created = false;
   const issue = {
     status: "created",
+    trigger: "manual",
     number: 7,
     url: "https://github.com/owner/repo/issues/7",
     fullName: "owner/repo",

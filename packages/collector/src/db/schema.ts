@@ -183,6 +183,12 @@ export const githubConnection = pgTable("github_connection", {
   fullName: text("full_name").notNull(),
   isPrivate: boolean("is_private").notNull(),
   active: boolean("active").notNull().default(true),
+  issueMode: text("issue_mode", { enum: ["manual", "automatic"] })
+    .notNull()
+    .default("manual"),
+  automaticApprovedBy: text("automatic_approved_by").references(() => user.id, {
+    onDelete: "set null",
+  }),
 });
 
 export const githubIssue = pgTable("github_issue", {
@@ -199,6 +205,9 @@ export const githubIssue = pgTable("github_issue", {
   installationId: text("installation_id").notNull(),
   repositoryId: text("repository_id").notNull(),
   fullName: text("full_name").notNull(),
+  trigger: text("trigger", { enum: ["manual", "automatic"] })
+    .notNull()
+    .default("manual"),
   status: text("status", { enum: ["pending", "created", "uncertain", "failed"] }).notNull(),
   issueNumber: integer("issue_number"),
   issueUrl: text("issue_url"),

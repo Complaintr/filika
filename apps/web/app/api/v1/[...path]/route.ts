@@ -18,7 +18,11 @@ const betterAuth = createBetterAuth(handle.db, {
   githubClientId: process.env.GITHUB_CLIENT_ID,
   githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
 });
-const fetchHandler = createFetchHandler(handle.db, { betterAuth, github: githubConfigFromEnv() });
+const fetchHandler = createFetchHandler(handle.db, {
+  betterAuth,
+  github: githubConfigFromEnv(),
+  runInBackground: (task) => after(task),
+});
 
 export function GET(request: Request): Promise<Response> {
   return fetchHandler(request);

@@ -12,6 +12,8 @@ export const repositoryName = z
 export const repositorySelection = z
   .object({ installationId: githubId, repositoryId: githubId })
   .strict();
+export const githubIssueModeSchema = z.enum(["manual", "automatic"]);
+export const githubIssueModeInputSchema = z.object({ mode: githubIssueModeSchema }).strict();
 export const issueApproval = z
   .object({
     connectionVersion: z.uuid(),
@@ -35,6 +37,7 @@ export const connectionViewSchema = z
 export const issueViewSchema = z
   .object({
     status: z.enum(["pending", "created", "uncertain", "failed"]),
+    trigger: z.enum(["manual", "automatic"]),
     number: z.number().int().positive().nullable(),
     url: z
       .string()
@@ -48,6 +51,7 @@ export const githubStatusSchema = z
   .object({
     configured: z.boolean(),
     authorized: z.boolean(),
+    issueMode: githubIssueModeSchema,
     installUrl: z
       .string()
       .regex(/^https:\/\/github\.com\/apps\/[a-z0-9-]+\/installations\/new$/)
@@ -74,6 +78,7 @@ export const repositoriesSchema = z
 
 export type GitHubStatus = z.infer<typeof githubStatusSchema>;
 export type GitHubIssueView = z.infer<typeof issueViewSchema>;
+export type GitHubIssueMode = z.infer<typeof githubIssueModeSchema>;
 
 export const issuePreviewSchema = githubStatusSchema.extend({
   draft: z.object({ title: z.string().max(160), body: z.string().max(12_000) }).strict(),

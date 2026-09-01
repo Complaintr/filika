@@ -9,7 +9,7 @@ import {
   hashState,
   validWebhook,
 } from "../src/github/config";
-import { issueApproval } from "../src/github/contracts";
+import { githubIssueModeInputSchema, issueApproval } from "../src/github/contracts";
 
 const keys = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const config: GitHubConfig = {
@@ -71,6 +71,14 @@ describe("GitHub security boundaries", () => {
       issueApproval.safeParse({ ...input, fullName: "https://attacker.example" }).success,
     ).toBe(false);
     expect(issueApproval.safeParse({ ...input, body: "x".repeat(12001) }).success).toBe(false);
+  });
+  test("issue mode accepts only the closed manual and automatic choices", () => {
+    expect(githubIssueModeInputSchema.safeParse({ mode: "manual" }).success).toBe(true);
+    expect(githubIssueModeInputSchema.safeParse({ mode: "automatic" }).success).toBe(true);
+    expect(githubIssueModeInputSchema.safeParse({ mode: "always" }).success).toBe(false);
+    expect(
+      githubIssueModeInputSchema.safeParse({ mode: "automatic", repository: "other/repo" }).success,
+    ).toBe(false);
   });
   test("installation tokens are scoped to the selected repo and issues only", async () => {
     let called = false;

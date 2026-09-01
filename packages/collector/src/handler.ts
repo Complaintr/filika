@@ -4,7 +4,9 @@ import { allowOriginHeaders, buildPreflightResponse } from "./cors";
 import { getDashboard } from "./dashboard";
 import type { Db } from "./db/client";
 import { FEEDBACK_ENDPOINT, INBOX_DETAIL_ENDPOINT, INBOX_LIST_ENDPOINT } from "./endpoint-contract";
+import { GitHubClient } from "./github/client";
 import type { GitHubConfig } from "./github/config";
+import { prepareAutomaticGitHubIssue, sendReservedGitHubIssue } from "./github/issue-export";
 import { GitHubRoutes, isGitHubRoute } from "./github/routes";
 import { getInboxFeedback, listInbox } from "./inbox";
 import { parseListQuery } from "./inbox-query";
@@ -14,6 +16,8 @@ import { collectAllowedOrigins } from "./project";
 export interface CollectorRouteOptions {
   betterAuth?: BetterAuth | undefined;
   github?: GitHubConfig | undefined;
+  githubClient?: GitHubClient | undefined;
+  runInBackground?(task: () => Promise<void>): void;
 }
 
 function unauthenticatedResponse(): Response {
@@ -24,7 +28,10 @@ export function createFetchHandler(
   db: Db,
   options?: CollectorRouteOptions,
 ): (request: Request) => Promise<Response> {
-  const github = new GitHubRoutes(db, options?.github);
+  const automaticClient = options?.github
+    ? (options.githubClient ?? new GitHubClient(options.github))
+    : null;
+  const github = new GitHubRoutes(db, options?.github, automaticClient ?? undefined);
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
 
@@ -79,7 +86,18 @@ export function createFetchHandler(
     }
 
     if (request.method === "POST" && url.pathname === FEEDBACK_ENDPOINT) {
-      return ingestFeedback(db, request);
+      return ingestFeedback(db, request, undefined, {
+        async onCreated(app, feedback) {
+          if (!automaticClient) return;
+          const prepared = await prepareAutomaticGitHubIssue(db, app, feedback);
+          if (!prepared) return;
+          const task = async () => {
+            await sendReservedGitHubIssue(db, automaticClient, prepared.row, prepared.draft);
+          };
+          if (options?.runInBackground) options.runInBackground(task);
+          else void task().catch(() => {});
+        },
+      });
     }
 
     if (request.method === "GET" && url.pathname === INBOX_LIST_ENDPOINT) {
