@@ -765,6 +765,12 @@ export class FeedbackDialog {
       list.append(item);
     }
     panel.append(list);
+    appendText(
+      this.#document,
+      panel,
+      "p",
+      "After collection, the project owner may export confirmed feedback to a connected GitHub repository automatically or after a separate review.",
+    );
     const link = this.#document.createElement("a");
     link.href = this.#options.identity.privacyUrl;
     link.target = "_blank";

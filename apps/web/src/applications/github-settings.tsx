@@ -84,17 +84,53 @@ export function GitHubSettings({ appSlug }: { appSlug: string }) {
       {status?.configured && (
         <>
           {status.connection && (
-            <div className="settings-info-row">
-              <div>
-                <strong>{status.connection.fullName}</strong>
-                <p>
-                  {status.connection.isPrivate ? "Private repository" : "Public repository"} ·{" "}
-                  {status.connection.active
-                    ? "Connected"
-                    : "Access unavailable — select the repository again after restoring access"}
-                </p>
+            <>
+              <div className="settings-info-row">
+                <div>
+                  <strong>{status.connection.fullName}</strong>
+                  <p>
+                    {status.connection.isPrivate ? "Private repository" : "Public repository"} ·{" "}
+                    {status.connection.active
+                      ? "Connected"
+                      : "Access unavailable — select the repository again after restoring access"}
+                  </p>
+                </div>
               </div>
-            </div>
+              <div className="studio-setting">
+                <label htmlFor="github-issue-mode">
+                  Issue creation
+                  <span>Choose whether confirmed feedback needs a second maintainer review.</span>
+                </label>
+                <select
+                  id="github-issue-mode"
+                  className="studio-input"
+                  value={status.issueMode}
+                  disabled={busy || !status.connection.active}
+                  onChange={(event) => {
+                    const mode = event.target.value === "automatic" ? "automatic" : "manual";
+                    void action(async (signal) => {
+                      const next = await api.mode(mode, signal);
+                      setStatus(next);
+                      setMessage(
+                        mode === "automatic"
+                          ? "Automatic issue creation enabled for newly confirmed feedback."
+                          : "Manual issue review enabled.",
+                      );
+                    });
+                  }}
+                >
+                  <option value="manual">Manual — review each issue</option>
+                  <option value="automatic">Automatic — create after feedback confirmation</option>
+                </select>
+              </div>
+              {status.issueMode === "automatic" && (
+                <p className="muted">
+                  Newly confirmed feedback is sent to {status.connection.fullName} without another
+                  maintainer review. Existing pending exports may still finish after this mode is
+                  changed or GitHub is disconnected.
+                </p>
+              )}
+            </>
           )}
           <div className="github-actions">
             {status.installUrl && (

@@ -66,6 +66,7 @@ function issueView(row: Issue) {
       row.status === "pending" && Date.now() - row.startedAt.getTime() > 60_000
         ? "uncertain"
         : row.status,
+    trigger: row.trigger,
     number: row.issueNumber,
     url: row.issueUrl,
     fullName: row.fullName,

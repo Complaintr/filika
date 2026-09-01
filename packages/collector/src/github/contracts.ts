@@ -37,6 +37,7 @@ export const connectionViewSchema = z
 export const issueViewSchema = z
   .object({
     status: z.enum(["pending", "created", "uncertain", "failed"]),
+    trigger: z.enum(["manual", "automatic"]),
     number: z.number().int().positive().nullable(),
     url: z
       .string()
