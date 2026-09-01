@@ -2,17 +2,23 @@
 
 import {
   ArrowRight,
+  Bug,
   Check,
   ChevronLeft,
-  Circle,
+  CircleHelp,
+  CircleSlash,
   Clipboard,
   Code2,
   ExternalLink,
   Inbox,
+  Lightbulb,
+  MessageSquare,
+  MousePointer2,
   Radio,
-  Send,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AuthHeader } from "@/auth/auth-header";
@@ -241,334 +247,368 @@ export function OnboardingExperience() {
   const inboxPath = application ? applicationPath(application.slug, "complaints") : "/account";
 
   return (
-    <main id="app-content" className="onboarding-lab">
-      <div className="onboarding-lab-header">
+    <main id="app-content" className="onboarding-page">
+      <aside className="onboarding-visual" aria-label="Filika product preview">
+        <Image
+          src="/auth/photo2.png"
+          alt=""
+          fill
+          sizes="(max-width: 900px) 100vw, 1600px"
+          priority
+        />
+        <div className="onboarding-visual-shade" />
+        <div className="onboarding-visual-caption">
+          <span>From a moment of friction</span>
+          <strong>to a better product.</strong>
+        </div>
+        <ProductPreview step={step} applicationName={name || "Your application"} />
+        <p className="onboarding-example-label">
+          Illustrative preview · your actual reports will appear in your inbox
+        </p>
+      </aside>
+      <section className="onboarding-main" aria-busy={busy || loading}>
         <AuthHeader />
-        <Link href={application ? inboxPath : "/account"}>
-          {application ? "Exit setup" : "Account settings"} <ArrowRight />
-        </Link>
-      </div>
-
-      <div className="onboarding-lab-layout">
-        <aside className="onboarding-step-rail">
-          <p className="studio-eyebrow">{additional ? "New application" : "First signal"}</p>
-          <h2>{additional ? "Connect another product." : "Make feedback travel."}</h2>
-          {!additional && (
-            <p>
-              Connect one website, send one reviewed report, and watch it arrive in your Filika
-              inbox.
-            </p>
-          )}
-          <ol aria-label="Setup steps">
-            {STEP_LABELS.map((label, index) => (
-              <li
-                key={label}
-                data-state={index < step ? "complete" : index === step ? "active" : "pending"}
-              >
-                <span>{index < step ? <Check /> : String(index + 1).padStart(2, "0")}</span>
-                <div>
-                  <strong>{label}</strong>
-                  <small>
-                    {
-                      [
-                        "Name your feedback space",
-                        "Add Filika to your site",
-                        "Send one reviewed report",
-                        "Open your live inbox",
-                      ][index]
-                    }
-                  </small>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <div className="onboarding-privacy-note">
-            <ShieldCheck />
-            <p>Nothing is sent until a person reviews and confirms the report.</p>
+        <div className="onboarding-top-actions">
+          <button
+            className="studio-icon-button"
+            type="button"
+            aria-label="Previous step"
+            disabled={step < 2 || loading || busy}
+            onClick={() => {
+              setStep((value) => Math.max(1, value - 1));
+              setError("");
+            }}
+          >
+            <ChevronLeft />
+          </button>
+          <Link href={application ? inboxPath : "/account"}>
+            {application ? "Exit setup" : "Account settings"} <ArrowRight />
+          </Link>
+        </div>
+        {loading ? (
+          <div className="onboarding-content" role="status">
+            <p className="studio-eyebrow">Preparing the lab</p>
+            <h1>Loading your setup…</h1>
           </div>
-        </aside>
-
-        <section className="onboarding-stage" aria-busy={busy || loading}>
-          {loading ? (
-            <div className="onboarding-stage-content" role="status">
-              <p className="studio-eyebrow">Preparing the lab</p>
-              <h1>Loading your setup…</h1>
-            </div>
-          ) : step === 0 ? (
-            <div className="onboarding-stage-content">
-              <p className="studio-eyebrow">Create your feedback space</p>
-              <h1 ref={headingRef} tabIndex={-1}>
-                Where should feedback land?
-              </h1>
-              <p className="onboarding-stage-description">
-                Start with the product you want to hear from. Filika will make a private inbox for
-                its reviewed reports.
-              </p>
-              <div className="onboarding-fields">
-                <label htmlFor="onboarding-name">Application name</label>
-                <input
-                  className="studio-input"
-                  id="onboarding-name"
-                  maxLength={60}
-                  value={name}
-                  placeholder="Eckra"
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    setName(value);
-                    if (!slugEdited) setSlug(slugify(value));
-                  }}
-                />
-                <label htmlFor="onboarding-origin">Website origin</label>
-                <input
-                  className="studio-input"
-                  id="onboarding-origin"
-                  type="url"
-                  maxLength={2048}
-                  value={origin}
-                  placeholder="https://eckra.com"
-                  onChange={(event) => setOrigin(event.target.value)}
-                />
-                <p>Use the exact origin. Paths and trailing slashes are not included.</p>
-                <details className="onboarding-advanced">
-                  <summary>Workspace URL</summary>
-                  <label htmlFor="onboarding-slug">Filika address</label>
-                  <div className="onboarding-slug-field">
-                    <span className="onboarding-slug-prefix">/</span>
-                    <input
-                      id="onboarding-slug"
-                      value={slug}
-                      maxLength={48}
-                      placeholder="eckra"
-                      onChange={(event) => {
-                        setSlugEdited(true);
-                        setSlug(event.target.value);
-                      }}
-                    />
-                    <span className="onboarding-slug-suffix">/complaints</span>
-                  </div>
-                </details>
-              </div>
-              <button
-                className="onboarding-primary-action"
-                type="button"
-                disabled={busy}
-                onClick={() => void createWorkspace()}
-              >
-                {busy ? "Creating application…" : "Create application"} <ArrowRight />
-              </button>
-            </div>
-          ) : step === 1 && application ? (
-            <div className="onboarding-stage-content">
-              <p className="studio-eyebrow">Install the signal</p>
-              <h1 ref={headingRef} tabIndex={-1}>
-                Add Filika to {application.displayName}.
-              </h1>
-              <p className="onboarding-stage-description">
-                Paste this before the closing body tag. It registers Filika’s feedback tool without
-                reading the page around it.
-              </p>
-              <div className="onboarding-code-card">
-                <div>
-                  <span>HTML</span>
-                  <button type="button" onClick={() => void copy(snippet, "Install code copied.")}>
-                    <Clipboard /> Copy code
-                  </button>
-                </div>
-                <pre>
-                  <code>{snippet}</code>
-                </pre>
-              </div>
-              <div className="onboarding-handoff">
-                <Code2 />
-                <div>
-                  <strong>Someone else handles the code?</strong>
-                  <p>Copy a complete setup brief with the origin, key, install code, and test.</p>
-                </div>
-                <button type="button" onClick={() => void copy(setupBrief, "Setup brief copied.")}>
-                  Copy brief
-                </button>
-              </div>
-              <button
-                className="onboarding-primary-action"
-                type="button"
-                onClick={() => {
-                  setNotice("");
-                  setStep(2);
+        ) : step === 0 ? (
+          <div className="onboarding-content">
+            <p className="studio-eyebrow">
+              {additional ? "Create another application" : "Create your feedback space"}
+            </p>
+            <h1 ref={headingRef} tabIndex={-1}>
+              Where should feedback land?
+            </h1>
+            <p className="onboarding-description">
+              Start with the product you want to hear from. Filika will make a private inbox for its
+              reviewed reports.
+            </p>
+            <div className="onboarding-name">
+              <label htmlFor="onboarding-name">Application name</label>
+              <input
+                className="studio-input"
+                id="onboarding-name"
+                maxLength={60}
+                value={name}
+                placeholder="Eckra"
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setName(value);
+                  if (!slugEdited) setSlug(slugify(value));
                 }}
-              >
-                I installed it <ArrowRight />
-              </button>
-              <button
-                className="onboarding-secondary-action"
-                type="button"
-                onClick={() => window.location.assign(inboxPath)}
-              >
-                Finish later
-              </button>
+              />
+              <label htmlFor="onboarding-origin">Website origin</label>
+              <input
+                className="studio-input"
+                id="onboarding-origin"
+                type="url"
+                maxLength={2048}
+                value={origin}
+                placeholder="https://eckra.com"
+                onChange={(event) => setOrigin(event.target.value)}
+              />
+              <p>Use the exact origin. Paths and trailing slashes are not included.</p>
+              <label htmlFor="onboarding-slug">Application URL</label>
+              <input
+                className="studio-input"
+                id="onboarding-slug"
+                value={slug}
+                maxLength={48}
+                placeholder="eckra"
+                onChange={(event) => {
+                  setSlugEdited(true);
+                  setSlug(event.target.value);
+                }}
+              />
+              <p className="application-url-preview">/{slug || "eckra"}/complaints</p>
             </div>
-          ) : step === 2 && application ? (
-            <div className="onboarding-stage-content">
-              <button className="onboarding-back" type="button" onClick={() => setStep(1)}>
-                <ChevronLeft /> Back to install
-              </button>
-              <p className="studio-eyebrow">Verify the whole journey</p>
-              <h1 ref={headingRef} tabIndex={-1}>
-                Send one real signal.
-              </h1>
-              <p className="onboarding-stage-description">
-                Open your website in a WebMCP-enabled browser, ask its agent to send a test report,
-                then review and confirm it. This page will notice when it arrives.
-              </p>
-              <a className="onboarding-site-link" href={origin} target="_blank" rel="noreferrer">
-                Open {new URL(origin).hostname} <ExternalLink />
-              </a>
-              <div className="onboarding-prompt-card">
-                <span>Ask your browser agent</span>
-                <p>“{TEST_FEEDBACK_PROMPT}”</p>
-                <button
-                  type="button"
-                  onClick={() => void copy(TEST_FEEDBACK_PROMPT, "Test prompt copied.")}
-                >
-                  <Clipboard /> Copy prompt
+            <button
+              className="onboarding-continue"
+              type="button"
+              disabled={busy}
+              onClick={() => void createWorkspace()}
+            >
+              {busy ? "Creating application…" : "Create application"} <ArrowRight />
+            </button>
+          </div>
+        ) : step === 1 && application ? (
+          <div className="onboarding-content">
+            <p className="studio-eyebrow">Install the signal</p>
+            <h1 ref={headingRef} tabIndex={-1}>
+              Add Filika to {application.displayName}.
+            </h1>
+            <p className="onboarding-description">
+              Paste this before the closing body tag. It registers Filika’s feedback tool without
+              reading the page around it.
+            </p>
+            <div className="onboarding-code-card">
+              <div>
+                <span>HTML</span>
+                <button type="button" onClick={() => void copy(snippet, "Install code copied.")}>
+                  <Clipboard /> Copy code
                 </button>
               </div>
-              <div className="onboarding-listening" role="status">
-                <span data-active={checking}>
-                  <Radio />
-                </span>
-                <div>
-                  <strong>
-                    {pollStopped ? "Automatic checks paused" : "Listening for your report"}
-                  </strong>
-                  <p>
-                    {pollStopped
-                      ? "Run another check when your report is ready."
-                      : "You can keep this page open while you test."}
-                  </p>
-                </div>
-                {pollStopped && (
-                  <button type="button" onClick={() => setPollGeneration((value) => value + 1)}>
-                    Check again
-                  </button>
-                )}
+              <pre>
+                <code>{snippet}</code>
+              </pre>
+            </div>
+            <div className="onboarding-handoff">
+              <Code2 />
+              <div>
+                <strong>Someone else handles the code?</strong>
+                <p>Copy a complete setup brief with the origin, key, install code, and test.</p>
               </div>
-              <button
-                className="onboarding-secondary-action"
-                type="button"
-                onClick={() => window.location.assign(inboxPath)}
-              >
-                Finish later
+              <button type="button" onClick={() => void copy(setupBrief, "Setup brief copied.")}>
+                Copy brief
               </button>
             </div>
-          ) : application ? (
-            <div className="onboarding-stage-content onboarding-success">
-              <span className="onboarding-success-mark">
-                <Check />
-              </span>
-              <p className="studio-eyebrow">Signal received</p>
-              <h1 ref={headingRef} tabIndex={-1}>
-                {application.displayName} is connected.
-              </h1>
-              <p className="onboarding-stage-description">
-                Your reviewed report crossed the whole path and reached its Filika inbox.
-              </p>
-              {firstReport && (
-                <div className="onboarding-first-report">
-                  <Inbox className="onboarding-first-report-icon" />
-                  <div>
-                    <span>{firstReport.kind.replaceAll("_", " ")}</span>
-                    <strong>{firstReport.title}</strong>
-                    <small>{firstReport.requestOrigin}</small>
-                  </div>
-                  <Check className="onboarding-first-report-check" />
-                </div>
-              )}
-              <Link
-                className="onboarding-primary-action"
-                href={firstReport ? `${inboxPath}/${firstReport.feedbackId}` : inboxPath}
+            <button
+              className="onboarding-continue"
+              type="button"
+              onClick={() => {
+                setNotice("");
+                setStep(2);
+              }}
+            >
+              I installed it <ArrowRight />
+            </button>
+            <button
+              className="onboarding-secondary-action"
+              type="button"
+              onClick={() => window.location.assign(inboxPath)}
+            >
+              Finish later
+            </button>
+          </div>
+        ) : step === 2 && application ? (
+          <div className="onboarding-content">
+            <button className="onboarding-back" type="button" onClick={() => setStep(1)}>
+              <ChevronLeft /> Back to install
+            </button>
+            <p className="studio-eyebrow">Verify the whole journey</p>
+            <h1 ref={headingRef} tabIndex={-1}>
+              Send one real signal.
+            </h1>
+            <p className="onboarding-description">
+              Open your website in a WebMCP-enabled browser, ask its agent to send a test report,
+              then review and confirm it. This page will notice when it arrives.
+            </p>
+            <a className="onboarding-site-link" href={origin} target="_blank" rel="noreferrer">
+              Open {new URL(origin).hostname} <ExternalLink />
+            </a>
+            <div className="onboarding-prompt-card">
+              <span>Ask your browser agent</span>
+              <p>“{TEST_FEEDBACK_PROMPT}”</p>
+              <button
+                type="button"
+                onClick={() => void copy(TEST_FEEDBACK_PROMPT, "Test prompt copied.")}
               >
-                {firstReport ? "Open the first report" : "Open your inbox"} <ArrowRight />
-              </Link>
+                <Clipboard /> Copy prompt
+              </button>
             </div>
-          ) : (
-            <div className="onboarding-stage-content">
-              <h1 ref={headingRef} tabIndex={-1}>
-                Setup is unavailable.
-              </h1>
-              <Link className="onboarding-primary-action" href="/account">
-                Open account settings <ArrowRight />
-              </Link>
+            <div className="onboarding-listening" role="status">
+              <span data-active={checking}>
+                <Radio />
+              </span>
+              <div>
+                <strong>
+                  {pollStopped ? "Automatic checks paused" : "Listening for your report"}
+                </strong>
+                <p>
+                  {pollStopped
+                    ? "Run another check when your report is ready."
+                    : "You can keep this page open while you test."}
+                </p>
+              </div>
+              {pollStopped && (
+                <button type="button" onClick={() => setPollGeneration((value) => value + 1)}>
+                  Check again
+                </button>
+              )}
             </div>
-          )}
-          {error && (
-            <p className="onboarding-message onboarding-message-error" role="alert">
-              {error}
+            <button
+              className="onboarding-secondary-action"
+              type="button"
+              onClick={() => window.location.assign(inboxPath)}
+            >
+              Finish later
+            </button>
+          </div>
+        ) : application ? (
+          <div className="onboarding-content onboarding-success">
+            <span className="onboarding-success-mark">
+              <Check />
+            </span>
+            <p className="studio-eyebrow">Signal received</p>
+            <h1 ref={headingRef} tabIndex={-1}>
+              {application.displayName} is connected.
+            </h1>
+            <p className="onboarding-description">
+              Your reviewed report crossed the whole path and reached its Filika inbox.
             </p>
-          )}
-          {notice && (
-            <p className="onboarding-message" role="status">
-              {notice}
-            </p>
-          )}
-        </section>
-
-        <SignalRail step={step} checking={checking} applicationName={name || "Your application"} />
-      </div>
+            {firstReport && (
+              <div className="onboarding-first-report">
+                <Inbox />
+                <div>
+                  <span>{firstReport.kind.replaceAll("_", " ")}</span>
+                  <strong>{firstReport.title}</strong>
+                  <small>{firstReport.requestOrigin}</small>
+                </div>
+                <Check />
+              </div>
+            )}
+            <Link
+              className="onboarding-continue"
+              href={firstReport ? `${inboxPath}/${firstReport.feedbackId}` : inboxPath}
+            >
+              {firstReport ? "Open the first report" : "Open your inbox"} <ArrowRight />
+            </Link>
+          </div>
+        ) : (
+          <div className="onboarding-content">
+            <h1 ref={headingRef} tabIndex={-1}>
+              Setup is unavailable.
+            </h1>
+            <Link className="onboarding-continue" href="/account">
+              Open account settings <ArrowRight />
+            </Link>
+          </div>
+        )}
+        {error && (
+          <p className="onboarding-error" role="alert">
+            {error}
+          </p>
+        )}
+        {notice && (
+          <p className="onboarding-setup-status" role="status">
+            {notice}
+          </p>
+        )}
+        <footer className="onboarding-footer">
+          <div
+            className="onboarding-progress"
+            role="progressbar"
+            aria-label="Setup progress"
+            aria-valuemin={1}
+            aria-valuemax={STEP_LABELS.length}
+            aria-valuenow={step + 1}
+          >
+            {STEP_LABELS.map((label, index) => (
+              <span key={label} data-active={index <= step} />
+            ))}
+          </div>
+          <span>{String(step + 1).padStart(2, "0")} / 04</span>
+        </footer>
+      </section>
     </main>
   );
 }
 
-function SignalRail({
-  step,
-  checking,
-  applicationName,
-}: {
-  step: number;
-  checking: boolean;
-  applicationName: string;
-}) {
-  const nodes = [
-    { label: applicationName, detail: "Website", icon: Send, active: step >= 1 },
-    {
-      label: "Human review",
-      detail: "Nothing leaves unseen",
-      icon: ShieldCheck,
-      active: step >= 2,
-    },
-    {
-      label: "Collector",
-      detail: checking ? "Checking the line" : "Validates and stores",
-      icon: Radio,
-      active: step >= 2,
-    },
-    {
-      label: "Filika inbox",
-      detail: step === 3 ? "Signal received" : "Waiting for a report",
-      icon: Inbox,
-      active: step === 3,
-    },
-  ];
+function ProductPreview({ step, applicationName }: { step: number; applicationName: string }) {
   return (
-    <aside className="onboarding-signal-board" aria-label="Integration signal path">
-      <div className="onboarding-signal-heading">
-        <span>Live path</span>
-        <strong>{step === 3 ? "Connected" : checking ? "Listening" : "Setup"}</strong>
+    <div className="onboarding-product-preview" aria-hidden="true">
+      <div className="preview-sidebar">
+        <span className="preview-filika">Filika</span>
+        <span className="preview-workspace">{applicationName}</span>
+        <div>
+          <Inbox />
+          Overview
+        </div>
+        <div className="preview-nav-active">
+          <MessageSquare />
+          All feedback<span>4</span>
+        </div>
+        <div>
+          <Lightbulb />
+          Ideas
+        </div>
+        <p>Your feedback, together.</p>
       </div>
-      <div className="onboarding-signal-route" data-transmitting={checking}>
-        {nodes.map(({ label, detail, icon: Icon, active }, index) => (
-          <div className="onboarding-signal-node" data-active={active} key={detail}>
-            <span>{active ? <Icon /> : <Circle />}</span>
+      <div className="preview-inbox">
+        <div className="preview-inbox-heading">
+          <span>All feedback</span>
+          <Sparkles />
+        </div>
+        <div className="preview-inbox-tabs">
+          <span>All reports</span>
+          <span>Bugs</span>
+          <span>Ideas</span>
+        </div>
+        {[
+          {
+            icon: Bug,
+            title: "The save button isn’t responding",
+            page: "/settings",
+            kind: "Bug report",
+            time: "2m",
+          },
+          {
+            icon: Lightbulb,
+            title: "A keyboard shortcut would help",
+            page: "/dashboard",
+            kind: "Idea",
+            time: "12m",
+          },
+          {
+            icon: CircleHelp,
+            title: "Not sure if my changes were saved",
+            page: "/editor",
+            kind: "Confusing behavior",
+            time: "24m",
+          },
+          {
+            icon: CircleSlash,
+            title: "I can’t complete the last step",
+            page: "/checkout",
+            kind: "Blocked task",
+            time: "1h",
+          },
+        ].map(({ icon: Icon, title, page, kind, time }, index) => (
+          <div
+            className={`preview-report${index === step ? " preview-report-highlighted" : ""}`}
+            key={title}
+          >
+            <Icon />
             <div>
-              <small>{detail}</small>
-              <strong>{label}</strong>
+              <strong>{title}</strong>
+              <p>
+                {page} · {kind}
+              </p>
             </div>
-            {index < nodes.length - 1 && <i aria-hidden="true" />}
+            <small>{time}</small>
           </div>
         ))}
+        <div className="preview-report-note">
+          <ShieldCheck />
+          <span>
+            Shared by a person.
+            <br />
+            <strong>Ready for your attention.</strong>
+          </span>
+        </div>
+        <span className="preview-cursor">
+          <MousePointer2 /> You
+        </span>
       </div>
-      <p>
-        <ShieldCheck /> Page content, screenshots, and browsing history stay outside this path.
-      </p>
-    </aside>
+    </div>
   );
 }

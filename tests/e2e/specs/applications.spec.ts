@@ -11,8 +11,7 @@ test("onboarding creates an application and the header switches between isolated
   await expect(page).toHaveURL(/\/onboarding$/);
   await page.getByLabel("Application name", { exact: true }).fill("Eckra");
   const slug = `eckra-${identity.userId.slice(0, 8)}`;
-  await page.getByText("Workspace URL", { exact: true }).click();
-  await page.getByLabel("Filika address", { exact: true }).fill(slug);
+  await page.getByLabel("Application URL", { exact: true }).fill(slug);
   await page.getByLabel("Website origin", { exact: true }).fill(webOrigin);
   await page.getByRole("button", { name: "Create application", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/onboarding\\?app=${slug}$`));
@@ -62,11 +61,10 @@ test("onboarding creates an application and the header switches between isolated
 
   const secondSlug = `second-${identity.userId.slice(0, 8)}`;
   await page.goto("/onboarding?new=1");
-  await expect(page.getByRole("heading", { name: "Connect another product." })).toBeVisible();
+  await expect(page.getByText("Create another application", { exact: true })).toBeVisible();
   await page.getByLabel("Application name", { exact: true }).fill("Second application");
   await page.getByLabel("Website origin", { exact: true }).fill(webOrigin);
-  await page.getByText("Workspace URL", { exact: true }).click();
-  await page.getByLabel("Filika address", { exact: true }).fill(secondSlug);
+  await page.getByLabel("Application URL", { exact: true }).fill(secondSlug);
   await page.getByRole("button", { name: "Create application", exact: true }).click();
   await page.getByRole("button", { name: "Finish later", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/${secondSlug}/complaints$`));
