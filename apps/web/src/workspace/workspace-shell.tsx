@@ -1,13 +1,14 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { Home, type LucideIcon, MessageCircle, Settings } from "lucide-react";
+import { ArrowRight, Home, type LucideIcon, MessageCircle, Radio, Settings } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useApplication } from "@/applications/application-context";
 import { ApplicationSwitcher } from "@/applications/application-switcher";
 import { FilikaBrand } from "@/components/filika-brand";
 import BottomNavBar from "@/components/ui/bottom-nav-bar";
-import { applicationPath } from "@/services/applications-api";
+import { type Application, applicationPath } from "@/services/applications-api";
 import { ConnectionProvider, connectionLabel, useConnection } from "./connection";
 import { ProfileMenu } from "./profile-menu";
 
@@ -72,6 +73,9 @@ function ShellBody({ children }: WorkspaceShellProps) {
         </div>
       </header>
       <main className="workspace-content" id="app-content" tabIndex={-1}>
+        {application && !application.integrationVerifiedAt && (
+          <SetupBanner application={application} />
+        )}
         <motion.div
           key={pathname}
           className="workspace-page"
@@ -99,5 +103,22 @@ function ShellBody({ children }: WorkspaceShellProps) {
         </div>
       )}
     </div>
+  );
+}
+
+export function SetupBanner({ application }: { application: Application }) {
+  return (
+    <aside className="workspace-setup-banner" aria-label="Application setup status">
+      <span>
+        <Radio />
+      </span>
+      <div>
+        <strong>Setup incomplete</strong>
+        <p>Send one reviewed report from {application.displayName} to verify the connection.</p>
+      </div>
+      <Link href={`/onboarding?app=${encodeURIComponent(application.slug)}`}>
+        Continue setup <ArrowRight />
+      </Link>
+    </aside>
   );
 }

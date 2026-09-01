@@ -526,6 +526,73 @@ html {
   min-width: 0;
   will-change: opacity, transform;
 }
+.workspace-setup-banner {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 24px;
+  padding: 13px 15px;
+  border: 1px solid #b9d9d7;
+  border-radius: 12px;
+  background: #eff8f7;
+  color: var(--ink);
+}
+.workspace-setup-banner > span {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #d9efec;
+  color: #197a78;
+}
+.workspace-setup-banner > span svg {
+  width: 16px;
+  height: 16px;
+}
+.workspace-setup-banner strong {
+  display: block;
+  font-size: 11px;
+}
+.workspace-setup-banner p {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.workspace-setup-banner > a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #197a78;
+  font-size: 10px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.workspace-setup-banner > a svg {
+  width: 13px;
+  height: 13px;
+}
+:root[data-theme="dark"] .workspace-setup-banner {
+  border-color: #294a4b;
+  background: #172729;
+}
+:root[data-theme="dark"] .workspace-setup-banner > span {
+  background: #1e3939;
+  color: #83d3ca;
+}
+:root[data-theme="dark"] .workspace-setup-banner > a {
+  color: #83d3ca;
+}
+@media (max-width: 600px) {
+  .workspace-setup-banner {
+    grid-template-columns: 34px 1fr;
+    align-items: start;
+  }
+  .workspace-setup-banner > a {
+    grid-column: 2;
+  }
+}
 .page-heading {
   display: flex;
   justify-content: space-between;
