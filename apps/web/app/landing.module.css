@@ -1968,3 +1968,358 @@
     transform: none;
   }
 }
+
+/* =========================================
+   Flow Step Demos (Scan Flow & Resolution Flow)
+   ========================================= */
+
+.scanContainer {
+  position: relative;
+  display: flex;
+  height: 280px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px;
+}
+
+@media (min-width: 640px) {
+  .scanContainer {
+    padding: 16px;
+  }
+}
+
+.scanInner {
+  position: relative;
+  height: 220px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.scanBrowser {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  bottom: 8px;
+  left: 36px;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.08);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+:root[data-theme="dark"] .scanBrowser {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: #18181c;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+}
+
+.scanBrowserHeader {
+  display: flex;
+  height: 28px;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: #fbfbfc;
+  padding: 0 12px;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+:root[data-theme="dark"] .scanBrowserHeader {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: #131316;
+}
+
+.scanBrowserDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d4d4d8;
+  transition: background 160ms ease;
+}
+
+:root[data-theme="dark"] .scanBrowserDot {
+  background: #3f3f46;
+}
+
+.scanBrowserUrl {
+  margin-left: 8px;
+  font-size: 8px;
+  color: #a1a1aa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:root[data-theme="dark"] .scanBrowserUrl {
+  color: #71717a;
+}
+
+.scanBrowserBody {
+  position: relative;
+  height: calc(100% - 28px);
+  overflow: hidden;
+  padding: 16px;
+  background: #ffffff;
+  transition: background 160ms ease;
+}
+
+:root[data-theme="dark"] .scanBrowserBody {
+  background: #18181c;
+}
+
+.scanSkeletonBar {
+  height: 8px;
+  border-radius: 9999px;
+  background: #e4e4e7;
+  transition: background 160ms ease;
+}
+
+:root[data-theme="dark"] .scanSkeletonBar {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.scanSkeletonGrid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 12px;
+}
+
+.scanSkeletonBadge {
+  margin-top: 12px;
+  height: 20px;
+  width: 64px;
+  border-radius: 6px;
+  background: rgba(0, 159, 227, 0.12);
+  transition: background 160ms ease;
+}
+
+:root[data-theme="dark"] .scanSkeletonBadge {
+  background: rgba(0, 159, 227, 0.22);
+}
+
+.scanSkeletonBox {
+  height: 64px;
+  border-radius: 8px;
+  background: #f4f4f5;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+:root[data-theme="dark"] .scanSkeletonBox {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.scanSkeletonCards {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.scanSkeletonCard {
+  height: 40px;
+  border-radius: 8px;
+  background: #f4f4f5;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+:root[data-theme="dark"] .scanSkeletonCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Common flow node circle */
+.flowCircle {
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease;
+}
+
+:root[data-theme="dark"] .flowCircle {
+  background: #1b1b20;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(0, 159, 227, 0.15);
+}
+
+/* Agent Circle in Scan demo */
+.scanAgentCircle {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  width: 56px;
+  height: 56px;
+  transform: translateY(-50%);
+  padding: 12px;
+  color: #009fe3;
+  box-shadow: 0 6px 25px rgba(0, 159, 227, 0.22);
+}
+
+:root[data-theme="dark"] .scanAgentCircle {
+  background: #171b26;
+  border-color: rgba(0, 159, 227, 0.4);
+  color: #009fe3;
+  box-shadow: 0 0 25px rgba(0, 159, 227, 0.35);
+}
+
+/* Issue Circles in Scan demo */
+.scanIssueCircle {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  color: #009fe3;
+  outline: 2px solid rgba(0, 159, 227, 0.15);
+}
+
+:root[data-theme="dark"] .scanIssueCircle {
+  background: #1b1b20;
+  border-color: rgba(255, 255, 255, 0.12);
+  outline-color: rgba(0, 159, 227, 0.3);
+  color: #009fe3;
+  box-shadow: 0 0 15px rgba(0, 159, 227, 0.2);
+}
+
+.scanIssueBug {
+  top: 35%;
+  left: 42%;
+}
+
+.scanIssueClick {
+  top: 48%;
+  right: 4%;
+}
+
+.scanIssueRoute {
+  bottom: 6%;
+  left: 58%;
+}
+
+/* Flow Beam paths */
+.beamPathInactive {
+  fill: none;
+  stroke: #d4d4d8;
+  stroke-width: 2;
+  stroke-opacity: 0.45;
+  stroke-linecap: round;
+  transition: stroke 160ms ease;
+}
+
+:root[data-theme="dark"] .beamPathInactive {
+  stroke: #333644;
+  stroke-opacity: 0.55;
+}
+
+.beamPathActive {
+  fill: none;
+  stroke: #009fe3;
+  stroke-width: 2;
+  stroke-dasharray: 0.14 0.86;
+  stroke-dashoffset: 1;
+  stroke-linecap: round;
+  transition: stroke 160ms ease;
+}
+
+:root[data-theme="dark"] .beamPathActive {
+  stroke: #009fe3;
+  filter: drop-shadow(0 0 4px rgba(0, 159, 227, 0.6));
+}
+
+/* Resolution Flow Demo */
+.resolutionContainer {
+  position: relative;
+  display: flex;
+  height: 280px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px;
+}
+
+@media (min-width: 640px) {
+  .resolutionContainer {
+    padding: 16px;
+  }
+}
+
+.resolutionInner {
+  display: flex;
+  height: 100%;
+  max-height: 220px;
+  width: 100%;
+  max-width: 320px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.resolutionColumn {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.resolutionSourceCircle {
+  width: 48px;
+  height: 48px;
+  padding: 10px;
+  color: #009fe3;
+}
+
+:root[data-theme="dark"] .resolutionSourceCircle {
+  color: #009fe3;
+}
+
+.resolutionInboxCircle {
+  width: 64px;
+  height: 64px;
+  padding: 12px;
+  color: #009fe3;
+  box-shadow: 0 6px 25px rgba(0, 159, 227, 0.22);
+}
+
+:root[data-theme="dark"] .resolutionInboxCircle {
+  background: #171b26;
+  border-color: rgba(0, 159, 227, 0.4);
+  color: #009fe3;
+  box-shadow: 0 0 30px rgba(0, 159, 227, 0.35);
+}
+
+.resolutionCheckCircle {
+  width: 56px;
+  height: 56px;
+  padding: 12px;
+  border: 1.5px solid rgba(0, 159, 227, 0.2);
+  color: #009fe3;
+}
+
+:root[data-theme="dark"] .resolutionCheckCircle {
+  background: #171b26;
+  border-color: rgba(0, 159, 227, 0.5);
+  color: #009fe3;
+  box-shadow: 0 0 20px rgba(0, 159, 227, 0.25);
+}

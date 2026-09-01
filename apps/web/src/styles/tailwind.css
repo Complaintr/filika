@@ -1,11 +1,9 @@
-@layer theme, base, components, utilities;
-@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss";
 @import "../app.css" layer(base);
 @import "../components/ui/bottom-nav-bar.css" layer(components);
-@import "tailwindcss/utilities.css" layer(utilities);
-@source "../components";
-@source "../workspace";
-@source "../../app";
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@source "../../src/**/*.{ts,tsx}";
+@source "../../app/**/*.{ts,tsx}";
 
 /* Keep the existing pages' native styles; no global Tailwind preflight reset. */
 @theme inline {
