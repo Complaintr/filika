@@ -375,8 +375,7 @@
   line-height: 1.2;
   letter-spacing: -0.04em;
 }
-.hero h1 span,
-.finalCta h2 span {
+.hero h1 span {
   color: var(--primary);
 }
 .heroSocialProof {
@@ -1803,15 +1802,26 @@
   line-height: 1.75;
 }
 .finalCta {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 48px;
   margin-top: 20px;
   padding: 72px;
-  border-radius: 12px;
-  background: var(--paper);
+  border-radius: 16px;
+  background-color: #0f172a;
+  background-image:
+    linear-gradient(rgba(10, 15, 26, 0.58), rgba(10, 15, 26, 0.58)), url("/cta-bg.jpg");
+  background-size: cover;
+  background-position: center 35%;
+  background-repeat: no-repeat;
+  border: 1px solid var(--line);
+  box-shadow: none;
+  overflow: hidden;
 }
 .finalCtaMain {
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: space-between;
   gap: 40px;
@@ -1824,18 +1834,22 @@
   font-weight: 400;
   line-height: 1.07;
   letter-spacing: -0.04em;
+  color: #ffffff;
 }
 .finalCta h2 span {
   display: block;
+  color: #38bdf8;
 }
 .finalCta .primaryButton {
   flex: 0 0 auto;
 }
 .finalCtaCopyright {
+  position: relative;
+  z-index: 1;
   margin: 0;
   font-size: 13px;
   line-height: 1.4;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.8);
   letter-spacing: -0.01em;
 }
 

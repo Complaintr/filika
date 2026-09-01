@@ -13,7 +13,8 @@ function isPublicPath(pathname: string): boolean {
     pathname === "/app.css" ||
     pathname === "/favicon.ico" ||
     pathname === "/filika-logo.svg" ||
-    pathname === "/icon.svg"
+    pathname === "/icon.svg" ||
+    /\.(jpe?g|png|webp|svg|ico|css|js|woff2?)$/i.test(pathname)
   );
 }
 

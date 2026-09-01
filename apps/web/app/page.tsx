@@ -220,9 +220,7 @@ export default function HomePage() {
               Get Started <ArrowRight aria-hidden="true" />
             </a>
           </div>
-          <p className={styles.finalCtaCopyright}>
-            &copy; 2026 Complaintr. All rights reserved.
-          </p>
+          <p className={styles.finalCtaCopyright}>&copy; 2026 Complaintr. All rights reserved.</p>
         </section>
       </main>
 
