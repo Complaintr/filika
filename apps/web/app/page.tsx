@@ -82,13 +82,14 @@ export default function HomePage() {
           <div className={styles.heroGrid}>
             <div>
               <h1>
-                Open-source bug discovery <span>powered by WebMCP agents</span>
+                Turn agent-found bugs into reviewed GitHub issues <span>with WebMCP.</span>
               </h1>
             </div>
             <div className={styles.heroPitch}>
               <p>
-                Let browser agents autonomously detect runtime code errors, broken flows, and
-                behavioral friction across your apps. Free, open source, and privacy-first.
+                Filika gives AI agents a WebMCP feedback tool for problems they encounter in your
+                web app, connects each reviewed report to the relevant code, and prepares a GitHub
+                issue for your approval.
               </p>
               <div className={styles.heroCta}>
                 <a className={styles.primaryButton} href="/login">
