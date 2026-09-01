@@ -27,9 +27,13 @@ import {
   githubIssueModeInputSchema,
   issueApproval,
   issueDraft,
-  issueMarker,
   repositorySelection,
 } from "./contracts";
+import {
+  reconcileReservedGitHubIssue,
+  reserveGitHubIssue,
+  sendReservedGitHubIssue,
+} from "./issue-export";
 
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -382,83 +386,25 @@ export class GitHubRoutes {
       connection.installationId,
       connection.repositoryId,
     );
-    const reserved = await this.db.transaction(async (tx) => {
-      await tx.select({ id: project.id }).from(project).where(eq(project.id, app.id)).for("update");
-      const [current] = await tx
-        .select()
-        .from(githubConnection)
-        .where(eq(githubConnection.projectId, app.id));
-      if (!current?.active || current.version !== approval.connectionVersion)
-        return fail("connection_changed", 409);
-      // Lock the report against retention cleanup until the durable reservation commits.
-      const [report] = await tx
-        .select()
-        .from(feedback)
-        .where(and(eq(feedback.id, feedbackId), eq(feedback.projectId, app.id)))
-        .for("update");
-      if (!report || hasFeedbackExpired(report.receiptTimestamp, new Date(), app.retentionHours))
-        return fail("not_found", 404);
-      const [previous] = await tx
-        .select()
-        .from(githubIssue)
-        .where(eq(githubIssue.feedbackId, feedbackId));
-      if (previous && previous.status !== "failed") return { row: previous, send: false };
-      const values = {
-        feedbackId,
-        projectId: app.id,
-        approvedBy: userId,
-        installationId: current.installationId,
-        repositoryId: current.repositoryId,
-        fullName: repo.fullName,
-        status: "pending" as const,
-        startedAt: new Date(),
-      };
-      const [row] = previous
-        ? await tx
-            .update(githubIssue)
-            .set(values)
-            .where(eq(githubIssue.feedbackId, feedbackId))
-            .returning()
-        : await tx.insert(githubIssue).values(values).returning();
-      if (!row) return fail("internal_error", 500);
-      return { row, send: true };
+    const reserved = await reserveGitHubIssue(this.db, {
+      app,
+      feedbackId,
+      approvedBy: userId,
+      trigger: "manual",
+      connectionVersion: approval.connectionVersion,
     });
     if (!reserved.send) return json({ issue: issueView(reserved.row) });
-    let result: { number: number; url: string };
-    try {
-      result = await client.createIssue(
-        token,
-        repo.fullName,
-        approval.title,
-        `${approval.body}\n\n${issueMarker(reserved.row.operationId)}`,
-      );
-    } catch (error) {
-      const status = error instanceof GitHubError && error.definite ? "failed" : "uncertain";
-      await this.db
-        .update(githubIssue)
-        .set({ status })
-        .where(and(eq(githubIssue.feedbackId, feedbackId), eq(githubIssue.status, "pending")));
-      return json({ issue: issueView({ ...reserved.row, status }) });
-    }
-    // A persistence failure leaves the reservation pending: never resend the POST.
-    await this.db
-      .update(githubIssue)
-      .set({ status: "created", issueNumber: result.number, issueUrl: result.url })
-      .where(eq(githubIssue.feedbackId, feedbackId));
-    return json(
-      {
-        issue: issueView({
-          ...reserved.row,
-          status: "created",
-          issueNumber: result.number,
-          issueUrl: result.url,
-        }),
-      },
-      201,
+    const result = await sendReservedGitHubIssue(
+      this.db,
+      client,
+      reserved.row,
+      { title: approval.title, body: approval.body },
+      token,
     );
+    return json({ issue: issueView(result.row) }, result.created ? 201 : 200);
   }
 
-  private async reconcile(app: Project, userId: string, feedbackId: string) {
+  private async reconcile(app: Project, feedbackId: string) {
     await this.report(app, feedbackId);
     const [row] = await this.db
       .select()
@@ -471,39 +417,8 @@ export class GitHubRoutes {
       (row.status === "pending" && Date.now() - row.startedAt.getTime() < 60_000)
     )
       return json({ issue: issueView(row) });
-    const { client } = this.configured();
-    const repo = await client.accessibleRepository(
-      await this.userToken(app, userId),
-      row.repositoryId,
-    );
-    const token = await client.installationToken(row.installationId, row.repositoryId);
-    const found = await client.findIssue(
-      token,
-      repo.fullName,
-      issueMarker(row.operationId),
-      new Date(row.startedAt.getTime() - 60_000),
-    );
-    if (found) {
-      await this.db
-        .update(githubIssue)
-        .set({
-          status: "created",
-          issueNumber: found.number,
-          issueUrl: found.url,
-          fullName: repo.fullName,
-        })
-        .where(eq(githubIssue.feedbackId, feedbackId));
-      return json({
-        issue: issueView({
-          ...row,
-          status: "created",
-          issueNumber: found.number,
-          issueUrl: found.url,
-          fullName: repo.fullName,
-        }),
-      });
-    }
-    return json({ issue: issueView({ ...row, status: "uncertain" }) });
+    const result = await reconcileReservedGitHubIssue(this.db, this.configured().client, row);
+    return json({ issue: issueView(result) });
   }
 
   private async webhook(request: Request) {
@@ -637,7 +552,7 @@ export class GitHubRoutes {
         }
         if (method === "POST" && match[4] === "reconcile") {
           empty.parse(input);
-          return await this.reconcile(app, userId, report.id);
+          return await this.reconcile(app, report.id);
         }
         if (method === "POST" && !match[4]) return await this.create(app, userId, report.id, input);
       }
