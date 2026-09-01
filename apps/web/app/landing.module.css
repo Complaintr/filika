@@ -490,9 +490,7 @@
   font-size: 14px;
   line-height: 1.7;
 }
-.codeWindow,
-.installCard,
-.referrers {
+.codeWindow {
   width: 100%;
   max-width: 352px;
   overflow: hidden;
@@ -530,62 +528,6 @@
   font-size: 11px;
   white-space: nowrap;
 }
-.installCard {
-  padding: 20px;
-}
-.installCard h4,
-.referrers h4 {
-  margin: 0 0 18px;
-  font-size: 15px;
-  font-weight: 500;
-}
-.waiting {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 16px;
-  border-radius: 10px;
-  background: #f4f4f4;
-  color: var(--muted);
-  font-size: 13px;
-}
-.waiting svg {
-  color: var(--primary);
-}
-.installCard p {
-  margin: 18px 0 0;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-.referrers {
-  padding: 20px 0;
-}
-.referrers h4 {
-  padding: 0 18px;
-}
-.referrers > div {
-  display: grid;
-  grid-template-columns: 16px 1fr auto 34px;
-  gap: 10px;
-  align-items: center;
-  padding: 7px 18px;
-  font-size: 13px;
-}
-.referrers > div svg {
-  width: 14px;
-  height: 14px;
-  fill: var(--primary);
-  color: var(--primary);
-}
-.referrers b {
-  font-weight: 400;
-}
-.referrers small {
-  color: var(--muted);
-  text-align: right;
-}
-
 .featureGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1138,8 +1080,6 @@
 }
 
 :root[data-theme="dark"] .codeWindow,
-:root[data-theme="dark"] .installCard,
-:root[data-theme="dark"] .referrers,
 :root[data-theme="dark"] .cookieVisual,
 :root[data-theme="dark"] .integrationsVisual > div,
 :root[data-theme="dark"] .chatVisual p {
@@ -1151,10 +1091,6 @@
 :root[data-theme="dark"] .codeWindow code {
   color: #d4d4d8;
   border-bottom-color: rgba(255, 255, 255, 0.06);
-}
-
-:root[data-theme="dark"] .waiting {
-  background: rgba(255, 255, 255, 0.06);
 }
 
 :root[data-theme="dark"] .integrationsVisual img,

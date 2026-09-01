@@ -1,17 +1,11 @@
-import {
-  ArrowRight,
-  Bot,
-  Bug,
-  ChevronDown,
-  Circle,
-  Layers,
-  Lock,
-  Radio,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, Bot, Bug, ChevronDown, Layers, Lock, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
+import {
+  AnimatedBeamDemo,
+  ResolutionFlowDemo,
+  SiteScanFlowDemo,
+} from "@/components/animated-beam-demo";
 import { LandingHeader } from "@/components/landing-header";
-import { AnimatedBeamDemo } from "@/components/animated-beam-demo";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
@@ -143,46 +137,18 @@ export default function HomePage() {
                 <h3>Agents detect issues</h3>
               </div>
               <div className={styles.stepVisual}>
-                <div className={styles.installCard}>
-                  <h4>Active Inspection</h4>
-                  <div className={styles.waiting}>
-                    <Radio aria-hidden="true" />
-                    <span>Monitoring runtime &amp; behavioral events…</span>
-                  </div>
-                  <p>
-                    WebMCP agents catch exceptions, broken flows, and UI traps as they navigate.
-                  </p>
-                </div>
+                <SiteScanFlowDemo />
               </div>
-              <p>
-                Browser agents detect crashes and broken flows automatically.
-              </p>
+              <p>Browser agents detect crashes and broken flows automatically.</p>
             </li>
             <li>
               <div className={styles.cardHeading}>
                 <h3>Review and resolve</h3>
               </div>
               <div className={styles.stepVisual}>
-                <div className={styles.referrers}>
-                  <h4>Discovered Reports</h4>
-                  {[
-                    ["Observed Bug", "Runtime crash in form", "Code"],
-                    ["Blocked Task", "Submit button hangs", "Flow"],
-                    ["Confusing Behavior", "Dialog closes on click", "UX"],
-                    ["Concrete Idea", "Add auto-save draft", "Feature"],
-                  ].map((row) => (
-                    <div key={row[1]}>
-                      <Circle aria-hidden="true" />
-                      <span>{row[1]}</span>
-                      <b>{row[0]}</b>
-                      <small>{row[2]}</small>
-                    </div>
-                  ))}
-                </div>
+                <ResolutionFlowDemo />
               </div>
-              <p>
-                Review sanitized reports and triage in a unified inbox.
-              </p>
+              <p>Review sanitized reports and triage in a unified inbox.</p>
             </li>
           </ol>
         </section>

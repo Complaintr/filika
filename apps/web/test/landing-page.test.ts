@@ -64,6 +64,9 @@ describe("public landing page", () => {
   test("matches the light visual system and responsive composition", async () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
     const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+    const flowDemos = await Bun.file(
+      `${import.meta.dir}/../src/components/animated-beam-demo.tsx`,
+    ).text();
 
     expect(page).toContain("Widget Area");
     expect(styles).toContain("--primary: #009fe3");
@@ -85,6 +88,14 @@ describe("public landing page", () => {
     expect(styles).toContain("grid-template-columns: repeat(3, 1fr)");
     expect(styles).toContain("@media (max-width: 560px)");
     expect(styles).toContain(".widgetArea");
+    expect(page).toContain("<SiteScanFlowDemo />");
+    expect(page).toContain("<ResolutionFlowDemo />");
+    expect(flowDemos).toContain("WebMCP agent scanning the website");
+    expect(flowDemos).toContain("Website under agent inspection");
+    expect(flowDemos).toContain('data-site-scanner="true"');
+    expect(flowDemos).toContain("Unified review inbox");
+    expect(flowDemos.match(/<AnimatedBeam/g)).toHaveLength(6);
+    expect(flowDemos.match(/<FlowBeamPath/g)).toHaveLength(7);
   });
 
   test("serves the home route without authentication or workspace chrome", async () => {

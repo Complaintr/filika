@@ -1,14 +1,16 @@
 "use client";
 
-import React, { forwardRef, useRef } from "react";
+import { Bot, Bug, Check, Inbox, MousePointerClick, Route } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+import type React from "react";
+import { forwardRef, useRef } from "react";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
+import { cn } from "@/lib/utils";
 
 const Circle = forwardRef<
   HTMLDivElement,
-  { className?: string; children?: React.ReactNode }
->(({ className, children }, ref) => {
+  { className?: string | undefined; children?: React.ReactNode; label?: string | undefined }
+>(({ className, children, label }, ref) => {
   return (
     <div
       ref={ref}
@@ -18,6 +20,7 @@ const Circle = forwardRef<
       )}
     >
       {children}
+      {label ? <span className="sr-only">{label}</span> : null}
     </div>
   );
 });
@@ -33,6 +36,7 @@ const Icons = {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       data-free-size="true"
+      aria-hidden="true"
       style={{ width: "22px", height: "22px" }}
     >
       <path
@@ -54,14 +58,33 @@ const Icons = {
       viewBox="0 0 87.3 78"
       xmlns="http://www.w3.org/2000/svg"
       data-free-size="true"
+      aria-hidden="true"
       style={{ width: "22px", height: "20px" }}
     >
-      <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da" />
-      <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47" />
-      <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335" />
-      <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d" />
-      <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc" />
-      <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00" />
+      <path
+        d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z"
+        fill="#0066da"
+      />
+      <path
+        d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z"
+        fill="#00ac47"
+      />
+      <path
+        d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z"
+        fill="#ea4335"
+      />
+      <path
+        d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z"
+        fill="#00832d"
+      />
+      <path
+        d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z"
+        fill="#2684fc"
+      />
+      <path
+        d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z"
+        fill="#ffba00"
+      />
     </svg>
   ),
   telegram: () => (
@@ -72,6 +95,7 @@ const Icons = {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       data-free-size="true"
+      aria-hidden="true"
       style={{ width: "24px", height: "24px" }}
     >
       <circle cx="120" cy="120" r="120" fill="#24A1DE" />
@@ -88,6 +112,7 @@ const Icons = {
       viewBox="0 0 47 65"
       xmlns="http://www.w3.org/2000/svg"
       data-free-size="true"
+      aria-hidden="true"
       style={{ width: "18px", height: "22px" }}
     >
       <path
@@ -109,6 +134,7 @@ const Icons = {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       data-free-size="true"
+      aria-hidden="true"
       style={{ width: "22px", height: "22px" }}
     >
       <defs>
@@ -125,14 +151,8 @@ const Icons = {
           <stop offset="100%" stopColor="#FF7A00" />
         </linearGradient>
       </defs>
-      <path
-        d="M 8 20 H 44 V 36 H 25 V 60 H 8 Z"
-        fill="url(#custom-logo-orange-top)"
-      />
-      <path
-        d="M 48 10 H 94 V 60 H 64 V 36 H 48 Z"
-        fill="url(#custom-logo-gray)"
-      />
+      <path d="M 8 20 H 44 V 36 H 25 V 60 H 8 Z" fill="url(#custom-logo-orange-top)" />
+      <path d="M 48 10 H 94 V 60 H 64 V 36 H 48 Z" fill="url(#custom-logo-gray)" />
       <path
         d="M 19 64 H 25 V 75 H 68 V 64 H 74 V 96 H 19 Z"
         fill="url(#custom-logo-orange-bottom)"
@@ -146,9 +166,17 @@ const Icons = {
       viewBox="0 0 48 48"
       xmlns="http://www.w3.org/2000/svg"
       data-free-size="true"
+      aria-hidden="true"
       style={{ width: "22px", height: "22px" }}
     >
-      <radialGradient id="msg-beam-gradient-filika" cx="11.087" cy="7.022" r="47.612" gradientTransform="matrix(1 0 0 -1 0 50)" gradientUnits="userSpaceOnUse">
+      <radialGradient
+        id="msg-beam-gradient-filika"
+        cx="11.087"
+        cy="7.022"
+        r="47.612"
+        gradientTransform="matrix(1 0 0 -1 0 50)"
+        gradientUnits="userSpaceOnUse"
+      >
         <stop offset="0" stopColor="#1292ff" />
         <stop offset=".079" stopColor="#2982ff" />
         <stop offset=".23" stopColor="#4e69ff" />
@@ -286,6 +314,205 @@ export function AnimatedBeamDemo({ className }: { className?: string }) {
         gradientStopColor="#009fe3"
         duration={3}
       />
+    </div>
+  );
+}
+
+function FlowBeamPath({
+  d,
+  delay = 0,
+  duration = 3,
+}: {
+  d: string;
+  delay?: number | undefined;
+  duration?: number | undefined;
+}) {
+  return (
+    <>
+      <path
+        d={d}
+        fill="none"
+        stroke="#d4d4d8"
+        strokeWidth="2"
+        strokeOpacity="0.45"
+        strokeLinecap="round"
+      />
+      <path
+        data-flow-beam="true"
+        d={d}
+        fill="none"
+        pathLength="1"
+        stroke="#009fe3"
+        strokeWidth="2"
+        strokeDasharray="0.14 0.86"
+        strokeDashoffset="1"
+        strokeLinecap="round"
+      >
+        <animate
+          attributeName="stroke-dashoffset"
+          values="1;0"
+          dur={`${duration}s`}
+          begin={`${delay}s`}
+          repeatCount="indefinite"
+        />
+      </path>
+    </>
+  );
+}
+
+export function SiteScanFlowDemo({ className }: { className?: string | undefined }) {
+  return (
+    <div
+      className={cn(
+        "relative flex h-[280px] w-full items-center justify-center px-2 py-4 sm:px-4",
+        className,
+      )}
+    >
+      <div className="relative h-[220px] w-full max-w-[320px]">
+        <div className="absolute top-2 right-0 bottom-2 left-9 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-[0_10px_32px_rgba(0,0,0,0.08)] dark:border-white/10 dark:bg-[#1f2028]">
+          <div className="flex h-7 items-center gap-1.5 border-zinc-200 border-b px-3 dark:border-white/10">
+            <span className="size-1.5 rounded-full bg-zinc-300" />
+            <span className="size-1.5 rounded-full bg-zinc-300" />
+            <span className="size-1.5 rounded-full bg-zinc-300" />
+            <span className="ml-2 truncate text-[8px] text-zinc-400">example.app</span>
+          </div>
+          <div className="relative h-[calc(100%-28px)] overflow-hidden p-4">
+            <div className="h-2 w-20 rounded-full bg-zinc-200 dark:bg-white/10" />
+            <div className="mt-3 grid grid-cols-[1.15fr_0.85fr] gap-3">
+              <div>
+                <div className="h-2 w-full rounded-full bg-zinc-200 dark:bg-white/10" />
+                <div className="mt-2 h-2 w-4/5 rounded-full bg-zinc-200 dark:bg-white/10" />
+                <div className="mt-3 h-5 w-16 rounded-md bg-[#009fe3]/12" />
+              </div>
+              <div className="h-16 rounded-lg bg-zinc-100 dark:bg-white/5" />
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="h-10 rounded-lg bg-zinc-100 dark:bg-white/5" />
+              <div className="h-10 rounded-lg bg-zinc-100 dark:bg-white/5" />
+              <div className="h-10 rounded-lg bg-zinc-100 dark:bg-white/5" />
+            </div>
+
+            <svg
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0"
+              viewBox="0 0 260 164"
+              preserveAspectRatio="none"
+              style={{ width: "100%", height: "100%" }}
+            >
+              <defs>
+                <linearGradient id="site-scan-glow" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#009fe3" stopOpacity="0" />
+                  <stop offset="1" stopColor="#009fe3" stopOpacity="0.18" />
+                </linearGradient>
+              </defs>
+              <rect x="0" y="-36" width="260" height="36" fill="url(#site-scan-glow)">
+                <animate attributeName="y" values="-36;164;-36" dur="4s" repeatCount="indefinite" />
+              </rect>
+              <line
+                data-site-scanner="true"
+                x1="0"
+                x2="260"
+                y1="0"
+                y2="0"
+                stroke="#009fe3"
+                strokeWidth="1.5"
+                strokeOpacity="0.65"
+              >
+                <animate attributeName="y1" values="0;164;0" dur="4s" repeatCount="indefinite" />
+                <animate attributeName="y2" values="0;164;0" dur="4s" repeatCount="indefinite" />
+              </line>
+            </svg>
+            <span className="sr-only">Website under agent inspection</span>
+          </div>
+        </div>
+
+        <Circle
+          label="WebMCP agent scanning the website"
+          className="absolute top-1/2 left-3 size-14 -translate-y-1/2 p-3 text-[#009fe3] shadow-[0_6px_25px_rgba(0,159,227,0.22)] dark:bg-[#1f2028]"
+        >
+          <Bot className="size-7" aria-hidden="true" />
+        </Circle>
+        <Circle
+          label="Runtime bug found"
+          className="absolute top-[35%] left-[42%] size-9 p-2 ring-2 ring-[#009fe3]/15"
+        >
+          <Bug className="size-4 text-[#009fe3]" aria-hidden="true" />
+        </Circle>
+        <Circle
+          label="Interaction bug found"
+          className="absolute top-[48%] right-[4%] size-9 p-2 ring-2 ring-[#009fe3]/15"
+        >
+          <MousePointerClick className="size-4 text-[#009fe3]" aria-hidden="true" />
+        </Circle>
+        <Circle
+          label="Broken flow found"
+          className="absolute bottom-[6%] left-[58%] size-9 p-2 ring-2 ring-[#009fe3]/15"
+        >
+          <Route className="size-4 text-[#009fe3]" aria-hidden="true" />
+        </Circle>
+
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-[1]"
+          viewBox="0 0 320 220"
+          data-flow-canvas="site-scan"
+          style={{ width: "100%", height: "220px", maxWidth: "320px" }}
+        >
+          <FlowBeamPath d="M 40 110 Q 92 72 152 95" />
+          <FlowBeamPath d="M 40 110 Q 170 78 289 124" delay={0.6} />
+          <FlowBeamPath d="M 40 110 Q 122 168 204 189" delay={1.2} />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+export function ResolutionFlowDemo({ className }: { className?: string | undefined }) {
+  return (
+    <div
+      className={cn(
+        "relative flex h-[280px] w-full items-center justify-center px-2 py-4 sm:px-4",
+        className,
+      )}
+    >
+      <div className="flex size-full max-h-[220px] w-full max-w-[320px] items-center justify-between">
+        <div className="flex h-full flex-col justify-between">
+          <Circle label="Observed bug">
+            <Bug className="size-5 text-[#009fe3]" aria-hidden="true" />
+          </Circle>
+          <Circle label="Blocked task">
+            <Route className="size-5 text-[#009fe3]" aria-hidden="true" />
+          </Circle>
+          <Circle label="Concrete idea">
+            <MousePointerClick className="size-5 text-[#009fe3]" aria-hidden="true" />
+          </Circle>
+        </div>
+        <Circle
+          label="Unified review inbox"
+          className="size-16 p-3 text-[#009fe3] shadow-[0_6px_25px_rgba(0,159,227,0.22)] dark:bg-[#1f2028]"
+        >
+          <Inbox className="size-8" aria-hidden="true" />
+        </Circle>
+        <Circle
+          label="Reviewed and resolved"
+          className="size-14 border border-[#009fe3]/20 p-3 text-[#009fe3]"
+        >
+          <Check className="size-7" aria-hidden="true" />
+        </Circle>
+      </div>
+
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-[220px] w-full max-w-[320px] -translate-x-1/2 -translate-y-1/2"
+        viewBox="0 0 320 220"
+        data-flow-canvas="resolution"
+        style={{ width: "100%", height: "220px", maxWidth: "320px" }}
+      >
+        <FlowBeamPath d="M 24 24 Q 90 24 156 110" />
+        <FlowBeamPath d="M 24 110 Q 90 110 156 110" delay={0.5} />
+        <FlowBeamPath d="M 24 196 Q 90 196 156 110" delay={1} />
+        <FlowBeamPath d="M 156 110 Q 224 110 292 110" delay={1.5} duration={2.5} />
+      </svg>
     </div>
   );
 }
