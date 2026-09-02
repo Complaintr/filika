@@ -49,10 +49,10 @@ export function DemoWorkspaceList() {
     <main className={styles.workspace} id="app-content">
       <header className={styles.header}>
         <div>
-          <span className={styles.eyebrow}>Filika demo workspace</span>
-          <h1>Complaints for this device</h1>
+          <span className={styles.eyebrow}>Filika demo</span>
+          <h1>Complaints for this browser</h1>
           <p className={styles.muted}>
-            Reports sent from the demo store on this device appear here. Demo feedback is retained
+            Reports sent from the demo store in this browser appear here. Demo feedback is retained
             for 24 hours.
           </p>
         </div>
