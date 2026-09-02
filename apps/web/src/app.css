@@ -226,9 +226,16 @@ html {
   background: #a34d59;
 }
 .topbar {
-  background: var(--canvas);
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 60;
+  background: color-mix(in srgb, var(--canvas) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
 }
 .topbar-inner {
   max-width: 1360px;
@@ -1856,10 +1863,16 @@ html {
   color: var(--auth-muted);
   display: grid;
   place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 .auth-theme:hover {
   background: var(--auth-field);
   color: var(--auth-text);
+}
+.auth-theme svg {
+  width: 18px;
+  height: 18px;
 }
 .auth-form-content {
   width: min(390px, 100%);
@@ -3159,6 +3172,8 @@ html {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
+  clear: both;
+  width: 100%;
 }
 .appearance-choice {
   border: 1px solid var(--studio-line);
@@ -3265,6 +3280,8 @@ html {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: 15px;
+  clear: both;
+  width: 100%;
 }
 .density-choices label {
   position: relative;
@@ -4202,72 +4219,6 @@ html {
 .auth-header .filika-brand {
   color: var(--auth-text, var(--ink));
 }
-.workspace-shell {
-  --header-gutter: 40px;
-  padding-top: 0;
-}
-/* Only the header controls float; there is no bar, frame, or divider. */
-.topbar {
-  position: relative;
-  z-index: 50;
-  background: transparent;
-  border: 0;
-  pointer-events: none;
-}
-.topbar-inner {
-  min-height: 76px;
-}
-.topbar .workspace-identity,
-.topbar .topbar-actions {
-  position: fixed;
-  top: 18px;
-  pointer-events: auto;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  padding: 0;
-}
-.topbar .workspace-identity {
-  left: max(var(--header-gutter), calc((100vw - 1360px) / 2 + var(--header-gutter)));
-  max-width: calc(100vw - 90px - var(--header-gutter) - var(--header-gutter));
-  min-height: 38px;
-  gap: 11px;
-}
-.topbar .topbar-actions {
-  right: max(var(--header-gutter), calc((100vw - 1360px) / 2 + var(--header-gutter)));
-  margin: 0;
-}
-.topbar .connection-status {
-  right: 0;
-  bottom: 0;
-}
-@media (max-width: 1200px) {
-  .workspace-shell {
-    --header-gutter: 24px;
-  }
-}
-@media (max-width: 700px) {
-  .workspace-shell {
-    --header-gutter: 16px;
-  }
-  .topbar-inner {
-    min-height: 70px;
-  }
-  .topbar .workspace-identity,
-  .topbar .topbar-actions {
-    top: 16px;
-  }
-  .topbar .workspace-identity {
-    gap: 6px;
-  }
-  .topbar .workspace-switcher {
-    gap: 6px;
-  }
-  .topbar .workspace-avatar {
-    display: none;
-  }
-}
 
 html {
   scroll-padding-top: 88px;
@@ -4770,13 +4721,20 @@ html {
   border-radius: 18px;
   padding: 20px;
   margin-bottom: 12px;
+  min-width: 0;
 }
 .settings-studio .studio-fieldset legend {
   float: left;
   width: 100%;
   font-size: 12px;
   padding: 0;
+  margin-bottom: 14px;
+}
+.settings-studio .studio-fieldset legend:has(+ p) {
   margin-bottom: 5px;
+}
+.settings-studio .studio-fieldset > :not(legend) {
+  clear: both;
 }
 .settings-studio .studio-fieldset > p {
   clear: both;
@@ -5170,6 +5128,13 @@ html {
   width: 18px;
   height: 18px;
   accent-color: var(--blue);
+}
+.photo-choice-hint {
+  margin: -12px 0 0 28px;
+  padding-bottom: 4px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
 .account-avatar {
   overflow: hidden;

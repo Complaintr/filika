@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { accountSettingsSchema, googlePhotoUrl } from "../src/account-profile";
+import { accountSettingsSchema, githubPhotoUrl, googlePhotoUrl } from "../src/account-profile";
 import { createApplicationSchema } from "../src/applications";
 
 import { decodeJsonBody } from "../src/parse";
@@ -64,7 +64,7 @@ describe("application and profile validation", () => {
       }).success,
     ).toBe(false);
   });
-  test("Google photo URLs and account patches stay within the supported options", () => {
+  test("Google and GitHub photo URLs and account patches stay within the supported options", () => {
     expect(googlePhotoUrl("https://lh3.googleusercontent.com/avatar")).toBe(
       "https://lh3.googleusercontent.com/avatar",
     );
@@ -83,11 +83,34 @@ describe("application and profile validation", () => {
     ]) {
       expect(googlePhotoUrl(value)).toBeNull();
     }
+    expect(githubPhotoUrl("https://avatars.githubusercontent.com/u/123456?v=4")).toBe(
+      "https://avatars.githubusercontent.com/u/123456?v=4",
+    );
+    expect(githubPhotoUrl("https://githubusercontent.com/avatar")).toBe(
+      "https://githubusercontent.com/avatar",
+    );
+    for (const value of [
+      null,
+      "javascript:alert(1)",
+      "http://avatars.githubusercontent.com/u/123456",
+      "https://githubusercontent.com.evil.example/avatar",
+      "https://evil.example/avatar",
+      "https://user:pass@avatars.githubusercontent.com/avatar",
+      "https://avatars.githubusercontent.com:444/avatar",
+    ]) {
+      expect(githubPhotoUrl(value)).toBeNull();
+    }
     expect(accountSettingsSchema.safeParse({ theme: "dark" }).success).toBe(true);
+    expect(accountSettingsSchema.safeParse({ useGithubImage: true }).success).toBe(true);
     expect(accountSettingsSchema.safeParse({}).success).toBe(false);
     expect(
       accountSettingsSchema.safeParse({ googleImage: "https://lh3.googleusercontent.com/avatar" })
         .success,
+    ).toBe(false);
+    expect(
+      accountSettingsSchema.safeParse({
+        githubImage: "https://avatars.githubusercontent.com/u/123456?v=4",
+      }).success,
     ).toBe(false);
   });
 });

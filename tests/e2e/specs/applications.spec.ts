@@ -140,7 +140,34 @@ test("Google photo is optional, persists, and updates the header without uploads
   await expect(page.locator('input[type="file"]')).toHaveCount(0);
 });
 
-test("password-only accounts cannot select a Google photo and cannot read another app", async ({
+test("GitHub photo is optional, persists, and updates the header without uploads", async ({
+  page,
+}) => {
+  await signInAsE2eUser(page, { github: true });
+  await page.route("https://avatars.githubusercontent.com/u/123456?v=4", (route) =>
+    route.fulfill({
+      contentType: "image/svg+xml",
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><rect width="60" height="60" fill="#24292e"/></svg>',
+    }),
+  );
+  await page.goto("/account");
+  const choice = page.getByRole("checkbox", { name: "Use GitHub profile photo" });
+  await expect(choice).toBeEnabled();
+  await expect(choice).not.toBeChecked();
+  await expect(page.locator('.topbar button[aria-label="Open profile menu"] img')).toHaveCount(0);
+  await choice.check();
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.locator(".settings-save-status")).toHaveText("Your changes are saved.");
+  await expect(page.locator('.topbar button[aria-label="Open profile menu"] img')).toBeVisible();
+  await page.reload();
+  await expect(choice).toBeChecked();
+  await choice.uncheck();
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.locator(".settings-save-status")).toHaveText("Your changes are saved.");
+  await expect(page.locator('.topbar button[aria-label="Open profile menu"] img')).toHaveCount(0);
+});
+
+test("password-only accounts cannot select a Google or GitHub photo and cannot read another app", async ({
   page,
   browser,
 }) => {
@@ -151,6 +178,7 @@ test("password-only accounts cannot select a Google photo and cannot read anothe
     await signInAsE2eUser(other);
     await other.goto(`${webOrigin}/account`);
     await expect(other.getByRole("checkbox", { name: "Use Google profile photo" })).toBeDisabled();
+    await expect(other.getByRole("checkbox", { name: "Use GitHub profile photo" })).toBeDisabled();
     const denied = await other.request.get(`${webOrigin}/api/v1/apps/${first.slug}/inbox`);
     expect(denied.status()).toBe(404);
     await other.goto(`${webOrigin}/${first.slug}/complaints`);

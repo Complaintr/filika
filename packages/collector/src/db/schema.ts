@@ -92,6 +92,8 @@ export const rateLimit = pgTable(
 export const user = pgTable(USER_TABLE_NAME, {
   googleImage: text("google_image"),
   useGoogleImage: boolean("use_google_image").notNull().default(false),
+  githubImage: text("github_image"),
+  useGithubImage: boolean("use_github_image").notNull().default(false),
   theme: text("theme").notNull().default("light"),
   density: text("density").notNull().default("comfortable"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

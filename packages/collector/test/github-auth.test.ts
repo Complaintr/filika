@@ -29,14 +29,17 @@ describe("github social provider", () => {
     expect(authWith("", "")).toBeUndefined();
   });
 
-  test("keeps the default image column untouched by the github profile", async () => {
+  test("keeps the default image column untouched and maps githubImage", async () => {
     const github = authWith("github-client", "github-secret");
 
     expect(github).toBeDefined();
     if (github) {
-      const mapped = await github.mapProfileToUser({} as never);
+      const mapped = (await github.mapProfileToUser({
+        avatar_url: "https://avatars.githubusercontent.com/u/123456?v=4",
+      } as never)) as { image?: unknown; githubImage?: string | null };
 
-      expect(mapped).toEqual({});
+      expect(mapped.image).toBeUndefined();
+      expect(mapped.githubImage).toBe("https://avatars.githubusercontent.com/u/123456?v=4");
     }
   });
 });
