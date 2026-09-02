@@ -87,7 +87,8 @@ describe("public landing page", () => {
     ).text();
     const featureDemos = await Bun.file(`${appDirectory}/landing-feature-demos.tsx`).text();
 
-    expect(page).toContain("Widget Area");
+    expect(page).toContain("<LandingDashboardDemo />");
+    expect(page).not.toContain("Widget Area");
     expect(styles).toContain("--primary: #009fe3");
     expect(styles.match(/--primary: #009fe3/g)).toHaveLength(2);
     expect(styles).toContain(".headerWrapper");
@@ -108,7 +109,7 @@ describe("public landing page", () => {
     expect(styles).not.toContain("rgba(48, 93, 222");
     expect(styles).toContain("grid-template-columns: repeat(3, 1fr)");
     expect(styles).toContain("@media (max-width: 560px)");
-    expect(styles).toContain(".widgetArea");
+    expect(styles).toContain(".dashboardDemo");
     expect(page).toContain("<SiteScanFlowDemo />");
     expect(page).toContain("<ResolutionFlowDemo />");
     expect(page).toContain("<GlobeDemo />");
