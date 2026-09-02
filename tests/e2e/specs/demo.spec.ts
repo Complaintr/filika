@@ -6,7 +6,7 @@ test("demo storefront loads publicly and the flow panel navigates", async ({ pag
   await page.goto("/demo");
 
   await expect(
-    page.getByRole("heading", { name: "See what happens after an agent hits a dead end." }),
+    page.getByRole("heading", { name: "Try Filika on a broken checkout." }),
   ).toBeVisible();
   await expect(page.getByText("Buy the Wireless Headphones", { exact: false })).toBeVisible();
   await expect(page.getByRole("complementary", { name: "Demo guide" })).toBeVisible();

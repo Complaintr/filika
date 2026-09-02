@@ -716,7 +716,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  width: min(calc(100% - 356px), 1184px);
+  width: min(calc(100% - 312px), 1100px);
   min-height: 100dvh;
   height: auto;
   margin: 0;
@@ -795,38 +795,18 @@
 }
 
 .demoIntro {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
-  gap: 44px;
-  align-items: end;
-  padding: 36px 0 20px;
-}
-
-.demoIntro .demoEyebrow {
-  grid-column: 1 / -1;
-  margin-bottom: -30px;
+  display: block;
+  padding: 28px 0 10px;
 }
 
 .demoIntro h1 {
-  max-width: 650px;
+  max-width: 620px;
   margin: 0;
   color: #454545;
-  font-size: clamp(34px, 3.7vw, 44px);
+  font-size: clamp(30px, 3.4vw, 40px);
   font-weight: 500;
   letter-spacing: -0.045em;
   line-height: 1.08;
-}
-
-.demoIntro h1 span {
-  color: var(--demo-filika);
-}
-
-.demoIntro p {
-  max-width: 460px;
-  margin: 0;
-  color: var(--demo-muted);
-  font-size: 15px;
-  line-height: 1.6;
 }
 
 .demoEyebrow {
@@ -841,7 +821,7 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 14px;
-  padding: 16px;
+  padding: 14px 16px;
   border-color: rgb(0 159 227 / 20%);
   border-radius: 12px;
   background: var(--demo-filika-soft);
@@ -902,6 +882,7 @@
 }
 
 .storeTopbarInner {
+  grid-template-columns: 1fr auto;
   min-height: 52px;
   padding: 0 18px;
 }
@@ -922,19 +903,25 @@
 }
 
 .storeBody {
-  gap: 18px;
-  padding: 20px;
+  gap: 12px;
+  padding: 16px;
 }
 
 .storeHeading h2 {
-  font-size: 19px;
+  font-size: 14px;
+  font-weight: 650;
 }
 
 .productGrid {
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
 .productCard {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  column-gap: 16px;
   min-width: 0;
   padding: 12px;
   border-radius: 10px;
@@ -949,6 +936,7 @@
 }
 
 .productImage {
+  grid-row: 1 / 3;
   min-height: 126px;
   height: auto;
   color: #3f4147;
@@ -961,8 +949,9 @@
   stroke-width: 1.35;
 }
 
-.productTagline {
-  min-height: 34px;
+.productCard h3,
+.productRow {
+  grid-column: 2;
 }
 
 .addButton,
@@ -1003,6 +992,18 @@
   height: 14px;
 }
 
+.hiddenInstruction {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+  padding-block: 8px;
+  font-size: 11px;
+}
+
+.result {
+  padding: 13px 16px;
+}
+
 .result {
   border-color: var(--demo-border);
   border-radius: 12px;
@@ -1041,9 +1042,9 @@
 }
 
 .flowPanel {
-  width: 336px;
-  gap: 16px;
-  padding: 24px 20px;
+  width: 292px;
+  gap: 14px;
+  padding: 22px 18px;
   border-color: var(--demo-border);
   background: #fff;
   box-shadow: none;
@@ -1085,27 +1086,50 @@
 }
 
 .flowSteps {
-  gap: 4px;
+  gap: 2px;
   scrollbar-color: #cbd5e1 transparent;
   scrollbar-width: thin;
 }
 
 .flowStep {
-  grid-template-columns: 32px minmax(0, 1fr);
-  gap: 10px;
-  padding: 9px 10px;
-  border-radius: 8px;
-  opacity: 0.56;
+  position: relative;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 9px;
+  padding: 9px 4px 9px 16px;
+  border-radius: 0;
+  opacity: 0.48;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.flowStep::before {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  content: "";
+  background: transparent;
+  transform: translateY(-50%);
 }
 
 .flowStep:hover {
-  background: #eef2f6;
+  background: transparent;
+  opacity: 0.8;
 }
 
 .flowStepActive {
   border-color: transparent;
-  box-shadow: inset 2px 0 var(--demo-filika);
-  background: #f8fafc;
+  box-shadow: none;
+  background: transparent;
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.flowStepActive::before {
+  background: var(--demo-filika);
 }
 
 .flowStepNumber {
@@ -1130,6 +1154,10 @@
 .flowStepActive .flowStepNumber {
   color: var(--demo-filika);
   background: transparent;
+}
+
+.flowStepActive .flowStepCopy strong {
+  color: var(--demo-filika);
 }
 
 .flowStepCopy strong {
@@ -1168,34 +1196,16 @@
 
 @media (max-width: 1080px) {
   .experienceMain {
-    width: calc(100% - 316px);
+    width: calc(100% - 292px);
     padding-inline: 22px;
   }
 
   .flowPanel {
-    width: 304px;
+    width: 280px;
   }
 
   .demoIntro {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    padding-top: 38px;
-  }
-
-  .demoIntro .demoEyebrow {
-    margin-bottom: -6px;
-  }
-
-  .demoIntro p {
-    max-width: 680px;
-  }
-
-  .productGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .productCard:last-child {
-    display: none;
+    padding-top: 24px;
   }
 }
 
@@ -1275,11 +1285,11 @@
     display: none;
   }
 
-  .productGrid {
-    grid-template-columns: 1fr;
+  .productCard {
+    grid-template-columns: 100px minmax(0, 1fr);
   }
 
-  .productCard:nth-child(n + 2) {
-    display: none;
+  .productImage {
+    min-height: 120px;
   }
 }

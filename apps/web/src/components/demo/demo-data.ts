@@ -1,5 +1,5 @@
 export const TEST_DEMO_PROMPT =
-  "Buy the Wireless Headphones and finish checkout. If anything goes wrong, report it through Filika.";
+  "Buy the Wireless Headphones and complete checkout. Report any failure through Filika.";
 
 export const DEMO_CHECKOUT_FAILURE_CODE = "FILIKA_DEMO_CHECKOUT_504";
 
@@ -8,10 +8,6 @@ export interface DemoProduct {
   name: string;
   price: string;
   oldPrice?: string;
-  rating: string;
-  reviews: string;
-  tagline: string;
-  badge?: string;
 }
 
 export const DEMO_PRODUCTS: readonly DemoProduct[] = [
@@ -20,28 +16,6 @@ export const DEMO_PRODUCTS: readonly DemoProduct[] = [
     name: "Aurora Wireless Headphones",
     price: "$89.00",
     oldPrice: "$129.00",
-    rating: "4.8",
-    reviews: "2,134",
-    tagline: "Noise cancelling · 30h battery · Bluetooth 5.4",
-    badge: "Bestseller",
-  },
-  {
-    id: "keyboard",
-    name: "Pulse Mechanical Keyboard",
-    price: "$64.00",
-    oldPrice: "$84.00",
-    rating: "4.6",
-    reviews: "1,076",
-    tagline: "Hot-swappable · gasket mount · RGB",
-    badge: "Hot",
-  },
-  {
-    id: "deskmat",
-    name: "Studio Desk Mat",
-    price: "$24.00",
-    rating: "4.7",
-    reviews: "892",
-    tagline: "Wide cloth surface · stitched edges",
   },
 ];
 

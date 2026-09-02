@@ -170,14 +170,7 @@ export function DemoExperience() {
         </header>
 
         <section className={styles.demoIntro}>
-          <span className={styles.demoEyebrow}>Try the complete feedback loop</span>
-          <h1>
-            See what happens after an agent <span>hits a dead end.</span>
-          </h1>
-          <p>
-            Guide an AI agent through a broken checkout. Filika turns the failure into a clear,
-            reviewed report without sending anything before you approve it.
-          </p>
+          <h1>Try Filika on a broken checkout.</h1>
         </section>
 
         <section className={styles.promptCard} id="demo-prompt" data-demo-step="prompt">
@@ -185,7 +178,6 @@ export function DemoExperience() {
             <Bot />
           </span>
           <div className={styles.promptContent}>
-            <span className={styles.demoEyebrow}>Prompt for your agent</span>
             <p className={styles.promptText}>{TEST_DEMO_PROMPT}</p>
           </div>
           <button
@@ -218,27 +210,18 @@ export function DemoExperience() {
               </span>
               <h2>A problem was found. A complaint has arrived.</h2>
               <p>
-                The report reached the Filika demo inbox for this device
-                {receipt.feedbackId ? ` (${receipt.feedbackId.slice(0, 8)}…)` : ""}.
+                Report saved{receipt.feedbackId ? ` as ${receipt.feedbackId.slice(0, 8)}` : ""}.
               </p>
               <div className={styles.resultActions}>
                 <a className={styles.primaryLink} href="/demo/workspace">
                   Open the demo inbox <ArrowRight aria-hidden="true" />
                 </a>
-                <a className={styles.accountCta} href="/register">
-                  Create an account to keep this report
-                </a>
               </div>
-              <p className={styles.githubNote}>
-                When you connect a repository, this report can become a GitHub issue automatically.
-              </p>
             </>
           ) : (
             <div className={styles.resultWaiting} role="status">
               <ShieldCheck aria-hidden="true" />
-              <span>
-                <strong>You stay in control.</strong> Nothing is sent until you review and confirm.
-              </span>
+              <span>Nothing is sent without your approval.</span>
             </div>
           )}
         </section>

@@ -97,7 +97,6 @@ export function DemoFlowPanel({
                     </span>
                     <span className={styles.flowStepCopy}>
                       <strong>{step.title}</strong>
-                      <small>{step.description}</small>
                     </span>
                   </button>
                 </li>
