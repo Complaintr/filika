@@ -4,7 +4,6 @@ import type { FilikaExecutionOutcome } from "./receipt";
 import { createReviewBridge } from "./review-bridge";
 import { createRuntime } from "./runtime";
 import { createTransport, type Fetcher } from "./transport";
-import { closedRecord } from "./validation";
 import { version } from "./version";
 
 export interface SdkDependencies {
@@ -15,14 +14,18 @@ export interface SdkDependencies {
 }
 
 function parseSignalOptions(input: unknown, required: boolean): FilikaOpenOptions | null {
-  const value = closedRecord(input, ["signal"]);
-  if (!value) return null;
-  if (!Object.hasOwn(value, "signal")) return required ? null : {};
+  if (typeof input !== "object" || input === null || Array.isArray(input)) return null;
   try {
+    // The host bridge may pass extra properties alongside the signal (for
+    // example requestUserInteraction); read only the signal and ignore the
+    // rest instead of rejecting the call.
+    if (!Object.hasOwn(input, "signal")) return required ? null : {};
+    const descriptor = Object.getOwnPropertyDescriptor(input, "signal");
+    if (!descriptor || !("value" in descriptor)) return null;
     // Brand-check via the native getter; do not accept duck-typed fake signals.
     const getter = Object.getOwnPropertyDescriptor(AbortSignal.prototype, "aborted")?.get;
-    if (!getter || typeof getter.call(value.signal) !== "boolean") return null;
-    return { signal: value.signal as AbortSignal };
+    if (!getter || typeof getter.call(descriptor.value) !== "boolean") return null;
+    return { signal: descriptor.value as AbortSignal };
   } catch {
     return null;
   }
