@@ -699,6 +699,70 @@
   font-size: 11px;
   font-weight: 550;
 }
+.widgetFlow {
+  position: relative;
+  display: grid;
+  gap: 14px;
+}
+.widgetFlowTrack {
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: 6px;
+  width: 1px;
+  background: var(--line);
+}
+.widgetStage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.widgetStageNode {
+  position: relative;
+  z-index: 1;
+  width: 13px;
+  height: 13px;
+  margin-top: 5px;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+}
+.widgetDraft {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+}
+.widgetStageLabel {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+.widgetDraft h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.widgetDraft p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.widgetDraftBy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
 
 .section {
   scroll-margin-top: 64px;

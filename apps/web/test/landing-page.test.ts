@@ -175,6 +175,28 @@ describe("public landing page", () => {
     }
   });
 
+  test("widget preview flow shows the agent draft stage", async () => {
+    const widget = await Bun.file(`${import.meta.dir}/../src/components/widget-preview.tsx`).text();
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    expect(widget).toContain("Draft report");
+    expect(widget).toContain("Checkout cannot be completed");
+    expect(widget).toContain(
+      "The payment step remains unavailable after valid address details are entered.",
+    );
+    expect(widget).toContain("Prepared by browser agent");
+    expect(widget).not.toContain("—");
+    for (const className of [
+      ".widgetFlow",
+      ".widgetStage",
+      ".widgetStageNode",
+      ".widgetDraft",
+      ".widgetDraftBy",
+    ]) {
+      expect(styles).toContain(className);
+    }
+  });
+
   test("serves the home route without authentication or workspace chrome", async () => {
     const proxy = await Bun.file(`${import.meta.dir}/../proxy.ts`).text();
     const shell = await Bun.file(`${import.meta.dir}/../src/workspace/auth-aware-shell.tsx`).text();

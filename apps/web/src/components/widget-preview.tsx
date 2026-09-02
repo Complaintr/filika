@@ -63,6 +63,21 @@ export function WidgetPreview() {
           <span>Severity: Medium</span>
         </div>
       </section>
+      <section className={styles.widgetFlow}>
+        <span className={styles.widgetFlowTrack} aria-hidden="true" />
+        <div className={styles.widgetStage}>
+          <span className={styles.widgetStageNode} aria-hidden="true" />
+          <div className={styles.widgetDraft}>
+            <span className={styles.widgetStageLabel}>Draft report</span>
+            <h3>Checkout cannot be completed</h3>
+            <p>The payment step remains unavailable after valid address details are entered.</p>
+            <span className={styles.widgetDraftBy}>
+              <Bot aria-hidden="true" data-free-size="true" />
+              Prepared by browser agent
+            </span>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
