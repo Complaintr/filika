@@ -1,11 +1,10 @@
 "use client";
 
-import { createSdk } from "@filika/sdk";
+import { createSdk, type ReviewRequest } from "@filika/sdk";
 import { ArrowLeft, ArrowRight, Bot, Check, Copy, ShieldCheck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { FilikaBrand } from "@/components/filika-brand";
 import { ReceiptToast } from "@/components/receipt-toast";
-import { connectSdkDialog } from "@/sdk-dialog";
 import { demoApi } from "@/services/demo-api";
 import styles from "./demo.module.css";
 import { DEMO_PRODUCTS, demoPrompt } from "./demo-data";
@@ -28,7 +27,6 @@ function deviceKey(): string {
 }
 
 export function DemoExperience() {
-  const hostRef = useRef<HTMLDivElement | null>(null);
   const [projectKey, setProjectKey] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [promptCopied, setPromptCopied] = useState(false);
@@ -121,16 +119,28 @@ export function DemoExperience() {
     return () => controller.abort();
   }, []);
 
-  // Initialize the real SDK + review dialog once the project key is known.
+  // Initialize the real SDK once the project key is known. Agent-authored
+  // feedback is transmitted without a review dialog; the outcome updates the
+  // demo result so the receipt appears when the collector accepts the report.
   useEffect(() => {
-    if (projectKey === null || hostRef.current === null) return;
+    if (projectKey === null) return;
+    const controller = new AbortController();
     const api = createSdk({
       document,
       development: window.location.protocol === "http:",
-    });
-    const integration = connectSdkDialog(hostRef.current, api, {
-      onReceipt(view) {
-        setReceipt({ feedbackId: view.feedbackId, receivedAt: view.receivedAt });
+      review: async (request: ReviewRequest) => {
+        void request.outcome
+          .then((result) => {
+            if (controller.signal.aborted) return;
+            if (result.code === "success") {
+              setReceipt({
+                feedbackId: result.receipt.feedbackId,
+                receivedAt: result.receipt.receivedAt,
+              });
+            }
+          })
+          .catch(() => {});
+        return { kind: "confirmed", feedback: request.draft, context: request.context };
       },
     });
     void api.init({
@@ -138,7 +148,10 @@ export function DemoExperience() {
       endpoint: `${window.location.origin}/api/v1/feedback`,
       routeLabel: "/demo/checkout",
     });
-    return () => integration.dispose();
+    return () => {
+      controller.abort();
+      api.dispose();
+    };
   }, [projectKey]);
 
   const prompt = demoPrompt(pageUrl);
@@ -198,8 +211,6 @@ export function DemoExperience() {
         </section>
 
         <DemoStore state={storeState} onChange={setStoreState} />
-
-        <div ref={hostRef} data-demo-step="review" id="demo-review" />
 
         <section className={styles.result} id="demo-result" data-demo-step="result">
           {receipt ? (
