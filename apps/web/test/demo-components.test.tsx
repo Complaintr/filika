@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DEMO_CHECKOUT_FAILURE_CODE, TEST_DEMO_PROMPT } from "../src/components/demo/demo-data";
+import { DEMO_CHECKOUT_FAILURE_CODE, demoPrompt } from "../src/components/demo/demo-data";
 import { DemoFlowPanel } from "../src/components/demo/demo-flow-panel";
 import { DemoStore, type DemoStoreState } from "../src/components/demo/demo-store";
 import { renderReact } from "./helpers/render-react";
@@ -109,12 +109,17 @@ describe("demo-flow-panel", () => {
 });
 
 describe("demo-data", () => {
-  test("the test prompt is short and names the broken action", () => {
-    expect(TEST_DEMO_PROMPT).toContain("Aurora Wireless Headphones");
-    expect(TEST_DEMO_PROMPT).toContain("checkout");
-    expect(TEST_DEMO_PROMPT).toContain("filika_submit_feedback");
-    expect(TEST_DEMO_PROMPT).toContain("document.modelContext");
-    expect(TEST_DEMO_PROMPT.length).toBeLessThan(600);
+  test("the test prompt is short, names the broken action and the page address", () => {
+    const prompt = demoPrompt("https://example.test/demo");
+    expect(prompt).toContain("https://example.test/demo");
+    expect(prompt).toContain("Aurora Wireless Headphones");
+    expect(prompt).toContain("demo_list_products");
+    expect(prompt).toContain("demo_add_to_cart");
+    expect(prompt).toContain("demo_place_order");
+    expect(prompt).toContain("checkout");
+    expect(prompt).toContain("filika_submit_feedback");
+    expect(prompt).toContain("document.modelContext");
+    expect(prompt.length).toBeLessThan(600);
   });
 
   test("the failure code is stable and documented", () => {

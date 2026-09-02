@@ -8,7 +8,7 @@ test("demo storefront waits for real browser-agent activity", async ({ page }) =
   await expect(
     page.getByRole("heading", { name: "Try Filika on a broken checkout." }),
   ).toBeVisible();
-  await expect(page.getByText("Buy the Wireless Headphones", { exact: false })).toBeVisible();
+  await expect(page.getByText("A ready-made prompt for your browser agent.")).toBeVisible();
   await expect(page.getByRole("complementary", { name: "Live demo status" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Waiting for your agent" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Next" })).toHaveCount(0);

@@ -1,10 +1,17 @@
-export const TEST_DEMO_PROMPT =
-  "Use the Filika WebMCP tool on this page (exposed through document.modelContext). " +
-  "Buy the Aurora Wireless Headphones and complete checkout. " +
-  "If checkout fails or any step is blocked, call the filika_submit_feedback tool to draft a " +
-  "complaint describing the failure with evidence from the current page, then wait for the user " +
-  "to review and confirm before anything is sent. Do not invent failures, include credentials or " +
-  "personal data, or retry the same action endlessly.";
+export function demoPrompt(pageUrl: string): string {
+  const location = pageUrl.length > 0 ? ` at ${pageUrl}` : "";
+  return (
+    "You are on the Filika demo store" +
+    `${location}. ` +
+    "Use this page's WebMCP tools on document.modelContext, not the UI. " +
+    'Call demo_list_products, then demo_add_to_cart with productId "headphones" to add the ' +
+    "Aurora Wireless Headphones, then demo_place_order. " +
+    "Do not ask before shopping. " +
+    "If checkout fails or any step is blocked, draft a complaint with filika_submit_feedback " +
+    "using observed evidence, then wait for the user to review and confirm before anything " +
+    "is sent. Do not invent failures, include credentials or personal data, or retry endlessly."
+  );
+}
 
 export const DEMO_CHECKOUT_FAILURE_CODE = "FILIKA_DEMO_CHECKOUT_504";
 

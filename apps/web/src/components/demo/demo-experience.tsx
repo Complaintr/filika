@@ -8,9 +8,14 @@ import { ReceiptToast } from "@/components/receipt-toast";
 import { connectSdkDialog } from "@/sdk-dialog";
 import { demoApi } from "@/services/demo-api";
 import styles from "./demo.module.css";
-import { TEST_DEMO_PROMPT } from "./demo-data";
+import { DEMO_PRODUCTS, demoPrompt } from "./demo-data";
 import { DemoFlowPanel } from "./demo-flow-panel";
 import { DemoStore, type DemoStoreState } from "./demo-store";
+import {
+  type DemoStoreTools,
+  demoCheckoutFailureText,
+  registerDemoStoreTools,
+} from "./demo-store-webmcp";
 
 const DEVICE_KEY_STORAGE = "filika-demo-device-v1";
 
@@ -33,6 +38,74 @@ export function DemoExperience() {
     stuck: false,
   });
   const [receipt, setReceipt] = useState<{ feedbackId: string; receivedAt: string } | null>(null);
+  const [pageUrl, setPageUrl] = useState("");
+
+  // The WebMCP store tools read and write the same cart state as the visible
+  // storefront, so agent actions update the live panel like human clicks.
+  const storeStateRef = useRef(storeState);
+  useEffect(() => {
+    storeStateRef.current = storeState;
+  }, [storeState]);
+
+  const storeTools = useRef<DemoStoreTools>({
+    addToCart(productId) {
+      const current = storeStateRef.current;
+      if (current.cart.length > 0) {
+        return {
+          ok: false,
+          error: "The cart already contains an item. Reset the demo to start over.",
+        };
+      }
+      if (!DEMO_PRODUCTS.some((product) => product.id === productId)) {
+        return { ok: false, error: "Unknown product id." };
+      }
+      const next = { ...current, cart: [productId] };
+      storeStateRef.current = next;
+      setStoreState(next);
+      return { ok: true };
+    },
+    async placeOrder(signal) {
+      const current = storeStateRef.current;
+      if (current.cart.length === 0) {
+        return { ok: false, error: "The cart is empty. Add a product first." };
+      }
+      if (current.orderPlaced) {
+        return {
+          ok: false,
+          error: "The order was already attempted. Reset the demo to try again.",
+        };
+      }
+      const attempting = { ...current, orderPlaced: true, stuck: false };
+      storeStateRef.current = attempting;
+      setStoreState(attempting);
+      try {
+        const response = await fetch("/api/v1/demo/checkout", {
+          method: "POST",
+          signal: AbortSignal.any([signal, AbortSignal.timeout(30_000)]),
+        });
+        if (response.ok) return { ok: true };
+      } catch {
+        // Fall through to the deterministic demo failure.
+      }
+      const failed = { ...storeStateRef.current, stuck: true };
+      storeStateRef.current = failed;
+      setStoreState(failed);
+      return { ok: false, error: demoCheckoutFailureText() };
+    },
+  });
+
+  // Register the store's WebMCP shopping tools. Best effort: it must never
+  // break the page when the browser or registration rejects it.
+  useEffect(() => {
+    const controller = new AbortController();
+    void registerDemoStoreTools(document, controller, storeTools.current);
+    return () => controller.abort();
+  }, []);
+
+  // The prompt carries the page address for the agent; it is only known after mount.
+  useEffect(() => {
+    setPageUrl(window.location.href);
+  }, []);
 
   // Resolve the device demo project.
   useEffect(() => {
@@ -68,8 +141,12 @@ export function DemoExperience() {
     return () => integration.dispose();
   }, [projectKey]);
 
+  const prompt = demoPrompt(pageUrl);
+
   function reset() {
-    setStoreState({ cart: [], orderPlaced: false, stuck: false });
+    const next = { cart: [], orderPlaced: false, stuck: false };
+    storeStateRef.current = next;
+    setStoreState(next);
     setReceipt(null);
     setError("");
     setPromptCopied(false);
@@ -105,14 +182,14 @@ export function DemoExperience() {
             <Bot />
           </span>
           <div className={styles.promptContent}>
-            <p className={styles.promptText}>{TEST_DEMO_PROMPT}</p>
+            <p className={styles.promptText}>A ready-made prompt for your browser agent.</p>
           </div>
           <button
             className={styles.copyButton}
             type="button"
             onClick={() => {
               void navigator.clipboard
-                .writeText(TEST_DEMO_PROMPT)
+                .writeText(prompt)
                 .then(() => {
                   setPromptCopied(true);
                   window.setTimeout(() => setPromptCopied(false), 1600);
