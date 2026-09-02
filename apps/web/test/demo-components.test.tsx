@@ -110,9 +110,11 @@ describe("demo-flow-panel", () => {
 
 describe("demo-data", () => {
   test("the test prompt is short and names the broken action", () => {
-    expect(TEST_DEMO_PROMPT).toContain("Wireless Headphones");
+    expect(TEST_DEMO_PROMPT).toContain("Aurora Wireless Headphones");
     expect(TEST_DEMO_PROMPT).toContain("checkout");
-    expect(TEST_DEMO_PROMPT.length).toBeLessThan(200);
+    expect(TEST_DEMO_PROMPT).toContain("filika_submit_feedback");
+    expect(TEST_DEMO_PROMPT).toContain("document.modelContext");
+    expect(TEST_DEMO_PROMPT.length).toBeLessThan(600);
   });
 
   test("the failure code is stable and documented", () => {

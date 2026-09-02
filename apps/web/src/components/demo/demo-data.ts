@@ -1,5 +1,10 @@
 export const TEST_DEMO_PROMPT =
-  "Buy the Wireless Headphones and complete checkout. Report any failure through Filika.";
+  "Use the Filika WebMCP tool on this page (exposed through document.modelContext). " +
+  "Buy the Aurora Wireless Headphones and complete checkout. " +
+  "If checkout fails or any step is blocked, call the filika_submit_feedback tool to draft a " +
+  "complaint describing the failure with evidence from the current page, then wait for the user " +
+  "to review and confirm before anything is sent. Do not invent failures, include credentials or " +
+  "personal data, or retry the same action endlessly.";
 
 export const DEMO_CHECKOUT_FAILURE_CODE = "FILIKA_DEMO_CHECKOUT_504";
 
