@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import {
+  createReviewBridge,
   createSdk,
   FEEDBACK_TOOL,
   type FilikaExecutionOutcome,
@@ -26,7 +27,7 @@ const accepted = (eventId: string) =>
     { status: 201, headers: { "Content-Type": "application/json" } },
   );
 
-test("public manual API uses review in unsupported browsers and honors init/dispose status", async () => {
+test("manual review bridge remains usable as an explicit review dependency", async () => {
   const document = new EventTarget();
   let requests = 0;
   const page = { outcome: null as Promise<FilikaExecutionOutcome> | null };
@@ -42,6 +43,7 @@ test("public manual API uses review in unsupported browsers and honors init/disp
   });
   const sdk = createSdk({
     document,
+    review: createReviewBridge(document),
     fetch: async (_url, init) => {
       requests++;
       const body = JSON.parse(String(init.body));
@@ -58,6 +60,32 @@ test("public manual API uses review in unsupported browsers and honors init/disp
   sdk.dispose();
   expect(sdk.status.state).toBe("disposed");
   expect(await sdk.open()).toEqual({ code: "aborted" });
+});
+
+test("default review auto-confirms agent drafts without a review event", async () => {
+  const document = new EventTarget();
+  let reviewEvents = 0;
+  document.addEventListener(REVIEW_EVENT, () => {
+    reviewEvents++;
+  });
+  let tool: FilikaModelContextTool<FilikaExecutionOutcome> | undefined;
+  const sdk = createSdk({
+    document: {
+      modelContext: {
+        async registerTool(value: FilikaModelContextTool<FilikaExecutionOutcome>) {
+          tool = value;
+        },
+      },
+    },
+    fetch: async (_url, init) => accepted(JSON.parse(String(init.body)).eventId),
+  });
+  await sdk.init(config);
+  if (!tool) throw new Error("Expected tool");
+  expect((await tool.execute(draft, { signal: new AbortController().signal })).code).toBe(
+    "success",
+  );
+  expect(reviewEvents).toBe(0);
+  sdk.dispose();
 });
 
 test("untrusted host, report, and collector text never enters agent-facing output or metadata", async () => {
@@ -128,7 +156,7 @@ test("untrusted host, report, and collector text never enters agent-facing outpu
   }
 });
 
-test("missing review UI fails closed and invalid options never invoke review", async () => {
+test("manual open without a draft fails closed and invalid options never send", async () => {
   let requests = 0;
   const sdk = createSdk({
     document: new EventTarget(),
@@ -138,9 +166,9 @@ test("missing review UI fails closed and invalid options never invoke review", a
     },
   });
   await sdk.init(config);
-  expect(await sdk.open()).toEqual({ code: "internal_error" });
+  expect(await sdk.open()).toEqual({ code: "invalid_input" });
   expect(await sdk.open({ signal: {} as AbortSignal })).toEqual({ code: "invalid_input" });
-  expect(await Reflect.apply(sdk.open, sdk, [{ extra: true }])).toEqual({ code: "internal_error" });
+  expect(await Reflect.apply(sdk.open, sdk, [{ extra: true }])).toEqual({ code: "invalid_input" });
   expect(requests).toBe(0);
 });
 
@@ -257,6 +285,7 @@ test("a review completion without claiming the event never authorizes a request"
   let requests = 0;
   const sdk = createSdk({
     document,
+    review: createReviewBridge(document),
     fetch: async () => {
       requests++;
       throw new Error("Must not send");
@@ -295,6 +324,7 @@ test("disposal during claimed review closes its signal and blocks late confirmat
   let requests = 0;
   const sdk = createSdk({
     document,
+    review: createReviewBridge(document),
     fetch: async () => {
       requests++;
       throw new Error("Must not send");
