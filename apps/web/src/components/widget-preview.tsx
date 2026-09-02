@@ -2,12 +2,15 @@
 
 import { AlertTriangle, Bot, Check, ShieldCheck } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import styles from "../../app/landing.module.css";
 import { GithubIcon } from "../auth/github-icon";
 
 export function WidgetPreview() {
+  const [confirmed, setConfirmed] = useState(false);
+  const surfaceClass = confirmed ? styles.widgetConfirmed : "";
   return (
-    <div className={styles.widgetSurface}>
+    <div className={`${styles.widgetSurface} ${surfaceClass}`.trim()}>
       <header className={styles.widgetHeader}>
         <span className={styles.widgetBrand}>
           <Image
@@ -66,6 +69,7 @@ export function WidgetPreview() {
       </section>
       <section className={styles.widgetFlow}>
         <span className={styles.widgetFlowTrack} aria-hidden="true" />
+        <span className={styles.widgetPulse} aria-hidden="true" />
         <div className={styles.widgetStage}>
           <span className={styles.widgetStageNode} aria-hidden="true" />
           <div className={styles.widgetDraft}>
@@ -103,15 +107,24 @@ export function WidgetPreview() {
               <button className={styles.widgetReviewSecondary} type="button">
                 Edit report
               </button>
-              <button className={styles.widgetReviewPrimary} type="button">
+              <button
+                className={styles.widgetReviewPrimary}
+                type="button"
+                onClick={() => setConfirmed(true)}
+              >
                 Review &amp; confirm
               </button>
             </div>
           </div>
         </div>
         <div className={styles.widgetStage}>
-          <span className={styles.widgetStageNode} aria-hidden="true" />
-          <div className={styles.widgetReceipt}>
+          <span
+            className={`${styles.widgetStageNode} ${confirmed ? styles.widgetStageNodeActive : ""}`.trim()}
+            aria-hidden="true"
+          />
+          <div
+            className={`${styles.widgetReceipt} ${confirmed ? styles.widgetReceiptConfirmed : ""}`.trim()}
+          >
             <span className={styles.widgetStageLabel}>Ready for triage</span>
             <div className={styles.widgetReceiptHeader}>
               <span className={styles.widgetReceiptCheck}>

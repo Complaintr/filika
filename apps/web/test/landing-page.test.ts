@@ -234,6 +234,27 @@ describe("public landing page", () => {
     }
   });
 
+  test("widget preview animates the flow and supports clickable confirm", async () => {
+    const widget = await Bun.file(`${import.meta.dir}/../src/components/widget-preview.tsx`).text();
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    expect(widget).toContain("useState");
+    expect(widget).toContain("onClick={() => setConfirmed(true)}");
+    expect(widget).toContain("widgetConfirmed");
+    expect(widget).toContain("widgetReceiptConfirmed");
+    expect(widget).not.toContain("—");
+    for (const keyframe of [
+      "@keyframes widgetPulse",
+      "@keyframes widgetDraftEmphasis",
+      "@keyframes widgetButtonGlow",
+      "@keyframes widgetReceiptEmphasis",
+    ]) {
+      expect(styles).toContain(keyframe);
+    }
+    expect(styles).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(styles).toContain(".widgetReviewActions button:focus-visible");
+  });
+
   test("serves the home route without authentication or workspace chrome", async () => {
     const proxy = await Bun.file(`${import.meta.dir}/../proxy.ts`).text();
     const shell = await Bun.file(`${import.meta.dir}/../src/workspace/auth-aware-shell.tsx`).text();

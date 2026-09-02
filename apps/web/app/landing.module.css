@@ -895,6 +895,131 @@
   font-size: 12px;
   font-weight: 550;
 }
+.widgetPulse {
+  position: absolute;
+  left: 3px;
+  top: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  opacity: 0;
+  animation: widgetPulse 6s ease-in-out infinite;
+}
+.widgetDraft {
+  animation: widgetDraftEmphasis 6s ease-in-out infinite;
+}
+.widgetReviewPrimary {
+  animation: widgetButtonGlow 6s ease-in-out infinite;
+}
+.widgetReceipt {
+  animation: widgetReceiptEmphasis 6s ease-in-out infinite;
+}
+.widgetReceiptCheck {
+  animation: widgetCheckPop 6s ease-in-out infinite;
+}
+.widgetReviewActions button:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+@keyframes widgetPulse {
+  0% {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+  10% {
+    opacity: 1;
+  }
+  24% {
+    opacity: 1;
+    transform: translateY(6px);
+  }
+  32%,
+  100% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+@keyframes widgetDraftEmphasis {
+  0%,
+  22% {
+    box-shadow: none;
+  }
+  30%,
+  44% {
+    box-shadow: 0 12px 26px rgba(0, 159, 227, 0.12);
+  }
+  52%,
+  100% {
+    box-shadow: none;
+  }
+}
+@keyframes widgetButtonGlow {
+  0%,
+  48% {
+    box-shadow: none;
+  }
+  58%,
+  72% {
+    box-shadow: 0 0 0 4px rgba(0, 159, 227, 0.18);
+  }
+  80%,
+  100% {
+    box-shadow: none;
+  }
+}
+@keyframes widgetReceiptEmphasis {
+  0%,
+  72% {
+    border-color: rgba(22, 163, 74, 0.35);
+    box-shadow: none;
+  }
+  84%,
+  96% {
+    border-color: rgba(22, 163, 74, 0.7);
+    box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+  }
+  100% {
+    border-color: rgba(22, 163, 74, 0.35);
+    box-shadow: none;
+  }
+}
+@keyframes widgetCheckPop {
+  0%,
+  74% {
+    transform: scale(1);
+  }
+  86%,
+  96% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.widgetConfirmed .widgetPulse,
+.widgetConfirmed .widgetDraft,
+.widgetConfirmed .widgetReviewPrimary,
+.widgetConfirmed .widgetReceipt,
+.widgetConfirmed .widgetReceiptCheck {
+  animation: none;
+}
+.widgetReceiptConfirmed {
+  border-color: rgba(22, 163, 74, 0.7);
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+}
+.widgetReceiptConfirmed .widgetReceiptCheck {
+  transform: scale(1.06);
+}
+@media (prefers-reduced-motion: reduce) {
+  .widgetPulse,
+  .widgetDraft,
+  .widgetReviewPrimary,
+  .widgetReceipt,
+  .widgetReceiptCheck {
+    animation: none;
+  }
+}
 
 .section {
   scroll-margin-top: 64px;
