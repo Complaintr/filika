@@ -26,7 +26,8 @@ export const FEEDBACK_TOOL = freezeMetadata({
 } as const);
 
 export interface FilikaToolExecutionOptions {
-  signal: AbortSignal;
+  /** WebMCP may omit the signal; the session abort scope still applies. */
+  signal?: AbortSignal;
 }
 
 export interface FilikaModelContextTool<Result> {

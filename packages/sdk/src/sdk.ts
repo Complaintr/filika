@@ -14,21 +14,25 @@ export interface SdkDependencies {
 }
 
 function parseSignalOptions(input: unknown, required: boolean): FilikaOpenOptions | null {
-  if (typeof input !== "object" || input === null || Array.isArray(input)) return null;
+  // WebMCP treats the execute options signal as optional, and host bridges may
+  // omit options entirely. A missing signal simply means the caller cannot
+  // cancel; the session abort scope still applies.
+  if (typeof input !== "object" || input === null || Array.isArray(input)) {
+    return required ? null : {};
+  }
+  if (!Object.hasOwn(input, "signal")) return required ? null : {};
+  const descriptor = Object.getOwnPropertyDescriptor(input, "signal");
+  if (!descriptor || !("value" in descriptor)) return required ? null : {};
+  const signal = descriptor.value;
+  if (signal === undefined) return required ? null : {};
   try {
-    // The host bridge may pass extra properties alongside the signal (for
-    // example requestUserInteraction); read only the signal and ignore the
-    // rest instead of rejecting the call.
-    if (!Object.hasOwn(input, "signal")) return required ? null : {};
-    const descriptor = Object.getOwnPropertyDescriptor(input, "signal");
-    if (!descriptor || !("value" in descriptor)) return null;
     // Brand-check via the native getter; do not accept duck-typed fake signals.
     const getter = Object.getOwnPropertyDescriptor(AbortSignal.prototype, "aborted")?.get;
-    if (!getter || typeof getter.call(descriptor.value) !== "boolean") return null;
-    return { signal: descriptor.value as AbortSignal };
+    if (!getter || typeof getter.call(signal) !== "boolean") return null;
   } catch {
     return null;
   }
+  return { signal: signal as AbortSignal };
 }
 
 export function createSdk(dependencies: SdkDependencies): FilikaPublicApi {
@@ -40,7 +44,7 @@ export function createSdk(dependencies: SdkDependencies): FilikaPublicApi {
     document: dependencies.document,
     ...(dependencies.development === undefined ? {} : { development: dependencies.development }),
     execute(session, input, options) {
-      const parsed = parseSignalOptions(options, true);
+      const parsed = parseSignalOptions(options, false);
       if (!parsed || input === null) return Promise.resolve({ code: "invalid_input" });
       return execution.execute(session, input, parsed.signal);
     },

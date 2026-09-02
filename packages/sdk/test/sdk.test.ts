@@ -166,9 +166,6 @@ test("registered tools and manual API share review, safe transport, and lifetime
   const execution = { signal: new AbortController().signal };
   expect((await tool.execute(draft, execution)).code).toBe("success");
   expect(await tool.execute(null, execution)).toEqual({ code: "invalid_input" });
-  expect(await Reflect.apply(tool.execute, tool, [draft, { requestUserInteraction() {} }])).toEqual(
-    { code: "invalid_input" },
-  );
   sdk.dispose();
   expect(await tool.execute(draft, execution)).toEqual({ code: "aborted" });
 });
@@ -197,6 +194,57 @@ test("host bridge options alongside the signal do not reject the tool call", asy
     requestUserInteraction: () => Promise.resolve(),
   };
   expect((await tool.execute(draft, execution)).code).toBe("success");
+  sdk.dispose();
+});
+
+test("tool calls without a host signal still reach review (WebMCP optional signal)", async () => {
+  let tool: FilikaModelContextTool<FilikaExecutionOutcome> | undefined;
+  let reviewed = 0;
+  const sdk = createSdk({
+    document: {
+      modelContext: {
+        async registerTool(value: FilikaModelContextTool<FilikaExecutionOutcome>) {
+          tool = value;
+        },
+      },
+    },
+    review: async (request) => {
+      reviewed++;
+      return { kind: "confirmed", feedback: request.draft, context: request.context };
+    },
+    fetch: async (_url, init) => accepted(JSON.parse(String(init.body)).eventId),
+  });
+  await sdk.init(config);
+  if (!tool) throw new Error("Expected tool");
+  expect((await tool.execute(draft, {})).code).toBe("success");
+  expect((await Reflect.apply(tool.execute, tool, [draft]))!.code).toBe("success");
+  expect(reviewed).toBe(2);
+  sdk.dispose();
+});
+
+test("duck-typed fake signals are rejected without invoking review", async () => {
+  let tool: FilikaModelContextTool<FilikaExecutionOutcome> | undefined;
+  let reviewed = 0;
+  const sdk = createSdk({
+    document: {
+      modelContext: {
+        async registerTool(value: FilikaModelContextTool<FilikaExecutionOutcome>) {
+          tool = value;
+        },
+      },
+    },
+    review: async (request) => {
+      reviewed++;
+      return { kind: "confirmed", feedback: request.draft, context: request.context };
+    },
+    fetch: async (_url, init) => accepted(JSON.parse(String(init.body)).eventId),
+  });
+  await sdk.init(config);
+  if (!tool) throw new Error("Expected tool");
+  expect(await tool.execute(draft, { signal: { aborted: false } as AbortSignal })).toEqual({
+    code: "invalid_input",
+  });
+  expect(reviewed).toBe(0);
   sdk.dispose();
 });
 
