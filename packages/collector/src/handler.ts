@@ -3,6 +3,7 @@ import type { BetterAuth } from "./auth/better-auth";
 import { allowOriginHeaders, buildPreflightResponse } from "./cors";
 import { getDashboard } from "./dashboard";
 import type { Db } from "./db/client";
+import { handleDemoRoute, isDemoRoute } from "./demo-routes";
 import { FEEDBACK_ENDPOINT, INBOX_DETAIL_ENDPOINT, INBOX_LIST_ENDPOINT } from "./endpoint-contract";
 import { GitHubClient } from "./github/client";
 import type { GitHubConfig } from "./github/config";
@@ -34,6 +35,14 @@ export function createFetchHandler(
   const github = new GitHubRoutes(db, options?.github, automaticClient ?? undefined);
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
+
+    if (isDemoRoute(url.pathname)) {
+      try {
+        return await handleDemoRoute(db, request);
+      } catch {
+        return Response.json({ error: { category: "internal_error" } }, { status: 500 });
+      }
+    }
 
     if (isGitHubRoute(url.pathname)) {
       const session =

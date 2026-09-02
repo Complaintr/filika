@@ -34,7 +34,10 @@ export const feedbackKind = pgEnum("feedback_kind", [
   "idea",
 ]);
 
+export const projectKind = pgEnum("project_kind", ["application", "demo"]);
+
 export const project = pgTable(PROJECT_TABLE_NAME, {
+  kind: projectKind("kind").notNull().default("application"),
   ownerUserId: text("owner_user_id").references(() => user.id),
   slug: text("slug").unique(),
   dashboardDays: integer("dashboard_days").notNull().default(30),

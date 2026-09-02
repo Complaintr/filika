@@ -24,6 +24,7 @@ describe("drizzle tables", () => {
       [
         "id",
         "integrationVerifiedAt",
+        "kind",
         "ownerUserId",
         "slug",
         "dashboardDays",

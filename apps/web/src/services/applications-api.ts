@@ -5,6 +5,7 @@ export interface Application {
   slug: string;
   displayName: string;
   integrationVerifiedAt: string | null;
+  kind: "application" | "demo";
   projectKey: string;
   allowedOrigins: string[];
   dashboardDays: 7 | 30 | 90;
@@ -50,6 +51,7 @@ function parseApplication(value: unknown): Application {
       (text(value.integrationVerifiedAt, 40) &&
         Number.isFinite(Date.parse(value.integrationVerifiedAt)))
     ) ||
+    !["application", "demo"].includes(String(value.kind)) ||
     !text(value.projectKey, 128) ||
     !Array.isArray(value.allowedOrigins) ||
     value.allowedOrigins.length > 20 ||
@@ -65,6 +67,7 @@ function parseApplication(value: unknown): Application {
     slug: value.slug,
     displayName: value.displayName,
     integrationVerifiedAt: value.integrationVerifiedAt as string | null,
+    kind: value.kind as "application" | "demo",
     projectKey: value.projectKey,
     allowedOrigins: value.allowedOrigins as string[],
     dashboardDays: value.dashboardDays as 7 | 30 | 90,
