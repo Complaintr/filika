@@ -89,6 +89,8 @@
 }
 
 .header {
+  position: relative;
+  z-index: 101;
   pointer-events: auto;
   width: min(100% - 48px, 1168px);
   height: 64px;
@@ -313,7 +315,8 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 16px;
-  z-index: 99;
+  z-index: 102;
+  pointer-events: auto;
   overflow: hidden;
   max-height: 0;
   opacity: 0;
@@ -381,7 +384,8 @@
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 98;
+  z-index: 100;
+  pointer-events: auto;
 }
 
 .main {

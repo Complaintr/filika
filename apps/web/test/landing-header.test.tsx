@@ -105,6 +105,18 @@ describe("landing header component", () => {
     expect(mobileNav?.textContent).toContain("How it works");
     expect(mobileNav?.textContent).toContain("GitHub");
 
+    menuBtn?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(menuBtn?.getAttribute("aria-label")).toBe("Close menu");
+    expect(menuBtn?.getAttribute("aria-expanded")).toBe("true");
+
+    const featuresButton = mobileNav?.querySelector("button");
+    expect(featuresButton).not.toBeNull();
+    featuresButton?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(menuBtn?.getAttribute("aria-label")).toBe("Open menu");
+    expect(menuBtn?.getAttribute("aria-expanded")).toBe("false");
+
     await result.close();
   });
 });
