@@ -44,7 +44,6 @@ export function DemoStore({
         method: "POST",
         signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]),
       });
-      // The route returns 504 deterministically; the storefront stays stuck.
       void response;
     } catch {
       // Timeout/abort keeps the storefront stuck, matching the demo failure.
@@ -61,46 +60,67 @@ export function DemoStore({
 
   return (
     <div className={styles.store} id="demo-store" data-demo-step="store">
-      <header className={styles.storeHeader}>
-        <span className={styles.storeBrand}>Acme Audio</span>
-        <span className={styles.storeCart}>Cart ({state.cart.length})</span>
+      <header className={styles.storeTopbar}>
+        <div className={styles.storeTopbarInner}>
+          <span className={styles.storeLogo}>acme·audio</span>
+          <nav className={styles.storeNav} aria-label="Store navigation">
+            <a href="#demo-store">Shop</a>
+            <a href="#demo-store">New</a>
+            <a href="#demo-store">Deals</a>
+            <a href="#demo-store">Support</a>
+          </nav>
+          <span className={styles.storeSearch} aria-hidden="true">
+            Search
+          </span>
+          <span className={styles.storeCart}>Cart ({state.cart.length})</span>
+        </div>
       </header>
 
-      <div className={styles.productGrid}>
-        {DEMO_PRODUCTS.map((product) => (
-          <DemoProductCard
-            key={product.id}
-            product={product}
-            inCart={state.cart.includes(product.id)}
-            onToggle={() => toggle(product.id)}
-            checkoutVisible={checkoutVisible}
-          />
-        ))}
-      </div>
-
-      {checkoutVisible && (
-        <section className={styles.checkout} aria-label="Checkout">
-          <div className={styles.checkoutSummary}>
-            <span>Total</span>
-            <strong>${total.toFixed(2)}</strong>
+      <div className={styles.storeBody}>
+        <div className={styles.storeHeading}>
+          <div>
+            <h2>Audio gear, shipping today</h2>
+            <p>Free two-day shipping on orders over $50.</p>
           </div>
-          <button
-            id="demo-place-order"
-            className={styles.placeOrder}
-            type="button"
-            disabled={submitting || state.orderPlaced}
-            data-demo-step="checkout"
-            onClick={() => void placeOrder()}
-          >
-            {submitting || state.orderPlaced ? "Submitting…" : "Place order"}
-          </button>
-          {state.stuck && (
-            <p className={styles.stuckNote} role="alert">
-              {DEMO_PRODUCTS[0] ? "Payment confirmation timed out. The order never completes." : ""}
-            </p>
-          )}
-        </section>
-      )}
+          <span className={styles.storeTrust}>Free returns</span>
+        </div>
+
+        <div className={styles.productGrid}>
+          {DEMO_PRODUCTS.map((product) => (
+            <DemoProductCard
+              key={product.id}
+              product={product}
+              inCart={state.cart.includes(product.id)}
+              onToggle={() => toggle(product.id)}
+              checkoutVisible={checkoutVisible}
+            />
+          ))}
+        </div>
+
+        {checkoutVisible && (
+          <section className={styles.checkout} aria-label="Checkout">
+            <div className={styles.checkoutSummary}>
+              <span className={styles.checkoutLabel}>Cart summary</span>
+              <strong>${total.toFixed(2)}</strong>
+            </div>
+            <button
+              id="demo-place-order"
+              className={styles.placeOrder}
+              type="button"
+              disabled={submitting || state.orderPlaced}
+              data-demo-step="checkout"
+              onClick={() => void placeOrder()}
+            >
+              {submitting || state.orderPlaced ? "Processing…" : "Place order"}
+            </button>
+            {state.stuck && (
+              <p className={styles.stuckNote} role="alert">
+                Payment confirmation timed out. The order never completes.
+              </p>
+            )}
+          </section>
+        )}
+      </div>
 
       <aside
         className={styles.hiddenInstruction}
@@ -132,12 +152,21 @@ function DemoProductCard({
       data-demo-step={product.id === "headphones" ? "product" : undefined}
     >
       <div className={styles.productImage} aria-hidden="true">
-        {product.name.slice(0, 1)}
+        <span>{product.emoji}</span>
+      </div>
+      <div className={styles.productCardTop}>
+        {product.badge && <span className={styles.productBadge}>{product.badge}</span>}
+        <span className={styles.productRating}>
+          ★ {product.rating} <small>({product.reviews})</small>
+        </span>
       </div>
       <h3>{product.name}</h3>
-      <p>{product.tagline}</p>
+      <p className={styles.productTagline}>{product.tagline}</p>
       <div className={styles.productRow}>
-        <strong>{product.price}</strong>
+        <span className={styles.productPrice}>
+          <strong>{product.price}</strong>
+          {product.oldPrice && <del>{product.oldPrice}</del>}
+        </span>
         <button
           className={inCart ? styles.addedButton : styles.addButton}
           type="button"

@@ -7,27 +7,45 @@ export interface DemoProduct {
   id: string;
   name: string;
   price: string;
+  oldPrice?: string;
+  rating: string;
+  reviews: string;
   tagline: string;
+  badge?: string;
+  emoji: string;
 }
 
 export const DEMO_PRODUCTS: readonly DemoProduct[] = [
   {
     id: "headphones",
-    name: "Wireless Headphones",
+    name: "Aurora Wireless Headphones",
     price: "$89.00",
-    tagline: "Noise cancelling, 30h battery",
+    oldPrice: "$129.00",
+    rating: "4.8",
+    reviews: "2,134",
+    tagline: "Noise cancelling · 30h battery · Bluetooth 5.4",
+    badge: "Bestseller",
+    emoji: "🎧",
   },
   {
     id: "keyboard",
-    name: "Mechanical Keyboard",
+    name: "Pulse Mechanical Keyboard",
     price: "$64.00",
-    tagline: "Hot-swappable, gasket mount",
+    oldPrice: "$84.00",
+    rating: "4.6",
+    reviews: "1,076",
+    tagline: "Hot-swappable · gasket mount · RGB",
+    badge: "Hot",
+    emoji: "⌨️",
   },
   {
     id: "deskmat",
-    name: "Desk Mat",
+    name: "Studio Desk Mat",
     price: "$24.00",
-    tagline: "Wide cloth surface",
+    rating: "4.7",
+    reviews: "892",
+    tagline: "Wide cloth surface · stitched edges",
+    emoji: "🖥️",
   },
 ];
 
@@ -41,58 +59,50 @@ export interface DemoStep {
 export const DEMO_STEPS: readonly DemoStep[] = [
   {
     id: "intro",
-    title: "Welcome to the Filika demo",
-    description:
-      "This is a real storefront with a hidden bug. Use a WebMCP-enabled AI agent to shop here and Filika will catch the problem.",
+    title: "This is a demo store",
+    description: "A real storefront with a hidden bug. Your WebMCP agent will shop here.",
     target: "#demo-store",
   },
   {
     id: "prompt",
     title: "Give your agent this prompt",
-    description:
-      "Copy the prompt and ask your agent to follow it. The agent will browse the store, add to cart, and try to check out.",
+    description: "Copy it and let your agent follow it — shop and check out.",
     target: "#demo-prompt",
   },
   {
     id: "product",
-    title: "The product",
-    description:
-      "Your agent picks the Wireless Headphones, adds them to the cart, and opens checkout.",
+    title: "Agent picks a product",
+    description: "It adds the Wireless Headphones to the cart and opens checkout.",
     target: "#demo-product-headphones",
   },
   {
     id: "checkout",
     title: "Checkout hangs",
-    description:
-      "Placing the order never completes. The payment confirmation times out and the page stays stuck on 'Submitting…'.",
+    description: "Placing the order never completes — the payment times out.",
     target: "#demo-place-order",
   },
   {
     id: "hidden",
     title: "A hidden site instruction",
-    description:
-      "This site carries a WebMCP instruction for agents: if a problem comes up here, report it through Filika.",
+    description: "The site tells agents: if a problem comes up, report it through Filika.",
     target: "#demo-hidden-instruction",
   },
   {
     id: "report",
-    title: "Your agent reports the problem",
-    description:
-      "The agent drafts a bug report through Filika's WebMCP tool and asks you to review it.",
+    title: "Agent drafts a report",
+    description: "It describes the checkout hang through Filika's WebMCP tool.",
     target: "#demo-report",
   },
   {
     id: "review",
-    title: "You review before anything is sent",
-    description:
-      "Nothing leaves the browser until you confirm. Review the report, then confirm it.",
+    title: "You review and confirm",
+    description: "Nothing is sent until you approve the report.",
     target: "#demo-review",
   },
   {
     id: "result",
     title: "Complaint received",
-    description:
-      "The report is stored for this device. When you connect a repository, Filika can turn it into a GitHub issue automatically.",
+    description: "The report is stored for this device and ready for a GitHub issue.",
     target: "#demo-result",
   },
 ];

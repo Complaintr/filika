@@ -50,8 +50,8 @@ export function DemoExperience() {
     const guide = driver({
       animate: true,
       showProgress: false,
-      overlayOpacity: 0.22,
-      stagePadding: 12,
+      overlayOpacity: 0.14,
+      stagePadding: 10,
       stageRadius: 10,
       smoothScroll: true,
       allowClose: false,
@@ -208,18 +208,20 @@ export function DemoExperience() {
                 The report reached the Filika demo inbox for this device
                 {receipt.feedbackId ? ` (${receipt.feedbackId.slice(0, 8)}…)` : ""}.
               </p>
-              <a className={styles.primaryLink} href="/demo/workspace">
-                Open the demo inbox
-              </a>
+              <div className={styles.resultActions}>
+                <a className={styles.primaryLink} href="/demo/workspace">
+                  Open the demo inbox
+                </a>
+                <a className={styles.accountCta} href="/register">
+                  Create an account to keep this report
+                </a>
+              </div>
               <p className={styles.githubNote}>
                 When you connect a repository, this report can become a GitHub issue automatically.
               </p>
-              <a className={styles.accountCta} href="/register">
-                Create an account to keep this report
-              </a>
             </>
           ) : (
-            <p className={styles.muted} role="status">
+            <p className={styles.resultWaiting} role="status">
               Waiting for a report from your agent…
             </p>
           )}

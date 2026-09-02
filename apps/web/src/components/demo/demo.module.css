@@ -1,27 +1,33 @@
+/* Demo experience: the storefront is a THIRD-PARTY site (acme·audio) and must
+   read as a real e-commerce page. The tour layer around it (header, prompt,
+   agent report, result) is Filika. The flow panel is fixed to the right edge,
+   above the driver.js spotlight so it is never dimmed. The whole demo fits one
+   viewport with no body scroll. */
+
 .experience {
-  --demo-ink: #253047;
-  --demo-muted: #5f6b7d;
-  --demo-border: #e5e8ee;
-  --demo-primary: #3563e9;
-  --demo-primary-soft: #edf2ff;
+  --demo-ink: #1c1e21;
+  --demo-muted: #6b7280;
+  --demo-border: #e5e7eb;
+  --demo-filika: #3563e9;
+  --demo-filika-soft: #eef2ff;
   --demo-surface: #ffffff;
-  --demo-surface-muted: #f7f8fa;
   --demo-danger: #9f2633;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 24px;
-  align-items: start;
-  width: min(100% - 48px, 1168px);
-  margin: 0 auto;
-  padding: 40px 0 80px;
+  height: 100dvh;
+  overflow: hidden;
   color: var(--demo-ink);
 }
 
 .experienceMain {
   display: grid;
-  gap: 24px;
-  min-width: 0;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+  gap: 14px;
+  height: 100dvh;
+  margin-right: 356px;
+  padding: 18px 0 20px 28px;
+  overflow: hidden;
 }
+
+/* ---- Filika tour layer ---- */
 
 .demoHeader {
   display: flex;
@@ -31,38 +37,38 @@
 }
 .demoEyebrow {
   display: block;
-  margin: 0 0 6px;
-  color: var(--demo-primary);
-  font-size: 12px;
+  margin: 0 0 4px;
+  color: var(--demo-filika);
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 .demoHeader h1 {
   margin: 0;
-  font-size: 34px;
-  font-weight: 650;
-  letter-spacing: -0.03em;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.15;
 }
 .demoBadge {
   display: inline-flex;
   gap: 8px;
   align-items: center;
-  padding: 6px 12px;
+  padding: 5px 11px;
   border: 1px solid var(--demo-border);
   border-radius: 999px;
   color: var(--demo-muted);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
   background: var(--demo-surface);
 }
 .demoBadge i {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--demo-primary);
+  background: var(--demo-filika);
 }
 
 .promptCard {
@@ -70,23 +76,24 @@
   gap: 16px;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 14px 18px;
   border: 1px solid var(--demo-border);
-  border-radius: 12px;
-  background: var(--demo-primary-soft);
+  border-radius: 10px;
+  background: var(--demo-filika-soft);
 }
 .promptText {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
+  line-height: 1.5;
 }
 .copyButton {
   flex: 0 0 auto;
-  padding: 9px 16px;
+  padding: 8px 14px;
   border: 0;
   border-radius: 8px;
   color: #fff;
-  background: var(--demo-primary);
+  background: var(--demo-filika);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -95,61 +102,157 @@
   background: #2b4fd0;
 }
 
+/* ---- acme·audio storefront (third-party e-commerce identity) ---- */
+
 .store {
-  overflow: hidden;
-  border: 1px solid var(--demo-border);
-  border-radius: 12px;
-  background: var(--demo-surface);
-}
-.storeHeader {
+  --store-accent: #ff5a1f;
+  --store-ink: #171717;
+  --store-muted: #737373;
+  --store-line: #e7e5e4;
+  --store-surface: #ffffff;
   display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--demo-border);
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--store-line);
+  border-radius: 10px;
+  background: var(--store-surface);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
 }
-.storeBrand {
-  font-weight: 650;
+.storeTopbar {
+  border-bottom: 1px solid var(--store-line);
+  background: #fafaf9;
+}
+.storeTopbarInner {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 24px;
+  align-items: center;
+  padding: 10px 16px;
+}
+.storeLogo {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: lowercase;
+}
+.storeLogo::first-letter {
+  color: var(--store-accent);
+}
+.storeNav {
+  display: flex;
+  gap: 18px;
+}
+.storeNav a {
+  color: var(--store-ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.storeNav a:hover {
+  color: var(--store-accent);
+}
+.storeSearch {
+  color: var(--store-muted);
+  font-size: 13px;
 }
 .storeCart {
-  color: var(--demo-muted);
-  font-size: 14px;
+  color: var(--store-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+.storeBody {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  min-height: 0;
+  padding: 14px 16px 16px;
+}
+.storeHeading {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.storeHeading h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.storeHeading p {
+  margin: 2px 0 0;
+  color: var(--store-muted);
+  font-size: 12px;
+}
+.storeTrust {
+  color: var(--store-muted);
+  font-size: 12px;
+  font-weight: 600;
 }
 .productGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  padding: 20px;
+  gap: 12px;
+  min-height: 0;
+  align-content: start;
 }
 .productCard {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 16px;
-  border: 1px solid var(--demo-border);
-  border-radius: 10px;
-  background: var(--demo-surface-muted);
+  padding: 12px;
+  border: 1px solid var(--store-line);
+  border-radius: 8px;
+  background: var(--store-surface);
 }
 .productImage {
   display: grid;
   place-items: center;
-  height: 96px;
-  border-radius: 8px;
-  color: var(--demo-primary);
-  background: var(--demo-primary-soft);
+  height: 88px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #fafaf9 0%, #f1efec 100%);
+}
+.productImage span {
   font-size: 40px;
+  line-height: 1;
+}
+.productCardTop {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+.productBadge {
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: var(--store-accent);
+  background: #fff1ea;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.productRating {
+  color: #b45309;
+  font-size: 12px;
   font-weight: 700;
 }
-.productCard h3 {
-  margin: 4px 0 0;
-  font-size: 15px;
-  font-weight: 650;
+.productRating small {
+  color: var(--store-muted);
+  font-weight: 400;
 }
-.productCard p {
+.productCard h3 {
   margin: 0;
-  color: var(--demo-muted);
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.productTagline {
+  margin: 0;
+  color: var(--store-muted);
+  font-size: 12px;
+  line-height: 1.4;
 }
 .productRow {
   display: flex;
@@ -158,30 +261,41 @@
   justify-content: space-between;
   margin-top: auto;
 }
-.productRow strong {
+.productPrice {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+}
+.productPrice strong {
   font-size: 15px;
+  font-weight: 800;
+}
+.productPrice del {
+  color: var(--store-muted);
+  font-size: 12px;
 }
 .addButton,
 .addedButton {
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 7px 12px;
+  border-radius: 6px;
   font: inherit;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
 }
 .addButton {
-  border: 1px solid var(--demo-primary);
-  color: var(--demo-primary);
-  background: var(--demo-surface);
+  border: 1px solid var(--store-ink);
+  color: #fff;
+  background: var(--store-ink);
 }
 .addButton:hover {
-  background: var(--demo-primary-soft);
+  background: var(--store-accent);
+  border-color: var(--store-accent);
 }
 .addedButton {
-  border: 1px solid var(--demo-border);
-  color: var(--demo-muted);
-  background: var(--demo-surface);
+  border: 1px solid var(--store-line);
+  color: var(--store-muted);
+  background: #fafaf9;
   cursor: default;
 }
 .checkout {
@@ -189,78 +303,84 @@
   gap: 16px;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 20px;
-  border-top: 1px solid var(--demo-border);
+  padding: 12px 14px;
+  border: 1px solid var(--store-line);
+  border-radius: 8px;
+  background: #fafaf9;
 }
 .checkoutSummary {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: baseline;
 }
-.checkoutSummary span {
-  color: var(--demo-muted);
-  font-size: 14px;
+.checkoutLabel {
+  color: var(--store-muted);
+  font-size: 12px;
 }
 .checkoutSummary strong {
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 800;
 }
 .placeOrder {
-  padding: 11px 20px;
+  padding: 10px 20px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 6px;
   color: #fff;
-  background: var(--demo-primary);
+  background: var(--store-accent);
   font: inherit;
-  font-weight: 650;
+  font-weight: 800;
   cursor: pointer;
 }
 .placeOrder:disabled {
   cursor: default;
-  opacity: 0.75;
+  opacity: 0.7;
 }
 .stuckNote {
   margin: 0;
-  color: var(--demo-danger);
-  font-size: 14px;
-  font-weight: 600;
+  color: #b3261e;
+  font-size: 13px;
+  font-weight: 700;
 }
 .hiddenInstruction {
-  padding: 12px 20px;
-  border-top: 1px dashed var(--demo-border);
-  color: var(--demo-muted);
-  font-size: 13px;
+  padding: 9px 16px;
+  border-top: 1px dashed var(--store-line);
+  color: var(--store-muted);
+  font-size: 12px;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
 }
 .hiddenInstruction span {
-  font-weight: 650;
-  color: var(--demo-ink);
+  font-weight: 700;
+  color: var(--store-ink);
 }
 .hiddenInstruction p {
   margin: 2px 0 0;
 }
 
+/* ---- Agent report (Filika) ---- */
+
 .agentReport {
   overflow: hidden;
   border: 1px solid var(--demo-border);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--demo-surface);
 }
 .agentReport header {
-  padding: 16px 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--demo-border);
 }
 .agentReport h2 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 650;
+  font-size: 15px;
+  font-weight: 700;
 }
 .agentLog {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   margin: 0;
-  padding: 16px 20px;
+  padding: 12px 16px;
   list-style: none;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 13px;
+  font-size: 12px;
 }
 .agentLog li {
   display: flex;
@@ -271,68 +391,92 @@
   flex: 0 0 auto;
   padding: 1px 6px;
   border-radius: 5px;
-  color: var(--demo-primary);
-  background: var(--demo-primary-soft);
+  color: var(--demo-filika);
+  background: var(--demo-filika-soft);
   font-weight: 700;
 }
 .agentDraft {
-  padding: 16px 20px 20px;
+  padding: 12px 16px 14px;
   border-top: 1px solid var(--demo-border);
 }
 .agentDraft p {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
+  font-size: 13px;
 }
 .muted {
   color: var(--demo-muted);
 }
 
+/* ---- Result (Filika) ---- */
+
 .result {
   display: grid;
-  gap: 10px;
-  justify-items: start;
-  padding: 24px;
+  grid-template-columns: auto 1fr;
+  gap: 4px 14px;
+  align-items: center;
+  padding: 16px 18px;
   border: 1px solid var(--demo-border);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--demo-surface);
 }
 .resultMark {
+  grid-row: span 2;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   color: #fff;
-  background: var(--demo-primary);
+  background: var(--demo-filika);
   font-weight: 700;
 }
 .result h2 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 650;
+  font-size: 16px;
+  font-weight: 700;
 }
 .result p {
   margin: 0;
+  font-size: 13px;
+  color: var(--demo-muted);
+}
+.resultActions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
 }
 .primaryLink {
-  padding: 10px 18px;
+  padding: 9px 16px;
   border-radius: 8px;
   color: #fff;
-  background: var(--demo-primary);
+  background: var(--demo-filika);
+  font-size: 13px;
   font-weight: 600;
   text-decoration: none;
 }
 .githubNote {
-  padding: 10px 14px;
+  margin: 0;
+  padding: 9px 12px;
   border: 1px solid var(--demo-border);
   border-radius: 8px;
   color: var(--demo-muted);
-  background: var(--demo-surface-muted);
-  font-size: 13px;
+  background: #fafafa;
+  font-size: 12px;
 }
 .accountCta {
-  color: var(--demo-primary);
+  color: var(--demo-filika);
+  font-size: 13px;
   font-weight: 600;
   text-decoration: none;
+}
+.resultWaiting {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--demo-muted);
+  font-size: 13px;
 }
 
 .error {
@@ -351,21 +495,26 @@
   border: 0;
 }
 
-/* Right-hand demo flow panel */
+/* ---- Right-hand flow panel (fixed, above the spotlight) ---- */
+
 .flowPanel {
-  position: sticky;
-  top: 24px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10010;
   display: grid;
-  gap: 16px;
-  max-height: calc(100dvh - 48px);
-  overflow: auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 14px;
+  width: 340px;
   padding: 20px;
-  border: 1px solid var(--demo-border);
-  border-radius: 12px;
-  background: var(--demo-surface);
+  border-left: 1px solid var(--demo-border);
+  background: #fbfbfc;
 }
 .flowPanelHidden {
+  display: block;
   padding: 12px;
+  width: 52px;
 }
 .flowPanelHeader {
   display: flex;
@@ -373,17 +522,24 @@
   align-items: flex-start;
   justify-content: space-between;
 }
-.flowPanelHeader h2 {
+.flowPanelTitle h2 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 650;
+  font-size: 17px;
+  font-weight: 700;
 }
 .flowPanelEyebrow {
-  color: var(--demo-primary);
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--demo-filika);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+.flowPanelEyebrow svg {
+  width: 13px;
+  height: 13px;
 }
 .flowIconButton {
   display: grid;
@@ -396,48 +552,78 @@
   background: var(--demo-surface);
   cursor: pointer;
 }
+.flowProgress {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+.flowProgress span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--demo-filika);
+  transition: width 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
 .flowSteps {
   display: grid;
-  gap: 4px;
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
+  align-content: start;
+  overflow-y: auto;
 }
 .flowStep {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-columns: 26px minmax(0, 1fr);
   gap: 10px;
   align-items: start;
   width: 100%;
-  padding: 12px;
+  padding: 10px 12px;
   border: 1px solid transparent;
   border-radius: 10px;
   text-align: left;
   color: var(--demo-ink);
   background: transparent;
   cursor: pointer;
+  opacity: 0.62;
 }
 .flowStep:hover {
-  background: var(--demo-surface-muted);
+  background: #f1f2f4;
+  opacity: 1;
 }
 .flowStepActive {
-  border-color: var(--demo-primary);
-  background: var(--demo-primary-soft);
+  border-color: var(--demo-filika);
+  background: var(--demo-filika-soft);
+  opacity: 1;
+}
+.flowStepDone {
+  opacity: 0.8;
 }
 .flowStepNumber {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border: 1px solid var(--demo-border);
   border-radius: 50%;
   color: var(--demo-muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
 }
+.flowStepDone .flowStepNumber {
+  border-color: var(--demo-filika);
+  color: #fff;
+  background: var(--demo-filika);
+}
+.flowStepDone .flowStepNumber svg {
+  width: 13px;
+  height: 13px;
+}
 .flowStepActive .flowStepNumber {
-  border-color: var(--demo-primary);
-  color: var(--demo-primary);
+  border-color: var(--demo-filika);
+  color: var(--demo-filika);
 }
 .flowStepCopy {
   display: grid;
@@ -445,18 +631,19 @@
   min-width: 0;
 }
 .flowStepCopy strong {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 650;
 }
 .flowStepCopy small {
   color: var(--demo-muted);
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: 11px;
+  line-height: 1.4;
 }
 .flowPanelFooter {
   display: grid;
   gap: 12px;
   padding-top: 4px;
+  border-top: 1px solid var(--demo-border);
 }
 .flowNav {
   display: flex;
@@ -483,9 +670,9 @@
   opacity: 0.45;
 }
 .flowButtonPrimary {
-  border-color: var(--demo-primary);
+  border-color: var(--demo-filika);
   color: #fff;
-  background: var(--demo-primary);
+  background: var(--demo-filika);
 }
 .flowButtonPrimary:hover {
   background: #2b4fd0;
@@ -514,14 +701,45 @@
   border-color: var(--demo-danger);
 }
 
-@media (max-width: 960px) {
-  .experience {
+@media (max-width: 1120px) {
+  .experienceMain {
+    margin-right: 20px;
+    padding: 20px 0 24px 20px;
+  }
+  .productGrid {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 960px) {
+  .experience,
+  .experienceMain {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .experienceMain {
+    display: grid;
+    grid-template-rows: auto;
+    gap: 16px;
+    margin-right: 0;
+    padding: 20px 16px 60px;
+  }
   .flowPanel {
-    position: static;
-    max-height: none;
-    order: 2;
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    max-height: 45dvh;
+    border-left: 0;
+    border-top: 1px solid var(--demo-border);
+  }
+  .flowPanelHidden {
+    display: block;
+    width: auto;
+    max-height: 48px;
   }
   .productGrid {
     grid-template-columns: 1fr;

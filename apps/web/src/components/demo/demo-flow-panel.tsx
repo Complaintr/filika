@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Eye, EyeOff, RotateCcw } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Eye, EyeOff, RotateCcw, Sparkles } from "lucide-react";
 import styles from "./demo.module.css";
 import { DEMO_STEPS } from "./demo-data";
 
@@ -20,16 +20,22 @@ export function DemoFlowPanel({
   onToggleHidden,
 }: DemoFlowPanelProps) {
   const last = DEMO_STEPS.length - 1;
+  const progress = ((activeIndex + 1) / DEMO_STEPS.length) * 100;
+
   return (
     <aside
       className={`${styles.flowPanel} ${hidden ? styles.flowPanelHidden : ""}`}
       aria-label="Demo flow"
     >
       <header className={styles.flowPanelHeader}>
-        <div>
-          <span className={styles.flowPanelEyebrow}>Demo flow</span>
-          <h2>Try Filika</h2>
-        </div>
+        {!hidden && (
+          <div className={styles.flowPanelTitle}>
+            <span className={styles.flowPanelEyebrow}>
+              <Sparkles aria-hidden="true" /> Demo flow
+            </span>
+            <h2>Try Filika</h2>
+          </div>
+        )}
         <button
           className={styles.flowIconButton}
           type="button"
@@ -43,25 +49,33 @@ export function DemoFlowPanel({
 
       {!hidden && (
         <>
+          <div className={styles.flowProgress} aria-hidden="true">
+            <span style={{ width: `${progress}%` }} />
+          </div>
+
           <ol className={styles.flowSteps}>
-            {DEMO_STEPS.map((step, index) => (
-              <li key={step.id}>
-                <button
-                  className={`${styles.flowStep} ${index === activeIndex ? styles.flowStepActive : ""}`}
-                  type="button"
-                  aria-current={index === activeIndex ? "step" : undefined}
-                  onClick={() => onNavigate(index)}
-                >
-                  <span className={styles.flowStepNumber}>
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className={styles.flowStepCopy}>
-                    <strong>{step.title}</strong>
-                    <small>{step.description}</small>
-                  </span>
-                </button>
-              </li>
-            ))}
+            {DEMO_STEPS.map((step, index) => {
+              const done = index < activeIndex;
+              const active = index === activeIndex;
+              return (
+                <li key={step.id}>
+                  <button
+                    className={`${styles.flowStep} ${active ? styles.flowStepActive : ""} ${done ? styles.flowStepDone : ""}`}
+                    type="button"
+                    aria-current={active ? "step" : undefined}
+                    onClick={() => onNavigate(index)}
+                  >
+                    <span className={styles.flowStepNumber} aria-hidden="true">
+                      {done ? <Check data-free-size="true" /> : String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className={styles.flowStepCopy}>
+                      <strong>{step.title}</strong>
+                      <small>{step.description}</small>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ol>
 
           <footer className={styles.flowPanelFooter}>
