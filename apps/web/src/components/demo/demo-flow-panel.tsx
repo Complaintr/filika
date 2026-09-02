@@ -42,9 +42,6 @@ export function DemoFlowPanel({
   return (
     <aside className={styles.flowPanel} aria-label="Live demo status">
       <header className={styles.liveHeader}>
-        <span className={styles.liveLabel}>
-          <i aria-hidden="true" /> Live demo
-        </span>
         <h2>{status}</h2>
         <p className={styles.liveInstructions}>
           {promptCopied

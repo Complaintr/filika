@@ -27,10 +27,7 @@
 /* ---- Filika tour layer ---- */
 
 .demoHeader {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  justify-content: space-between;
+  min-height: 64px;
 }
 .demoEyebrow {
   display: block;
@@ -701,6 +698,8 @@
   --demo-filika-soft: rgb(0 159 227 / 8%);
   --demo-surface: #fff;
   --demo-danger: #b42318;
+  display: flex;
+  flex-direction: column;
   height: auto;
   min-height: 100dvh;
   overflow: visible;
@@ -713,82 +712,72 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex: 1;
   width: min(calc(100% - 332px), 1120px);
-  min-height: 100dvh;
+  min-height: 0;
   height: auto;
   margin: 0;
   padding: 0 32px 56px;
   overflow: visible;
 }
 
+/* ---- Header, styled like the landing page header ---- */
+
 .demoHeader {
-  min-height: 64px;
-  align-items: center;
-  border-bottom: 1px solid var(--demo-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: rgb(255 255 255 / 85%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
-.demoHeaderBrand,
+.demoHeaderInner {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  width: min(calc(100% - 332px), 1120px);
+  height: 64px;
+  margin: 0;
+  padding: 0 32px;
+}
+
+.demoHeaderLeft,
 .demoHeaderActions {
   display: flex;
   gap: 12px;
   align-items: center;
 }
 
-.demoHeaderDivider {
-  width: 1px;
-  height: 20px;
-  background: var(--demo-border);
-}
-
-.demoHeaderBrand > span:last-child {
-  color: var(--demo-muted);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.backLink {
+.demoBackButton {
   display: inline-flex;
   gap: 6px;
   align-items: center;
-  color: var(--demo-muted);
-  font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.backLink:hover {
-  color: var(--demo-ink);
-}
-
-.backLink svg {
-  width: 14px;
-  height: 14px;
-}
-
-.demoConnection {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  color: var(--demo-ink);
-  font-size: 11px;
-}
-
-.demoConnection i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+  justify-content: center;
+  height: 36px;
+  padding: 8px 14px;
+  border: 1px solid var(--demo-filika);
+  border-radius: 9999px;
   background: var(--demo-filika);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background 150ms ease,
+    transform 150ms ease;
 }
 
-.demoConnection span {
-  font-weight: 600;
+.demoBackButton:hover {
+  background: #0091d1;
 }
 
-.demoConnection small {
-  padding-left: 6px;
-  border-left: 1px solid var(--demo-border);
-  color: var(--demo-muted);
-  font-size: inherit;
+.demoBackButton svg {
+  width: 16px;
+  height: 16px;
 }
 
 .demoIntro {
@@ -1232,27 +1221,8 @@
   border-bottom: 1px solid var(--demo-border);
 }
 
-.liveLabel {
-  display: inline-flex;
-  gap: 7px;
-  align-items: center;
-  color: var(--demo-muted);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.liveLabel i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--demo-filika);
-  box-shadow: 0 0 0 4px rgb(0 159 227 / 9%);
-}
-
 .liveHeader h2 {
-  margin: 10px 0 0;
+  margin: 0;
   color: var(--demo-ink);
   font-size: 20px;
   font-weight: 550;
@@ -1346,6 +1316,11 @@
     padding-inline: 22px;
   }
 
+  .demoHeaderInner {
+    width: calc(100% - 312px);
+    padding-inline: 22px;
+  }
+
   .flowPanel {
     width: 300px;
   }
@@ -1362,10 +1337,9 @@
     padding: 0 16px 180px;
   }
 
-  .backLink,
-  .demoHeaderDivider,
-  .demoHeaderBrand > span:last-child {
-    display: none;
+  .demoHeaderInner {
+    width: 100%;
+    padding-inline: 16px;
   }
 
   .demoIntro h1 {

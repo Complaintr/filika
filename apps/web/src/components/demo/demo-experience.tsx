@@ -154,25 +154,20 @@ export function DemoExperience() {
 
   return (
     <div className={styles.experience} data-demo-experience>
-      <div className={styles.experienceMain}>
-        <header className={styles.demoHeader}>
-          <div className={styles.demoHeaderBrand}>
+      <header className={styles.demoHeader}>
+        <div className={styles.demoHeaderInner}>
+          <div className={styles.demoHeaderLeft}>
             <FilikaBrand href="/" label="Filika home" />
-            <span className={styles.demoHeaderDivider} aria-hidden="true" />
-            <span>Interactive demo</span>
           </div>
           <div className={styles.demoHeaderActions}>
-            <span className={styles.demoConnection}>
-              <i aria-hidden="true" />
-              <span>WebMCP</span>
-              <small>Connected</small>
-            </span>
-            <a className={styles.backLink} href="/">
+            <a className={styles.demoBackButton} href="/">
               <ArrowLeft aria-hidden="true" /> Back to Filika
             </a>
           </div>
-        </header>
+        </div>
+      </header>
 
+      <div className={styles.experienceMain}>
         <section className={styles.demoIntro}>
           <h1>Try Filika on a broken checkout.</h1>
         </section>
