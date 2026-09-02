@@ -51,20 +51,21 @@ export function DemoFlowPanel({
   return (
     <aside
       className={`${styles.flowPanel} ${hidden ? styles.flowPanelHidden : ""}`}
-      aria-label="Demo flow"
+      aria-label="Demo guide"
     >
       <header className={styles.flowPanelHeader}>
         {!hidden && (
           <div className={styles.flowPanelTitle}>
-            <span className={styles.flowPanelEyebrow}>Demo flow</span>
-            <h2>Follow the report</h2>
-            <p>Eight short steps. You can jump ahead at any time.</p>
+            <h2>Demo guide</h2>
+            <span className={styles.flowPanelCount}>
+              {activeIndex + 1} of {DEMO_STEPS.length}
+            </span>
           </div>
         )}
         <button
           className={styles.flowIconButton}
           type="button"
-          aria-label={hidden ? "Show demo flow" : "Hide demo flow"}
+          aria-label={hidden ? "Show demo guide" : "Hide demo guide"}
           aria-pressed={hidden}
           onClick={onToggleHidden}
         >

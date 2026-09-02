@@ -356,57 +356,6 @@
   margin: 2px 0 0;
 }
 
-/* ---- Agent report (Filika) ---- */
-
-.agentReport {
-  overflow: hidden;
-  border: 1px solid var(--demo-border);
-  border-radius: 10px;
-  background: var(--demo-surface);
-}
-.agentReport header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--demo-border);
-}
-.agentReport h2 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-}
-.agentLog {
-  display: grid;
-  gap: 4px;
-  margin: 0;
-  padding: 12px 16px;
-  list-style: none;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 12px;
-}
-.agentLog li {
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
-}
-.agentLog li span {
-  flex: 0 0 auto;
-  padding: 1px 6px;
-  border-radius: 5px;
-  color: var(--demo-filika);
-  background: var(--demo-filika-soft);
-  font-weight: 700;
-}
-.agentDraft {
-  padding: 12px 16px 14px;
-  border-top: 1px solid var(--demo-border);
-}
-.agentDraft p {
-  margin: 4px 0 0;
-  font-size: 13px;
-}
-.muted {
-  color: var(--demo-muted);
-}
-
 /* ---- Result (Filika) ---- */
 
 .result {
@@ -766,12 +715,12 @@
 .experienceMain {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   width: min(calc(100% - 356px), 1184px);
   min-height: 100dvh;
   height: auto;
   margin: 0;
-  padding: 0 32px 72px;
+  padding: 0 32px 56px;
   overflow: visible;
 }
 
@@ -819,36 +768,50 @@
   height: 14px;
 }
 
-.demoBadge {
-  padding: 6px 10px;
-  border-color: rgb(0 159 227 / 20%);
-  color: #007cae;
-  background: var(--demo-filika-soft);
+.demoConnection {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--demo-ink);
   font-size: 11px;
 }
 
-.demoBadge i {
+.demoConnection i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
   background: var(--demo-filika);
+}
+
+.demoConnection span {
+  font-weight: 600;
+}
+
+.demoConnection small {
+  padding-left: 6px;
+  border-left: 1px solid var(--demo-border);
+  color: var(--demo-muted);
+  font-size: inherit;
 }
 
 .demoIntro {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
-  gap: 56px;
+  gap: 44px;
   align-items: end;
-  padding: 50px 0 30px;
+  padding: 36px 0 20px;
 }
 
 .demoIntro .demoEyebrow {
   grid-column: 1 / -1;
-  margin-bottom: -40px;
+  margin-bottom: -30px;
 }
 
 .demoIntro h1 {
   max-width: 650px;
   margin: 0;
   color: #454545;
-  font-size: clamp(38px, 4vw, 50px);
+  font-size: clamp(34px, 3.7vw, 44px);
   font-weight: 500;
   letter-spacing: -0.045em;
   line-height: 1.08;
@@ -862,8 +825,8 @@
   max-width: 460px;
   margin: 0;
   color: var(--demo-muted);
-  font-size: 17px;
-  line-height: 1.65;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .demoEyebrow {
@@ -885,19 +848,13 @@
 }
 
 .promptIcon {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid rgb(0 159 227 / 16%);
-  border-radius: 10px;
+  display: flex;
   color: var(--demo-filika);
-  background: #fff;
 }
 
 .promptIcon svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .promptContent {
@@ -941,7 +898,7 @@
   overflow: hidden;
   border-color: var(--demo-border);
   border-radius: 12px;
-  box-shadow: 0 16px 48px rgb(30 41 59 / 8%);
+  box-shadow: none;
 }
 
 .storeTopbarInner {
@@ -988,7 +945,7 @@
 
 .productCard:hover {
   border-color: rgb(255 90 31 / 35%);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .productImage {
@@ -1046,42 +1003,17 @@
   height: 14px;
 }
 
-.agentReport,
 .result {
   border-color: var(--demo-border);
   border-radius: 12px;
 }
 
-.agentReport > header {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.draftStatus {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  padding: 5px 9px;
-  border-radius: 999px;
-  color: #087a5b;
-  background: #edfaf5;
-  font-size: 10px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.draftStatus svg {
-  width: 13px;
-  height: 13px;
-}
-
 .resultMark {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--demo-filika);
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  color: var(--demo-filika);
+  background: transparent;
 }
 
 .resultMark svg {
@@ -1113,7 +1045,7 @@
   gap: 16px;
   padding: 24px 20px;
   border-color: var(--demo-border);
-  background: #f8fafc;
+  background: #fff;
   box-shadow: none;
 }
 
@@ -1123,30 +1055,24 @@
 }
 
 .flowPanelTitle h2 {
-  margin-top: 2px;
+  margin: 0;
   color: var(--demo-ink);
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 550;
   letter-spacing: -0.025em;
 }
 
-.flowPanelTitle p {
-  max-width: 230px;
-  margin: 6px 0 0;
+.flowPanelCount {
+  display: block;
+  margin-top: 3px;
   color: var(--demo-muted);
-  font-size: 11px;
-  line-height: 1.45;
-}
-
-.flowPanelEyebrow {
-  color: var(--demo-filika);
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .flowIconButton {
-  border-color: var(--demo-border);
-  border-radius: 50%;
-  background: #fff;
+  border-color: transparent;
+  border-radius: 0;
+  background: transparent;
 }
 
 .flowProgress {
@@ -1168,7 +1094,7 @@
   grid-template-columns: 32px minmax(0, 1fr);
   gap: 10px;
   padding: 9px 10px;
-  border-radius: 10px;
+  border-radius: 8px;
   opacity: 0.56;
 }
 
@@ -1177,17 +1103,18 @@
 }
 
 .flowStepActive {
-  border-color: rgb(0 159 227 / 24%);
-  background: #fff;
-  box-shadow: 0 8px 24px rgb(30 41 59 / 7%);
+  border-color: transparent;
+  box-shadow: inset 2px 0 var(--demo-filika);
+  background: #f8fafc;
 }
 
 .flowStepNumber {
-  width: 28px;
-  height: 28px;
-  border-color: #dbe2e9;
-  border-radius: 8px;
-  background: #fff;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 0;
+  color: var(--demo-muted);
+  background: transparent;
 }
 
 .flowStepNumber svg {
@@ -1196,15 +1123,13 @@
 }
 
 .flowStepDone .flowStepNumber {
-  border-color: #a9dfd0;
   color: #087a5b;
-  background: #edfaf5;
+  background: transparent;
 }
 
 .flowStepActive .flowStepNumber {
-  border-color: var(--demo-filika);
-  color: #fff;
-  background: var(--demo-filika);
+  color: var(--demo-filika);
+  background: transparent;
 }
 
 .flowStepCopy strong {
@@ -1312,7 +1237,6 @@
     backdrop-filter: blur(16px);
   }
 
-  .flowPanelTitle p,
   .flowProgress,
   .resetButton,
   .flowSteps li:not(:has(.flowStepActive)) {
@@ -1356,14 +1280,6 @@
   }
 
   .productCard:nth-child(n + 2) {
-    display: none;
-  }
-
-  .agentLog {
-    display: none;
-  }
-
-  .draftStatus {
     display: none;
   }
 }

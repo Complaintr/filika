@@ -9,18 +9,18 @@ test("demo storefront loads publicly and the flow panel navigates", async ({ pag
     page.getByRole("heading", { name: "See what happens after an agent hits a dead end." }),
   ).toBeVisible();
   await expect(page.getByText("Buy the Wireless Headphones", { exact: false })).toBeVisible();
-  await expect(page.getByRole("complementary", { name: "Demo flow" })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Demo guide" })).toBeVisible();
 
   // The flow panel exposes every tour step and reports progress.
-  await expect(page.getByText("1 / 8")).toBeVisible();
+  await expect(page.getByText("1 / 7")).toBeVisible();
   const next = page.getByRole("button", { name: /Next/ });
   await next.click();
-  await expect(page.getByText("2 / 8")).toBeVisible();
+  await expect(page.getByText("2 / 7")).toBeVisible();
 
   // Hide collapses the panel.
-  await page.getByRole("button", { name: "Hide demo flow" }).click();
+  await page.getByRole("button", { name: "Hide demo guide" }).click();
   await expect(page.getByRole("button", { name: /Reset demo/ })).toBeHidden();
-  await page.getByRole("button", { name: "Show demo flow" }).click();
+  await page.getByRole("button", { name: "Show demo guide" }).click();
   await expect(page.getByRole("button", { name: /Reset demo/ })).toBeVisible();
 });
 

@@ -3,14 +3,14 @@
 import { type DriveStep, driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { createSdk } from "@filika/sdk";
-import { ArrowLeft, ArrowRight, Bot, Check, CheckCircle2, Copy, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, Check, Copy, ShieldCheck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { FilikaBrand } from "@/components/filika-brand";
 import { ReceiptToast } from "@/components/receipt-toast";
 import { connectSdkDialog } from "@/sdk-dialog";
 import { demoApi } from "@/services/demo-api";
 import styles from "./demo.module.css";
-import { DEMO_AGENT_LOG, DEMO_DRAFT, DEMO_STEPS, TEST_DEMO_PROMPT } from "./demo-data";
+import { DEMO_STEPS, TEST_DEMO_PROMPT } from "./demo-data";
 import { DemoFlowPanel } from "./demo-flow-panel";
 import { DemoStore, type DemoStoreState } from "./demo-store";
 
@@ -158,8 +158,10 @@ export function DemoExperience() {
             <span>Interactive demo</span>
           </div>
           <div className={styles.demoHeaderActions}>
-            <span className={styles.demoBadge}>
-              <i aria-hidden="true" /> WebMCP ready
+            <span className={styles.demoConnection}>
+              <i aria-hidden="true" />
+              <span>WebMCP</span>
+              <small>Connected</small>
             </span>
             <a className={styles.backLink} href="/">
               <ArrowLeft aria-hidden="true" /> Back to Filika
@@ -174,7 +176,7 @@ export function DemoExperience() {
           </h1>
           <p>
             Guide an AI agent through a broken checkout. Filika turns the failure into a clear,
-            reviewed report—without sending anything before you approve it.
+            reviewed report without sending anything before you approve it.
           </p>
         </section>
 
@@ -206,31 +208,6 @@ export function DemoExperience() {
 
         <DemoStore state={storeState} onChange={setStoreState} />
 
-        <section className={styles.agentReport} id="demo-report" data-demo-step="report">
-          <header>
-            <div>
-              <span className={styles.demoEyebrow}>Agent report</span>
-              <h2>{DEMO_DRAFT.title}</h2>
-            </div>
-            <span className={styles.draftStatus}>
-              <CheckCircle2 aria-hidden="true" /> Draft ready
-            </span>
-          </header>
-          <ol className={styles.agentLog} aria-label="Agent activity">
-            {DEMO_AGENT_LOG.map((entry) => (
-              <li key={entry.text}>
-                <span>{entry.tag}</span>
-                {entry.text}
-              </li>
-            ))}
-          </ol>
-          <div className={styles.agentDraft}>
-            <strong>{DEMO_DRAFT.title}</strong>
-            <p>{DEMO_DRAFT.description}</p>
-            <p className={styles.muted}>{DEMO_DRAFT.expectedBehavior}</p>
-          </div>
-        </section>
-
         <div ref={hostRef} data-demo-step="review" id="demo-review" />
 
         <section className={styles.result} id="demo-result" data-demo-step="result">
@@ -239,7 +216,7 @@ export function DemoExperience() {
               <span className={styles.resultMark} aria-hidden="true">
                 <Check />
               </span>
-              <h2>A problem was found — a complaint has arrived.</h2>
+              <h2>A problem was found. A complaint has arrived.</h2>
               <p>
                 The report reached the Filika demo inbox for this device
                 {receipt.feedbackId ? ` (${receipt.feedbackId.slice(0, 8)}…)` : ""}.

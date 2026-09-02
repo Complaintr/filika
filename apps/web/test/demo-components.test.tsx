@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
   DEMO_CHECKOUT_FAILURE_CODE,
-  DEMO_DRAFT,
   DEMO_STEPS,
   TEST_DEMO_PROMPT,
 } from "../src/components/demo/demo-data";
@@ -70,7 +69,7 @@ describe("demo-flow-panel", () => {
     );
     expect(result.container.querySelectorAll("li")).toHaveLength(DEMO_STEPS.length);
     expect(result.container.textContent).toContain(`2 / ${DEMO_STEPS.length}`);
-    expect(result.container.textContent).toContain("Follow the report");
+    expect(result.container.textContent).toContain("Demo guide");
     await result.close();
   });
 
@@ -141,7 +140,6 @@ describe("demo-data", () => {
       "product",
       "checkout",
       "hidden",
-      "report",
       "review",
       "result",
     ]);
@@ -156,12 +154,6 @@ describe("demo-data", () => {
     expect(TEST_DEMO_PROMPT).toContain("Wireless Headphones");
     expect(TEST_DEMO_PROMPT).toContain("checkout");
     expect(TEST_DEMO_PROMPT.length).toBeLessThan(200);
-  });
-
-  test("the agent draft is a checkout bug", () => {
-    expect(DEMO_DRAFT.kind).toBe("bug");
-    expect(DEMO_DRAFT.title).toContain("Checkout");
-    expect(DEMO_DRAFT.reproductionSteps.length).toBeGreaterThan(0);
   });
 
   test("the failure code is stable and documented", () => {

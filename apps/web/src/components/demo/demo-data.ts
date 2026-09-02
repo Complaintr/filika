@@ -12,7 +12,6 @@ export interface DemoProduct {
   reviews: string;
   tagline: string;
   badge?: string;
-  emoji: string;
 }
 
 export const DEMO_PRODUCTS: readonly DemoProduct[] = [
@@ -25,7 +24,6 @@ export const DEMO_PRODUCTS: readonly DemoProduct[] = [
     reviews: "2,134",
     tagline: "Noise cancelling · 30h battery · Bluetooth 5.4",
     badge: "Bestseller",
-    emoji: "🎧",
   },
   {
     id: "keyboard",
@@ -36,7 +34,6 @@ export const DEMO_PRODUCTS: readonly DemoProduct[] = [
     reviews: "1,076",
     tagline: "Hot-swappable · gasket mount · RGB",
     badge: "Hot",
-    emoji: "⌨️",
   },
   {
     id: "deskmat",
@@ -45,7 +42,6 @@ export const DEMO_PRODUCTS: readonly DemoProduct[] = [
     rating: "4.7",
     reviews: "892",
     tagline: "Wide cloth surface · stitched edges",
-    emoji: "🖥️",
   },
 ];
 
@@ -66,7 +62,7 @@ export const DEMO_STEPS: readonly DemoStep[] = [
   {
     id: "prompt",
     title: "Give your agent this prompt",
-    description: "Copy it and let your agent follow it — shop and check out.",
+    description: "Copy it and let your agent follow it, shop, and check out.",
     target: "#demo-prompt",
   },
   {
@@ -78,7 +74,7 @@ export const DEMO_STEPS: readonly DemoStep[] = [
   {
     id: "checkout",
     title: "Checkout hangs",
-    description: "Placing the order never completes — the payment times out.",
+    description: "Placing the order never completes because the payment times out.",
     target: "#demo-place-order",
   },
   {
@@ -86,12 +82,6 @@ export const DEMO_STEPS: readonly DemoStep[] = [
     title: "A hidden site instruction",
     description: "The site tells agents: if a problem comes up, report it through Filika.",
     target: "#demo-hidden-instruction",
-  },
-  {
-    id: "report",
-    title: "Agent drafts a report",
-    description: "It describes the checkout hang through Filika's WebMCP tool.",
-    target: "#demo-report",
   },
   {
     id: "review",
@@ -105,26 +95,4 @@ export const DEMO_STEPS: readonly DemoStep[] = [
     description: "The report is stored for this device and ready for a GitHub issue.",
     target: "#demo-result",
   },
-];
-
-export const DEMO_DRAFT = {
-  kind: "bug",
-  title: "Checkout hangs on payment",
-  description:
-    "After placing the order, the payment confirmation never completes and the page stays stuck on the submitting state.",
-  expectedBehavior: "The order should complete and show a confirmation.",
-  reproductionSteps: [
-    "Open the store",
-    "Add the Wireless Headphones to the cart",
-    "Place the order",
-  ],
-};
-
-export const DEMO_AGENT_LOG = [
-  { tag: "NAV", text: "Opened the storefront" },
-  { tag: "ACT", text: "Added Wireless Headphones to cart" },
-  { tag: "NAV", text: "Opened checkout" },
-  { tag: "ACT", text: 'Clicked "Place order"' },
-  { tag: "NET", text: "POST /api/v1/demo/checkout -> 504" },
-  { tag: "ERR", text: 'Order stuck on "Submitting…"' },
 ];
