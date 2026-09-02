@@ -134,6 +134,26 @@ describe("public landing page", () => {
     expect(styles).toContain("--warning-soft: rgba(217, 119, 6, 0.1)");
   });
 
+  test("widget preview shell carries the header status strip", async () => {
+    const widget = await Bun.file(`${import.meta.dir}/../src/components/widget-preview.tsx`).text();
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    expect(widget).toContain("export function WidgetPreview");
+    expect(widget).toContain("WebMCP connected");
+    expect(widget).toContain("Browser agent found a possible issue");
+    expect(widget).not.toContain("—");
+    expect(widget.toLowerCase()).not.toContain("sdk");
+    for (const className of [
+      ".widgetSurface",
+      ".widgetHeader",
+      ".widgetBrand",
+      ".widgetStatus",
+      ".widgetHelper",
+    ]) {
+      expect(styles).toContain(className);
+    }
+  });
+
   test("serves the home route without authentication or workspace chrome", async () => {
     const proxy = await Bun.file(`${import.meta.dir}/../proxy.ts`).text();
     const shell = await Bun.file(`${import.meta.dir}/../src/workspace/auth-aware-shell.tsx`).text();
