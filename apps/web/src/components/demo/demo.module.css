@@ -914,14 +914,11 @@
   min-width: 0;
   padding: 12px;
   border-radius: 10px;
-  transition:
-    border-color 150ms ease,
-    transform 150ms ease;
+  transition: border-color 150ms ease;
 }
 
 .productCard:hover {
   border-color: rgb(255 90 31 / 35%);
-  transform: translateY(-1px);
 }
 
 .productCardSelected {
