@@ -546,6 +546,7 @@
   background: var(--primary);
   color: #fff;
   font-weight: 750;
+  object-fit: contain;
 }
 .dashboardDemoBrand > i {
   width: 1px;
@@ -684,6 +685,7 @@
 .dashboardDemoChartLabels {
   display: flex;
   justify-content: space-between;
+  margin-top: 5px;
   color: var(--dashboard-demo-muted);
   font-size: 8px;
 }

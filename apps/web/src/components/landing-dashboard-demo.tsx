@@ -1,6 +1,7 @@
 "use client";
 
 import { Bug, CircleSlash2, Lightbulb, MessageSquareText, ShieldCheck, X } from "lucide-react";
+import Image from "next/image";
 import { useRef, useState } from "react";
 import styles from "../../app/landing.module.css";
 
@@ -67,12 +68,17 @@ export function LandingDashboardDemo() {
     <section className={styles.dashboardDemo} aria-label="Filika dashboard preview">
       <header className={styles.dashboardDemoTopbar}>
         <div className={styles.dashboardDemoBrand}>
-          <span className={styles.dashboardDemoBrandMark} aria-hidden="true">
-            f
-          </span>
+          <Image
+            className={styles.dashboardDemoBrandMark}
+            src="/filika-logo.svg"
+            width={24}
+            height={24}
+            alt=""
+            unoptimized
+          />
           <strong>Filika</strong>
           <i aria-hidden="true" />
-          <small>Acme Store</small>
+          <small>Filika Demo</small>
         </div>
         <span className={styles.dashboardDemoStatus}>
           <i aria-hidden="true" /> Collector connected
@@ -111,6 +117,7 @@ export function LandingDashboardDemo() {
             <svg
               viewBox="0 0 560 190"
               preserveAspectRatio="none"
+              data-free-size="true"
               role="img"
               aria-label="Feedback activity increased over the last 30 days"
             >

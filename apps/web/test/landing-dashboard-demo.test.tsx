@@ -6,6 +6,20 @@ import { renderReact } from "./helpers/render-react";
 const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
 
 describe("landing dashboard demo", () => {
+  test("renders the Filika demo identity and full-size activity chart", async () => {
+    const result = await renderReact(createElement(LandingDashboardDemo));
+
+    const logo = result.container.querySelector('img[src="/filika-logo.svg"]');
+    expect(logo).not.toBeNull();
+    expect(result.container.textContent).toContain("Filika Demo");
+
+    const chart = result.container.querySelector('svg[aria-label*="last 30 days"]');
+    expect(chart?.getAttribute("data-free-size")).toBe("true");
+    expect(chart?.querySelectorAll("path").length).toBe(2);
+
+    await result.close();
+  });
+
   test("opens the selected report inside the widget and returns focus when closed", async () => {
     const result = await renderReact(createElement(LandingDashboardDemo));
     const reportButton = result.container.querySelector<HTMLButtonElement>(
