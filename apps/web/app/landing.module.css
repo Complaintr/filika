@@ -856,6 +856,52 @@
   background: var(--card);
   color: var(--primary);
 }
+.widgetReceipt {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(22, 163, 74, 0.35);
+  border-radius: 12px;
+  background: var(--card);
+}
+.widgetReceiptHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.widgetReceiptCheck {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 50%;
+  background: var(--success-soft);
+  color: var(--success);
+}
+.widgetReceiptHeader strong {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+.widgetReceiptHeader p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.widgetGithub {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 550;
+}
 
 .section {
   scroll-margin-top: 64px;

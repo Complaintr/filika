@@ -1,8 +1,9 @@
 "use client";
 
-import { AlertTriangle, Bot, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Bot, Check, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import styles from "../../app/landing.module.css";
+import { GithubIcon } from "../auth/github-icon";
 
 export function WidgetPreview() {
   return (
@@ -105,6 +106,25 @@ export function WidgetPreview() {
               <button className={styles.widgetReviewPrimary} type="button">
                 Review &amp; confirm
               </button>
+            </div>
+          </div>
+        </div>
+        <div className={styles.widgetStage}>
+          <span className={styles.widgetStageNode} aria-hidden="true" />
+          <div className={styles.widgetReceipt}>
+            <span className={styles.widgetStageLabel}>Ready for triage</span>
+            <div className={styles.widgetReceiptHeader}>
+              <span className={styles.widgetReceiptCheck}>
+                <Check aria-hidden="true" data-free-size="true" />
+              </span>
+              <div>
+                <strong>Report confirmed</strong>
+                <p>Sent to your Filika inbox</p>
+              </div>
+            </div>
+            <div className={styles.widgetGithub}>
+              <GithubIcon />
+              Issue ready for review
             </div>
           </div>
         </div>

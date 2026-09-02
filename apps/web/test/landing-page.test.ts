@@ -218,6 +218,21 @@ describe("public landing page", () => {
     }
   });
 
+  test("widget preview flow ends at the triage receipt", async () => {
+    const widget = await Bun.file(`${import.meta.dir}/../src/components/widget-preview.tsx`).text();
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    expect(widget).toContain("Ready for triage");
+    expect(widget).toContain("Report confirmed");
+    expect(widget).toContain("Sent to your Filika inbox");
+    expect(widget).toContain("Issue ready for review");
+    expect(widget).toContain("GithubIcon");
+    expect(widget).not.toContain("—");
+    for (const className of [".widgetReceipt", ".widgetReceiptCheck", ".widgetGithub"]) {
+      expect(styles).toContain(className);
+    }
+  });
+
   test("serves the home route without authentication or workspace chrome", async () => {
     const proxy = await Bun.file(`${import.meta.dir}/../proxy.ts`).text();
     const shell = await Bun.file(`${import.meta.dir}/../src/workspace/auth-aware-shell.tsx`).text();
