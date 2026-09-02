@@ -159,6 +159,7 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 14px;
+  flex: 1;
   min-height: 0;
   padding: 14px 16px 16px;
 }
@@ -932,7 +933,7 @@
   width: 100%;
   height: auto;
   min-height: 0;
-  aspect-ratio: 1;
+  aspect-ratio: 1.1;
   overflow: hidden;
   background: #f5f6f8;
 }
@@ -1006,10 +1007,14 @@
 }
 
 .hiddenInstruction {
-  display: flex;
-  gap: 4px;
-  align-items: baseline;
-  padding-block: 8px;
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
   font-size: 11px;
 }
 
