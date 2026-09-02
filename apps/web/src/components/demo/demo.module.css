@@ -700,9 +700,9 @@
   --demo-danger: #b42318;
   display: flex;
   flex-direction: column;
-  height: auto;
-  min-height: 100dvh;
-  overflow: visible;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
   color: var(--demo-ink);
   background: #fff;
   font-family: "Inter Tight", Inter, "Segoe UI", sans-serif;
@@ -717,15 +717,14 @@
   min-height: 0;
   height: auto;
   margin: 0;
-  padding: 0 32px 56px;
-  overflow: visible;
+  padding: 0 32px 24px;
+  overflow: hidden;
 }
 
 /* ---- Header, styled like the landing page header ---- */
 
 .demoHeader {
-  position: sticky;
-  top: 0;
+  flex: 0 0 64px;
   z-index: 100;
   width: 100%;
   background: rgb(255 255 255 / 85%);
@@ -781,8 +780,9 @@
 }
 
 .demoIntro {
+  flex: 0 0 auto;
   display: block;
-  padding: 28px 0 10px;
+  padding: 16px 0 0;
 }
 
 .demoIntro h1 {
@@ -860,7 +860,8 @@
 }
 
 .store {
-  min-height: auto;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   border-color: var(--demo-border);
   border-radius: 12px;
@@ -901,6 +902,8 @@
 .productGrid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .productCard {
@@ -1429,5 +1432,26 @@
 
   .liveFooter .resetButton {
     display: inline-flex;
+  }
+}
+
+/* Below desktop the flow panel docks to the bottom, so the page scrolls again. */
+@media (max-width: 960px) {
+  .experience {
+    height: auto;
+    overflow: visible;
+  }
+
+  .experienceMain {
+    overflow: visible;
+  }
+
+  .store {
+    flex: none;
+    min-height: auto;
+  }
+
+  .productGrid {
+    overflow: visible;
   }
 }
