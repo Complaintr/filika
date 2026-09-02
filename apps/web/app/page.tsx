@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ResolutionFlowDemo, SiteScanFlowDemo } from "@/components/animated-beam-demo";
 import { FilikaBrand } from "@/components/filika-brand";
 import { LandingHeader } from "@/components/landing-header";
+import { WidgetPreview } from "@/components/widget-preview";
 import styles from "./landing.module.css";
 import {
   ApprovalFlowDemo,
@@ -99,7 +100,9 @@ export default function HomePage() {
             </div>
           </div>
           <div className={styles.heroMedia}>
-            <div className={styles.widgetArea}>Widget Area</div>
+            <div className={styles.widgetArea}>
+              <WidgetPreview />
+            </div>
           </div>
         </section>
 

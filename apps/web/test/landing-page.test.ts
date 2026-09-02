@@ -87,7 +87,8 @@ describe("public landing page", () => {
     ).text();
     const featureDemos = await Bun.file(`${appDirectory}/landing-feature-demos.tsx`).text();
 
-    expect(page).toContain("Widget Area");
+    expect(page).toContain("<WidgetPreview />");
+    expect(page).not.toContain("Widget Area");
     expect(styles).toContain("--primary: #009fe3");
     expect(styles.match(/--primary: #009fe3/g)).toHaveLength(2);
     expect(styles).toContain(".headerWrapper");

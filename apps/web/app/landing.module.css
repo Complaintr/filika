@@ -516,13 +516,6 @@
   place-items: center;
   width: 100%;
   min-height: 560px;
-  border: 1px dashed rgba(41, 41, 41, 0.2);
-  border-radius: 12px;
-  background: rgba(246, 246, 246, 0.55);
-  color: var(--muted);
-  font-size: 18px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
 }
 
 .widgetSurface {
