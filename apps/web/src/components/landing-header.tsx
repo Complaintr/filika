@@ -13,7 +13,10 @@ export function LandingHeader() {
 
   useEffect(() => {
     const updateViewportState = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled((previous) => {
+        // Use separate thresholds so the header cannot oscillate during its resize transition.
+        return previous ? window.scrollY > 8 : window.scrollY > 24;
+      });
       const hero = document.querySelector<HTMLElement>("[data-landing-hero]");
       setShowGetStarted(hero !== null && hero.getBoundingClientRect().bottom <= 0);
     };
