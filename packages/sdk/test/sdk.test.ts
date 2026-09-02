@@ -140,7 +140,7 @@ test("missing review UI fails closed and invalid options never invoke review", a
   await sdk.init(config);
   expect(await sdk.open()).toEqual({ code: "internal_error" });
   expect(await sdk.open({ signal: {} as AbortSignal })).toEqual({ code: "invalid_input" });
-  expect(await Reflect.apply(sdk.open, sdk, [{ extra: true }])).toEqual({ code: "invalid_input" });
+  expect(await Reflect.apply(sdk.open, sdk, [{ extra: true }])).toEqual({ code: "internal_error" });
   expect(requests).toBe(0);
 });
 
@@ -171,6 +171,33 @@ test("registered tools and manual API share review, safe transport, and lifetime
   );
   sdk.dispose();
   expect(await tool.execute(draft, execution)).toEqual({ code: "aborted" });
+});
+
+test("host bridge options alongside the signal do not reject the tool call", async () => {
+  let tool: FilikaModelContextTool<FilikaExecutionOutcome> | undefined;
+  const sdk = createSdk({
+    document: {
+      modelContext: {
+        async registerTool(value: FilikaModelContextTool<FilikaExecutionOutcome>) {
+          tool = value;
+        },
+      },
+    },
+    review: async (request) => ({
+      kind: "confirmed",
+      feedback: request.draft,
+      context: request.context,
+    }),
+    fetch: async (_url, init) => accepted(JSON.parse(String(init.body)).eventId),
+  });
+  await sdk.init(config);
+  if (!tool) throw new Error("Expected tool");
+  const execution = {
+    signal: new AbortController().signal,
+    requestUserInteraction: () => Promise.resolve(),
+  };
+  expect((await tool.execute(draft, execution)).code).toBe("success");
+  sdk.dispose();
 });
 
 test("a review completion without claiming the event never authorizes a request", async () => {
