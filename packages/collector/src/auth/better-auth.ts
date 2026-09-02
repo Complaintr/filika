@@ -1,10 +1,9 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
-import { githubPhotoUrl, googlePhotoUrl } from "../photo-url";
-
 import type { Db } from "../db/client";
 import * as schema from "../db/schema";
+import { githubPhotoUrl, googlePhotoUrl } from "../photo-url";
 import { type AuthEmailConfig, createAuthMailer } from "./email";
 
 export interface BetterAuthConfig extends AuthEmailConfig {
