@@ -153,7 +153,13 @@ export async function deviceDemoApplication(
   const slug = `demo-${deviceKey}`;
   const existing = await db.select().from(project).where(eq(project.slug, slug)).limit(1);
   if (existing[0]) {
-    return existing[0].kind === "demo" ? existing[0] : null;
+    if (existing[0].kind !== "demo") return null;
+    const merged = [...new Set([...existing[0].allowedOrigins, ...options.allowedOrigins])];
+    if (merged.length !== existing[0].allowedOrigins.length) {
+      await db.update(project).set({ allowedOrigins: merged }).where(eq(project.slug, slug));
+      return { ...existing[0], allowedOrigins: merged };
+    }
+    return existing[0];
   }
   const rows = await db
     .insert(project)

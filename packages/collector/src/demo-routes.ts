@@ -13,24 +13,31 @@ const FEEDBACK_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0
 async function demoProject(db: Db, device: string, request: Request, create: boolean) {
   if (!deviceKeySchema.safeParse(device).success) return null;
   if (create && !(await demoCreationAllowed(db))) return null;
-  const allowedOrigins = demoOrigins(new URL(request.url).origin);
+  const allowedOrigins = demoOrigins(request);
   return deviceDemoApplication(db, device, { allowedOrigins });
 }
 
 /**
  * The demo storefront is served from the same origin that hosts the collector
  * API, so the device project must accept that origin in addition to the seeded
- * development origins.
+ * development origins. Trust BETTER_AUTH_URL over request.url: a reverse proxy
+ * (for example Coolify) may present an internal origin in request.url, which
+ * would never match the public origin the SDK sends in the Origin header.
  */
-function demoOrigins(requestOrigin: string): readonly string[] {
+function demoOrigins(request: Request): readonly string[] {
   const origins = new Set<string>(DEMO_ALLOWED_ORIGINS);
-  try {
-    const url = new URL(requestOrigin);
-    const localHttp =
-      url.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
-    if (url.protocol === "https:" || localHttp) origins.add(url.origin);
-  } catch {
-    // Keep the seeded origins when the request origin cannot be parsed.
+  const candidates = [process.env.BETTER_AUTH_URL, new URL(request.url).origin].filter(
+    (value): value is string => typeof value === "string" && value.length > 0,
+  );
+  for (const value of candidates) {
+    try {
+      const url = new URL(value);
+      const localHttp =
+        url.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+      if (url.protocol === "https:" || localHttp) origins.add(url.origin);
+    } catch {
+      // Keep the seeded origins when the origin cannot be parsed.
+    }
   }
   return [...origins];
 }
