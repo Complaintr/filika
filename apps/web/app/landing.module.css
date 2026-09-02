@@ -2281,6 +2281,31 @@
   --demo-blue: #78a1ff;
 }
 
+:root[data-theme="dark"] .dashboardDemo {
+  --dashboard-demo-surface: #17171a;
+  --dashboard-demo-soft: #202024;
+  --dashboard-demo-line: rgba(255, 255, 255, 0.1);
+  --dashboard-demo-muted: #a1a1aa;
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.46),
+    0 2px 8px rgba(0, 0, 0, 0.24);
+}
+
+:root[data-theme="dark"] .dashboardDemoKindBug {
+  background: rgba(235, 94, 120, 0.14);
+  color: #f19aad;
+}
+
+:root[data-theme="dark"] .dashboardDemoKindBlocked {
+  background: rgba(236, 163, 77, 0.14);
+  color: #efbd80;
+}
+
+:root[data-theme="dark"] .dashboardDemoKindIdea {
+  background: rgba(0, 159, 227, 0.15);
+  color: #71cff5;
+}
+
 :root[data-theme="dark"] .bugAlert em,
 :root[data-theme="dark"] .integrationReady {
   background: #202b45;
@@ -2485,6 +2510,24 @@
   .dashboardDemoChart svg {
     height: 140px;
   }
+  .dashboardDemoDialog {
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 16px);
+    border-radius: 12px;
+  }
+  .dashboardDemoDialogContent {
+    padding: 22px 20px 26px;
+  }
+  .dashboardDemoDialogGrid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .dashboardDemoDialogGrid aside {
+    padding-top: 20px;
+    padding-left: 0;
+    border-top: 1px solid var(--dashboard-demo-line);
+    border-left: 0;
+  }
   .featureGrid,
   .pricingGrid {
     grid-template-columns: 1fr;
@@ -2525,6 +2568,9 @@
   .installTerminalBody p {
     animation: none;
     opacity: 1;
+    transform: none;
+  }
+  .dashboardDemoReportButton:hover {
     transform: none;
   }
 }
