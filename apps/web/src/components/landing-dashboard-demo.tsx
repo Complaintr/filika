@@ -1,8 +1,20 @@
 "use client";
 
-import { Bug, CircleSlash2, Lightbulb, MessageSquareText, ShieldCheck, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  Bug,
+  CircleHelp,
+  CircleSlash2,
+  Inbox,
+  Lightbulb,
+  type LucideIcon,
+  MessageSquareText,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "../../app/landing.module.css";
 import {
   LANDING_DEMO_CATEGORIES,
@@ -19,6 +31,13 @@ const stats = [
   ["Ideas", "15", Lightbulb],
 ] as const;
 
+const landingDemoKindIcons: Record<LandingDemoFeedbackKind, LucideIcon> = {
+  blocked_task: CircleSlash2,
+  bug: Bug,
+  confusing_behavior: CircleHelp,
+  idea: Lightbulb,
+};
+
 function landingDemoKindClass(kind: LandingDemoFeedbackKind): string | undefined {
   if (kind === "bug") return styles.dashboardDemoKindBug;
   if (kind === "blocked_task") return styles.dashboardDemoKindBlocked;
@@ -30,7 +49,27 @@ export function LandingDashboardDemo() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const invokerRef = useRef<HTMLButtonElement | null>(null);
+  const categoryButtonsRef = useRef<Partial<Record<LandingDemoFeedbackKind, HTMLButtonElement>>>(
+    {},
+  );
+  const lastCategoryKindRef = useRef<LandingDemoFeedbackKind | null>(null);
+  const complaintsHeadingRef = useRef<HTMLHeadingElement>(null);
   const [activeReport, setActiveReport] = useState<LandingDemoReport>(LANDING_DEMO_REPORTS[0]);
+  const [activeKind, setActiveKind] = useState<LandingDemoFeedbackKind | null>(null);
+  const [view, setView] = useState<"complaints" | "dashboard">("dashboard");
+
+  const visibleReports =
+    activeKind === null
+      ? LANDING_DEMO_REPORTS
+      : LANDING_DEMO_REPORTS.filter((report) => report.kind === activeKind);
+
+  useEffect(() => {
+    if (view === "complaints") {
+      complaintsHeadingRef.current?.focus();
+    } else if (lastCategoryKindRef.current) {
+      categoryButtonsRef.current[lastCategoryKindRef.current]?.focus();
+    }
+  }, [view]);
 
   const closeDialog = () => dialogRef.current?.close();
   const openReport = (report: LandingDemoReport, invoker: HTMLButtonElement) => {
@@ -38,6 +77,11 @@ export function LandingDashboardDemo() {
     invokerRef.current = invoker;
     if (!dialogRef.current?.open) dialogRef.current?.show();
     queueMicrotask(() => closeButtonRef.current?.focus());
+  };
+  const openComplaints = (kind: LandingDemoFeedbackKind) => {
+    lastCategoryKindRef.current = kind;
+    setActiveKind(kind);
+    setView("complaints");
   };
 
   return (
@@ -62,117 +106,176 @@ export function LandingDashboardDemo() {
       </header>
 
       <div className={styles.dashboardDemoBody}>
-        <div className={styles.dashboardDemoHeading}>
-          <div>
-            <h2>Dashboard</h2>
-            <p>A little clarity on what needs your attention.</p>
-          </div>
-          <span className={styles.dashboardDemoRange}>Last 30 days</span>
-        </div>
-
-        <div className={styles.dashboardDemoStats}>
-          {stats.map(([label, value, Icon]) => (
-            <article key={label}>
-              <span>
-                <Icon aria-hidden="true" data-free-size="true" /> {label}
-              </span>
-              <strong>{value}</strong>
-            </article>
-          ))}
-        </div>
-
-        <div className={styles.dashboardDemoGrid}>
-          <section className={styles.dashboardDemoChart} aria-labelledby="landing-chart-title">
-            <div className={styles.dashboardDemoChartTitle}>
-              <h3 id="landing-chart-title">Complaint activity</h3>
-              <span>Daily volume · UTC · 30 days</span>
+        {view === "dashboard" ? (
+          <div className={styles.dashboardDemoView} data-demo-view="dashboard">
+            <div className={styles.dashboardDemoHeading}>
+              <div>
+                <h2>Dashboard</h2>
+                <p>A little clarity on what needs your attention.</p>
+              </div>
+              <span className={styles.dashboardDemoRange}>Last 30 days</span>
             </div>
-            <svg
-              viewBox="0 0 560 190"
-              preserveAspectRatio="none"
-              data-free-size="true"
-              role="img"
-              aria-label="60 complaints over the last 30 days"
-            >
-              <defs>
-                <pattern
-                  id="landing-dashboard-grid"
-                  width="20"
-                  height="20"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <circle cx="1" cy="1" r="1" />
-                </pattern>
-              </defs>
-              <rect width="560" height="190" fill="url(#landing-dashboard-grid)" />
-              <path className={styles.dashboardDemoChartLine} d="M18 108 H542" />
-            </svg>
-            <div className={styles.dashboardDemoChartLabels} aria-hidden="true">
-              <span>Aug 04</span>
-              <span>Aug 14</span>
-              <span>Aug 24</span>
-              <span>Sep 02</span>
-            </div>
-          </section>
 
-          <section
-            className={styles.dashboardDemoBreakdown}
-            aria-labelledby="landing-breakdown-title"
-          >
-            <div className={styles.dashboardDemoPanelHeading}>
-              <h3 id="landing-breakdown-title">By feedback type</h3>
-              <span>Share of reports</span>
-            </div>
-            <div className={styles.dashboardDemoBreakdownList}>
-              {LANDING_DEMO_CATEGORIES.map((category) => (
-                <div key={category.kind} className={styles.dashboardDemoBreakdownRow}>
-                  <span
-                    className={`${styles.dashboardDemoBreakdownDot} ${landingDemoKindClass(category.kind)}`}
-                    aria-hidden="true"
-                  />
-                  <span>{category.label}</span>
-                  <strong>{category.count}</strong>
-                  <span>{category.percentage}%</span>
-                </div>
+            <div className={styles.dashboardDemoStats}>
+              {stats.map(([label, value, Icon]) => (
+                <article key={label}>
+                  <span>
+                    <Icon aria-hidden="true" data-free-size="true" /> {label}
+                  </span>
+                  <strong>{value}</strong>
+                </article>
               ))}
             </div>
-          </section>
-        </div>
 
-        <section className={styles.dashboardDemoRecent} aria-labelledby="landing-recent-title">
-          <div className={styles.dashboardDemoPanelHeading}>
-            <div>
-              <h3 id="landing-recent-title">Recent feedback</h3>
-              <span className={styles.dashboardDemoMutedLabel}>Needs your attention</span>
-            </div>
-            <span className={styles.dashboardDemoPrivate}>
-              <ShieldCheck aria-hidden="true" data-free-size="true" /> Private
-            </span>
-          </div>
-          <div className={styles.dashboardDemoReportList}>
-            {LANDING_DEMO_REPORTS.map((report) => (
-              <button
-                key={report.title}
-                className={styles.dashboardDemoReportButton}
-                type="button"
-                aria-haspopup="dialog"
-                aria-label={`View feedback: ${report.title}`}
-                onClick={(event) => openReport(report, event.currentTarget)}
-              >
-                <span
-                  className={`${styles.dashboardDemoKind} ${landingDemoKindClass(report.kind)}`}
+            <div className={styles.dashboardDemoGrid}>
+              <section className={styles.dashboardDemoChart} aria-labelledby="landing-chart-title">
+                <div className={styles.dashboardDemoChartTitle}>
+                  <h3 id="landing-chart-title">Complaint activity</h3>
+                  <span>Daily volume · UTC · 30 days</span>
+                </div>
+                <svg
+                  viewBox="0 0 560 190"
+                  preserveAspectRatio="none"
+                  data-free-size="true"
+                  role="img"
+                  aria-label="60 complaints over the last 30 days"
                 >
-                  {landingDemoCategory(report.kind).label}
-                </span>
-                <strong>{report.title}</strong>
-                <span className={styles.dashboardDemoReportMeta}>
-                  <span className={styles.dashboardDemoReportRoute}>{report.route}</span>
-                  <time>{report.relativeTime}</time>
-                </span>
-              </button>
-            ))}
+                  <defs>
+                    <pattern
+                      id="landing-dashboard-grid"
+                      width="20"
+                      height="20"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <circle cx="1" cy="1" r="1" />
+                    </pattern>
+                  </defs>
+                  <rect width="560" height="190" fill="url(#landing-dashboard-grid)" />
+                  <path className={styles.dashboardDemoChartLine} d="M18 108 H542" />
+                </svg>
+                <div className={styles.dashboardDemoChartLabels} aria-hidden="true">
+                  <span>Aug 04</span>
+                  <span>Aug 14</span>
+                  <span>Aug 24</span>
+                  <span>Sep 02</span>
+                </div>
+              </section>
+
+              <section
+                className={styles.dashboardDemoBreakdown}
+                aria-labelledby="landing-breakdown-title"
+              >
+                <div className={styles.dashboardDemoPanelHeading}>
+                  <h3 id="landing-breakdown-title">By feedback type</h3>
+                  <span>Share of reports</span>
+                </div>
+                <div className={styles.dashboardDemoBreakdownList}>
+                  {LANDING_DEMO_CATEGORIES.map((category) => (
+                    <button
+                      key={category.kind}
+                      ref={(node) => {
+                        if (node) categoryButtonsRef.current[category.kind] = node;
+                      }}
+                      className={styles.dashboardDemoBreakdownRow}
+                      type="button"
+                      aria-label={`View ${category.label} complaints`}
+                      onClick={() => openComplaints(category.kind)}
+                    >
+                      <span
+                        className={`${styles.dashboardDemoBreakdownDot} ${landingDemoKindClass(category.kind)}`}
+                        aria-hidden="true"
+                      />
+                      <span>{category.label}</span>
+                      <strong>{category.count}</strong>
+                      <span>{category.percentage}%</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            </div>
           </div>
-        </section>
+        ) : (
+          <div className={styles.dashboardDemoComplaints} data-demo-view="complaints">
+            <div className={styles.dashboardDemoComplaintsHeading}>
+              <button
+                className={styles.dashboardDemoBack}
+                type="button"
+                onClick={() => setView("dashboard")}
+              >
+                <ArrowLeft aria-hidden="true" data-free-size="true" /> Back to dashboard
+              </button>
+              <div>
+                <h2 ref={complaintsHeadingRef} tabIndex={-1}>
+                  All complaints
+                </h2>
+                <p>A closer look at the feedback behind your product.</p>
+              </div>
+            </div>
+
+            <section className={styles.dashboardDemoInbox} aria-label="Demo feedback inbox">
+              <div className={styles.dashboardDemoPanelHeading}>
+                <h3>Your inbox</h3>
+                <span>{visibleReports.length} reports on this page</span>
+              </div>
+              <div className={styles.dashboardDemoInboxInset}>
+                <fieldset className={styles.dashboardDemoFilters} aria-label="Feedback types">
+                  <button
+                    type="button"
+                    aria-pressed={activeKind === null}
+                    onClick={() => setActiveKind(null)}
+                  >
+                    <Inbox aria-hidden="true" data-free-size="true" /> All complaints
+                  </button>
+                  {LANDING_DEMO_CATEGORIES.map((category) => {
+                    const Icon = landingDemoKindIcons[category.kind];
+                    return (
+                      <button
+                        key={category.kind}
+                        type="button"
+                        aria-pressed={activeKind === category.kind}
+                        onClick={() => setActiveKind(category.kind)}
+                      >
+                        <Icon aria-hidden="true" data-free-size="true" /> {category.filterLabel}
+                      </button>
+                    );
+                  })}
+                </fieldset>
+
+                <ol className={styles.dashboardDemoComplaintList} aria-label="Complaints">
+                  {visibleReports.map((report) => {
+                    const Icon = landingDemoKindIcons[report.kind];
+                    return (
+                      <li key={report.title}>
+                        <button
+                          className={styles.dashboardDemoComplaintButton}
+                          type="button"
+                          aria-haspopup="dialog"
+                          aria-label={`View feedback: ${report.title}`}
+                          onClick={(event) => openReport(report, event.currentTarget)}
+                        >
+                          <span
+                            className={`${styles.dashboardDemoComplaintIcon} ${landingDemoKindClass(report.kind)}`}
+                          >
+                            <Icon aria-hidden="true" data-free-size="true" />
+                          </span>
+                          <span className={styles.dashboardDemoComplaintCopy}>
+                            <strong>{report.title}</strong>
+                            <span className={styles.dashboardDemoComplaintMeta}>
+                              {landingDemoCategory(report.kind).label} · {report.route} ·{" "}
+                              {report.origin}
+                            </span>
+                          </span>
+                          <time>{report.receivedLabel}</time>
+                          <ArrowUpRight aria-hidden="true" data-free-size="true" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            </section>
+          </div>
+        )}
       </div>
 
       <dialog

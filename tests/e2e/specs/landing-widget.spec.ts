@@ -1,7 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-test("landing dashboard opens feedback details and restores focus", async ({ page }) => {
-  await page.goto("/");
+test("landing dashboard filters complaints, opens details, and restores focus", async ({
+  page,
+}) => {
+  await page.goto("/", { waitUntil: "networkidle" });
+  const demoRequests: string[] = [];
+  page.on("request", (request) => demoRequests.push(request.url()));
+
+  const category = page.getByRole("button", { name: "View Bug report complaints" });
+  await category.click();
+  await expect(page.getByRole("heading", { name: "All complaints" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Bugs" })).toHaveAttribute("aria-pressed", "true");
 
   const report = page.getByRole("button", {
     name: "View feedback: Export button stops responding after filtering",
@@ -30,6 +39,12 @@ test("landing dashboard opens feedback details and restores focus", async ({ pag
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
   await expect(report).toBeFocused();
+
+  await page.getByRole("button", { name: "Back to dashboard" }).click();
+  await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
+  await expect(category).toBeFocused();
+  expect(new URL(page.url()).pathname).toBe("/");
+  expect(demoRequests).toEqual([]);
 });
 
 test("landing dashboard fits mobile, follows dark theme, and reduces motion", async ({ page }) => {
@@ -47,6 +62,7 @@ test("landing dashboard fits mobile, follows dark theme, and reduces motion", as
   const report = page.getByRole("button", {
     name: "View feedback: Allow reports to be duplicated",
   });
+  await page.getByRole("button", { name: "View Idea complaints" }).click();
   await report.hover();
   await expect(report).toHaveCSS("transform", "none");
   await report.click();

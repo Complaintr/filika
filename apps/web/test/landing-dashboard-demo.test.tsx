@@ -18,6 +18,9 @@ describe("landing dashboard demo", () => {
     expect(result.container.textContent).toContain("Ideas15");
     expect(result.container.textContent).toContain("By feedback type");
     expect(result.container.textContent).toContain("Confusing behavior");
+    expect(
+      result.container.querySelectorAll('button[aria-label^="View "][aria-label$=" complaints"]'),
+    ).toHaveLength(4);
 
     const chart = result.container.querySelector('svg[aria-label*="last 30 days"]');
     expect(chart?.getAttribute("data-free-size")).toBe("true");
@@ -28,6 +31,10 @@ describe("landing dashboard demo", () => {
 
   test("opens the selected report inside the widget and returns focus when closed", async () => {
     const result = await renderReact(createElement(LandingDashboardDemo));
+    result.container
+      .querySelector<HTMLButtonElement>('button[aria-label="View Bug report complaints"]')
+      ?.click();
+    await settle();
     const reportButton = result.container.querySelector<HTMLButtonElement>(
       'button[aria-label="View feedback: Export button stops responding after filtering"]',
     );
@@ -58,6 +65,10 @@ describe("landing dashboard demo", () => {
 
   test("supports native cancel and backdrop dismissal without making network requests", async () => {
     const result = await renderReact(createElement(LandingDashboardDemo));
+    result.container
+      .querySelector<HTMLButtonElement>('button[aria-label="View Confusing behavior complaints"]')
+      ?.click();
+    await settle();
     const reportButton = result.container.querySelector<HTMLButtonElement>(
       'button[aria-label="View feedback: Navigation label does not match the destination"]',
     );
@@ -77,6 +88,54 @@ describe("landing dashboard demo", () => {
     dialog?.dispatchEvent(new result.window.Event("pointerdown", { bubbles: true }));
     await settle();
     expect(dialog?.open).toBe(false);
+
+    await result.close();
+  });
+
+  test("filters the complaints demo and returns focus to the dashboard category", async () => {
+    const result = await renderReact(createElement(LandingDashboardDemo));
+    const ideaCategory = result.container.querySelector<HTMLButtonElement>(
+      'button[aria-label="View Idea complaints"]',
+    );
+    ideaCategory?.click();
+    await settle();
+
+    const complaintsView = result.container.querySelector('[data-demo-view="complaints"]');
+    expect(complaintsView).not.toBeNull();
+    expect(complaintsView?.textContent).toContain("All complaints");
+    expect(complaintsView?.textContent).toContain("Allow reports to be duplicated");
+    expect(complaintsView?.textContent).not.toContain(
+      "Export button stops responding after filtering",
+    );
+
+    const allFilter = Array.from(
+      result.container.querySelectorAll<HTMLButtonElement>("button[aria-pressed]"),
+    ).find((button) => button.textContent?.includes("All complaints"));
+    allFilter?.click();
+    await settle();
+    expect(
+      result.container.querySelectorAll<HTMLButtonElement>('button[aria-label^="View feedback:"]'),
+    ).toHaveLength(4);
+
+    const bugFilter = Array.from(
+      result.container.querySelectorAll<HTMLButtonElement>("button[aria-pressed]"),
+    ).find((button) => button.textContent?.includes("Bugs"));
+    bugFilter?.click();
+    await settle();
+    const filteredView = result.container.querySelector('[data-demo-view="complaints"]');
+    expect(filteredView?.textContent).toContain("Export button stops responding after filtering");
+    expect(filteredView?.textContent).not.toContain("Allow reports to be duplicated");
+
+    const back = Array.from(result.container.querySelectorAll<HTMLButtonElement>("button")).find(
+      (button) => button.textContent?.includes("Back to dashboard"),
+    );
+    back?.click();
+    await settle();
+    expect(result.container.querySelector('[data-demo-view="dashboard"]')).not.toBeNull();
+    const restoredIdeaCategory = result.container.querySelector<HTMLButtonElement>(
+      'button[aria-label="View Idea complaints"]',
+    );
+    expect(result.window.document.activeElement).toBe(restoredIdeaCategory);
 
     await result.close();
   });
