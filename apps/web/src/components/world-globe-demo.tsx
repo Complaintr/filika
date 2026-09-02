@@ -587,7 +587,7 @@ export function WorldGlobeDemo() {
       const dy = e.clientY - dragStartPos.current.y;
 
       rotYRef.current = dragStartRot.current.y + dx * 0.45;
-      rotXRef.current = Math.max(-30, Math.min(75, dragStartRot.current.x - dy * 0.35));
+      rotXRef.current = Math.max(-30, Math.min(75, dragStartRot.current.x + dy * 0.35));
     };
 
     const handleMouseUp = () => {
@@ -610,7 +610,7 @@ export function WorldGlobeDemo() {
       const dy = touch.clientY - dragStartPos.current.y;
 
       rotYRef.current = dragStartRot.current.y + dx * 0.45;
-      rotXRef.current = Math.max(-30, Math.min(75, dragStartRot.current.x - dy * 0.35));
+      rotXRef.current = Math.max(-30, Math.min(75, dragStartRot.current.x + dy * 0.35));
     };
 
     const handleTouchEnd = () => {
