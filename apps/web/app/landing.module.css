@@ -700,12 +700,30 @@
   gap: 7px;
   margin-top: 12px;
 }
-.dashboardDemoReportList article {
+.dashboardDemoReportButton {
+  width: 100%;
   min-width: 0;
   padding: 9px 10px;
   border: 1px solid var(--dashboard-demo-line);
   border-radius: 9px;
   background: var(--dashboard-demo-soft);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+.dashboardDemoReportButton:hover {
+  border-color: color-mix(in srgb, var(--primary) 42%, var(--dashboard-demo-line));
+  box-shadow: 0 5px 14px rgba(0, 159, 227, 0.08);
+  transform: translateY(-1px);
+}
+.dashboardDemoReportButton:focus-visible,
+.dashboardDemoDialog button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 .dashboardDemoKind {
   display: inline-flex;
@@ -726,7 +744,7 @@
   background: rgba(0, 159, 227, 0.1);
   color: #007fae;
 }
-.dashboardDemoReportList article > strong {
+.dashboardDemoReportButton > strong {
   display: block;
   margin: 5px 0;
   overflow: hidden;
@@ -745,6 +763,126 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.dashboardDemoDialog {
+  width: min(720px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--dashboard-demo-line);
+  border-radius: 16px;
+  background: var(--dashboard-demo-surface);
+  color: inherit;
+  font: inherit;
+  box-shadow: 0 30px 100px rgba(15, 23, 42, 0.28);
+}
+.dashboardDemoDialog::backdrop {
+  background: rgba(15, 23, 42, 0.54);
+  backdrop-filter: blur(5px);
+}
+.dashboardDemoDialogCard {
+  background: var(--dashboard-demo-surface);
+}
+.dashboardDemoDialogToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 0 16px 0 22px;
+  border-bottom: 1px solid var(--dashboard-demo-line);
+}
+.dashboardDemoDialogLabel {
+  color: var(--dashboard-demo-muted);
+  font-size: 11px;
+}
+.dashboardDemoDialogToolbar button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--dashboard-demo-line);
+  border-radius: 9px;
+  background: var(--dashboard-demo-soft);
+  color: inherit;
+  cursor: pointer;
+}
+.dashboardDemoDialogToolbar svg {
+  width: 16px;
+  height: 16px;
+}
+.dashboardDemoDialogContent {
+  padding: 30px 34px 36px;
+}
+.dashboardDemoDialogContent > h2 {
+  margin: 13px 0 0;
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 550;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+}
+.dashboardDemoDialogReceived {
+  margin: 9px 0 0;
+  color: var(--dashboard-demo-muted);
+  font-size: 11px;
+}
+.dashboardDemoDialogGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  gap: 30px;
+  margin-top: 26px;
+  padding-top: 24px;
+  border-top: 1px solid var(--dashboard-demo-line);
+}
+.dashboardDemoDialogGrid section + section {
+  margin-top: 24px;
+}
+.dashboardDemoDialogGrid h3 {
+  margin: 0 0 8px;
+  color: var(--dashboard-demo-muted);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.dashboardDemoDialogGrid p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.dashboardDemoDialogGrid aside {
+  padding-left: 24px;
+  border-left: 1px solid var(--dashboard-demo-line);
+}
+.dashboardDemoDialogGrid dl {
+  display: grid;
+  gap: 15px;
+  margin: 0;
+}
+.dashboardDemoDialogGrid dt {
+  color: var(--dashboard-demo-muted);
+  font-size: 9px;
+}
+.dashboardDemoDialogGrid dd {
+  margin: 3px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+.dashboardDemoDialogFooter {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  padding: 14px 22px;
+  border-top: 1px solid var(--dashboard-demo-line);
+  background: var(--dashboard-demo-soft);
+  color: var(--dashboard-demo-muted);
+  font-size: 10px;
+}
+.dashboardDemoDialogFooter svg {
+  width: 14px;
+  height: 14px;
+  color: var(--primary);
 }
 
 .section {
