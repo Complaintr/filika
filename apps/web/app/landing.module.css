@@ -543,9 +543,6 @@
   width: 24px;
   height: 24px;
   border-radius: 7px;
-  background: var(--primary);
-  color: #fff;
-  font-weight: 750;
   object-fit: contain;
 }
 .dashboardDemoBrand > i {
