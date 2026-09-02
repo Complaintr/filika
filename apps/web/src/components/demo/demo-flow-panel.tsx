@@ -46,6 +46,11 @@ export function DemoFlowPanel({
           <i aria-hidden="true" /> Live demo
         </span>
         <h2>{status}</h2>
+        <p className={styles.liveInstructions}>
+          {promptCopied
+            ? "Paste the prompt into your browser agent and let it complete the checkout. When it fails, the agent should report the problem through Filika."
+            : "Copy the prompt, open your browser agent, and ask it to complete the checkout. The agent should report any failure through Filika."}
+        </p>
       </header>
 
       <ol className={styles.liveEvents} aria-label="Demo activity">
@@ -65,15 +70,6 @@ export function DemoFlowPanel({
           );
         })}
       </ol>
-
-      <div className={styles.liveHint}>
-        <strong>{promptCopied ? "Prompt copied" : "Run it with your browser agent"}</strong>
-        <p>
-          {promptCopied
-            ? "Paste the prompt into your agent and let it use the page."
-            : "Copy the prompt, open your agent, and let it complete the task."}
-        </p>
-      </div>
 
       <footer className={styles.liveFooter}>
         <button className={styles.resetButton} type="button" onClick={onReset}>

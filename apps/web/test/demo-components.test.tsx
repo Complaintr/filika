@@ -83,7 +83,7 @@ describe("demo-flow-panel", () => {
       />,
     );
     expect(result.container.textContent).toContain("Feedback received");
-    expect(result.container.textContent).toContain("Prompt copied");
+    expect(result.container.textContent).toContain("Paste the prompt into your browser agent");
     expect(result.container.querySelectorAll("li small")).toHaveLength(4);
     await result.close();
   });
