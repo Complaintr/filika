@@ -8,8 +8,8 @@ export function demoPrompt(pageUrl: string): string {
     "Aurora Wireless Headphones, then demo_place_order. " +
     "Do not ask before shopping. " +
     "If checkout fails or any step is blocked, draft a complaint with filika_submit_feedback " +
-    "using observed evidence, then wait for the user to review and confirm before anything " +
-    "is sent. Do not invent failures, include credentials or personal data, or retry endlessly."
+    "using observed evidence, then ask the user for explicit confirmation before calling it. " +
+    "Do not invent failures, include credentials or personal data, or retry endlessly."
   );
 }
 

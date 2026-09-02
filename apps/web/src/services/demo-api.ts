@@ -60,7 +60,7 @@ export function demoApi(deviceKey: string): DemoApi {
     inbox: new InboxApiService({
       collectorOrigin: "",
       appSlug: "",
-      demoPrefix,
+      demoPrefix: `${demoPrefix}/inbox`,
     }),
   };
 }

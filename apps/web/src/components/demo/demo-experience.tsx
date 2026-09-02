@@ -17,6 +17,66 @@ import {
 } from "./demo-store-webmcp";
 
 const DEVICE_KEY_STORAGE = "filika-demo-device-v1";
+const DEMO_STATE_STORAGE = "filika-demo-store-state-v1";
+const DEMO_RECEIPT_STORAGE = "filika-demo-receipt-v1";
+
+const EMPTY_STORE_STATE: DemoStoreState = { cart: [], orderPlaced: false, stuck: false };
+
+function loadStoreState(): DemoStoreState {
+  try {
+    const raw = localStorage.getItem(DEMO_STATE_STORAGE);
+    if (raw === null) return EMPTY_STORE_STATE;
+    const value: unknown = JSON.parse(raw);
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      Array.isArray((value as { cart?: unknown }).cart) &&
+      typeof (value as { orderPlaced?: unknown }).orderPlaced === "boolean" &&
+      typeof (value as { stuck?: unknown }).stuck === "boolean"
+    ) {
+      return {
+        cart: (value as { cart: string[] }).cart.filter((id) =>
+          DEMO_PRODUCTS.some((product) => product.id === id),
+        ),
+        orderPlaced: (value as { orderPlaced: boolean }).orderPlaced,
+        stuck: (value as { stuck: boolean }).stuck,
+      };
+    }
+    return EMPTY_STORE_STATE;
+  } catch {
+    return EMPTY_STORE_STATE;
+  }
+}
+
+function saveStoreState(state: DemoStoreState): void {
+  try {
+    localStorage.setItem(DEMO_STATE_STORAGE, JSON.stringify(state));
+  } catch {
+    // Persistence failures must never break the demo.
+  }
+}
+
+function loadReceipt(): { feedbackId: string; receivedAt: string } | null {
+  try {
+    const raw = localStorage.getItem(DEMO_RECEIPT_STORAGE);
+    if (raw === null) return null;
+    const value: unknown = JSON.parse(raw);
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      typeof (value as { feedbackId?: unknown }).feedbackId === "string" &&
+      typeof (value as { receivedAt?: unknown }).receivedAt === "string"
+    ) {
+      return {
+        feedbackId: (value as { feedbackId: string }).feedbackId,
+        receivedAt: (value as { receivedAt: string }).receivedAt,
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 function deviceKey(): string {
   const existing = localStorage.getItem(DEVICE_KEY_STORAGE);
@@ -30,13 +90,33 @@ export function DemoExperience() {
   const [projectKey, setProjectKey] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [promptCopied, setPromptCopied] = useState(false);
-  const [storeState, setStoreState] = useState<DemoStoreState>({
-    cart: [],
-    orderPlaced: false,
-    stuck: false,
-  });
-  const [receipt, setReceipt] = useState<{ feedbackId: string; receivedAt: string } | null>(null);
+  const [storeState, setStoreState] = useState<DemoStoreState>(loadStoreState);
+  const [receipt, setReceipt] = useState<{ feedbackId: string; receivedAt: string } | null>(
+    loadReceipt,
+  );
   const [pageUrl, setPageUrl] = useState("");
+
+  // The store state is persisted per browser so navigating away and back to
+  // the demo does not reset the agent's progress. Only "Reset demo" clears it.
+  useEffect(() => {
+    saveStoreState(storeState);
+  }, [storeState]);
+
+  useEffect(() => {
+    if (receipt === null) {
+      try {
+        localStorage.removeItem(DEMO_RECEIPT_STORAGE);
+      } catch {
+        // Persistence failures must never break the demo.
+      }
+    } else {
+      try {
+        localStorage.setItem(DEMO_RECEIPT_STORAGE, JSON.stringify(receipt));
+      } catch {
+        // Persistence failures must never break the demo.
+      }
+    }
+  }, [receipt]);
 
   // The WebMCP store tools read and write the same cart state as the visible
   // storefront, so agent actions update the live panel like human clicks.
@@ -160,9 +240,15 @@ export function DemoExperience() {
     const next = { cart: [], orderPlaced: false, stuck: false };
     storeStateRef.current = next;
     setStoreState(next);
+    saveStoreState(next);
     setReceipt(null);
     setError("");
     setPromptCopied(false);
+    try {
+      localStorage.removeItem(DEMO_RECEIPT_STORAGE);
+    } catch {
+      // Persistence failures must never break the demo.
+    }
   }
 
   return (

@@ -70,4 +70,29 @@ describe("demoApi", () => {
     const spy = await import("../src/services/inbox-api").then((m) => m.InboxApiService);
     expect(api.inbox).toBeInstanceOf(spy);
   });
+
+  test("inbox list and detail hit the /inbox scoped endpoints", async () => {
+    const calls: string[] = [];
+    const fetchMock = ((input: RequestInfo | URL) => {
+      calls.push(String(input));
+      return Promise.resolve(
+        new Response(JSON.stringify({ items: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    }) as unknown as typeof fetch;
+
+    const original = globalThis.fetch;
+    // @ts-expect-error: replacing global fetch for the test.
+    globalThis.fetch = fetchMock;
+    try {
+      await demoApi("demo-device-0001").inbox.fetchList();
+      await demoApi("demo-device-0001").inbox.fetchDetail("fb-0001");
+      expect(calls[0]).toBe("/api/v1/demo/demo-device-0001/inbox");
+      expect(calls[1]).toBe("/api/v1/demo/demo-device-0001/inbox/fb-0001");
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
 });

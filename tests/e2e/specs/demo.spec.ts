@@ -71,6 +71,26 @@ test("checkout endpoint always returns 504", async ({ request }) => {
   expect(response.status()).toBe(504);
 });
 
+test("demo store state survives navigation away and back", async ({ page }) => {
+  await page.goto("/demo");
+  await page.getByRole("button", { name: "Add to cart" }).first().click();
+  await expect(page.getByText("Product added")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Place order" })).toBeVisible();
+
+  // Navigate away (workspace) and back to the storefront; progress persists.
+  await page.goto("/demo/workspace");
+  await page.goto("/demo");
+
+  await expect(page.getByRole("button", { name: "Place order" })).toBeVisible();
+  await expect(page.getByText("Product added")).toBeVisible();
+
+  // Reset demo clears the persisted state.
+  await page.getByRole("button", { name: "Reset demo" }).click();
+  await page.goto("/demo/workspace");
+  await page.goto("/demo");
+  await expect(page.getByRole("button", { name: "Add to cart" })).toHaveCount(3);
+});
+
 test("/demo subpaths that fall through to [appSlug] keep the workspace shell", async ({ page }) => {
   // `/demo` is a real route, but unknown `/demo/*` paths resolve to
   // `[appSlug]`. Those pages need the workspace shell (ConnectionProvider);
