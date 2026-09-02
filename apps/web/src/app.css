@@ -3165,6 +3165,8 @@ html {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
+  clear: both;
+  width: 100%;
 }
 .appearance-choice {
   border: 1px solid var(--studio-line);
@@ -3271,6 +3273,8 @@ html {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: 15px;
+  clear: both;
+  width: 100%;
 }
 .density-choices label {
   position: relative;
@@ -4776,13 +4780,20 @@ html {
   border-radius: 18px;
   padding: 20px;
   margin-bottom: 12px;
+  min-width: 0;
 }
 .settings-studio .studio-fieldset legend {
   float: left;
   width: 100%;
   font-size: 12px;
   padding: 0;
+  margin-bottom: 14px;
+}
+.settings-studio .studio-fieldset legend:has(+ p) {
   margin-bottom: 5px;
+}
+.settings-studio .studio-fieldset > :not(legend) {
+  clear: both;
 }
 .settings-studio .studio-fieldset > p {
   clear: both;
