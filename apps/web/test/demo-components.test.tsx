@@ -11,22 +11,14 @@ import { renderReact } from "./helpers/render-react";
 const initialStore: DemoStoreState = { cart: [], orderPlaced: false, stuck: false };
 
 describe("demo-store", () => {
-  test("renders products and lets the agent add to cart", async () => {
-    let state = initialStore;
-    const result = await renderReact(
-      <DemoStore
-        state={state}
-        onChange={(next) => {
-          state = next;
-        }}
-      />,
-    );
+  test("renders products and reflects the agent selection", async () => {
+    const state: DemoStoreState = { ...initialStore, cart: ["headphones"] };
+    const result = await renderReact(<DemoStore state={state} onChange={() => {}} />);
     expect(result.container.textContent).toContain("Wireless Headphones");
-    const add = [...result.container.querySelectorAll("button")].find(
-      (button) => button.textContent === "Add to cart",
-    );
-    add?.click();
-    expect(state.cart).toContain("headphones");
+    expect(result.container.textContent).toContain("Mechanical Keyboard");
+    expect(result.container.textContent).toContain("Selected by agent");
+    expect(result.container.querySelectorAll("img")).toHaveLength(3);
+    expect(result.container.querySelectorAll("button")).toHaveLength(1);
     await result.close();
   });
 
@@ -69,7 +61,7 @@ describe("demo-flow-panel", () => {
     );
     expect(result.container.querySelectorAll("li")).toHaveLength(DEMO_STEPS.length);
     expect(result.container.textContent).toContain(`2 / ${DEMO_STEPS.length}`);
-    expect(result.container.textContent).toContain("Demo guide");
+    expect(result.container.textContent).toContain("Interactive demo");
     await result.close();
   });
 

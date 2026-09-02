@@ -18,3 +18,5 @@ playwright-report/
 .commandcode/
 !apps/web/public/auth/
 !apps/web/public/auth/*.png
+!apps/web/public/demo/
+!apps/web/public/demo/*.webp

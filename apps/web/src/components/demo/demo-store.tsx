@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, Headphones, ShoppingBag, TriangleAlert } from "lucide-react";
+import { Bot, ShoppingBag, TriangleAlert } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import styles from "./demo.module.css";
 import { DEMO_PRODUCTS, type DemoProduct } from "./demo-data";
@@ -25,14 +26,6 @@ export function DemoStore({
   useEffect(() => {
     return () => requestRef.current?.abort();
   }, []);
-
-  function toggle(productId: string) {
-    const inCart = state.cart.includes(productId);
-    onChange({
-      ...state,
-      cart: inCart ? state.cart.filter((id) => id !== productId) : [...state.cart, productId],
-    });
-  }
 
   async function placeOrder() {
     if (submitting || state.orderPlaced) return;
@@ -72,7 +65,7 @@ export function DemoStore({
 
       <div className={styles.storeBody}>
         <div className={styles.storeHeading}>
-          <h2>Featured product</h2>
+          <h2>Audio gear</h2>
         </div>
 
         <div className={styles.productGrid}>
@@ -80,9 +73,7 @@ export function DemoStore({
             <DemoProductCard
               key={product.id}
               product={product}
-              inCart={state.cart.includes(product.id)}
-              onToggle={() => toggle(product.id)}
-              checkoutVisible={checkoutVisible}
+              selectedByAgent={state.cart.includes(product.id)}
             />
           ))}
         </div>
@@ -126,40 +117,32 @@ export function DemoStore({
 
 function DemoProductCard({
   product,
-  inCart,
-  onToggle,
-  checkoutVisible,
+  selectedByAgent,
 }: {
   product: DemoProduct;
-  inCart: boolean;
-  onToggle(): void;
-  checkoutVisible: boolean;
+  selectedByAgent: boolean;
 }) {
   return (
     <article
-      className={styles.productCard}
+      className={`${styles.productCard} ${selectedByAgent ? styles.productCardSelected : ""}`}
       id={`demo-product-${product.id}`}
       data-demo-step={product.id === "headphones" ? "product" : undefined}
     >
-      <div className={styles.productImage} aria-hidden="true">
-        <Headphones />
+      <div className={styles.productImage}>
+        <Image src={product.image} alt={product.imageAlt} width={640} height={640} />
       </div>
       <h3>{product.name}</h3>
+      <p className={styles.productTagline}>{product.tagline}</p>
       <div className={styles.productRow}>
         <span className={styles.productPrice}>
           <strong>{product.price}</strong>
           {product.oldPrice && <del>{product.oldPrice}</del>}
         </span>
-        <button
-          className={inCart ? styles.addedButton : styles.addButton}
-          type="button"
-          aria-pressed={inCart}
-          disabled={checkoutVisible && !inCart}
-          onClick={onToggle}
-        >
-          {inCart ? <Check aria-hidden="true" /> : <ShoppingBag aria-hidden="true" />}
-          {inCart ? "In cart" : "Add to cart"}
-        </button>
+        {selectedByAgent ? (
+          <span className={styles.agentSelection}>
+            <Bot aria-hidden="true" /> Selected by agent
+          </span>
+        ) : null}
       </div>
     </article>
   );

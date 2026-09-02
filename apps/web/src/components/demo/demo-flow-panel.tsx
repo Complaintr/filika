@@ -1,21 +1,6 @@
 "use client";
 
-import {
-  Bot,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardCheck,
-  Eye,
-  EyeOff,
-  FileSearch,
-  Inbox,
-  RotateCcw,
-  ShieldCheck,
-  ShoppingBag,
-  Store,
-  TriangleAlert,
-} from "lucide-react";
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Eye, EyeOff, RotateCcw } from "lucide-react";
 import styles from "./demo.module.css";
 import { DEMO_STEPS } from "./demo-data";
 
@@ -27,17 +12,6 @@ export interface DemoFlowPanelProps {
   onToggleHidden(): void;
 }
 
-const STEP_ICONS = {
-  intro: Store,
-  prompt: Bot,
-  product: ShoppingBag,
-  checkout: TriangleAlert,
-  hidden: FileSearch,
-  report: ClipboardCheck,
-  review: ShieldCheck,
-  result: Inbox,
-} as const;
-
 export function DemoFlowPanel({
   activeIndex,
   hidden,
@@ -47,6 +21,7 @@ export function DemoFlowPanel({
 }: DemoFlowPanelProps) {
   const last = DEMO_STEPS.length - 1;
   const progress = ((activeIndex + 1) / DEMO_STEPS.length) * 100;
+  const activeStep = DEMO_STEPS[activeIndex];
 
   return (
     <aside
@@ -56,10 +31,9 @@ export function DemoFlowPanel({
       <header className={styles.flowPanelHeader}>
         {!hidden && (
           <div className={styles.flowPanelTitle}>
-            <h2>Demo guide</h2>
-            <span className={styles.flowPanelCount}>
-              {activeIndex + 1} of {DEMO_STEPS.length}
-            </span>
+            <span className={styles.flowPanelCount}>Interactive demo</span>
+            <h2>{activeStep?.title}</h2>
+            <p>{activeStep?.description}</p>
           </div>
         )}
         <button
@@ -83,7 +57,6 @@ export function DemoFlowPanel({
             {DEMO_STEPS.map((step, index) => {
               const done = index < activeIndex;
               const active = index === activeIndex;
-              const StepIcon = STEP_ICONS[step.id as keyof typeof STEP_ICONS];
               return (
                 <li key={step.id}>
                   <button
@@ -93,10 +66,13 @@ export function DemoFlowPanel({
                     onClick={() => onNavigate(index)}
                   >
                     <span className={styles.flowStepNumber} aria-hidden="true">
-                      {done ? <Check data-free-size="true" /> : <StepIcon />}
+                      {String(index + 1).padStart(2, "0")}
                     </span>
                     <span className={styles.flowStepCopy}>
                       <strong>{step.title}</strong>
+                    </span>
+                    <span className={styles.flowStepState} aria-hidden="true">
+                      {done ? <Check /> : active ? <ArrowRight /> : null}
                     </span>
                   </button>
                 </li>

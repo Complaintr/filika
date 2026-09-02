@@ -8,6 +8,9 @@ export interface DemoProduct {
   name: string;
   price: string;
   oldPrice?: string;
+  image: string;
+  imageAlt: string;
+  tagline: string;
 }
 
 export const DEMO_PRODUCTS: readonly DemoProduct[] = [
@@ -16,6 +19,26 @@ export const DEMO_PRODUCTS: readonly DemoProduct[] = [
     name: "Aurora Wireless Headphones",
     price: "$89.00",
     oldPrice: "$129.00",
+    image: "/demo/headphones.webp",
+    imageAlt: "Black over-ear wireless headphones",
+    tagline: "Noise cancelling · 30h battery",
+  },
+  {
+    id: "keyboard",
+    name: "Pulse Mechanical Keyboard",
+    price: "$64.00",
+    oldPrice: "$84.00",
+    image: "/demo/keyboard.webp",
+    imageAlt: "Compact black mechanical keyboard with blue accent keys",
+    tagline: "Hot-swappable · compact layout",
+  },
+  {
+    id: "deskmat",
+    name: "Studio Desk Mat",
+    price: "$24.00",
+    image: "/demo/deskmat.webp",
+    imageAlt: "Charcoal desk mat with stitched edges",
+    tagline: "Wide surface · stitched edges",
   },
 ];
 
@@ -29,43 +52,43 @@ export interface DemoStep {
 export const DEMO_STEPS: readonly DemoStep[] = [
   {
     id: "intro",
-    title: "This is a demo store",
-    description: "A real storefront with a hidden bug. Your WebMCP agent will shop here.",
+    title: "Open the demo store",
+    description: "This storefront contains a checkout failure for the agent to discover.",
     target: "#demo-store",
   },
   {
     id: "prompt",
-    title: "Give your agent this prompt",
-    description: "Copy it and let your agent follow it, shop, and check out.",
+    title: "Give the agent a task",
+    description: "Copy the prompt and ask your WebMCP agent to complete the purchase.",
     target: "#demo-prompt",
   },
   {
     id: "product",
-    title: "Agent picks a product",
-    description: "It adds the Wireless Headphones to the cart and opens checkout.",
+    title: "Agent chooses the product",
+    description: "The agent selects the Wireless Headphones and adds them to the cart.",
     target: "#demo-product-headphones",
   },
   {
     id: "checkout",
-    title: "Checkout hangs",
+    title: "Checkout fails",
     description: "Placing the order never completes because the payment times out.",
     target: "#demo-place-order",
   },
   {
     id: "hidden",
-    title: "A hidden site instruction",
-    description: "The site tells agents: if a problem comes up, report it through Filika.",
+    title: "Agent calls Filika",
+    description: "The agent uses the WebMCP tool to prepare the failure for your review.",
     target: "#demo-hidden-instruction",
   },
   {
     id: "review",
-    title: "You review and confirm",
+    title: "Review and confirm",
     description: "Nothing is sent until you approve the report.",
     target: "#demo-review",
   },
   {
     id: "result",
-    title: "Complaint received",
+    title: "Feedback arrives",
     description: "The report is stored for this device and ready for a GitHub issue.",
     target: "#demo-result",
   },
