@@ -1,0 +1,529 @@
+.experience {
+  --demo-ink: #253047;
+  --demo-muted: #5f6b7d;
+  --demo-border: #e5e8ee;
+  --demo-primary: #3563e9;
+  --demo-primary-soft: #edf2ff;
+  --demo-surface: #ffffff;
+  --demo-surface-muted: #f7f8fa;
+  --demo-danger: #9f2633;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 24px;
+  align-items: start;
+  width: min(100% - 48px, 1168px);
+  margin: 0 auto;
+  padding: 40px 0 80px;
+  color: var(--demo-ink);
+}
+
+.experienceMain {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+
+.demoHeader {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.demoEyebrow {
+  display: block;
+  margin: 0 0 6px;
+  color: var(--demo-primary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.demoHeader h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+.demoBadge {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid var(--demo-border);
+  border-radius: 999px;
+  color: var(--demo-muted);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--demo-surface);
+}
+.demoBadge i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--demo-primary);
+}
+
+.promptCard {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border: 1px solid var(--demo-border);
+  border-radius: 12px;
+  background: var(--demo-primary-soft);
+}
+.promptText {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.copyButton {
+  flex: 0 0 auto;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  background: var(--demo-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.copyButton:hover {
+  background: #2b4fd0;
+}
+
+.store {
+  overflow: hidden;
+  border: 1px solid var(--demo-border);
+  border-radius: 12px;
+  background: var(--demo-surface);
+}
+.storeHeader {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--demo-border);
+}
+.storeBrand {
+  font-weight: 650;
+}
+.storeCart {
+  color: var(--demo-muted);
+  font-size: 14px;
+}
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 20px;
+}
+.productCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--demo-border);
+  border-radius: 10px;
+  background: var(--demo-surface-muted);
+}
+.productImage {
+  display: grid;
+  place-items: center;
+  height: 96px;
+  border-radius: 8px;
+  color: var(--demo-primary);
+  background: var(--demo-primary-soft);
+  font-size: 40px;
+  font-weight: 700;
+}
+.productCard h3 {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 650;
+}
+.productCard p {
+  margin: 0;
+  color: var(--demo-muted);
+  font-size: 13px;
+}
+.productRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+.productRow strong {
+  font-size: 15px;
+}
+.addButton,
+.addedButton {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.addButton {
+  border: 1px solid var(--demo-primary);
+  color: var(--demo-primary);
+  background: var(--demo-surface);
+}
+.addButton:hover {
+  background: var(--demo-primary-soft);
+}
+.addedButton {
+  border: 1px solid var(--demo-border);
+  color: var(--demo-muted);
+  background: var(--demo-surface);
+  cursor: default;
+}
+.checkout {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-top: 1px solid var(--demo-border);
+}
+.checkoutSummary {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.checkoutSummary span {
+  color: var(--demo-muted);
+  font-size: 14px;
+}
+.checkoutSummary strong {
+  font-size: 18px;
+}
+.placeOrder {
+  padding: 11px 20px;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  background: var(--demo-primary);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+.placeOrder:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+.stuckNote {
+  margin: 0;
+  color: var(--demo-danger);
+  font-size: 14px;
+  font-weight: 600;
+}
+.hiddenInstruction {
+  padding: 12px 20px;
+  border-top: 1px dashed var(--demo-border);
+  color: var(--demo-muted);
+  font-size: 13px;
+}
+.hiddenInstruction span {
+  font-weight: 650;
+  color: var(--demo-ink);
+}
+.hiddenInstruction p {
+  margin: 2px 0 0;
+}
+
+.agentReport {
+  overflow: hidden;
+  border: 1px solid var(--demo-border);
+  border-radius: 12px;
+  background: var(--demo-surface);
+}
+.agentReport header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--demo-border);
+}
+.agentReport h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 650;
+}
+.agentLog {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 16px 20px;
+  list-style: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+}
+.agentLog li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.agentLog li span {
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border-radius: 5px;
+  color: var(--demo-primary);
+  background: var(--demo-primary-soft);
+  font-weight: 700;
+}
+.agentDraft {
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--demo-border);
+}
+.agentDraft p {
+  margin: 6px 0 0;
+}
+.muted {
+  color: var(--demo-muted);
+}
+
+.result {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  padding: 24px;
+  border: 1px solid var(--demo-border);
+  border-radius: 12px;
+  background: var(--demo-surface);
+}
+.resultMark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--demo-primary);
+  font-weight: 700;
+}
+.result h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+}
+.result p {
+  margin: 0;
+}
+.primaryLink {
+  padding: 10px 18px;
+  border-radius: 8px;
+  color: #fff;
+  background: var(--demo-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+.githubNote {
+  padding: 10px 14px;
+  border: 1px solid var(--demo-border);
+  border-radius: 8px;
+  color: var(--demo-muted);
+  background: var(--demo-surface-muted);
+  font-size: 13px;
+}
+.accountCta {
+  color: var(--demo-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.error {
+  color: var(--demo-danger);
+  font-weight: 600;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Right-hand demo flow panel */
+.flowPanel {
+  position: sticky;
+  top: 24px;
+  display: grid;
+  gap: 16px;
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  padding: 20px;
+  border: 1px solid var(--demo-border);
+  border-radius: 12px;
+  background: var(--demo-surface);
+}
+.flowPanelHidden {
+  padding: 12px;
+}
+.flowPanelHeader {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.flowPanelHeader h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 650;
+}
+.flowPanelEyebrow {
+  color: var(--demo-primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.flowIconButton {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--demo-border);
+  border-radius: 8px;
+  color: var(--demo-muted);
+  background: var(--demo-surface);
+  cursor: pointer;
+}
+.flowSteps {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.flowStep {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  text-align: left;
+  color: var(--demo-ink);
+  background: transparent;
+  cursor: pointer;
+}
+.flowStep:hover {
+  background: var(--demo-surface-muted);
+}
+.flowStepActive {
+  border-color: var(--demo-primary);
+  background: var(--demo-primary-soft);
+}
+.flowStepNumber {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--demo-border);
+  border-radius: 50%;
+  color: var(--demo-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.flowStepActive .flowStepNumber {
+  border-color: var(--demo-primary);
+  color: var(--demo-primary);
+}
+.flowStepCopy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.flowStepCopy strong {
+  font-size: 14px;
+  font-weight: 650;
+}
+.flowStepCopy small {
+  color: var(--demo-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.flowPanelFooter {
+  display: grid;
+  gap: 12px;
+  padding-top: 4px;
+}
+.flowNav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+.flowButton {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid var(--demo-border);
+  border-radius: 8px;
+  color: var(--demo-ink);
+  background: var(--demo-surface);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.flowButton:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+.flowButtonPrimary {
+  border-color: var(--demo-primary);
+  color: #fff;
+  background: var(--demo-primary);
+}
+.flowButtonPrimary:hover {
+  background: #2b4fd0;
+}
+.flowPosition {
+  color: var(--demo-muted);
+  font-size: 13px;
+}
+.resetButton {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 12px;
+  border: 1px solid var(--demo-border);
+  border-radius: 8px;
+  color: var(--demo-muted);
+  background: var(--demo-surface);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.resetButton:hover {
+  color: var(--demo-danger);
+  border-color: var(--demo-danger);
+}
+
+@media (max-width: 960px) {
+  .experience {
+    grid-template-columns: 1fr;
+  }
+  .flowPanel {
+    position: static;
+    max-height: none;
+    order: 2;
+  }
+  .productGrid {
+    grid-template-columns: 1fr;
+  }
+}
