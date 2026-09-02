@@ -111,6 +111,7 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
                   googlePhotoUrl((profile as { picture?: unknown }).picture) ??
                   googlePhotoUrl((profile as { image?: unknown }).image) ??
                   googlePhotoUrl((profile as { avatar_url?: unknown }).avatar_url),
+                useGoogleImage: true,
               }),
               clientId: config.googleClientId as string,
               clientSecret: config.googleClientSecret as string,
@@ -126,6 +127,7 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
                   githubPhotoUrl((profile as { avatar_url?: unknown }).avatar_url) ??
                   githubPhotoUrl((profile as { picture?: unknown }).picture) ??
                   githubPhotoUrl((profile as { image?: unknown }).image),
+                useGithubImage: true,
               }),
               clientId: config.githubClientId as string,
               clientSecret: config.githubClientSecret as string,

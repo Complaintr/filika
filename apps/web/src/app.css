@@ -5129,6 +5129,13 @@ html {
   height: 18px;
   accent-color: var(--blue);
 }
+.photo-choice-hint {
+  margin: -12px 0 0 28px;
+  padding-bottom: 4px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
 .account-avatar {
   overflow: hidden;
   flex-shrink: 0;

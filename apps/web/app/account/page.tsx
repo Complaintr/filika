@@ -258,7 +258,7 @@ export default function AccountPage() {
                       <input
                         type="checkbox"
                         checked={draft.useGoogleImage}
-                        disabled={!account?.googleImageAvailable && !draft.useGoogleImage}
+                        disabled={!account?.googleConnected}
                         onChange={(event) =>
                           setDraft({
                             ...draft,
@@ -269,11 +269,14 @@ export default function AccountPage() {
                       />
                       Use Google profile photo
                     </label>
+                    {!account?.googleConnected && (
+                      <p className="photo-choice-hint">You did not sign in with Google.</p>
+                    )}
                     <label className="account-photo-choice">
                       <input
                         type="checkbox"
                         checked={draft.useGithubImage}
-                        disabled={!account?.githubImageAvailable && !draft.useGithubImage}
+                        disabled={!account?.githubConnected}
                         onChange={(event) =>
                           setDraft({
                             ...draft,
@@ -284,6 +287,9 @@ export default function AccountPage() {
                       />
                       Use GitHub profile photo
                     </label>
+                    {!account?.githubConnected && (
+                      <p className="photo-choice-hint">You did not sign in with GitHub.</p>
+                    )}
                     <p className="muted">
                       When enabled, your browser loads this photo from the provider. Turn it off to
                       use your initial.
