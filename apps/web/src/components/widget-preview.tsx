@@ -6,36 +6,36 @@ import { useEffect, useState } from "react";
 import styles from "../../app/landing.module.css";
 import { GithubIcon } from "../auth/github-icon";
 
-type WidgetStage = "boot" | "draft" | "review";
-
 export function WidgetPreview() {
   const [confirmed, setConfirmed] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [stage, setStage] = useState<WidgetStage>("boot");
+  const [pulseArrived, setPulseArrived] = useState(false);
+  const [draftActive, setDraftActive] = useState(false);
+  const [reviewActive, setReviewActive] = useState(false);
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setReducedMotion(reduced);
     if (confirmed || reduced) return;
-    const frame = requestAnimationFrame(() => setStage("draft"));
-    const id = setInterval(() => {
-      setStage((current) => (current === "draft" ? "review" : "draft"));
-    }, 3000);
+    const timers = [
+      setTimeout(() => setPulseArrived(true), 60),
+      setTimeout(() => setDraftActive(true), 800),
+      setTimeout(() => setDraftActive(false), 2600),
+      setTimeout(() => setReviewActive(true), 3400),
+    ];
     return () => {
-      cancelAnimationFrame(frame);
-      clearInterval(id);
+      for (const timer of timers) clearTimeout(timer);
     };
   }, [confirmed]);
 
-  const active = !confirmed && !reducedMotion && stage !== "boot" ? stage : null;
   const pulseClass =
     !confirmed && !reducedMotion
-      ? stage === "boot"
-        ? styles.widgetPulseBoot
-        : stage === "review"
-          ? styles.widgetPulseReview
-          : styles.widgetPulseDraft
+      ? pulseArrived
+        ? styles.widgetPulseReview
+        : styles.widgetPulseBoot
       : styles.widgetPulseHidden;
+  const draftHighlighted = !confirmed && !reducedMotion && draftActive;
+  const reviewHighlighted = !confirmed && !reducedMotion && reviewActive;
   return (
     <div className={styles.widgetSurface}>
       <header className={styles.widgetHeader}>
@@ -99,11 +99,11 @@ export function WidgetPreview() {
         <span className={`${styles.widgetPulse} ${pulseClass}`.trim()} aria-hidden="true" />
         <div className={styles.widgetStage}>
           <span
-            className={`${styles.widgetStageNode} ${active === "draft" ? styles.widgetStageNodeActive : ""}`.trim()}
+            className={`${styles.widgetStageNode} ${draftHighlighted ? styles.widgetStageNodeActive : ""}`.trim()}
             aria-hidden="true"
           />
           <div
-            className={`${styles.widgetDraft} ${active === "draft" ? styles.widgetStageActive : ""}`.trim()}
+            className={`${styles.widgetDraft} ${draftHighlighted ? styles.widgetStageActive : ""}`.trim()}
           >
             <span className={styles.widgetStageLabel}>Draft report</span>
             <h3>Checkout cannot be completed</h3>
@@ -116,11 +116,11 @@ export function WidgetPreview() {
         </div>
         <div className={styles.widgetStage}>
           <span
-            className={`${styles.widgetStageNode} ${active === "review" ? styles.widgetStageNodeActive : ""}`.trim()}
+            className={`${styles.widgetStageNode} ${reviewHighlighted ? styles.widgetStageNodeActive : ""}`.trim()}
             aria-hidden="true"
           />
           <div
-            className={`${styles.widgetReview} ${active === "review" ? styles.widgetStageActive : ""}`.trim()}
+            className={`${styles.widgetReview} ${reviewHighlighted ? styles.widgetStageActive : ""}`.trim()}
           >
             <div className={styles.widgetReviewHeading}>
               <span className={styles.widgetReviewIcon}>
