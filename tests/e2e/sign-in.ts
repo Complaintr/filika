@@ -8,7 +8,7 @@ import { browserDatabaseUrl } from "./database";
  */
 export async function signInAsE2eUser(
   page: Page,
-  options: { application?: boolean; google?: boolean } = {},
+  options: { application?: boolean; google?: boolean; github?: boolean } = {},
 ) {
   const secret = process.env.BETTER_AUTH_SECRET ?? "test-secret";
   const identity = await seedE2eSession(browserDatabaseUrl(), secret, options);

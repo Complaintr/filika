@@ -111,6 +111,9 @@ describe("header profile menu", () => {
       googleConnected: false,
       googleImageAvailable: false,
       useGoogleImage: false,
+      githubConnected: false,
+      githubImageAvailable: false,
+      useGithubImage: false,
       theme: "light",
       density: "comfortable",
     };

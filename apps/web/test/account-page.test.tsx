@@ -11,6 +11,9 @@ const profile = {
   googleConnected: false,
   googleImageAvailable: false,
   useGoogleImage: false,
+  githubConnected: false,
+  githubImageAvailable: false,
+  useGithubImage: false,
   theme: "light",
   density: "comfortable",
 };
