@@ -89,6 +89,26 @@ describe.skipIf(!isDbAvailable)("public device demo routes", () => {
     }
   });
 
+  test("merges the public origin into existing demo applications", async () => {
+    const previousAuthUrl = process.env.BETTER_AUTH_URL;
+    try {
+      const device = "demo-device-0001";
+      const publicOrigin = "https://filika.example.com";
+      process.env.BETTER_AUTH_URL = publicOrigin;
+
+      const body = (await (await request(`/api/v1/demo/${device}/app`)).json()) as {
+        application: { allowedOrigins: string[] };
+      };
+      expect(body.application.allowedOrigins).toContain(publicOrigin);
+    } finally {
+      if (previousAuthUrl === undefined) {
+        delete process.env.BETTER_AUTH_URL;
+      } else {
+        process.env.BETTER_AUTH_URL = previousAuthUrl;
+      }
+    }
+  });
+
   test("demo applications stay hidden from the owned application list", async () => {
     const device = "demo-device-0002";
     await request(`/api/v1/demo/${device}/app`);
