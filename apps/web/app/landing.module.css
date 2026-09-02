@@ -590,6 +590,11 @@
   font-weight: 550;
   letter-spacing: -0.035em;
 }
+.dashboardDemoHeading p {
+  margin: 4px 0 0;
+  color: var(--dashboard-demo-muted);
+  font-size: 10px;
+}
 .dashboardDemoRange {
   padding: 8px 11px;
   border: 1px solid var(--dashboard-demo-line);
@@ -635,12 +640,16 @@
   margin-top: 12px;
 }
 .dashboardDemoChart,
+.dashboardDemoBreakdown,
 .dashboardDemoRecent {
   min-width: 0;
   padding: 15px;
   border: 1px solid var(--dashboard-demo-line);
   border-radius: 12px;
   background: var(--dashboard-demo-surface);
+}
+.dashboardDemoRecent {
+  margin-top: 12px;
 }
 .dashboardDemoPanelHeading h3 {
   margin: 0;
@@ -654,6 +663,14 @@
 .dashboardDemoPanelHeading > strong {
   color: #16845b;
   font-size: 10px;
+}
+.dashboardDemoChartTitle {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 .dashboardDemoChart svg {
   display: block;
@@ -689,6 +706,47 @@
   margin-top: 5px;
   color: var(--dashboard-demo-muted);
   font-size: 8px;
+}
+.dashboardDemoBreakdown {
+  display: flex;
+  flex-direction: column;
+}
+.dashboardDemoBreakdownList {
+  display: grid;
+  margin-top: 12px;
+  border: 1px solid var(--dashboard-demo-line);
+  border-radius: 10px;
+  background: var(--dashboard-demo-soft);
+}
+.dashboardDemoBreakdownRow {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 43px;
+  padding: 0 10px;
+  color: var(--dashboard-demo-muted);
+  font-size: 8px;
+}
+.dashboardDemoBreakdownRow + .dashboardDemoBreakdownRow {
+  border-top: 1px solid var(--dashboard-demo-line);
+}
+.dashboardDemoBreakdownRow > strong {
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 600;
+}
+.dashboardDemoBreakdownDot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border-radius: 50%;
+}
+.dashboardDemoBreakdownDot.dashboardDemoKindBug,
+.dashboardDemoBreakdownDot.dashboardDemoKindBlocked,
+.dashboardDemoBreakdownDot.dashboardDemoKindConfusing,
+.dashboardDemoBreakdownDot.dashboardDemoKindIdea {
+  background: currentColor;
 }
 .dashboardDemoPrivate {
   gap: 4px;

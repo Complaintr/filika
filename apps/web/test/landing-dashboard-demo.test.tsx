@@ -6,16 +6,22 @@ import { renderReact } from "./helpers/render-react";
 const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
 
 describe("landing dashboard demo", () => {
-  test("renders the Filika demo identity and full-size activity chart", async () => {
+  test("mirrors the workspace dashboard metrics, chart, and category breakdown", async () => {
     const result = await renderReact(createElement(LandingDashboardDemo));
 
     const logo = result.container.querySelector('img[src="/filika-logo.svg"]');
     expect(logo).not.toBeNull();
     expect(result.container.textContent).toContain("Filika Demo");
+    expect(result.container.textContent).toContain("Total complaints60");
+    expect(result.container.textContent).toContain("Bug reports15");
+    expect(result.container.textContent).toContain("Blocked tasks15");
+    expect(result.container.textContent).toContain("Ideas15");
+    expect(result.container.textContent).toContain("By feedback type");
+    expect(result.container.textContent).toContain("Confusing behavior");
 
     const chart = result.container.querySelector('svg[aria-label*="last 30 days"]');
     expect(chart?.getAttribute("data-free-size")).toBe("true");
-    expect(chart?.querySelectorAll("path").length).toBe(2);
+    expect(chart?.querySelectorAll("path").length).toBe(1);
 
     await result.close();
   });

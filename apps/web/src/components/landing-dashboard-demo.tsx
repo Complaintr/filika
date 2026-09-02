@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import styles from "../../app/landing.module.css";
 import {
+  LANDING_DEMO_CATEGORIES,
   LANDING_DEMO_REPORTS,
   type LandingDemoFeedbackKind,
   type LandingDemoReport,
@@ -12,10 +13,10 @@ import {
 } from "./landing-workspace-demo-data";
 
 const stats = [
-  ["Total feedback", "184", MessageSquareText],
-  ["Bug reports", "72", Bug],
-  ["Blocked tasks", "31", CircleSlash2],
-  ["Ideas", "46", Lightbulb],
+  ["Total complaints", "60", MessageSquareText],
+  ["Bug reports", "15", Bug],
+  ["Blocked tasks", "15", CircleSlash2],
+  ["Ideas", "15", Lightbulb],
 ] as const;
 
 function landingDemoKindClass(kind: LandingDemoFeedbackKind): string | undefined {
@@ -63,8 +64,8 @@ export function LandingDashboardDemo() {
       <div className={styles.dashboardDemoBody}>
         <div className={styles.dashboardDemoHeading}>
           <div>
-            <span className={styles.dashboardDemoMutedLabel}>Workspace overview</span>
             <h2>Dashboard</h2>
+            <p>A little clarity on what needs your attention.</p>
           </div>
           <span className={styles.dashboardDemoRange}>Last 30 days</span>
         </div>
@@ -82,19 +83,16 @@ export function LandingDashboardDemo() {
 
         <div className={styles.dashboardDemoGrid}>
           <section className={styles.dashboardDemoChart} aria-labelledby="landing-chart-title">
-            <div className={styles.dashboardDemoPanelHeading}>
-              <div>
-                <h3 id="landing-chart-title">Feedback activity</h3>
-                <span className={styles.dashboardDemoMutedLabel}>Reports received</span>
-              </div>
-              <strong>+18.2%</strong>
+            <div className={styles.dashboardDemoChartTitle}>
+              <h3 id="landing-chart-title">Complaint activity</h3>
+              <span>Daily volume · UTC · 30 days</span>
             </div>
             <svg
               viewBox="0 0 560 190"
               preserveAspectRatio="none"
               data-free-size="true"
               role="img"
-              aria-label="Feedback activity increased over the last 30 days"
+              aria-label="60 complaints over the last 30 days"
             >
               <defs>
                 <pattern
@@ -105,21 +103,9 @@ export function LandingDashboardDemo() {
                 >
                   <circle cx="1" cy="1" r="1" />
                 </pattern>
-                <linearGradient id="landing-dashboard-area" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0" stopColor="#009fe3" stopOpacity="0.22" />
-                  <stop offset="1" stopColor="#009fe3" stopOpacity="0" />
-                </linearGradient>
               </defs>
               <rect width="560" height="190" fill="url(#landing-dashboard-grid)" />
-              <path
-                className={styles.dashboardDemoChartArea}
-                d="M0 164 C45 154 64 121 108 130 S174 145 214 108 S276 89 316 104 S379 83 416 58 S486 79 560 28 L560 190 L0 190 Z"
-              />
-              <path
-                className={styles.dashboardDemoChartLine}
-                d="M0 164 C45 154 64 121 108 130 S174 145 214 108 S276 89 316 104 S379 83 416 58 S486 79 560 28"
-              />
-              <circle className={styles.dashboardDemoChartPoint} cx="416" cy="58" r="5" />
+              <path className={styles.dashboardDemoChartLine} d="M18 108 H542" />
             </svg>
             <div className={styles.dashboardDemoChartLabels} aria-hidden="true">
               <span>Aug 04</span>
@@ -129,41 +115,64 @@ export function LandingDashboardDemo() {
             </div>
           </section>
 
-          <section className={styles.dashboardDemoRecent} aria-labelledby="landing-recent-title">
+          <section
+            className={styles.dashboardDemoBreakdown}
+            aria-labelledby="landing-breakdown-title"
+          >
             <div className={styles.dashboardDemoPanelHeading}>
-              <div>
-                <h3 id="landing-recent-title">Recent feedback</h3>
-                <span className={styles.dashboardDemoMutedLabel}>Needs your attention</span>
-              </div>
-              <span className={styles.dashboardDemoPrivate}>
-                <ShieldCheck aria-hidden="true" data-free-size="true" /> Private
-              </span>
+              <h3 id="landing-breakdown-title">By feedback type</h3>
+              <span>Share of reports</span>
             </div>
-            <div className={styles.dashboardDemoReportList}>
-              {LANDING_DEMO_REPORTS.map((report) => (
-                <button
-                  key={report.title}
-                  className={styles.dashboardDemoReportButton}
-                  type="button"
-                  aria-haspopup="dialog"
-                  aria-label={`View feedback: ${report.title}`}
-                  onClick={(event) => openReport(report, event.currentTarget)}
-                >
+            <div className={styles.dashboardDemoBreakdownList}>
+              {LANDING_DEMO_CATEGORIES.map((category) => (
+                <div key={category.kind} className={styles.dashboardDemoBreakdownRow}>
                   <span
-                    className={`${styles.dashboardDemoKind} ${landingDemoKindClass(report.kind)}`}
-                  >
-                    {landingDemoCategory(report.kind).label}
-                  </span>
-                  <strong>{report.title}</strong>
-                  <span className={styles.dashboardDemoReportMeta}>
-                    <span className={styles.dashboardDemoReportRoute}>{report.route}</span>
-                    <time>{report.relativeTime}</time>
-                  </span>
-                </button>
+                    className={`${styles.dashboardDemoBreakdownDot} ${landingDemoKindClass(category.kind)}`}
+                    aria-hidden="true"
+                  />
+                  <span>{category.label}</span>
+                  <strong>{category.count}</strong>
+                  <span>{category.percentage}%</span>
+                </div>
               ))}
             </div>
           </section>
         </div>
+
+        <section className={styles.dashboardDemoRecent} aria-labelledby="landing-recent-title">
+          <div className={styles.dashboardDemoPanelHeading}>
+            <div>
+              <h3 id="landing-recent-title">Recent feedback</h3>
+              <span className={styles.dashboardDemoMutedLabel}>Needs your attention</span>
+            </div>
+            <span className={styles.dashboardDemoPrivate}>
+              <ShieldCheck aria-hidden="true" data-free-size="true" /> Private
+            </span>
+          </div>
+          <div className={styles.dashboardDemoReportList}>
+            {LANDING_DEMO_REPORTS.map((report) => (
+              <button
+                key={report.title}
+                className={styles.dashboardDemoReportButton}
+                type="button"
+                aria-haspopup="dialog"
+                aria-label={`View feedback: ${report.title}`}
+                onClick={(event) => openReport(report, event.currentTarget)}
+              >
+                <span
+                  className={`${styles.dashboardDemoKind} ${landingDemoKindClass(report.kind)}`}
+                >
+                  {landingDemoCategory(report.kind).label}
+                </span>
+                <strong>{report.title}</strong>
+                <span className={styles.dashboardDemoReportMeta}>
+                  <span className={styles.dashboardDemoReportRoute}>{report.route}</span>
+                  <time>{report.relativeTime}</time>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
       </div>
 
       <dialog
