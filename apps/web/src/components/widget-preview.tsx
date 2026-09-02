@@ -2,15 +2,42 @@
 
 import { AlertTriangle, Bot, Check, ShieldCheck } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "../../app/landing.module.css";
 import { GithubIcon } from "../auth/github-icon";
 
+type WidgetStage = "boot" | "draft" | "review";
+
 export function WidgetPreview() {
   const [confirmed, setConfirmed] = useState(false);
-  const surfaceClass = confirmed ? styles.widgetConfirmed : "";
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [stage, setStage] = useState<WidgetStage>("boot");
+
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setReducedMotion(reduced);
+    if (confirmed || reduced) return;
+    const frame = requestAnimationFrame(() => setStage("draft"));
+    const id = setInterval(() => {
+      setStage((current) => (current === "draft" ? "review" : "draft"));
+    }, 3000);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearInterval(id);
+    };
+  }, [confirmed]);
+
+  const active = !confirmed && !reducedMotion && stage !== "boot" ? stage : null;
+  const pulseClass =
+    !confirmed && !reducedMotion
+      ? stage === "boot"
+        ? styles.widgetPulseBoot
+        : stage === "review"
+          ? styles.widgetPulseReview
+          : styles.widgetPulseDraft
+      : styles.widgetPulseHidden;
   return (
-    <div className={`${styles.widgetSurface} ${surfaceClass}`.trim()}>
+    <div className={styles.widgetSurface}>
       <header className={styles.widgetHeader}>
         <span className={styles.widgetBrand}>
           <Image
@@ -69,10 +96,15 @@ export function WidgetPreview() {
       </section>
       <section className={styles.widgetFlow}>
         <span className={styles.widgetFlowTrack} aria-hidden="true" />
-        <span className={styles.widgetPulse} aria-hidden="true" />
+        <span className={`${styles.widgetPulse} ${pulseClass}`.trim()} aria-hidden="true" />
         <div className={styles.widgetStage}>
-          <span className={styles.widgetStageNode} aria-hidden="true" />
-          <div className={styles.widgetDraft}>
+          <span
+            className={`${styles.widgetStageNode} ${active === "draft" ? styles.widgetStageNodeActive : ""}`.trim()}
+            aria-hidden="true"
+          />
+          <div
+            className={`${styles.widgetDraft} ${active === "draft" ? styles.widgetStageActive : ""}`.trim()}
+          >
             <span className={styles.widgetStageLabel}>Draft report</span>
             <h3>Checkout cannot be completed</h3>
             <p>The payment step remains unavailable after valid address details are entered.</p>
@@ -84,10 +116,12 @@ export function WidgetPreview() {
         </div>
         <div className={styles.widgetStage}>
           <span
-            className={`${styles.widgetStageNode} ${styles.widgetStageNodeActive}`}
+            className={`${styles.widgetStageNode} ${active === "review" ? styles.widgetStageNodeActive : ""}`.trim()}
             aria-hidden="true"
           />
-          <div className={styles.widgetReview}>
+          <div
+            className={`${styles.widgetReview} ${active === "review" ? styles.widgetStageActive : ""}`.trim()}
+          >
             <div className={styles.widgetReviewHeading}>
               <span className={styles.widgetReviewIcon}>
                 <ShieldCheck aria-hidden="true" data-free-size="true" />
@@ -119,7 +153,7 @@ export function WidgetPreview() {
         </div>
         <div className={styles.widgetStage}>
           <span
-            className={`${styles.widgetStageNode} ${confirmed ? styles.widgetStageNodeActive : ""}`.trim()}
+            className={`${styles.widgetStageNode} ${confirmed ? styles.widgetStageNodeGreen : ""}`.trim()}
             aria-hidden="true"
           />
           <div

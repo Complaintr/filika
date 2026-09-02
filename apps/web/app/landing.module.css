@@ -764,10 +764,12 @@
   display: grid;
   gap: 12px;
   padding: 14px;
-  border: 1px solid rgba(0, 159, 227, 0.45);
+  border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--card);
-  box-shadow: 0 12px 30px rgba(0, 159, 227, 0.08);
+  transition:
+    border-color 400ms ease,
+    box-shadow 400ms ease;
 }
 .widgetReviewHeading {
   display: flex;
@@ -904,63 +906,41 @@
   border-radius: 50%;
   background: var(--primary);
   opacity: 0;
-  animation: widgetPulse 6s ease-in-out infinite;
+  transition:
+    top 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.widgetPulseBoot {
+  top: 4px;
+  opacity: 0;
+}
+.widgetPulseDraft {
+  top: 8px;
+  opacity: 1;
+}
+.widgetPulseReview {
+  top: 148px;
+  opacity: 1;
+}
+.widgetPulseHidden {
+  opacity: 0;
 }
 .widgetDraft {
-  animation: widgetDraftEmphasis 6s ease-in-out infinite;
+  transition:
+    border-color 400ms ease,
+    box-shadow 400ms ease;
 }
-.widgetReviewPrimary {
-  animation: widgetButtonGlow 6s ease-in-out infinite;
+.widgetStageActive {
+  border-color: rgba(0, 159, 227, 0.45);
+  box-shadow: 0 12px 30px rgba(0, 159, 227, 0.08);
+}
+.widgetStageNodeGreen {
+  border-color: var(--success);
+  background: var(--success);
 }
 .widgetReviewActions button:focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 2px;
-}
-@keyframes widgetPulse {
-  0% {
-    opacity: 0;
-    transform: translateY(-18px);
-  }
-  10% {
-    opacity: 1;
-  }
-  24% {
-    opacity: 1;
-    transform: translateY(6px);
-  }
-  32%,
-  100% {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-}
-@keyframes widgetDraftEmphasis {
-  0%,
-  22% {
-    box-shadow: none;
-  }
-  30%,
-  44% {
-    box-shadow: 0 12px 26px rgba(0, 159, 227, 0.12);
-  }
-  52%,
-  100% {
-    box-shadow: none;
-  }
-}
-@keyframes widgetButtonGlow {
-  0%,
-  48% {
-    box-shadow: none;
-  }
-  58%,
-  72% {
-    box-shadow: 0 0 0 4px rgba(0, 159, 227, 0.18);
-  }
-  80%,
-  100% {
-    box-shadow: none;
-  }
 }
 @keyframes widgetConfirmPop {
   from {
@@ -969,11 +949,6 @@
   to {
     transform: scale(1);
   }
-}
-.widgetConfirmed .widgetPulse,
-.widgetConfirmed .widgetDraft,
-.widgetConfirmed .widgetReviewPrimary {
-  animation: none;
 }
 .widgetReceiptConfirmed {
   border-color: rgba(22, 163, 74, 0.7);
@@ -986,9 +961,6 @@
   transform: scale(1.08);
 }
 @media (prefers-reduced-motion: reduce) {
-  .widgetPulse,
-  .widgetDraft,
-  .widgetReviewPrimary,
   .widgetReceiptConfirmed {
     animation: none;
   }

@@ -234,26 +234,38 @@ describe("public landing page", () => {
     }
   });
 
-  test("widget preview animates the flow and supports clickable confirm", async () => {
+  test("widget preview follows the live flow stage and supports clickable confirm", async () => {
     const widget = await Bun.file(`${import.meta.dir}/../src/components/widget-preview.tsx`).text();
     const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
 
-    expect(widget).toContain("useState");
+    expect(widget).toContain("useEffect");
+    expect(widget).toContain("setInterval");
+    expect(widget).toContain('matchMedia("(prefers-reduced-motion: reduce)")');
+    expect(widget).toContain("confirmed");
     expect(widget).toContain("onClick={() => setConfirmed(true)}");
-    expect(widget).toContain("widgetConfirmed");
-    expect(widget).toContain("widgetReceiptConfirmed");
+    expect(widget).toContain("widgetStageActive");
+    expect(widget).toContain("widgetPulseReview");
     expect(widget).not.toContain("—");
+    for (const keyframe of [
+      "@keyframes widgetConfirmPop",
+      ".widgetStageActive",
+      ".widgetStageNodeGreen",
+      ".widgetPulseBoot",
+      ".widgetPulseReview",
+      ".widgetPulseHidden",
+    ]) {
+      expect(styles).toContain(keyframe);
+    }
     for (const keyframe of [
       "@keyframes widgetPulse",
       "@keyframes widgetDraftEmphasis",
       "@keyframes widgetButtonGlow",
-      "@keyframes widgetConfirmPop",
+      "widgetReceiptEmphasis",
+      "widgetCheckPop",
+      "rgba(22, 163, 74, 0.35)",
     ]) {
-      expect(styles).toContain(keyframe);
+      expect(styles).not.toContain(keyframe);
     }
-    expect(styles).not.toContain("widgetReceiptEmphasis");
-    expect(styles).not.toContain("widgetCheckPop");
-    expect(styles).not.toContain("rgba(22, 163, 74, 0.35)");
     expect(styles).toContain(".widgetReceiptConfirmed .widgetReceiptCheck");
     expect(styles).toContain("@media (prefers-reduced-motion: reduce)");
     expect(styles).toContain(".widgetReviewActions button:focus-visible");
