@@ -527,11 +527,9 @@
   justify-content: space-between;
   min-height: 52px;
   padding: 0 18px;
-  border-bottom: 1px solid var(--dashboard-demo-line);
   background: color-mix(in srgb, var(--dashboard-demo-surface) 92%, transparent);
 }
 .dashboardDemoBrand,
-.dashboardDemoStatus,
 .dashboardDemoPrivate,
 .dashboardDemoReportMeta {
   display: flex;
@@ -540,14 +538,6 @@
 .dashboardDemoBrand {
   gap: 8px;
   font-size: 12px;
-}
-.dashboardDemoBrandMark {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  object-fit: contain;
 }
 .dashboardDemoBrand > i {
   width: 1px;
@@ -558,18 +548,6 @@
 .dashboardDemoBrand small {
   color: var(--dashboard-demo-muted);
   font-size: 10px;
-}
-.dashboardDemoStatus {
-  gap: 6px;
-  color: var(--dashboard-demo-muted);
-  font-size: 10px;
-}
-.dashboardDemoStatus i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #22a06b;
-  box-shadow: 0 0 0 4px rgba(34, 160, 107, 0.1);
 }
 .dashboardDemoBody {
   padding: 24px;

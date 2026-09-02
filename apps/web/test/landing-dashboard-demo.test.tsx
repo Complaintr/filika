@@ -12,6 +12,7 @@ describe("landing dashboard demo", () => {
     const logo = result.container.querySelector('img[src="/filika-logo.svg"]');
     expect(logo).not.toBeNull();
     expect(result.container.textContent).toContain("Filika Demo");
+    expect(result.container.textContent).not.toContain("Collector connected");
     expect(result.container.textContent).toContain("Total complaints60");
     expect(result.container.textContent).toContain("Bug reports15");
     expect(result.container.textContent).toContain("Blocked tasks15");
@@ -25,6 +26,7 @@ describe("landing dashboard demo", () => {
     const chart = result.container.querySelector('svg[aria-label*="last 30 days"]');
     expect(chart?.getAttribute("data-free-size")).toBe("true");
     expect(chart?.querySelectorAll("path").length).toBe(1);
+    expect(chart?.querySelector("path")?.getAttribute("d")).toContain("C");
 
     await result.close();
   });

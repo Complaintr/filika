@@ -13,8 +13,8 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { FilikaBrand } from "@/components/filika-brand";
 import styles from "../../app/landing.module.css";
 import {
   LANDING_DEMO_CATEGORIES,
@@ -88,21 +88,10 @@ export function LandingDashboardDemo() {
     <section className={styles.dashboardDemo} aria-label="Filika dashboard preview">
       <header className={styles.dashboardDemoTopbar}>
         <div className={styles.dashboardDemoBrand}>
-          <Image
-            className={styles.dashboardDemoBrandMark}
-            src="/filika-logo.svg"
-            width={24}
-            height={24}
-            alt=""
-            unoptimized
-          />
-          <strong>Filika</strong>
+          <FilikaBrand href="/" label="Filika home" />
           <i aria-hidden="true" />
           <small>Filika Demo</small>
         </div>
-        <span className={styles.dashboardDemoStatus}>
-          <i aria-hidden="true" /> Collector connected
-        </span>
       </header>
 
       <div className={styles.dashboardDemoBody}>
@@ -151,7 +140,10 @@ export function LandingDashboardDemo() {
                     </pattern>
                   </defs>
                   <rect width="560" height="190" fill="url(#landing-dashboard-grid)" />
-                  <path className={styles.dashboardDemoChartLine} d="M18 108 H542" />
+                  <path
+                    className={styles.dashboardDemoChartLine}
+                    d="M18 126 C30 112 42 138 56 120 S82 96 98 114 S126 145 144 118 S170 82 188 104 S218 132 236 94 S266 116 284 88 S312 72 330 100 S356 126 374 90 S402 108 420 70 S448 92 466 62 S498 78 542 44"
+                  />
                 </svg>
                 <div className={styles.dashboardDemoChartLabels} aria-hidden="true">
                   <span>Aug 04</span>
