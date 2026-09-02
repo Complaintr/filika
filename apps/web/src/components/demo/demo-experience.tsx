@@ -1,7 +1,5 @@
 "use client";
 
-import { type DriveStep, driver } from "driver.js";
-import "driver.js/dist/driver.css";
 import { createSdk } from "@filika/sdk";
 import { ArrowLeft, ArrowRight, Bot, Check, Copy, ShieldCheck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -10,7 +8,7 @@ import { ReceiptToast } from "@/components/receipt-toast";
 import { connectSdkDialog } from "@/sdk-dialog";
 import { demoApi } from "@/services/demo-api";
 import styles from "./demo.module.css";
-import { DEMO_STEPS, TEST_DEMO_PROMPT } from "./demo-data";
+import { TEST_DEMO_PROMPT } from "./demo-data";
 import { DemoFlowPanel } from "./demo-flow-panel";
 import { DemoStore, type DemoStoreState } from "./demo-store";
 
@@ -26,12 +24,8 @@ function deviceKey(): string {
 
 export function DemoExperience() {
   const hostRef = useRef<HTMLDivElement | null>(null);
-  const toastRef = useRef<HTMLDivElement | null>(null);
-  const driverRef = useRef<ReturnType<typeof driver> | null>(null);
   const [projectKey, setProjectKey] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [guideIndex, setGuideIndex] = useState(0);
-  const [panelHidden, setPanelHidden] = useState(false);
   const [promptCopied, setPromptCopied] = useState(false);
   const [storeState, setStoreState] = useState<DemoStoreState>({
     cart: [],
@@ -39,58 +33,6 @@ export function DemoExperience() {
     stuck: false,
   });
   const [receipt, setReceipt] = useState<{ feedbackId: string; receivedAt: string } | null>(null);
-
-  // Create the driver spotlight once. The right-hand panel owns navigation;
-  // driver.js only highlights the active step without blocking the page.
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.textContent = `
-      .driver-active * { pointer-events: auto !important; }
-      .driver-overlay, .driver-overlay * { pointer-events: none !important; }
-      .driver-popover, .driver-popover * { pointer-events: auto !important; }
-    `;
-    document.head.append(style);
-    const guide = driver({
-      animate: true,
-      showProgress: false,
-      overlayOpacity: 0.14,
-      stagePadding: 10,
-      stageRadius: 10,
-      smoothScroll: true,
-      allowClose: false,
-      showButtons: ["close"],
-      skipMissingElement: true,
-      steps: DEMO_STEPS.map(
-        (step): DriveStep => ({
-          element: step.target,
-          popover: {
-            title: step.title,
-            description: step.description,
-            side: "left",
-            align: "center",
-          },
-        }),
-      ),
-    });
-    driverRef.current = guide;
-    guide.drive(0);
-    return () => {
-      guide.destroy();
-      driverRef.current = null;
-      style.remove();
-    };
-  }, []);
-
-  // Move the spotlight to the active guide step without re-drawing from scratch.
-  useEffect(() => {
-    const guide = driverRef.current;
-    if (guide === null || guideIndex < 0) return;
-    if (guide.isActive()) {
-      guide.moveTo(guideIndex);
-    } else {
-      guide.drive(guideIndex);
-    }
-  }, [guideIndex]);
 
   // Resolve the device demo project.
   useEffect(() => {
@@ -130,23 +72,8 @@ export function DemoExperience() {
     setStoreState({ cart: [], orderPlaced: false, stuck: false });
     setReceipt(null);
     setError("");
-    setGuideIndex(0);
     setPromptCopied(false);
   }
-
-  // Advance the storefront to match the guided tour: the agent adds the
-  // headphones at the product step so the checkout becomes visible. Placing
-  // the order stays a real interaction (user or agent) that triggers the 504.
-  useEffect(() => {
-    const productIndex = DEMO_STEPS.findIndex((step) => step.id === "product");
-    setStoreState((current) =>
-      guideIndex >= productIndex && current.cart.length === 0
-        ? { ...current, cart: ["headphones"] }
-        : current,
-    );
-  }, [guideIndex]);
-
-  const activeStep = DEMO_STEPS[guideIndex];
 
   return (
     <div className={styles.experience} data-demo-experience>
@@ -228,24 +155,17 @@ export function DemoExperience() {
       </div>
 
       <DemoFlowPanel
-        activeIndex={guideIndex}
-        hidden={panelHidden}
-        onNavigate={setGuideIndex}
+        sdkReady={projectKey !== null}
+        promptCopied={promptCopied}
+        storeState={storeState}
+        feedbackReceived={receipt !== null}
         onReset={reset}
-        onToggleHidden={() => setPanelHidden((value) => !value)}
       />
-
-      {activeStep ? (
-        <p className={styles.srOnly} role="status">
-          {activeStep.title}
-        </p>
-      ) : null}
       {error ? (
         <p className={styles.error} role="alert">
           {error}
         </p>
       ) : null}
-      <div ref={toastRef} />
       {receipt ? <ReceiptToastHost receipt={receipt} /> : null}
     </div>
   );

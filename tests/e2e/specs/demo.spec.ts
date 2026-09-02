@@ -2,36 +2,25 @@ import { expect, test } from "@playwright/test";
 import { signInAsE2eUser } from "../sign-in";
 import { webOrigin } from "../web-origin";
 
-test("demo storefront loads publicly and the flow panel navigates", async ({ page }) => {
+test("demo storefront waits for real browser-agent activity", async ({ page }) => {
   await page.goto("/demo");
 
   await expect(
     page.getByRole("heading", { name: "Try Filika on a broken checkout." }),
   ).toBeVisible();
   await expect(page.getByText("Buy the Wireless Headphones", { exact: false })).toBeVisible();
-  await expect(page.getByRole("complementary", { name: "Demo guide" })).toBeVisible();
-
-  // The flow panel exposes every tour step and reports progress.
-  await expect(page.getByText("1 / 7")).toBeVisible();
-  const next = page.getByRole("button", { name: /Next/ });
-  await next.click();
-  await expect(page.getByText("2 / 7")).toBeVisible();
-
-  // Hide collapses the panel.
-  await page.getByRole("button", { name: "Hide demo guide" }).click();
-  await expect(page.getByRole("button", { name: /Reset demo/ })).toBeHidden();
-  await page.getByRole("button", { name: "Show demo guide" }).click();
-  await expect(page.getByRole("button", { name: /Reset demo/ })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Live demo status" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Waiting for your agent" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Next" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Add to cart" })).toHaveCount(3);
 });
 
 test("demo store reports a deterministic checkout timeout", async ({ page }) => {
   await page.goto("/demo");
 
-  // Advance to the product step so the agent adds the headphones.
-  const next = page.getByRole("button", { name: /Next/ });
-  await next.click();
-  await next.click();
-  await next.click();
+  // These are the same real controls exposed to the browser agent.
+  await page.getByRole("button", { name: "Add to cart" }).first().click();
+  await expect(page.getByText("Product added")).toBeVisible();
 
   const placeOrder = page.getByRole("button", { name: "Place order" });
   await expect(placeOrder).toBeVisible();

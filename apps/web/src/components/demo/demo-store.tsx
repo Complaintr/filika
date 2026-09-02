@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, ShoppingBag, TriangleAlert } from "lucide-react";
+import { Check, ShoppingBag, TriangleAlert } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import styles from "./demo.module.css";
@@ -27,10 +27,15 @@ export function DemoStore({
     return () => requestRef.current?.abort();
   }, []);
 
+  function addToCart(productId: string) {
+    if (state.cart.length > 0) return;
+    onChange({ ...state, cart: [productId] });
+  }
+
   async function placeOrder() {
     if (submitting || state.orderPlaced) return;
     setSubmitting(true);
-    onChange({ ...state, orderPlaced: true, stuck: true });
+    onChange({ ...state, orderPlaced: true, stuck: false });
     const controller = new AbortController();
     requestRef.current = controller;
     try {
@@ -38,9 +43,13 @@ export function DemoStore({
         method: "POST",
         signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]),
       });
-      void response;
+      if (!response.ok && !controller.signal.aborted) {
+        onChange({ ...state, orderPlaced: true, stuck: true });
+      }
     } catch {
-      // Timeout/abort keeps the storefront stuck, matching the demo failure.
+      if (!controller.signal.aborted) {
+        onChange({ ...state, orderPlaced: true, stuck: true });
+      }
     } finally {
       if (!controller.signal.aborted) setSubmitting(false);
     }
@@ -73,7 +82,9 @@ export function DemoStore({
             <DemoProductCard
               key={product.id}
               product={product}
-              selectedByAgent={state.cart.includes(product.id)}
+              inCart={state.cart.includes(product.id)}
+              cartLocked={checkoutVisible}
+              onAdd={() => addToCart(product.id)}
             />
           ))}
         </div>
@@ -117,14 +128,18 @@ export function DemoStore({
 
 function DemoProductCard({
   product,
-  selectedByAgent,
+  inCart,
+  cartLocked,
+  onAdd,
 }: {
   product: DemoProduct;
-  selectedByAgent: boolean;
+  inCart: boolean;
+  cartLocked: boolean;
+  onAdd(): void;
 }) {
   return (
     <article
-      className={`${styles.productCard} ${selectedByAgent ? styles.productCardSelected : ""}`}
+      className={`${styles.productCard} ${inCart ? styles.productCardSelected : ""}`}
       id={`demo-product-${product.id}`}
       data-demo-step={product.id === "headphones" ? "product" : undefined}
     >
@@ -138,11 +153,15 @@ function DemoProductCard({
           <strong>{product.price}</strong>
           {product.oldPrice && <del>{product.oldPrice}</del>}
         </span>
-        {selectedByAgent ? (
-          <span className={styles.agentSelection}>
-            <Bot aria-hidden="true" /> Selected by agent
-          </span>
-        ) : null}
+        <button
+          className={inCart ? styles.addedButton : styles.addButton}
+          type="button"
+          disabled={cartLocked}
+          onClick={onAdd}
+        >
+          {inCart ? <Check aria-hidden="true" /> : <ShoppingBag aria-hidden="true" />}
+          {inCart ? "In cart" : "Add to cart"}
+        </button>
       </div>
     </article>
   );

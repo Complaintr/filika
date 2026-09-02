@@ -1,9 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  DEMO_CHECKOUT_FAILURE_CODE,
-  DEMO_STEPS,
-  TEST_DEMO_PROMPT,
-} from "../src/components/demo/demo-data";
+import { DEMO_CHECKOUT_FAILURE_CODE, TEST_DEMO_PROMPT } from "../src/components/demo/demo-data";
 import { DemoFlowPanel } from "../src/components/demo/demo-flow-panel";
 import { DemoStore, type DemoStoreState } from "../src/components/demo/demo-store";
 import { renderReact } from "./helpers/render-react";
@@ -11,14 +7,24 @@ import { renderReact } from "./helpers/render-react";
 const initialStore: DemoStoreState = { cart: [], orderPlaced: false, stuck: false };
 
 describe("demo-store", () => {
-  test("renders products and reflects the agent selection", async () => {
-    const state: DemoStoreState = { ...initialStore, cart: ["headphones"] };
-    const result = await renderReact(<DemoStore state={state} onChange={() => {}} />);
+  test("renders products and lets the browser agent add one to the cart", async () => {
+    let state = initialStore;
+    const result = await renderReact(
+      <DemoStore
+        state={state}
+        onChange={(next) => {
+          state = next;
+        }}
+      />,
+    );
     expect(result.container.textContent).toContain("Wireless Headphones");
     expect(result.container.textContent).toContain("Mechanical Keyboard");
-    expect(result.container.textContent).toContain("Selected by agent");
     expect(result.container.querySelectorAll("img")).toHaveLength(3);
-    expect(result.container.querySelectorAll("button")).toHaveLength(1);
+    const add = [...result.container.querySelectorAll("button")].find(
+      (button) => button.textContent === "Add to cart",
+    );
+    add?.click();
+    expect(state.cart).toEqual(["headphones"]);
     await result.close();
   });
 
@@ -49,57 +55,50 @@ describe("demo-store", () => {
 });
 
 describe("demo-flow-panel", () => {
-  test("renders every demo step and reports progress", async () => {
+  test("renders live state without navigation controls", async () => {
     const result = await renderReact(
       <DemoFlowPanel
-        activeIndex={1}
-        hidden={false}
-        onNavigate={() => {}}
+        sdkReady={true}
+        promptCopied={false}
+        storeState={initialStore}
+        feedbackReceived={false}
         onReset={() => {}}
-        onToggleHidden={() => {}}
       />,
     );
-    expect(result.container.querySelectorAll("li")).toHaveLength(DEMO_STEPS.length);
-    expect(result.container.textContent).toContain(`2 / ${DEMO_STEPS.length}`);
-    expect(result.container.textContent).toContain("Interactive demo");
+    expect(result.container.querySelectorAll("li")).toHaveLength(4);
+    expect(result.container.textContent).toContain("Waiting for your agent");
+    expect(result.container.textContent).toContain("Filika tool readyDone");
+    expect(result.container.textContent).not.toContain("Next");
     await result.close();
   });
 
-  test("previous is disabled on the first step and next on the last", async () => {
+  test("reflects real store and feedback state", async () => {
     const result = await renderReact(
       <DemoFlowPanel
-        activeIndex={0}
-        hidden={false}
-        onNavigate={() => {}}
+        sdkReady={true}
+        promptCopied={true}
+        storeState={{ cart: ["headphones"], orderPlaced: true, stuck: true }}
+        feedbackReceived={true}
         onReset={() => {}}
-        onToggleHidden={() => {}}
       />,
     );
-    const buttons = [...result.container.querySelectorAll("button")];
-    const back = buttons.find((button) => button.textContent?.includes("Back"));
-    const next = buttons.find((button) => button.textContent?.includes("Next"));
-    expect(back?.hasAttribute("disabled")).toBe(true);
-    expect(next?.hasAttribute("disabled")).toBe(false);
+    expect(result.container.textContent).toContain("Feedback received");
+    expect(result.container.textContent).toContain("Prompt copied");
+    expect(result.container.querySelectorAll("li small")).toHaveLength(4);
     await result.close();
   });
 
-  test("navigating and resetting call the callbacks", async () => {
-    const calls: number[] = [];
+  test("reset calls the callback", async () => {
     const resets: boolean[] = [];
     const result = await renderReact(
       <DemoFlowPanel
-        activeIndex={1}
-        hidden={false}
-        onNavigate={(index) => calls.push(index)}
+        sdkReady={true}
+        promptCopied={false}
+        storeState={initialStore}
+        feedbackReceived={false}
         onReset={() => resets.push(true)}
-        onToggleHidden={() => {}}
       />,
     );
-    const next = [...result.container.querySelectorAll("button")].find((button) =>
-      button.textContent?.includes("Next"),
-    );
-    next?.click();
-    expect(calls).toEqual([2]);
     const reset = [...result.container.querySelectorAll("button")].find((button) =>
       button.textContent?.includes("Reset"),
     );
@@ -107,41 +106,9 @@ describe("demo-flow-panel", () => {
     expect(resets).toEqual([true]);
     await result.close();
   });
-
-  test("hiding collapses the panel", async () => {
-    const result = await renderReact(
-      <DemoFlowPanel
-        activeIndex={0}
-        hidden={true}
-        onNavigate={() => {}}
-        onReset={() => {}}
-        onToggleHidden={() => {}}
-      />,
-    );
-    expect(result.container.textContent).not.toContain("Reset demo");
-    await result.close();
-  });
 });
 
 describe("demo-data", () => {
-  test("defines a complete, ordered tour", () => {
-    expect(DEMO_STEPS.length).toBeGreaterThanOrEqual(6);
-    expect(DEMO_STEPS.map((step) => step.id)).toEqual([
-      "intro",
-      "prompt",
-      "product",
-      "checkout",
-      "hidden",
-      "review",
-      "result",
-    ]);
-    for (const step of DEMO_STEPS) {
-      expect(step.target).toMatch(/^#/);
-      expect(step.title.length).toBeGreaterThan(0);
-      expect(step.description.length).toBeGreaterThan(0);
-    }
-  });
-
   test("the test prompt is short and names the broken action", () => {
     expect(TEST_DEMO_PROMPT).toContain("Wireless Headphones");
     expect(TEST_DEMO_PROMPT).toContain("checkout");

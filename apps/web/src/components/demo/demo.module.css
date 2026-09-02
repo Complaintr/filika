@@ -1,8 +1,5 @@
-/* Demo experience: the storefront is a THIRD-PARTY site (acme·audio) and must
-   read as a real e-commerce page. The tour layer around it (header, prompt,
-   agent report, result) is Filika. The flow panel is fixed to the right edge,
-   above the driver.js spotlight so it is never dimmed. The whole demo fits one
-   viewport with no body scroll. */
+/* The storefront behaves like a third-party site. Filika provides the prompt,
+   the real WebMCP review surface, and a read-only live activity panel. */
 
 .experience {
   --demo-ink: #1c1e21;
@@ -1230,6 +1227,127 @@
   background: #008dcc;
 }
 
+.liveHeader {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--demo-border);
+}
+
+.liveLabel {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  color: var(--demo-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.liveLabel i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--demo-filika);
+  box-shadow: 0 0 0 4px rgb(0 159 227 / 9%);
+}
+
+.liveHeader h2 {
+  margin: 10px 0 0;
+  color: var(--demo-ink);
+  font-size: 20px;
+  font-weight: 550;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.liveEvents {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.liveEvents li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  min-height: 42px;
+  padding: 8px 9px;
+  border-radius: 9px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.liveEvents li small {
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+.liveEventIcon {
+  display: grid;
+  place-items: center;
+  color: #cbd5e1;
+}
+
+.liveEventIcon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.liveEvents .liveEventComplete {
+  color: var(--demo-ink);
+}
+
+.liveEventComplete .liveEventIcon {
+  color: #07936d;
+}
+
+.liveEvents .liveEventComplete small {
+  color: #07936d;
+}
+
+.liveEvents .liveEventCurrent {
+  color: var(--demo-ink);
+  background: var(--demo-filika-soft);
+}
+
+.liveEvents .liveEventCurrent .liveEventIcon,
+.liveEvents .liveEventCurrent small {
+  color: var(--demo-filika);
+}
+
+.liveHint {
+  align-self: end;
+  padding: 16px 0;
+  border-top: 1px solid var(--demo-border);
+  border-bottom: 1px solid var(--demo-border);
+}
+
+.liveHint strong {
+  display: block;
+  color: var(--demo-ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.liveHint p {
+  margin: 5px 0 0;
+  color: var(--demo-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.liveFooter .resetButton {
+  width: 100%;
+  border-color: transparent;
+  background: transparent;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .productCard {
     transition: none;
@@ -1329,5 +1447,27 @@
 
   .productGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  .experienceMain {
+    padding-bottom: 24px;
+  }
+
+  .flowPanel {
+    position: static;
+    width: auto;
+    max-height: none;
+    margin: 0 16px 24px;
+    overflow: visible;
+    border: 1px solid var(--demo-border);
+    border-radius: 14px;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .liveFooter .resetButton {
+    display: inline-flex;
   }
 }
