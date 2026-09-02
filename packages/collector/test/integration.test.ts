@@ -1190,6 +1190,51 @@ describe.skipIf(!isDbAvailable)("owned applications and account settings", () =>
     await owner.request("/account", "PATCH", { ...settings, useGoogleImage: false });
     expect((await (await owner.request("/account")).json()).account.image).toBeNull();
   });
+
+  test("GitHub photo is opt-in, verified against the linked provider, and never accepts arbitrary URLs", async () => {
+    const owner = await identity();
+    const settings = {
+      name: "GitHub owner",
+      theme: "dark",
+      density: "compact",
+      useGithubImage: true,
+    };
+    expect((await owner.request("/account", "PATCH", settings)).status).toBe(400);
+    expect(
+      (
+        await owner.request("/account", "PATCH", {
+          ...settings,
+          image: "https://evil.example/photo",
+        })
+      ).status,
+    ).toBe(400);
+    await handle.db.insert(account).values({
+      id: crypto.randomUUID(),
+      userId: owner.id,
+      accountId: "github-test",
+      providerId: "github",
+      issuer: "https://github.com",
+      accessToken: "must-not-leak",
+    });
+    await handle.db
+      .update(user)
+      .set({ githubImage: "https://avatars.githubusercontent.com/u/123456?v=4" })
+      .where(eq(user.id, owner.id));
+    expect((await (await owner.request("/account")).json()).account.image).toBeNull();
+    const response = await owner.request("/account", "PATCH", settings);
+    expect(response.status).toBe(200);
+    const profile = (await response.json()).account;
+    expect(profile).toMatchObject({
+      name: "GitHub owner",
+      image: "https://avatars.githubusercontent.com/u/123456?v=4",
+      theme: "dark",
+      density: "compact",
+      githubConnected: true,
+    });
+    expect(JSON.stringify(profile)).not.toContain("must-not-leak");
+    await owner.request("/account", "PATCH", { ...settings, useGithubImage: false });
+    expect((await (await owner.request("/account")).json()).account.image).toBeNull();
+  });
 });
 
 describe.skipIf(!isDbAvailable)("application schema compatibility", () => {
