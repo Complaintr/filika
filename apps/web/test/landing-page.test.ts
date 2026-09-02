@@ -124,6 +124,16 @@ describe("public landing page", () => {
     expect(flowDemos.match(/<FlowBeamPath/g)).toHaveLength(7);
   });
 
+  test("defines status color tokens for both light and dark themes", async () => {
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    for (const token of ["--success: #16a34a", "--warning: #d97706", "--error: #dc2626"]) {
+      expect(styles.match(new RegExp(token, "g"))).toHaveLength(2);
+    }
+    expect(styles).toContain("--success-soft: rgba(22, 163, 74, 0.08)");
+    expect(styles).toContain("--warning-soft: rgba(217, 119, 6, 0.1)");
+  });
+
   test("serves the home route without authentication or workspace chrome", async () => {
     const proxy = await Bun.file(`${import.meta.dir}/../proxy.ts`).text();
     const shell = await Bun.file(`${import.meta.dir}/../src/workspace/auth-aware-shell.tsx`).text();

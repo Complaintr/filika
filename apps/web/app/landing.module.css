@@ -7,6 +7,11 @@
   --primary: #009fe3;
   --primary-hover: #009fe3;
   --primary-soft: rgba(0, 159, 227, 0.08);
+  --success: #16a34a;
+  --success-soft: rgba(22, 163, 74, 0.08);
+  --warning: #d97706;
+  --warning-soft: rgba(217, 119, 6, 0.1);
+  --error: #dc2626;
   min-height: 100dvh;
   overflow-x: clip;
   background: #fff;
@@ -27,6 +32,11 @@
   --primary: #009fe3;
   --primary-hover: #009fe3;
   --primary-soft: rgba(0, 159, 227, 0.08);
+  --success: #16a34a;
+  --success-soft: rgba(22, 163, 74, 0.12);
+  --warning: #d97706;
+  --warning-soft: rgba(217, 119, 6, 0.14);
+  --error: #dc2626;
   background: #0e0e10;
   color: var(--ink);
 }
