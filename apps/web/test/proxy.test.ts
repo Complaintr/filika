@@ -33,6 +33,15 @@ describe("web proxy public paths", () => {
     }
   });
 
+  test("allows the browser SDK without a session", () => {
+    for (const pathname of ["/sdk/filika.js", "/sdk/filika.development.js"]) {
+      const response = proxy(request(pathname));
+
+      expect(response.headers.get("x-middleware-next")).toBe("1");
+      expect(response.headers.get("location")).toBeNull();
+    }
+  });
+
   test("does not bypass authentication based on a file extension", () => {
     for (const pathname of [
       "/dashboard.js",
