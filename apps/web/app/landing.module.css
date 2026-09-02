@@ -853,7 +853,7 @@
   display: grid;
   gap: 10px;
   padding: 14px;
-  border: 1px solid rgba(22, 163, 74, 0.35);
+  border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--card);
 }
@@ -869,8 +869,8 @@
   height: 28px;
   flex: 0 0 28px;
   border-radius: 50%;
-  background: var(--success-soft);
-  color: var(--success);
+  background: var(--line);
+  color: var(--muted);
 }
 .widgetReceiptHeader strong {
   display: block;
@@ -911,12 +911,6 @@
 }
 .widgetReviewPrimary {
   animation: widgetButtonGlow 6s ease-in-out infinite;
-}
-.widgetReceipt {
-  animation: widgetReceiptEmphasis 6s ease-in-out infinite;
-}
-.widgetReceiptCheck {
-  animation: widgetCheckPop 6s ease-in-out infinite;
 }
 .widgetReviewActions button:focus-visible {
   outline: 3px solid var(--primary);
@@ -968,55 +962,34 @@
     box-shadow: none;
   }
 }
-@keyframes widgetReceiptEmphasis {
-  0%,
-  72% {
-    border-color: rgba(22, 163, 74, 0.35);
-    box-shadow: none;
+@keyframes widgetConfirmPop {
+  from {
+    transform: scale(0.985);
   }
-  84%,
-  96% {
-    border-color: rgba(22, 163, 74, 0.7);
-    box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
-  }
-  100% {
-    border-color: rgba(22, 163, 74, 0.35);
-    box-shadow: none;
-  }
-}
-@keyframes widgetCheckPop {
-  0%,
-  74% {
-    transform: scale(1);
-  }
-  86%,
-  96% {
-    transform: scale(1.08);
-  }
-  100% {
+  to {
     transform: scale(1);
   }
 }
 .widgetConfirmed .widgetPulse,
 .widgetConfirmed .widgetDraft,
-.widgetConfirmed .widgetReviewPrimary,
-.widgetConfirmed .widgetReceipt,
-.widgetConfirmed .widgetReceiptCheck {
+.widgetConfirmed .widgetReviewPrimary {
   animation: none;
 }
 .widgetReceiptConfirmed {
   border-color: rgba(22, 163, 74, 0.7);
   box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+  animation: widgetConfirmPop 420ms ease-out;
 }
 .widgetReceiptConfirmed .widgetReceiptCheck {
-  transform: scale(1.06);
+  background: var(--success-soft);
+  color: var(--success);
+  transform: scale(1.08);
 }
 @media (prefers-reduced-motion: reduce) {
   .widgetPulse,
   .widgetDraft,
   .widgetReviewPrimary,
-  .widgetReceipt,
-  .widgetReceiptCheck {
+  .widgetReceiptConfirmed {
     animation: none;
   }
 }

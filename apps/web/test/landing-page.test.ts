@@ -247,10 +247,14 @@ describe("public landing page", () => {
       "@keyframes widgetPulse",
       "@keyframes widgetDraftEmphasis",
       "@keyframes widgetButtonGlow",
-      "@keyframes widgetReceiptEmphasis",
+      "@keyframes widgetConfirmPop",
     ]) {
       expect(styles).toContain(keyframe);
     }
+    expect(styles).not.toContain("widgetReceiptEmphasis");
+    expect(styles).not.toContain("widgetCheckPop");
+    expect(styles).not.toContain("rgba(22, 163, 74, 0.35)");
+    expect(styles).toContain(".widgetReceiptConfirmed .widgetReceiptCheck");
     expect(styles).toContain("@media (prefers-reduced-motion: reduce)");
     expect(styles).toContain(".widgetReviewActions button:focus-visible");
   });
