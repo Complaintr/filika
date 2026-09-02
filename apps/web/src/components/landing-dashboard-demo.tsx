@@ -4,6 +4,12 @@ import { Bug, CircleSlash2, Lightbulb, MessageSquareText, ShieldCheck, X } from 
 import Image from "next/image";
 import { useRef, useState } from "react";
 import styles from "../../app/landing.module.css";
+import {
+  LANDING_DEMO_REPORTS,
+  type LandingDemoFeedbackKind,
+  type LandingDemoReport,
+  landingDemoCategory,
+} from "./landing-workspace-demo-data";
 
 const stats = [
   ["Total feedback", "184", MessageSquareText],
@@ -12,52 +18,21 @@ const stats = [
   ["Ideas", "46", Lightbulb],
 ] as const;
 
-const recentReports = [
-  {
-    kind: "Bug report",
-    kindClass: styles.dashboardDemoKindBug,
-    description:
-      "After correcting an invalid card number, every payment field is cleared and the checkout step starts over.",
-    expectedBehavior: "Only the invalid card number should be cleared so the payment can continue.",
-    received: "Sep 2, 2026 at 09:42",
-    route: "/checkout/payment",
-    time: "2 min ago",
-    title: "Payment form resets after validation",
-  },
-  {
-    kind: "Blocked task",
-    kindClass: styles.dashboardDemoKindBlocked,
-    description:
-      "The Continue button stays disabled after a valid teammate email is entered, so onboarding cannot be completed.",
-    expectedBehavior: "A valid email should enable Continue and move the user to workspace setup.",
-    received: "Sep 2, 2026 at 09:26",
-    route: "/onboarding/team",
-    time: "18 min ago",
-    title: "Team invite step cannot be completed",
-  },
-  {
-    kind: "Idea",
-    kindClass: styles.dashboardDemoKindIdea,
-    description:
-      "Notification settings offer immediate delivery or no email, but there is no way to receive a daily digest.",
-    expectedBehavior: "Let workspace members choose a daily or weekly notification digest.",
-    received: "Sep 2, 2026 at 09:02",
-    route: "/settings/notifications",
-    time: "42 min ago",
-    title: "Add a digest frequency option",
-  },
-] as const;
+function landingDemoKindClass(kind: LandingDemoFeedbackKind): string | undefined {
+  if (kind === "bug") return styles.dashboardDemoKindBug;
+  if (kind === "blocked_task") return styles.dashboardDemoKindBlocked;
+  if (kind === "confusing_behavior") return styles.dashboardDemoKindConfusing;
+  return styles.dashboardDemoKindIdea;
+}
 
 export function LandingDashboardDemo() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const invokerRef = useRef<HTMLButtonElement | null>(null);
-  const [activeReport, setActiveReport] = useState<(typeof recentReports)[number]>(
-    recentReports[0],
-  );
+  const [activeReport, setActiveReport] = useState<LandingDemoReport>(LANDING_DEMO_REPORTS[0]);
 
   const closeDialog = () => dialogRef.current?.close();
-  const openReport = (report: (typeof recentReports)[number], invoker: HTMLButtonElement) => {
+  const openReport = (report: LandingDemoReport, invoker: HTMLButtonElement) => {
     setActiveReport(report);
     invokerRef.current = invoker;
     if (!dialogRef.current?.open) dialogRef.current?.show();
@@ -165,7 +140,7 @@ export function LandingDashboardDemo() {
               </span>
             </div>
             <div className={styles.dashboardDemoReportList}>
-              {recentReports.map((report) => (
+              {LANDING_DEMO_REPORTS.map((report) => (
                 <button
                   key={report.title}
                   className={styles.dashboardDemoReportButton}
@@ -174,13 +149,15 @@ export function LandingDashboardDemo() {
                   aria-label={`View feedback: ${report.title}`}
                   onClick={(event) => openReport(report, event.currentTarget)}
                 >
-                  <span className={`${styles.dashboardDemoKind} ${report.kindClass}`}>
-                    {report.kind}
+                  <span
+                    className={`${styles.dashboardDemoKind} ${landingDemoKindClass(report.kind)}`}
+                  >
+                    {landingDemoCategory(report.kind).label}
                   </span>
                   <strong>{report.title}</strong>
                   <span className={styles.dashboardDemoReportMeta}>
                     <span className={styles.dashboardDemoReportRoute}>{report.route}</span>
-                    <time>{report.time}</time>
+                    <time>{report.relativeTime}</time>
                   </span>
                 </button>
               ))}
@@ -226,8 +203,10 @@ export function LandingDashboardDemo() {
             </button>
           </header>
           <div className={styles.dashboardDemoDialogContent}>
-            <span className={`${styles.dashboardDemoKind} ${activeReport.kindClass}`}>
-              {activeReport.kind}
+            <span
+              className={`${styles.dashboardDemoKind} ${landingDemoKindClass(activeReport.kind)}`}
+            >
+              {landingDemoCategory(activeReport.kind).label}
             </span>
             <h2 id="landing-feedback-detail-title">{activeReport.title}</h2>
             <p className={styles.dashboardDemoDialogReceived}>

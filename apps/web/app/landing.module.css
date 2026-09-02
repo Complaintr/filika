@@ -743,6 +743,10 @@
   background: rgba(193, 119, 33, 0.12);
   color: #98601f;
 }
+.dashboardDemoKindConfusing {
+  background: rgba(35, 137, 158, 0.1);
+  color: #25758a;
+}
 .dashboardDemoKindIdea {
   background: rgba(0, 159, 227, 0.1);
   color: #007fae;
@@ -2313,6 +2317,11 @@
 :root[data-theme="dark"] .dashboardDemoKindBlocked {
   background: rgba(236, 163, 77, 0.14);
   color: #efbd80;
+}
+
+:root[data-theme="dark"] .dashboardDemoKindConfusing {
+  background: rgba(74, 177, 198, 0.14);
+  color: #8bd3e2;
 }
 
 :root[data-theme="dark"] .dashboardDemoKindIdea {

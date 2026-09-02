@@ -23,7 +23,7 @@ describe("landing dashboard demo", () => {
   test("opens the selected report inside the widget and returns focus when closed", async () => {
     const result = await renderReact(createElement(LandingDashboardDemo));
     const reportButton = result.container.querySelector<HTMLButtonElement>(
-      'button[aria-label="View feedback: Payment form resets after validation"]',
+      'button[aria-label="View feedback: Export button stops responding after filtering"]',
     );
     expect(reportButton).not.toBeNull();
 
@@ -34,8 +34,8 @@ describe("landing dashboard demo", () => {
     expect(dialog?.open).toBe(true);
     expect(dialog?.getAttribute("aria-modal")).toBe("true");
     expect(dialog?.getAttribute("aria-labelledby")).toBe("landing-feedback-detail-title");
-    expect(dialog?.textContent).toContain("Payment form resets after validation");
-    expect(dialog?.textContent).toContain("Only the invalid card number should be cleared");
+    expect(dialog?.textContent).toContain("Export button stops responding after filtering");
+    expect(dialog?.textContent).toContain("Export should download the currently filtered");
     expect(dialog?.textContent).toContain("No data is sent");
 
     const closeButton = dialog?.querySelector<HTMLButtonElement>(
@@ -53,13 +53,13 @@ describe("landing dashboard demo", () => {
   test("supports native cancel and backdrop dismissal without making network requests", async () => {
     const result = await renderReact(createElement(LandingDashboardDemo));
     const reportButton = result.container.querySelector<HTMLButtonElement>(
-      'button[aria-label="View feedback: Team invite step cannot be completed"]',
+      'button[aria-label="View feedback: Navigation label does not match the destination"]',
     );
     const dialog = result.container.querySelector<HTMLDialogElement>("dialog");
 
     reportButton?.click();
     await settle();
-    expect(dialog?.textContent).toContain("Team invite step cannot be completed");
+    expect(dialog?.textContent).toContain("Navigation label does not match the destination");
 
     dialog?.dispatchEvent(new result.window.Event("cancel", { cancelable: true }));
     await settle();

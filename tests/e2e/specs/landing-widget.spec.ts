@@ -4,13 +4,15 @@ test("landing dashboard opens feedback details and restores focus", async ({ pag
   await page.goto("/");
 
   const report = page.getByRole("button", {
-    name: "View feedback: Payment form resets after validation",
+    name: "View feedback: Export button stops responding after filtering",
   });
   await report.click();
 
-  const dialog = page.getByRole("dialog", { name: "Payment form resets after validation" });
+  const dialog = page.getByRole("dialog", {
+    name: "Export button stops responding after filtering",
+  });
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText("Only the invalid card number should be cleared");
+  await expect(dialog).toContainText("Export should download the currently filtered");
   await expect(dialog).toContainText("No data is sent");
   const widgetBounds = await page.getByLabel("Filika dashboard preview").boundingBox();
   const dialogBounds = await dialog.boundingBox();
@@ -43,13 +45,13 @@ test("landing dashboard fits mobile, follows dark theme, and reduces motion", as
   );
 
   const report = page.getByRole("button", {
-    name: "View feedback: Add a digest frequency option",
+    name: "View feedback: Allow reports to be duplicated",
   });
   await report.hover();
   await expect(report).toHaveCSS("transform", "none");
   await report.click();
 
-  const dialog = page.getByRole("dialog", { name: "Add a digest frequency option" });
+  const dialog = page.getByRole("dialog", { name: "Allow reports to be duplicated" });
   await expect(dialog).toBeVisible();
   const bounds = await dialog.boundingBox();
   expect(bounds).not.toBeNull();
