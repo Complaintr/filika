@@ -1856,10 +1856,16 @@ html {
   color: var(--auth-muted);
   display: grid;
   place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 .auth-theme:hover {
   background: var(--auth-field);
   color: var(--auth-text);
+}
+.auth-theme svg {
+  width: 18px;
+  height: 18px;
 }
 .auth-form-content {
   width: min(390px, 100%);
