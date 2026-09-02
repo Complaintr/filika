@@ -154,6 +154,27 @@ describe("public landing page", () => {
     }
   });
 
+  test("widget preview shows the agent issue discovery card", async () => {
+    const widget = await Bun.file(`${import.meta.dir}/../src/components/widget-preview.tsx`).text();
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    expect(widget).toContain("checkout.example");
+    expect(widget).toContain("Broken flow detected");
+    expect(widget).toContain("Checkout button does not respond after address validation.");
+    expect(widget).toContain("Route: /checkout");
+    expect(widget).toContain("Severity: Medium");
+    expect(widget).not.toContain("—");
+    for (const className of [
+      ".widgetDiscovery",
+      ".widgetSitePreview",
+      ".widgetBrokenTag",
+      ".widgetObservation",
+      ".widgetChips",
+    ]) {
+      expect(styles).toContain(className);
+    }
+  });
+
   test("serves the home route without authentication or workspace chrome", async () => {
     const proxy = await Bun.file(`${import.meta.dir}/../proxy.ts`).text();
     const shell = await Bun.file(`${import.meta.dir}/../src/workspace/auth-aware-shell.tsx`).text();

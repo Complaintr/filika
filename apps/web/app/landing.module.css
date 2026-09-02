@@ -584,6 +584,121 @@
   color: var(--muted);
   font-size: 13px;
 }
+.widgetDiscovery {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+}
+.widgetSiteHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.widgetSiteDots {
+  display: inline-flex;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+.widgetSiteDots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.widgetSiteUrl {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+}
+.widgetBrokenTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.widgetSitePreview {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+}
+.widgetSiteField {
+  display: grid;
+  gap: 4px;
+}
+.widgetSiteField span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.widgetSiteField i {
+  display: block;
+  height: 18px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+}
+.widgetSiteBroken {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  border: 1px solid var(--warning);
+  border-radius: 8px;
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 12px;
+  font-weight: 600;
+}
+.widgetObservation {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.widgetAgentIcon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 8px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.widgetObservation p {
+  margin: 0;
+  padding-top: 1px;
+  color: var(--ink);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.widgetChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.widgetChips span {
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 550;
+}
 
 .section {
   scroll-margin-top: 64px;

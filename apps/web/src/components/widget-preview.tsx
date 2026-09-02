@@ -1,5 +1,6 @@
 "use client";
 
+import { AlertTriangle, Bot } from "lucide-react";
 import Image from "next/image";
 import styles from "../../app/landing.module.css";
 
@@ -24,6 +25,44 @@ export function WidgetPreview() {
         </span>
       </header>
       <p className={styles.widgetHelper}>Browser agent found a possible issue</p>
+      <section className={styles.widgetDiscovery}>
+        <div className={styles.widgetSiteHeader}>
+          <span className={styles.widgetSiteDots} aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className={styles.widgetSiteUrl}>checkout.example</span>
+          <span className={styles.widgetBrokenTag}>
+            <AlertTriangle aria-hidden="true" data-free-size="true" />
+            Broken flow detected
+          </span>
+        </div>
+        <div className={styles.widgetSitePreview}>
+          <div className={styles.widgetSiteField}>
+            <span>Email</span>
+            <i aria-hidden="true" />
+          </div>
+          <div className={styles.widgetSiteField}>
+            <span>Delivery address</span>
+            <i aria-hidden="true" />
+          </div>
+          <span className={styles.widgetSiteBroken}>
+            <span>Continue to payment</span>
+            <AlertTriangle aria-hidden="true" data-free-size="true" />
+          </span>
+        </div>
+        <div className={styles.widgetObservation}>
+          <span className={styles.widgetAgentIcon}>
+            <Bot aria-hidden="true" data-free-size="true" />
+          </span>
+          <p>Checkout button does not respond after address validation.</p>
+        </div>
+        <div className={styles.widgetChips}>
+          <span>Route: /checkout</span>
+          <span>Severity: Medium</span>
+        </div>
+      </section>
     </div>
   );
 }
