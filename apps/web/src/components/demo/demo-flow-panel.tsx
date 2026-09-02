@@ -1,6 +1,21 @@
 "use client";
 
-import { Check, ChevronLeft, ChevronRight, Eye, EyeOff, RotateCcw, Sparkles } from "lucide-react";
+import {
+  Bot,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardCheck,
+  Eye,
+  EyeOff,
+  FileSearch,
+  Inbox,
+  RotateCcw,
+  ShieldCheck,
+  ShoppingBag,
+  Store,
+  TriangleAlert,
+} from "lucide-react";
 import styles from "./demo.module.css";
 import { DEMO_STEPS } from "./demo-data";
 
@@ -11,6 +26,17 @@ export interface DemoFlowPanelProps {
   onReset(): void;
   onToggleHidden(): void;
 }
+
+const STEP_ICONS = {
+  intro: Store,
+  prompt: Bot,
+  product: ShoppingBag,
+  checkout: TriangleAlert,
+  hidden: FileSearch,
+  report: ClipboardCheck,
+  review: ShieldCheck,
+  result: Inbox,
+} as const;
 
 export function DemoFlowPanel({
   activeIndex,
@@ -30,10 +56,9 @@ export function DemoFlowPanel({
       <header className={styles.flowPanelHeader}>
         {!hidden && (
           <div className={styles.flowPanelTitle}>
-            <span className={styles.flowPanelEyebrow}>
-              <Sparkles aria-hidden="true" /> Demo flow
-            </span>
-            <h2>Try Filika</h2>
+            <span className={styles.flowPanelEyebrow}>Demo flow</span>
+            <h2>Follow the report</h2>
+            <p>Eight short steps. You can jump ahead at any time.</p>
           </div>
         )}
         <button
@@ -57,6 +82,7 @@ export function DemoFlowPanel({
             {DEMO_STEPS.map((step, index) => {
               const done = index < activeIndex;
               const active = index === activeIndex;
+              const StepIcon = STEP_ICONS[step.id as keyof typeof STEP_ICONS];
               return (
                 <li key={step.id}>
                   <button
@@ -66,7 +92,7 @@ export function DemoFlowPanel({
                     onClick={() => onNavigate(index)}
                   >
                     <span className={styles.flowStepNumber} aria-hidden="true">
-                      {done ? <Check data-free-size="true" /> : String(index + 1).padStart(2, "0")}
+                      {done ? <Check data-free-size="true" /> : <StepIcon />}
                     </span>
                     <span className={styles.flowStepCopy}>
                       <strong>{step.title}</strong>

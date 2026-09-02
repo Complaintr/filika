@@ -5,7 +5,9 @@ import { webOrigin } from "../web-origin";
 test("demo storefront loads publicly and the flow panel navigates", async ({ page }) => {
   await page.goto("/demo");
 
-  await expect(page.getByRole("heading", { name: "Test Filika with your AI agent" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "See what happens after an agent hits a dead end." }),
+  ).toBeVisible();
   await expect(page.getByText("Buy the Wireless Headphones", { exact: false })).toBeVisible();
   await expect(page.getByRole("complementary", { name: "Demo flow" })).toBeVisible();
 

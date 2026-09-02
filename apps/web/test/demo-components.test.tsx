@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   DEMO_CHECKOUT_FAILURE_CODE,
   DEMO_DRAFT,
@@ -70,6 +70,7 @@ describe("demo-flow-panel", () => {
     );
     expect(result.container.querySelectorAll("li")).toHaveLength(DEMO_STEPS.length);
     expect(result.container.textContent).toContain(`2 / ${DEMO_STEPS.length}`);
+    expect(result.container.textContent).toContain("Follow the report");
     await result.close();
   });
 

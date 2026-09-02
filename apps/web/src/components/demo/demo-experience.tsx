@@ -3,7 +3,9 @@
 import { type DriveStep, driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { createSdk } from "@filika/sdk";
+import { ArrowLeft, ArrowRight, Bot, Check, CheckCircle2, Copy, ShieldCheck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { FilikaBrand } from "@/components/filika-brand";
 import { ReceiptToast } from "@/components/receipt-toast";
 import { connectSdkDialog } from "@/sdk-dialog";
 import { demoApi } from "@/services/demo-api";
@@ -30,6 +32,7 @@ export function DemoExperience() {
   const [error, setError] = useState("");
   const [guideIndex, setGuideIndex] = useState(0);
   const [panelHidden, setPanelHidden] = useState(false);
+  const [promptCopied, setPromptCopied] = useState(false);
   const [storeState, setStoreState] = useState<DemoStoreState>({
     cart: [],
     orderPlaced: false,
@@ -128,6 +131,7 @@ export function DemoExperience() {
     setReceipt(null);
     setError("");
     setGuideIndex(0);
+    setPromptCopied(false);
   }
 
   // Advance the storefront to match the guided tour: the agent adds the
@@ -148,28 +152,55 @@ export function DemoExperience() {
     <div className={styles.experience} data-demo-experience>
       <div className={styles.experienceMain}>
         <header className={styles.demoHeader}>
-          <div>
-            <span className={styles.demoEyebrow}>Filika demo store</span>
-            <h1>Test Filika with your AI agent</h1>
+          <div className={styles.demoHeaderBrand}>
+            <FilikaBrand href="/" label="Filika home" />
+            <span className={styles.demoHeaderDivider} aria-hidden="true" />
+            <span>Interactive demo</span>
           </div>
-          <span className={styles.demoBadge}>
-            <i aria-hidden="true" /> WebMCP ready
-          </span>
+          <div className={styles.demoHeaderActions}>
+            <span className={styles.demoBadge}>
+              <i aria-hidden="true" /> WebMCP ready
+            </span>
+            <a className={styles.backLink} href="/">
+              <ArrowLeft aria-hidden="true" /> Back to Filika
+            </a>
+          </div>
         </header>
 
+        <section className={styles.demoIntro}>
+          <span className={styles.demoEyebrow}>Try the complete feedback loop</span>
+          <h1>
+            See what happens after an agent <span>hits a dead end.</span>
+          </h1>
+          <p>
+            Guide an AI agent through a broken checkout. Filika turns the failure into a clear,
+            reviewed report—without sending anything before you approve it.
+          </p>
+        </section>
+
         <section className={styles.promptCard} id="demo-prompt" data-demo-step="prompt">
-          <div>
-            <span className={styles.demoEyebrow}>Your test prompt</span>
-            <p className={styles.promptText}>“{TEST_DEMO_PROMPT}”</p>
+          <span className={styles.promptIcon} aria-hidden="true">
+            <Bot />
+          </span>
+          <div className={styles.promptContent}>
+            <span className={styles.demoEyebrow}>Prompt for your agent</span>
+            <p className={styles.promptText}>{TEST_DEMO_PROMPT}</p>
           </div>
           <button
             className={styles.copyButton}
             type="button"
             onClick={() => {
-              void navigator.clipboard.writeText(TEST_DEMO_PROMPT).catch(() => {});
+              void navigator.clipboard
+                .writeText(TEST_DEMO_PROMPT)
+                .then(() => {
+                  setPromptCopied(true);
+                  window.setTimeout(() => setPromptCopied(false), 1600);
+                })
+                .catch(() => {});
             }}
           >
-            Copy prompt
+            {promptCopied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+            {promptCopied ? "Copied" : "Copy prompt"}
           </button>
         </section>
 
@@ -177,8 +208,13 @@ export function DemoExperience() {
 
         <section className={styles.agentReport} id="demo-report" data-demo-step="report">
           <header>
-            <span className={styles.demoEyebrow}>Agent report</span>
-            <h2>{DEMO_DRAFT.title}</h2>
+            <div>
+              <span className={styles.demoEyebrow}>Agent report</span>
+              <h2>{DEMO_DRAFT.title}</h2>
+            </div>
+            <span className={styles.draftStatus}>
+              <CheckCircle2 aria-hidden="true" /> Draft ready
+            </span>
           </header>
           <ol className={styles.agentLog} aria-label="Agent activity">
             {DEMO_AGENT_LOG.map((entry) => (
@@ -201,7 +237,7 @@ export function DemoExperience() {
           {receipt ? (
             <>
               <span className={styles.resultMark} aria-hidden="true">
-                ✓
+                <Check />
               </span>
               <h2>A problem was found — a complaint has arrived.</h2>
               <p>
@@ -210,7 +246,7 @@ export function DemoExperience() {
               </p>
               <div className={styles.resultActions}>
                 <a className={styles.primaryLink} href="/demo/workspace">
-                  Open the demo inbox
+                  Open the demo inbox <ArrowRight aria-hidden="true" />
                 </a>
                 <a className={styles.accountCta} href="/register">
                   Create an account to keep this report
@@ -221,9 +257,12 @@ export function DemoExperience() {
               </p>
             </>
           ) : (
-            <p className={styles.resultWaiting} role="status">
-              Waiting for a report from your agent…
-            </p>
+            <div className={styles.resultWaiting} role="status">
+              <ShieldCheck aria-hidden="true" />
+              <span>
+                <strong>You stay in control.</strong> Nothing is sent until you review and confirm.
+              </span>
+            </div>
           )}
         </section>
       </div>

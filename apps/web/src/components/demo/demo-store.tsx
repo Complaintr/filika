@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  Check,
+  Headphones,
+  Keyboard,
+  Monitor,
+  Search,
+  ShieldCheck,
+  ShoppingBag,
+  TriangleAlert,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import styles from "./demo.module.css";
 import { DEMO_PRODUCTS, type DemoProduct } from "./demo-data";
@@ -70,9 +80,11 @@ export function DemoStore({
             <a href="#demo-store">Support</a>
           </nav>
           <span className={styles.storeSearch} aria-hidden="true">
-            Search
+            <Search /> Search
           </span>
-          <span className={styles.storeCart}>Cart ({state.cart.length})</span>
+          <span className={styles.storeCart}>
+            <ShoppingBag aria-hidden="true" /> Cart ({state.cart.length})
+          </span>
         </div>
       </header>
 
@@ -82,7 +94,9 @@ export function DemoStore({
             <h2>Audio gear, shipping today</h2>
             <p>Free two-day shipping on orders over $50.</p>
           </div>
-          <span className={styles.storeTrust}>Free returns</span>
+          <span className={styles.storeTrust}>
+            <ShieldCheck aria-hidden="true" /> Free returns
+          </span>
         </div>
 
         <div className={styles.productGrid}>
@@ -115,7 +129,8 @@ export function DemoStore({
             </button>
             {state.stuck && (
               <p className={styles.stuckNote} role="alert">
-                Payment confirmation timed out. The order never completes.
+                <TriangleAlert aria-hidden="true" /> Payment confirmation timed out. The order never
+                completes.
               </p>
             )}
           </section>
@@ -145,6 +160,9 @@ function DemoProductCard({
   onToggle(): void;
   checkoutVisible: boolean;
 }) {
+  const ProductIcon =
+    product.id === "headphones" ? Headphones : product.id === "keyboard" ? Keyboard : Monitor;
+
   return (
     <article
       className={styles.productCard}
@@ -152,7 +170,7 @@ function DemoProductCard({
       data-demo-step={product.id === "headphones" ? "product" : undefined}
     >
       <div className={styles.productImage} aria-hidden="true">
-        <span>{product.emoji}</span>
+        <ProductIcon />
       </div>
       <div className={styles.productCardTop}>
         {product.badge && <span className={styles.productBadge}>{product.badge}</span>}
@@ -174,6 +192,7 @@ function DemoProductCard({
           disabled={checkoutVisible && !inCart}
           onClick={onToggle}
         >
+          {inCart ? <Check aria-hidden="true" /> : <ShoppingBag aria-hidden="true" />}
           {inCart ? "In cart" : "Add to cart"}
         </button>
       </div>
