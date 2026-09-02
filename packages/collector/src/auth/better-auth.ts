@@ -104,7 +104,12 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
         ? {
             google: {
               overrideUserInfoOnSignIn: true,
-              mapProfileToUser: (profile) => ({ googleImage: googlePhotoUrl(profile.picture) }),
+              mapProfileToUser: (profile) => ({
+                googleImage:
+                  googlePhotoUrl((profile as { picture?: unknown }).picture) ??
+                  googlePhotoUrl((profile as { image?: unknown }).image) ??
+                  googlePhotoUrl((profile as { avatar_url?: unknown }).avatar_url),
+              }),
               clientId: config.googleClientId as string,
               clientSecret: config.googleClientSecret as string,
             },

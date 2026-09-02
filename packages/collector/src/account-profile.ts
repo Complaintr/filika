@@ -26,7 +26,9 @@ export async function getAccountProfile(db: Db, userId: string) {
     .from(account)
     .where(and(eq(account.userId, userId), eq(account.providerId, "google")))
     .limit(1);
-  const photo = google.length ? googlePhotoUrl(row.googleImage) : null;
+  const photo = google.length
+    ? (googlePhotoUrl(row.googleImage) ?? googlePhotoUrl(row.image))
+    : null;
   return {
     id: row.id,
     name: row.name,
