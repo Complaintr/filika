@@ -197,6 +197,27 @@ describe("public landing page", () => {
     }
   });
 
+  test("widget preview flow centers the user review stage", async () => {
+    const widget = await Bun.file(`${import.meta.dir}/../src/components/widget-preview.tsx`).text();
+    const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
+
+    expect(widget).toContain("User review");
+    expect(widget).toContain("Review before sending");
+    expect(widget).toContain("You control what gets shared.");
+    expect(widget).toContain("Edit report");
+    expect(widget).toContain("Review &amp; confirm");
+    expect(widget).toContain("ShieldCheck");
+    expect(widget).not.toContain("—");
+    for (const className of [
+      ".widgetReview",
+      ".widgetReviewPrimary",
+      ".widgetReviewSecondary",
+      ".widgetStageNodeActive",
+    ]) {
+      expect(styles).toContain(className);
+    }
+  });
+
   test("serves the home route without authentication or workspace chrome", async () => {
     const proxy = await Bun.file(`${import.meta.dir}/../proxy.ts`).text();
     const shell = await Bun.file(`${import.meta.dir}/../src/workspace/auth-aware-shell.tsx`).text();

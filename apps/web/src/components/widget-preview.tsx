@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Bot } from "lucide-react";
+import { AlertTriangle, Bot, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import styles from "../../app/landing.module.css";
 
@@ -75,6 +75,37 @@ export function WidgetPreview() {
               <Bot aria-hidden="true" data-free-size="true" />
               Prepared by browser agent
             </span>
+          </div>
+        </div>
+        <div className={styles.widgetStage}>
+          <span
+            className={`${styles.widgetStageNode} ${styles.widgetStageNodeActive}`}
+            aria-hidden="true"
+          />
+          <div className={styles.widgetReview}>
+            <div className={styles.widgetReviewHeading}>
+              <span className={styles.widgetReviewIcon}>
+                <ShieldCheck aria-hidden="true" data-free-size="true" />
+              </span>
+              <div>
+                <span className={styles.widgetStageLabel}>User review</span>
+                <strong>Review before sending</strong>
+              </div>
+            </div>
+            <div className={styles.widgetReviewReport}>
+              <span className={styles.widgetReviewKind}>Bug</span>
+              <strong>Checkout cannot be completed</strong>
+              <p>The payment step remains unavailable after valid address details are entered.</p>
+            </div>
+            <p className={styles.widgetReviewPrivacy}>You control what gets shared.</p>
+            <div className={styles.widgetReviewActions}>
+              <button className={styles.widgetReviewSecondary} type="button">
+                Edit report
+              </button>
+              <button className={styles.widgetReviewPrimary} type="button">
+                Review &amp; confirm
+              </button>
+            </div>
           </div>
         </div>
       </section>
