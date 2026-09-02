@@ -12,6 +12,18 @@ test("landing dashboard opens feedback details and restores focus", async ({ pag
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText("Only the invalid card number should be cleared");
   await expect(dialog).toContainText("No data is sent");
+  const widgetBounds = await page.getByLabel("Filika dashboard preview").boundingBox();
+  const dialogBounds = await dialog.boundingBox();
+  expect(dialogBounds).not.toBeNull();
+  expect(widgetBounds).not.toBeNull();
+  expect(dialogBounds?.x ?? -1).toBeGreaterThanOrEqual(widgetBounds?.x ?? 0);
+  expect(dialogBounds?.y ?? -1).toBeGreaterThanOrEqual(widgetBounds?.y ?? 0);
+  expect((dialogBounds?.x ?? 0) + (dialogBounds?.width ?? 0)).toBeLessThanOrEqual(
+    (widgetBounds?.x ?? 0) + (widgetBounds?.width ?? 0),
+  );
+  expect((dialogBounds?.y ?? 0) + (dialogBounds?.height ?? 0)).toBeLessThanOrEqual(
+    (widgetBounds?.y ?? 0) + (widgetBounds?.height ?? 0),
+  );
 
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();

@@ -6,7 +6,7 @@ import { renderReact } from "./helpers/render-react";
 const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
 
 describe("landing dashboard demo", () => {
-  test("opens the selected report in a native modal and returns focus when closed", async () => {
+  test("opens the selected report inside the widget and returns focus when closed", async () => {
     const result = await renderReact(createElement(LandingDashboardDemo));
     const reportButton = result.container.querySelector<HTMLButtonElement>(
       'button[aria-label="View feedback: Payment form resets after validation"]',
@@ -18,6 +18,7 @@ describe("landing dashboard demo", () => {
 
     const dialog = result.container.querySelector<HTMLDialogElement>("dialog");
     expect(dialog?.open).toBe(true);
+    expect(dialog?.getAttribute("aria-modal")).toBe("true");
     expect(dialog?.getAttribute("aria-labelledby")).toBe("landing-feedback-detail-title");
     expect(dialog?.textContent).toContain("Payment form resets after validation");
     expect(dialog?.textContent).toContain("Only the invalid card number should be cleared");

@@ -59,7 +59,7 @@ export function LandingDashboardDemo() {
   const openReport = (report: (typeof recentReports)[number], invoker: HTMLButtonElement) => {
     setActiveReport(report);
     invokerRef.current = invoker;
-    if (!dialogRef.current?.open) dialogRef.current?.showModal();
+    if (!dialogRef.current?.open) dialogRef.current?.show();
     queueMicrotask(() => closeButtonRef.current?.focus());
   };
 
@@ -186,6 +186,7 @@ export function LandingDashboardDemo() {
         ref={dialogRef}
         className={styles.dashboardDemoDialog}
         aria-labelledby="landing-feedback-detail-title"
+        aria-modal="true"
         onCancel={(event) => {
           event.preventDefault();
           closeDialog();
@@ -193,6 +194,16 @@ export function LandingDashboardDemo() {
         onClose={() => invokerRef.current?.focus()}
         onPointerDown={(event) => {
           if (event.target === event.currentTarget) closeDialog();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.preventDefault();
+            closeDialog();
+          }
+          if (event.key === "Tab") {
+            event.preventDefault();
+            closeButtonRef.current?.focus();
+          }
         }}
       >
         <div className={styles.dashboardDemoDialogCard}>
