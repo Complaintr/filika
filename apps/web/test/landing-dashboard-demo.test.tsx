@@ -138,8 +138,8 @@ describe("landing dashboard demo", () => {
     expect(filteredView?.textContent).toContain("Export button stops responding after filtering");
     expect(filteredView?.textContent).not.toContain("Allow reports to be duplicated");
 
-    const back = Array.from(result.container.querySelectorAll<HTMLButtonElement>("button")).find(
-      (button) => button.textContent?.trim() === "Dashboard",
+    const back = result.container.querySelector<HTMLButtonElement>(
+      'button[aria-label="Back to preview dashboard"]',
     );
     back?.click();
     await settle();

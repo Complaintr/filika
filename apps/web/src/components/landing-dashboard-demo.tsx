@@ -11,11 +11,9 @@ import {
   CircleSlash2,
   Copy,
   ExternalLink,
-  Home,
   Inbox,
   Lightbulb,
   type LucideIcon,
-  MessageCircle,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -129,10 +127,15 @@ export function LandingDashboardDemo() {
           <span className={styles.dashboardDemoSeparator} aria-hidden="true">
             /
           </span>
-          <span className={styles.dashboardDemoApplication}>
+          <button
+            className={styles.dashboardDemoApplication}
+            type="button"
+            aria-label="Back to preview dashboard"
+            onClick={showDashboard}
+          >
             <i aria-hidden="true">F</i>
             <small>Filika Demo</small>
-          </span>
+          </button>
         </div>
         <div className={styles.dashboardDemoProfile} aria-hidden="true">
           <i />
@@ -172,7 +175,6 @@ export function LandingDashboardDemo() {
                 </div>
                 <svg
                   viewBox="0 0 860 290"
-                  preserveAspectRatio="none"
                   data-free-size="true"
                   role="img"
                   aria-label="220 complaints over the last 30 days"
@@ -195,13 +197,23 @@ export function LandingDashboardDemo() {
                     fill="url(#landing-dashboard-grid)"
                   />
                   <path className={styles.dashboardDemoChartLine} d={chartPath} />
+                  {[
+                    [42, "Aug 5", "start"],
+                    [301, "Aug 14", "middle"],
+                    [560, "Aug 24", "middle"],
+                    [818, "Sep 3", "end"],
+                  ].map(([x, label, anchor]) => (
+                    <text
+                      key={label}
+                      x={x}
+                      y="270"
+                      textAnchor={anchor as "end" | "middle" | "start"}
+                      className={styles.dashboardDemoChartLabel}
+                    >
+                      {label}
+                    </text>
+                  ))}
                 </svg>
-                <div className={styles.dashboardDemoChartLabels} aria-hidden="true">
-                  <span>Aug 5</span>
-                  <span>Aug 14</span>
-                  <span>Aug 24</span>
-                  <span>Sep 3</span>
-                </div>
               </section>
 
               <section
@@ -340,24 +352,6 @@ export function LandingDashboardDemo() {
           </div>
         )}
       </div>
-
-      <nav className={styles.dashboardDemoNav} aria-label="Preview navigation">
-        <button type="button" aria-pressed={view === "dashboard"} onClick={showDashboard}>
-          <Home aria-hidden="true" data-free-size="true" />
-          <span>Dashboard</span>
-        </button>
-        <button
-          type="button"
-          aria-pressed={view === "complaints"}
-          onClick={() => {
-            setActiveKind(null);
-            setView("complaints");
-          }}
-        >
-          <MessageCircle aria-hidden="true" data-free-size="true" />
-          <span>Complaints</span>
-        </button>
-      </nav>
 
       <dialog
         ref={dialogRef}

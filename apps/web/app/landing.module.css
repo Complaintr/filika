@@ -529,7 +529,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 620px;
+  min-height: 560px;
   scroll-margin-top: 72px;
   overflow: hidden;
   border: 1px solid var(--dashboard-demo-line);
@@ -569,6 +569,16 @@
 }
 .dashboardDemoApplication {
   gap: 7px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.dashboardDemoApplication:hover {
+  background: var(--dashboard-demo-soft);
 }
 .dashboardDemoApplication > i {
   display: grid;
@@ -619,7 +629,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 28px 26px 76px;
+  padding: 28px 26px 30px;
 }
 .dashboardDemoHeading,
 .dashboardDemoPanelHeading {
@@ -763,7 +773,8 @@
 .dashboardDemoChart svg {
   display: block;
   width: 100%;
-  height: 194px;
+  height: auto;
+  min-height: 194px;
   padding: 7px 5px 0;
   border: 1px solid var(--dashboard-demo-line);
   border-radius: 19px;
@@ -791,12 +802,10 @@
   stroke: var(--dashboard-demo-accent);
   stroke-width: 3;
 }
-.dashboardDemoChartLabels {
-  display: flex;
-  justify-content: space-between;
-  margin: -25px 14px 10px;
-  color: var(--dashboard-demo-muted);
-  font-size: 8px;
+.dashboardDemoChartLabel {
+  fill: var(--dashboard-demo-muted);
+  font-family: "Segoe UI", sans-serif;
+  font-size: 10px;
 }
 .dashboardDemoBreakdown {
   display: flex;
@@ -1122,44 +1131,6 @@
 .dashboardDemoInboxFooter svg {
   width: 10px;
   height: 10px;
-}
-.dashboardDemoNav {
-  position: absolute;
-  bottom: 14px;
-  left: 50%;
-  z-index: 4;
-  display: flex;
-  gap: 3px;
-  padding: 3px;
-  border: 1px solid var(--dashboard-demo-line);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--dashboard-demo-surface) 94%, transparent);
-  box-shadow: 0 8px 24px rgba(37, 48, 71, 0.12);
-  backdrop-filter: blur(10px);
-  transform: translateX(-50%);
-}
-.dashboardDemoNav button {
-  display: inline-flex;
-  gap: 5px;
-  align-items: center;
-  min-width: 31px;
-  min-height: 31px;
-  padding: 0 9px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--dashboard-demo-muted);
-  font: inherit;
-  font-size: 8px;
-  cursor: pointer;
-}
-.dashboardDemoNav button[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--dashboard-demo-accent) 9%, var(--dashboard-demo-surface));
-  color: var(--dashboard-demo-accent);
-}
-.dashboardDemoNav svg {
-  width: 12px;
-  height: 12px;
 }
 .dashboardDemoPrivate {
   gap: 4px;
@@ -3030,10 +3001,10 @@
     line-height: 1.7;
   }
   .dashboardDemo {
-    min-height: 620px;
+    min-height: 560px;
   }
   .dashboardDemoBody {
-    padding: 18px 18px 72px;
+    padding: 18px;
   }
   .dashboardDemoGrid {
     grid-template-columns: minmax(0, 1.3fr) minmax(220px, 1fr);
@@ -3139,7 +3110,7 @@
     display: none;
   }
   .dashboardDemoBody {
-    padding: 14px 14px 70px;
+    padding: 14px;
   }
   .dashboardDemoStats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3156,6 +3127,7 @@
   }
   .dashboardDemoChart svg {
     height: 120px;
+    min-height: 120px;
   }
   .dashboardDemoBreakdownRow {
     min-height: 38px;
