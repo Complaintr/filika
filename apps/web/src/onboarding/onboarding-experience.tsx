@@ -188,9 +188,17 @@ export function OnboardingExperience() {
 
   async function createWorkspace() {
     if (busy) return;
+    if (!name.trim()) {
+      setError("Enter an application name to continue.");
+      return;
+    }
+    if (slug.length < 2 || !SLUG_PATTERN.test(slug)) {
+      setError("Choose an available application URL.");
+      return;
+    }
     const websiteOrigin = exactWebsiteOrigin(origin);
-    if (!name.trim() || slug.length < 2 || !SLUG_PATTERN.test(slug) || !websiteOrigin) {
-      setError("Enter an application name, an available URL, and an exact HTTPS website origin.");
+    if (origin.trim() && !websiteOrigin) {
+      setError("Enter the exact website origin (for example https://example.com).");
       return;
     }
     setBusy(true);
@@ -203,13 +211,13 @@ export function OnboardingExperience() {
           displayName: name.trim(),
           slug,
           dashboardDays: 30,
-          allowedOrigins: [websiteOrigin],
+          allowedOrigins: websiteOrigin ? [websiteOrigin] : [],
         },
         controller.signal,
       );
       if (controller.signal.aborted) return;
       setApplication(created);
-      setOrigin(websiteOrigin);
+      setOrigin(websiteOrigin ?? "");
       window.history.replaceState(null, "", `/onboarding?app=${encodeURIComponent(created.slug)}`);
       setStep(1);
     } catch (caught) {
@@ -326,7 +334,10 @@ export function OnboardingExperience() {
                 placeholder="https://mystore.com"
                 onChange={(event) => setOrigin(event.target.value)}
               />
-              <p>Use the exact origin. Paths and trailing slashes are not included.</p>
+              <p>
+                Optional — you can add it later in application settings. Use the exact origin; paths
+                and trailing slashes are not included.
+              </p>
               <label htmlFor="onboarding-slug">Application URL</label>
               <input
                 className="studio-input"
@@ -409,12 +420,28 @@ export function OnboardingExperience() {
               Send one real signal.
             </h1>
             <p className="onboarding-description">
-              Open your website in a WebMCP-enabled browser, ask its agent to send a test report,
-              then review and confirm it. This page will notice when it arrives.
+              {origin
+                ? "Open your website in a WebMCP-enabled browser, ask its agent to send a test report, then review and confirm it. This page will notice when it arrives."
+                : "Add your website origin first, then open your website in a WebMCP-enabled browser and send a test report. This page will notice when it arrives."}
             </p>
-            <a className="onboarding-site-link" href={origin} target="_blank" rel="noreferrer">
-              Open {new URL(origin).hostname} <ExternalLink />
-            </a>
+            {origin ? (
+              <a className="onboarding-site-link" href={origin} target="_blank" rel="noreferrer">
+                Open {new URL(origin).hostname} <ExternalLink />
+              </a>
+            ) : (
+              <div className="onboarding-site-link onboarding-site-link-pending">
+                <div>
+                  <strong>Add your website origin</strong>
+                  <p>
+                    Open application settings, enter the origin, then come back here to send a test
+                    report.
+                  </p>
+                </div>
+                <Link href={applicationPath(application.slug, "settings")}>
+                  Open settings <ArrowRight />
+                </Link>
+              </div>
+            )}
             <div className="onboarding-prompt-card">
               <span>Ask your browser agent</span>
               <p>“{TEST_FEEDBACK_PROMPT}”</p>

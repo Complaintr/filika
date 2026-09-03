@@ -5427,6 +5427,45 @@ html {
   font-size: 10px;
   font-weight: 600;
 }
+.onboarding-site-link-pending {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--studio-line);
+  border-radius: 8px;
+  background: var(--studio-soft);
+  color: var(--studio-text);
+  font-size: 12px;
+  font-weight: 400;
+}
+.onboarding-site-link-pending strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--studio-text);
+}
+.onboarding-site-link-pending p {
+  margin-top: 4px;
+  color: var(--studio-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.onboarding-site-link-pending a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  color: var(--studio-accent);
+  font-size: 10px;
+  font-weight: 600;
+}
+.onboarding-site-link-pending a svg {
+  width: 13px;
+  height: 13px;
+}
 .onboarding-prompt-card {
   margin: 24px 0 12px;
   padding: 17px;
