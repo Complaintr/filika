@@ -251,8 +251,6 @@ export default function HomePage() {
           <FilikaBrand href="/" label="Filika home" className={styles.footerBrand} />
           <p>WebMCP feedback infrastructure for modern web applications.</p>
           <nav className={styles.footerNav} aria-label="Footer navigation">
-            <a href="#features">Features</a>
-            <a href="#how-it-works">How it works</a>
             <a href="https://github.com/Complaintr/filika" rel="noreferrer" target="_blank">
               GitHub
             </a>
