@@ -38,6 +38,38 @@ describe("landing dashboard demo", () => {
     await result.close();
   });
 
+  test("switches the date range and updates the dashboard metrics", async () => {
+    const result = await renderReact(createElement(LandingDashboardDemo));
+    const trigger = result.container.querySelector<HTMLButtonElement>(
+      'button[aria-label="Dashboard date range"]',
+    );
+    expect(trigger?.textContent).toContain("Last 30 days");
+    trigger?.click();
+    await settle();
+
+    const sevenDays = Array.from(
+      result.container.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]'),
+    ).find((item) => item.textContent?.includes("Last 7 days"));
+    expect(sevenDays).not.toBeNull();
+    sevenDays?.click();
+    await settle();
+
+    expect(trigger?.textContent).toContain("Last 7 days");
+    const metrics = Array.from(result.container.querySelectorAll("article")).map((card) => ({
+      label: card.querySelector("span")?.firstChild?.textContent?.trim(),
+      value: card.querySelector("strong")?.textContent,
+    }));
+    expect(metrics).toEqual([
+      { label: "Total complaints", value: "58" },
+      { label: "Bug reports", value: "21" },
+      { label: "Blocked tasks", value: "15" },
+      { label: "Ideas", value: "10" },
+    ]);
+    const chart = result.container.querySelector('svg[aria-label*="last 7 days"]');
+    expect(chart?.getAttribute("aria-label")).toBe("58 complaints over the last 7 days");
+    await result.close();
+  });
+
   test("opens the selected report inside the widget and returns focus when closed", async () => {
     const result = await renderReact(createElement(LandingDashboardDemo));
     result.container

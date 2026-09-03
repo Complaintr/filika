@@ -5,6 +5,8 @@ import {
   ArrowRight,
   ArrowUpRight,
   Bug,
+  Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CircleHelp,
@@ -19,7 +21,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { FilikaBrand } from "@/components/filika-brand";
 import styles from "../../app/landing.module.css";
 import {
@@ -30,12 +32,132 @@ import {
   landingDemoCategory,
 } from "./landing-workspace-demo-data";
 
-const stats = [
-  ["Total complaints", "220"],
-  ["Bug reports", "81"],
-  ["Blocked tasks", "55"],
-  ["Ideas", "38"],
+type WidgetRangeDays = 7 | 30 | 90;
+
+const RANGE_OPTIONS = [
+  { days: 7, label: "Last 7 days" },
+  { days: 30, label: "Last 30 days" },
+  { days: 90, label: "Last 90 days" },
 ] as const;
+
+const RANGE_DEMO_COUNTS = {
+  7: { bug: 21, blocked_task: 15, confusing_behavior: 12, idea: 10 },
+  30: { bug: 81, blocked_task: 55, confusing_behavior: 46, idea: 38 },
+  90: { bug: 198, blocked_task: 142, confusing_behavior: 116, idea: 96 },
+} as const;
+
+function rangeDemoCategories(range: WidgetRangeDays) {
+  const counts = RANGE_DEMO_COUNTS[range];
+  const total = LANDING_DEMO_CATEGORIES.reduce((sum, category) => sum + counts[category.kind], 0);
+  return LANDING_DEMO_CATEGORIES.map((category) => ({
+    ...category,
+    count: counts[category.kind],
+    percentage: Math.round((counts[category.kind] / total) * 100),
+  }));
+}
+
+function WidgetRangeMenu({
+  range,
+  onChange,
+}: {
+  range: WidgetRangeDays;
+  onChange: (days: WidgetRangeDays) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+  const currentLabel =
+    RANGE_OPTIONS.find((option) => option.days === range)?.label ?? "Last 30 days";
+
+  useEffect(() => {
+    if (!open) return;
+    menuRef.current
+      ?.querySelector<HTMLElement>('[role="menuitemradio"][aria-checked="true"]')
+      ?.focus();
+
+    function closeOnOutsidePointer(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      triggerRef.current?.focus();
+    }
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  function select(nextDays: WidgetRangeDays) {
+    setOpen(false);
+    if (nextDays !== range) onChange(nextDays);
+    triggerRef.current?.focus();
+  }
+
+  return (
+    <div className={styles.dashboardDemoRangeControl} ref={rootRef}>
+      <button
+        ref={triggerRef}
+        type="button"
+        className={styles.dashboardDemoRangeTrigger}
+        aria-label="Dashboard date range"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={menuId}
+        onClick={() => setOpen((current) => !current)}
+      >
+        {currentLabel}
+        <ChevronDown aria-hidden="true" data-free-size="true" />
+      </button>
+      {open ? (
+        <div
+          id={menuId}
+          ref={menuRef}
+          className={styles.dashboardDemoRangeMenu}
+          role="menu"
+          aria-label="Dashboard date range"
+          onBlur={(event) => {
+            if (!rootRef.current?.contains(event.relatedTarget)) setOpen(false);
+          }}
+          onKeyDown={(event) => {
+            if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+            const items = Array.from(
+              event.currentTarget.querySelectorAll<HTMLElement>('[role="menuitemradio"]'),
+            );
+            if (!items.length) return;
+            event.preventDefault();
+            const index = items.indexOf(document.activeElement as HTMLElement);
+            const next =
+              event.key === "Home"
+                ? 0
+                : event.key === "End"
+                  ? items.length - 1
+                  : (index + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+            items[next]?.focus();
+          }}
+        >
+          {RANGE_OPTIONS.map((option) => (
+            <button
+              key={option.days}
+              type="button"
+              role="menuitemradio"
+              aria-checked={option.days === range}
+              onClick={() => select(option.days)}
+            >
+              {option.label}
+              <Check aria-hidden="true" data-free-size="true" />
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 const chartValues = [
   2, 3, 1, 4, 5, 3, 2, 6, 8, 5, 3, 7, 9, 6, 8, 10, 7, 4, 3, 8, 7, 11, 9, 13, 10, 12, 11, 14, 13, 16,
@@ -80,7 +202,20 @@ export function LandingDashboardDemo() {
   const complaintsHeadingRef = useRef<HTMLHeadingElement>(null);
   const [activeReport, setActiveReport] = useState<LandingDemoReport>(LANDING_DEMO_REPORTS[0]);
   const [activeKind, setActiveKind] = useState<LandingDemoFeedbackKind | null>(null);
+  const [range, setRange] = useState<WidgetRangeDays>(30);
   const [view, setView] = useState<"complaints" | "dashboard">("dashboard");
+
+  const categories = rangeDemoCategories(range);
+  const rangeTotal = categories.reduce((sum, category) => sum + category.count, 0);
+  const stats = [
+    ["Total complaints", String(rangeTotal)],
+    ["Bug reports", String(categories.find((category) => category.kind === "bug")?.count ?? 0)],
+    [
+      "Blocked tasks",
+      String(categories.find((category) => category.kind === "blocked_task")?.count ?? 0),
+    ],
+    ["Ideas", String(categories.find((category) => category.kind === "idea")?.count ?? 0)],
+  ] as const;
 
   const visibleReports =
     activeKind === null
@@ -151,9 +286,7 @@ export function LandingDashboardDemo() {
                 <h2>Dashboard</h2>
                 <p>A little clarity on what needs your attention.</p>
               </div>
-              <span className={styles.dashboardDemoRange}>
-                Last 30 days <i aria-hidden="true">•••</i>
-              </span>
+              <WidgetRangeMenu range={range} onChange={setRange} />
             </div>
 
             <div className={styles.dashboardDemoStats}>
@@ -171,13 +304,13 @@ export function LandingDashboardDemo() {
               <section className={styles.dashboardDemoChart} aria-labelledby="landing-chart-title">
                 <div className={styles.dashboardDemoChartTitle}>
                   <h3 id="landing-chart-title">Complaint activity</h3>
-                  <span>Daily volume · UTC · 30 days</span>
+                  <span>Daily volume · UTC · {range} days</span>
                 </div>
                 <svg
                   viewBox="0 0 860 290"
                   data-free-size="true"
                   role="img"
-                  aria-label="220 complaints over the last 30 days"
+                  aria-label={`${rangeTotal} complaints over the last ${range} days`}
                 >
                   <defs>
                     <pattern
@@ -225,7 +358,7 @@ export function LandingDashboardDemo() {
                   <span className={styles.dashboardDemoPanelMeta}>Share of reports</span>
                 </div>
                 <div className={styles.dashboardDemoBreakdownList}>
-                  {LANDING_DEMO_CATEGORIES.map((category) => (
+                  {categories.map((category) => (
                     <button
                       key={category.kind}
                       ref={(node) => {

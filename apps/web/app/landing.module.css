@@ -545,7 +545,6 @@
   justify-content: space-between;
   min-height: 64px;
   padding: 0 22px;
-  border-bottom: 1px solid rgba(222, 222, 222, 0.65);
   background: color-mix(in srgb, var(--dashboard-demo-surface) 92%, transparent);
 }
 .dashboardDemoBrand,
@@ -653,24 +652,87 @@
   color: var(--dashboard-demo-muted);
   font-size: 11px;
 }
-.dashboardDemoRange {
+.dashboardDemoRangeControl {
+  position: relative;
+}
+.dashboardDemoRangeTrigger {
   display: inline-flex;
-  gap: 12px;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   min-height: 34px;
   padding: 7px 10px 7px 13px;
   border: 1px solid var(--dashboard-demo-line);
   border-radius: 999px;
   background: var(--dashboard-demo-surface);
   color: #343840;
+  font: inherit;
   font-size: 10px;
+  cursor: pointer;
   box-shadow: 0 1px 2px rgba(37, 48, 71, 0.03);
 }
-.dashboardDemoRange i {
+.dashboardDemoRangeTrigger:hover,
+.dashboardDemoRangeTrigger[aria-expanded="true"] {
+  border-color: color-mix(in srgb, var(--dashboard-demo-accent) 45%, var(--dashboard-demo-line));
+  color: var(--ink);
+}
+.dashboardDemoRangeTrigger svg {
+  width: 12px;
+  height: 12px;
   color: #858a93;
-  font-size: 7px;
-  font-style: normal;
-  letter-spacing: 1px;
+  transition: transform 160ms ease;
+}
+.dashboardDemoRangeTrigger[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+.dashboardDemoRangeMenu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  padding: 5px;
+  border: 1px solid var(--dashboard-demo-line);
+  border-radius: 12px;
+  background: var(--dashboard-demo-surface);
+  box-shadow:
+    0 14px 34px rgb(37 48 71 / 18%),
+    0 4px 10px rgb(37 48 71 / 8%);
+}
+.dashboardDemoRangeMenu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 30px;
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 9px;
+  text-align: left;
+  cursor: pointer;
+}
+.dashboardDemoRangeMenu button:hover,
+.dashboardDemoRangeMenu button:focus-visible {
+  background: var(--dashboard-demo-soft);
+}
+.dashboardDemoRangeMenu button[aria-checked="true"] {
+  color: var(--dashboard-demo-accent);
+  font-weight: 600;
+}
+.dashboardDemoRangeMenu button svg {
+  width: 12px;
+  height: 12px;
+  visibility: hidden;
+}
+.dashboardDemoRangeMenu button[aria-checked="true"] svg {
+  visibility: visible;
 }
 .dashboardDemoStats {
   display: grid;
@@ -2869,7 +2931,8 @@
   color: #f4f4f5;
 }
 
-:root[data-theme="dark"] .dashboardDemoRange,
+:root[data-theme="dark"] .dashboardDemoRangeTrigger,
+:root[data-theme="dark"] .dashboardDemoRangeMenu,
 :root[data-theme="dark"] .dashboardDemoStats article,
 :root[data-theme="dark"] .dashboardDemoChart,
 :root[data-theme="dark"] .dashboardDemoBreakdown {
