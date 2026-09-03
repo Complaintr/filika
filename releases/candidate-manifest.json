@@ -26,7 +26,7 @@
   "checksums": [
     {
       "path": "bun.lock",
-      "sha256": "08d994056dc63da2ac08183c5adbf9e2f519cb43e403272bc4b4d4cb4d05f8d0"
+      "sha256": "80fcd270f4ac1e6d94b636127142974c612cefc8be60814f691d147dc9435b84"
     },
     {
       "path": "LICENSE",
