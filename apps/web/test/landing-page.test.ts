@@ -96,8 +96,10 @@ describe("public landing page", () => {
     expect(styles).toContain(".themeSwitcher");
     const headerLeft = styles.match(/\.headerLeft\s*\{([^}]*)\}/)?.[1];
     const navLink = styles.match(/\.nav a\s*\{([^}]*)\}/)?.[1];
-    expect(headerLeft).toContain("align-items: baseline");
-    expect(navLink).toContain("line-height: 22px");
+    expect(headerLeft).toContain("align-items: center");
+    expect(headerLeft).toContain("height: 100%");
+    expect(navLink).toContain("height: 22px");
+    expect(navLink).toContain("line-height: 1");
     expect(styles).toContain("line-height: 1.2");
     expect(styles).toContain("align-items: flex-start");
     expect(styles).toContain("align-self: flex-start");
