@@ -4,11 +4,11 @@
   <img src="filika.png" alt="Filika" width="800">
 </p>
 
-[What is Filika?](#what-is-filika) | [Features](#features) | [How it Works](#how-it-works) | [Live Sites](#live-sites) | [Local Setup](docs/local-setup.md) | [Self Hosted](docs/self-hosted.md) | [Security](SECURITY.md) | [Contributing](CONTRIBUTING.md) | [License](#license)
+[What is Filika?](#what-is-filika) | [Features](#features) | [How It Works](#how-it-works) | [Live Sites](#live-sites) | [Local Setup](docs/local-setup.md) | [Self-Hosting](docs/self-hosted.md) | [Security](SECURITY.md) | [Contributing](CONTRIBUTING.md) | [License](#license)
 
 ## What is Filika?
 
-Filika is an open-source, WebMCP-native feedback system for modern web applications. When an AI browser agent encounters a bug, a blocked task, confusing UX, or a runtime failure, it uses the static Filika WebMCP tool to draft a structured report. 
+Filika is an open-source, WebMCP-native feedback system for modern web applications. When an AI browser agent encounters a bug, a blocked task, confusing UX, or a runtime failure, it uses the static Filika WebMCP tool to draft a structured report.
 
 Agent-authored feedback is transmitted without a user review step. When WebMCP is unavailable or users prefer manual reporting, people can submit feedback directly. Filika provides the feedback workflow and triage infrastructure, remaining completely model-agnostic.
 
@@ -17,18 +17,19 @@ Agent-authored feedback is transmitted without a user review step. When WebMCP i
 - **WebMCP Protocol**: Exposes a static `filika_submit_feedback` tool using `document.modelContext`.
 - **Zero Ambient Capture**: Reports only contain explicit evidence. No cookies, screenshots, or local storage are collected.
 - **Unified Workspace**: A centralized dashboard to search, filter, and review agent reports.
-- **GitHub Sync**: One-click export to GitHub issues with full markdown support and reproduction steps.
+- **GitHub Sync**: One-click export to GitHub issues with full Markdown support and reproduction steps.
 - **Multi-tenant Control**: Manage distinct applications with custom slugs and strict origin verification.
 - **Interactive Sandbox**: Test your browser agents safely using the built-in demo environment.
 
 ## Architecture
 
 The repository is structured as a modern monorepo powered by Bun and PostgreSQL:
+
 - **apps/web**: Next.js 16 host UI, maintainer workspace, and landing page.
 - **packages/sdk**: Browser SDK and WebMCP `document.modelContext` protocol.
 - **packages/collector**: Feedback API, Drizzle ORM schema, and PostgreSQL persistence.
 
-## How it Works
+## How It Works
 
 | Phase | Action |
 | :--- | :--- |
@@ -45,16 +46,16 @@ The repository is structured as a modern monorepo powered by Bun and PostgreSQL:
 - **Demo Sandbox**: [filika.complaintr.com/demo](https://filika.complaintr.com/demo)
   Use the interactive sandbox to test your browser AI agents. It provides a safe environment with intentional edge cases to verify that your agents can successfully submit reports.
 
-## Local Setup & Self-Hosting
+## Local Setup and Self-Hosting
 
-Filika can be easily set up for local development or deployed as a self-hosted production application. 
+Filika can be set up for local development or deployed as a self-hosted production application.
 
 - **Local Setup**: Learn how to configure your local database, set up Google/GitHub OAuth, and seed demo data in the [Local Setup Guide](docs/local-setup.md).
-- **Self Hosted**: Learn about production requirements, environment variables, and building the application in the [Self Hosted Guide](docs/self-hosted.md).
+- **Self-Hosting**: Learn about production requirements, environment variables, and deployment in the [Self-Hosting Guide](docs/self-hosted.md).
 
 ## Security & Contributing
 
-- **Security**: Filika is built with zero ambient capture. Read about our privacy guarantees and vulnerability reporting process in the [Security Policy](SECURITY.md).
+- **Security**: Filika is built with zero ambient capture. Read about our privacy guarantees and vulnerability reporting process in the [Security Guide](SECURITY.md).
 - **Contributing**: We welcome contributions! Review our strict development rules, PR guidelines, and helpful commands in the [Contributing Guide](CONTRIBUTING.md).
 
 ## License
