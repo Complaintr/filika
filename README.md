@@ -4,7 +4,9 @@
   <img src="filika.png" alt="Filika" width="800">
 </p>
 
-[Local Setup](docs/local-setup.md) | [Self-Hosting](docs/self-hosted.md) | [Security](SECURITY.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE)
+<p align="center">
+  <a href="docs/local-setup.md">Local Setup</a> | <a href="docs/self-hosted.md">Self-Hosting</a> | <a href="SECURITY.md">Security</a> | <a href="CONTRIBUTING.md">Contributing</a> | <a href="LICENSE">License</a>
+</p>
 
 ## What is Filika?
 
