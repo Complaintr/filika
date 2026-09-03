@@ -44,6 +44,18 @@ The repository is structured as a modern monorepo powered by Bun and PostgreSQL:
 - **Demo Sandbox**: [filika.complaintr.com/demo](https://filika.complaintr.com/demo)
   Use the interactive sandbox to test your browser AI agents. It provides a safe environment with intentional edge cases to verify that your agents can successfully submit reports.
 
+## Local Setup & Self-Hosting
+
+Filika can be easily set up for local development or deployed as a self-hosted production application. 
+
+- **Local Setup**: Learn how to configure your local database, set up Google/GitHub OAuth, and seed demo data in the [Local Setup Guide](docs/local-setup.md).
+- **Self Hosted**: Learn about production requirements, environment variables, and building the application in the [Self Hosted Guide](docs/self-hosted.md).
+
+## Security & Contributing
+
+- **Security**: Filika is built with zero ambient capture. Read about our privacy guarantees and vulnerability reporting process in the [Security Policy](SECURITY.md).
+- **Contributing**: We welcome contributions! Review our strict development rules, PR guidelines, and helpful commands in the [Contributing Guide](CONTRIBUTING.md).
+
 ## License
 
 Distributed under the [Apache-2.0](LICENSE) License. Copyright &copy; 2026 Complaintr.
