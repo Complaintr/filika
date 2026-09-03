@@ -3361,10 +3361,14 @@
     min-height: 38px;
   }
   .dashboardDemoDialog {
+    position: fixed;
+    inset: 0;
     padding: 8px;
     border-radius: 11px;
   }
   .dashboardDemoDialogCard {
+    max-height: calc(100dvh - 16px);
+    overflow: auto;
     border-radius: 16px;
   }
   .dashboardDemoDialogInset {
