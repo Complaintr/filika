@@ -106,6 +106,75 @@ describe("landing dashboard demo", () => {
     await result.close();
   });
 
+  test("preview navigation wraps through the visible reports", async () => {
+    const result = await renderReact(createElement(LandingDashboardDemo));
+    result.container
+      .querySelector<HTMLButtonElement>('button[aria-label="View Bug report complaints"]')
+      ?.click();
+    await settle();
+    const reportButton = result.container.querySelector<HTMLButtonElement>(
+      'button[aria-label="View feedback: Export button stops responding after filtering"]',
+    );
+    reportButton?.click();
+    await settle();
+
+    const dialog = result.container.querySelector<HTMLDialogElement>("dialog");
+    const next = dialog?.querySelector<HTMLButtonElement>(
+      'button[aria-label="Next preview report"]',
+    );
+    const previous = dialog?.querySelector<HTMLButtonElement>(
+      'button[aria-label="Previous preview report"]',
+    );
+    // The bug filter holds a single report, so navigation stays disabled.
+    expect(next?.disabled).toBe(true);
+    expect(previous?.disabled).toBe(true);
+
+    const allFilter = Array.from(
+      result.container.querySelectorAll<HTMLButtonElement>("button[aria-pressed]"),
+    ).find((button) => button.textContent?.includes("All complaints"));
+    allFilter?.click();
+    await settle();
+
+    reportButton?.click();
+    await settle();
+    expect(next?.disabled).toBe(false);
+
+    next?.click();
+    await settle();
+    expect(dialog?.textContent).toContain("Navigation label does not match the destination");
+
+    previous?.click();
+    await settle();
+    expect(dialog?.textContent).toContain("Export button stops responding after filtering");
+
+    await result.close();
+  });
+
+  test("refresh inbox reorders the demo reports and clears the active filter", async () => {
+    const result = await renderReact(createElement(LandingDashboardDemo));
+    result.container
+      .querySelector<HTMLButtonElement>('button[aria-label="View Bug report complaints"]')
+      ?.click();
+    await settle();
+
+    const refresh = Array.from(result.container.querySelectorAll<HTMLButtonElement>("button")).find(
+      (button) => button.textContent?.includes("Refresh inbox"),
+    );
+    expect(refresh).toBeDefined();
+    refresh?.click();
+    await settle();
+
+    const allFilter = Array.from(
+      result.container.querySelectorAll<HTMLButtonElement>("button[aria-pressed]"),
+    ).find((button) => button.textContent?.includes("All complaints"));
+    expect(allFilter?.getAttribute("aria-pressed")).toBe("true");
+    expect(
+      result.container.querySelectorAll<HTMLButtonElement>('button[aria-label^="View feedback:"]'),
+    ).toHaveLength(4);
+
+    await result.close();
+  });
+
   test("supports native cancel and backdrop dismissal without making network requests", async () => {
     const result = await renderReact(createElement(LandingDashboardDemo));
     result.container

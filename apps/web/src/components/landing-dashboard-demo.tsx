@@ -200,6 +200,7 @@ export function LandingDashboardDemo() {
   );
   const lastCategoryKindRef = useRef<LandingDemoFeedbackKind | null>(null);
   const complaintsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const [reports, setReports] = useState<readonly LandingDemoReport[]>(LANDING_DEMO_REPORTS);
   const [activeReport, setActiveReport] = useState<LandingDemoReport>(LANDING_DEMO_REPORTS[0]);
   const [activeKind, setActiveKind] = useState<LandingDemoFeedbackKind | null>(null);
   const [range, setRange] = useState<WidgetRangeDays>(30);
@@ -218,9 +219,30 @@ export function LandingDashboardDemo() {
   ] as const;
 
   const visibleReports =
-    activeKind === null
-      ? LANDING_DEMO_REPORTS
-      : LANDING_DEMO_REPORTS.filter((report) => report.kind === activeKind);
+    activeKind === null ? reports : reports.filter((report) => report.kind === activeKind);
+
+  function shuffleReports(): readonly LandingDemoReport[] {
+    const shuffled = [...LANDING_DEMO_REPORTS];
+    for (let index = shuffled.length - 1; index > 0; index -= 1) {
+      const swap = Math.floor(Math.random() * (index + 1));
+      const current = shuffled[index];
+      shuffled[index] = shuffled[swap] ?? current;
+      shuffled[swap] = current;
+    }
+    return shuffled;
+  }
+
+  const refreshInbox = () => {
+    setReports(shuffleReports());
+    setActiveKind(null);
+  };
+
+  const moveReport = (delta: number) => {
+    const index = visibleReports.indexOf(activeReport);
+    const nextIndex = (index + delta + visibleReports.length) % visibleReports.length;
+    const next = visibleReports[nextIndex];
+    if (next !== undefined) setActiveReport(next);
+  };
 
   useEffect(() => {
     if (view === "complaints") {
@@ -394,7 +416,7 @@ export function LandingDashboardDemo() {
                 </h2>
                 <p>A closer look at the feedback behind your product.</p>
               </div>
-              <button className={styles.dashboardDemoRefresh} type="button">
+              <button className={styles.dashboardDemoRefresh} type="button" onClick={refreshInbox}>
                 <RefreshCw aria-hidden="true" data-free-size="true" /> Refresh inbox
               </button>
             </div>
@@ -524,6 +546,8 @@ export function LandingDashboardDemo() {
                 className={styles.dashboardDemoDialogAction}
                 type="button"
                 aria-label="Previous preview report"
+                disabled={visibleReports.length <= 1}
+                onClick={() => moveReport(-1)}
               >
                 <ArrowLeft aria-hidden="true" data-free-size="true" />
               </button>
@@ -531,6 +555,8 @@ export function LandingDashboardDemo() {
                 className={styles.dashboardDemoDialogAction}
                 type="button"
                 aria-label="Next preview report"
+                disabled={visibleReports.length <= 1}
+                onClick={() => moveReport(1)}
               >
                 <ArrowRight aria-hidden="true" data-free-size="true" />
               </button>
