@@ -1,8 +1,8 @@
-<p align="left">
-  <img src="filika.png" alt="Filika Logo" width="120">
-</p>
-
 # Security Policy
+
+<p align="left">
+  <img src="filika.png" alt="Filika" width="800">
+</p>
 
 ## Supported Versions
 

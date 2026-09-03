@@ -1,11 +1,7 @@
-<p align="left">
-  <img src="filika.png" alt="Filika Logo" width="120">
-</p>
-
 # Filika
 
 <p align="left">
-  <img src="cta-bg.jpg" alt="Filika preview" width="800">
+  <img src="filika.png" alt="Filika" width="800">
 </p>
 
 [Features](#features) | [What is Filika?](#what-is-filika) | [How it Works](#how-it-works) | [Live Sites](#live-sites) | [Local Setup](docs/local-setup.md) | [Self Hosted](docs/self-hosted.md) | [Security](SECURITY.md) | [Contributing](CONTRIBUTING.md) | [License](#license)
