@@ -25,7 +25,7 @@
     "lint": "biome check . && bun run typecheck",
     "test:browser": "playwright test --config tests/e2e/playwright.config.ts",
     "test:browser:prepare": "bun run tests/e2e/database.ts reset",
-    "test:unit": "bun test",
+    "test:unit": "bun test --isolate",
     "typecheck": "bun run --filter '*' typecheck"
   },
   "devDependencies": {

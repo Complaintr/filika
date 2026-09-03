@@ -78,7 +78,7 @@ jobs:
       - name: Run unit tests
         env:
           TEST_DATABASE_URL: postgres://postgres@localhost:5432/filika_test
-        run: bun test
+        run: bun test --isolate
 
   build:
     name: Build
