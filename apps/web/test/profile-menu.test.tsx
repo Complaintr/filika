@@ -21,7 +21,6 @@ describe("header profile menu", () => {
     expect(result.container.textContent).toContain("Manage profile");
     expect(result.container.textContent).toContain("Application settings");
     expect(result.container.textContent).toContain("Sign out");
-    expect(result.container.textContent).toContain("Profile photo");
     expect(result.container.querySelector('a[href="/account"]')).not.toBeNull();
     expect(result.container.querySelector('a[href="/eckra/settings"]')).not.toBeNull();
     expect(result.container.textContent).not.toContain("Other Accounts");
@@ -107,13 +106,6 @@ describe("header profile menu", () => {
       id: "test-user",
       name: "Test User",
       email: "test@example.test",
-      image: null,
-      googleConnected: false,
-      googleImageAvailable: false,
-      useGoogleImage: false,
-      githubConnected: false,
-      githubImageAvailable: false,
-      useGithubImage: false,
       theme: "light",
       density: "comfortable",
     };
