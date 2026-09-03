@@ -19,6 +19,7 @@ function isPublicPath(pathname: string): boolean {
     pathname === "/filika-logo.svg" ||
     pathname === "/icon.svg" ||
     pathname === "/cta-bg.jpg" ||
+    pathname === "/hero-demo-frame.png" ||
     pathname === "/theme-bootstrap.js"
   );
 }

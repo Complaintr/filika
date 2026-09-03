@@ -511,8 +511,7 @@
   position: relative;
   padding: 28px;
   border-radius: 24px;
-  background: var(--paper);
-  border: 1px solid var(--line);
+  background: var(--card) url("/hero-demo-frame.png") no-repeat center / 100% 100%;
 }
 .dashboardDemo {
   --dashboard-demo-surface: #fff;

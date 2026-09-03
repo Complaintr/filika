@@ -10,7 +10,12 @@ const request = (pathname: string, session = false) =>
 
 describe("web proxy public paths", () => {
   test("allows only the explicitly listed landing assets", () => {
-    for (const pathname of ["/filika-logo.svg", "/cta-bg.jpg", "/theme-bootstrap.js"]) {
+    for (const pathname of [
+      "/filika-logo.svg",
+      "/cta-bg.jpg",
+      "/hero-demo-frame.png",
+      "/theme-bootstrap.js",
+    ]) {
       const response = proxy(request(pathname));
 
       expect(response.headers.get("x-middleware-next")).toBe("1");

@@ -134,13 +134,12 @@ describe("public landing page", () => {
     expect(flowDemos.match(/<FlowBeamPath/g)).toHaveLength(7);
   });
 
-  test("styles the hero media frame with theme-aware tokens instead of a static asset", async () => {
+  test("frames the hero demo with the demo frame asset and a theme-aware fallback", async () => {
     const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
 
     const heroMedia = styles.match(/\.heroMedia\s*\{([^}]*)\}/)?.[1];
-    expect(heroMedia).toContain("background: var(--paper)");
-    expect(heroMedia).toContain("border: 1px solid var(--line)");
-    expect(styles).not.toContain("/hero-demo-frame.png");
+    expect(heroMedia).toContain("var(--card) url(\"/hero-demo-frame.png\")");
+    expect(styles).toContain("/hero-demo-frame.png");
   });
 
   test("serves the home route without authentication or workspace chrome", async () => {
