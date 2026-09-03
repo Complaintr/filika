@@ -204,12 +204,12 @@
 .productImage {
   display: grid;
   place-items: center;
-  height: 88px;
+  height: 72px;
   border-radius: 6px;
   background: linear-gradient(180deg, #fafaf9 0%, #f1efec 100%);
 }
 .productImage span {
-  font-size: 40px;
+  font-size: 34px;
   line-height: 1;
 }
 .productCardTop {
@@ -651,7 +651,7 @@
     padding: 20px 0 24px 20px;
   }
   .productGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -668,6 +668,9 @@
     gap: 16px;
     margin-right: 0;
     padding: 20px 16px 60px;
+  }
+  .productGrid {
+    grid-template-columns: 1fr;
   }
   .flowPanel {
     position: fixed;
@@ -930,7 +933,7 @@
   width: 100%;
   height: auto;
   min-height: 0;
-  aspect-ratio: 1.1;
+  aspect-ratio: 1.6;
   overflow: hidden;
   background: #f5f6f8;
 }
@@ -1317,12 +1320,14 @@
 
 @media (max-width: 1080px) {
   .experienceMain {
-    width: calc(100% - 312px);
+    width: auto;
+    margin-right: 312px;
     padding-inline: 22px;
   }
 
   .demoHeaderInner {
-    width: calc(100% - 312px);
+    width: auto;
+    margin-right: 312px;
     padding-inline: 22px;
   }
 
