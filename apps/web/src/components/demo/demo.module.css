@@ -16,7 +16,7 @@
 
 .experienceMain {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
   gap: 14px;
   height: 100dvh;
   margin-right: 356px;
@@ -204,7 +204,7 @@
 .productImage {
   display: grid;
   place-items: center;
-  height: 72px;
+  aspect-ratio: 1 / 1;
   border-radius: 6px;
   background: linear-gradient(180deg, #fafaf9 0%, #f1efec 100%);
 }
@@ -933,8 +933,9 @@
   width: 100%;
   height: auto;
   min-height: 0;
-  aspect-ratio: 1.6;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
+  border-radius: 10px;
   background: #f5f6f8;
 }
 
@@ -1306,6 +1307,19 @@
   color: var(--demo-filika);
 }
 
+/* The active step shows a subtle spinner while the agent works on it. */
+.liveEvents .liveEventCurrent .liveEventIcon svg {
+  animation: demo-step-spin 1s linear infinite;
+}
+@keyframes demo-step-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .liveFooter .resetButton {
   width: 100%;
   border-color: transparent;
@@ -1326,6 +1340,9 @@
 @media (prefers-reduced-motion: reduce) {
   .productCard {
     transition: none;
+  }
+  .liveEvents .liveEventCurrent .liveEventIcon svg {
+    animation: none;
   }
 }
 

@@ -9,7 +9,6 @@ import { demoApi } from "@/services/demo-api";
 import styles from "./demo.module.css";
 import { DEMO_PRODUCTS, demoPrompt } from "./demo-data";
 import { DemoFlowPanel } from "./demo-flow-panel";
-import { DemoSignupCta } from "./demo-signup-cta";
 import { DemoStore, type DemoStoreState } from "./demo-store";
 import {
   type DemoStoreTools,
@@ -322,8 +321,6 @@ export function DemoExperience() {
             </div>
           )}
         </section>
-
-        <DemoSignupCta />
       </div>
 
       <DemoFlowPanel
