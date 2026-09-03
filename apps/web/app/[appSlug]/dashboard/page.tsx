@@ -1,12 +1,122 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Check, ChevronDown } from "lucide-react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useApplication } from "@/applications/application-context";
 import { type DashboardData, fetchDashboard } from "@/services/workspace-api";
 import { useConnection } from "@/workspace/connection";
 import { kindLabels } from "@/workspace/dom";
 
 type RangeDays = 7 | 30 | 90;
+
+const RANGE_OPTIONS = [
+  { days: 7, label: "Last 7 days" },
+  { days: 30, label: "Last 30 days" },
+  { days: 90, label: "Last 90 days" },
+] as const;
+
+export function DateRangeMenu({
+  days,
+  onChange,
+}: {
+  days: RangeDays;
+  onChange: (days: RangeDays) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+  const currentLabel =
+    RANGE_OPTIONS.find((option) => option.days === days)?.label ?? "Last 30 days";
+
+  useEffect(() => {
+    if (!open) return;
+    menuRef.current
+      ?.querySelector<HTMLElement>('[role="menuitemradio"][aria-checked="true"]')
+      ?.focus();
+
+    function closeOnOutsidePointer(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      triggerRef.current?.focus();
+    }
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  function select(nextDays: RangeDays) {
+    setOpen(false);
+    if (nextDays !== days) onChange(nextDays);
+    triggerRef.current?.focus();
+  }
+
+  return (
+    <div className="date-range-control" ref={rootRef}>
+      <button
+        ref={triggerRef}
+        type="button"
+        className="date-range-trigger"
+        aria-label="Dashboard date range"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={menuId}
+        onClick={() => setOpen((current) => !current)}
+      >
+        {currentLabel}
+        <ChevronDown aria-hidden="true" />
+      </button>
+      {open ? (
+        <div
+          id={menuId}
+          ref={menuRef}
+          className="date-range-menu"
+          role="menu"
+          aria-label="Dashboard date range"
+          onBlur={(event) => {
+            if (!rootRef.current?.contains(event.relatedTarget)) setOpen(false);
+          }}
+          onKeyDown={(event) => {
+            if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+            const items = Array.from(
+              event.currentTarget.querySelectorAll<HTMLElement>('[role="menuitemradio"]'),
+            );
+            if (!items.length) return;
+            event.preventDefault();
+            const index = items.indexOf(document.activeElement as HTMLElement);
+            const next =
+              event.key === "Home"
+                ? 0
+                : event.key === "End"
+                  ? items.length - 1
+                  : (index + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+            items[next]?.focus();
+          }}
+        >
+          {RANGE_OPTIONS.map((option) => (
+            <button
+              key={option.days}
+              type="button"
+              role="menuitemradio"
+              aria-checked={option.days === days}
+              onClick={() => select(option.days)}
+            >
+              {option.label}
+              <Check aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 function StatCard({ label, value, note }: { label: string; note: string; value: number }) {
   return (
@@ -206,21 +316,7 @@ export default function DashboardPage() {
           <p className="muted">A little clarity on what needs your attention.</p>
         </div>
         <div className="page-actions dashboard-actions">
-          <div className="date-range-control">
-            <select
-              aria-label="Dashboard date range"
-              className="date-range-select"
-              value={days}
-              onChange={(event) => setDays(Number(event.target.value) as RangeDays)}
-            >
-              <option value="7">Last 7 days</option>
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 90 days</option>
-            </select>
-            <span className="date-range-menu" aria-hidden="true">
-              <KebabIcon />
-            </span>
-          </div>
+          <DateRangeMenu days={days} onChange={setDays} />
         </div>
       </div>
       <div className="dashboard-body" aria-busy={loading}>
@@ -339,15 +435,6 @@ function DashboardError({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-function KebabIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <circle cx="12" cy="5" r="1.6" />
-      <circle cx="12" cy="12" r="1.6" />
-      <circle cx="12" cy="19" r="1.6" />
-    </svg>
-  );
-}
 function ChatIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
