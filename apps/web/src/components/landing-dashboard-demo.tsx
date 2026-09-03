@@ -9,7 +9,6 @@ import {
   Inbox,
   Lightbulb,
   type LucideIcon,
-  MessageSquareText,
   ShieldCheck,
   X,
 } from "lucide-react";
@@ -25,10 +24,10 @@ import {
 } from "./landing-workspace-demo-data";
 
 const stats = [
-  ["Total complaints", "60", MessageSquareText],
-  ["Bug reports", "15", Bug],
-  ["Blocked tasks", "15", CircleSlash2],
-  ["Ideas", "15", Lightbulb],
+  ["Total complaints", "60"],
+  ["Bug reports", "15"],
+  ["Blocked tasks", "15"],
+  ["Ideas", "15"],
 ] as const;
 
 const landingDemoKindIcons: Record<LandingDemoFeedbackKind, LucideIcon> = {
@@ -92,9 +91,18 @@ export function LandingDashboardDemo() {
     <section ref={widgetRef} className={styles.dashboardDemo} aria-label="Filika dashboard preview">
       <header className={styles.dashboardDemoTopbar}>
         <div className={styles.dashboardDemoBrand}>
-          <FilikaBrand href="/" label="Filika home" />
-          <i aria-hidden="true" />
-          <small>Filika Demo</small>
+          <FilikaBrand href="/" label="Filika home" className={styles.dashboardDemoLogo} />
+          <span className={styles.dashboardDemoSeparator} aria-hidden="true">
+            /
+          </span>
+          <span className={styles.dashboardDemoApplication}>
+            <i aria-hidden="true">F</i>
+            <small>Filika Demo</small>
+          </span>
+        </div>
+        <div className={styles.dashboardDemoProfile} aria-hidden="true">
+          <i />
+          <span className={styles.dashboardDemoProfileAvatar}>ER</span>
         </div>
       </header>
 
@@ -106,14 +114,16 @@ export function LandingDashboardDemo() {
                 <h2>Dashboard</h2>
                 <p>A little clarity on what needs your attention.</p>
               </div>
-              <span className={styles.dashboardDemoRange}>Last 30 days</span>
+              <span className={styles.dashboardDemoRange}>
+                Last 30 days <i aria-hidden="true">•••</i>
+              </span>
             </div>
 
             <div className={styles.dashboardDemoStats}>
-              {stats.map(([label, value, Icon]) => (
+              {stats.map(([label, value]) => (
                 <article key={label}>
                   <span>
-                    <Icon aria-hidden="true" data-free-size="true" /> {label}
+                    {label} <i aria-hidden="true">i</i>
                   </span>
                   <strong>{value}</strong>
                 </article>
@@ -163,7 +173,7 @@ export function LandingDashboardDemo() {
               >
                 <div className={styles.dashboardDemoPanelHeading}>
                   <h3 id="landing-breakdown-title">By feedback type</h3>
-                  <span>Share of reports</span>
+                  <span className={styles.dashboardDemoPanelMeta}>Share of reports</span>
                 </div>
                 <div className={styles.dashboardDemoBreakdownList}>
                   {LANDING_DEMO_CATEGORIES.map((category) => (
@@ -216,7 +226,9 @@ export function LandingDashboardDemo() {
             <section className={styles.dashboardDemoInbox} aria-label="Demo feedback inbox">
               <div className={styles.dashboardDemoPanelHeading}>
                 <h3>Your inbox</h3>
-                <span>{visibleReports.length} reports on this page</span>
+                <span className={styles.dashboardDemoPanelMeta}>
+                  {visibleReports.length} reports on this page
+                </span>
               </div>
               <div className={styles.dashboardDemoInboxInset}>
                 <fieldset className={styles.dashboardDemoFilters} aria-label="Feedback types">

@@ -13,10 +13,16 @@ describe("landing dashboard demo", () => {
     expect(logo).not.toBeNull();
     expect(result.container.textContent).toContain("Filika Demo");
     expect(result.container.textContent).not.toContain("Collector connected");
-    expect(result.container.textContent).toContain("Total complaints60");
-    expect(result.container.textContent).toContain("Bug reports15");
-    expect(result.container.textContent).toContain("Blocked tasks15");
-    expect(result.container.textContent).toContain("Ideas15");
+    const metrics = Array.from(result.container.querySelectorAll("article")).map((card) => ({
+      label: card.querySelector("span")?.firstChild?.textContent?.trim(),
+      value: card.querySelector("strong")?.textContent,
+    }));
+    expect(metrics).toEqual([
+      { label: "Total complaints", value: "60" },
+      { label: "Bug reports", value: "15" },
+      { label: "Blocked tasks", value: "15" },
+      { label: "Ideas", value: "15" },
+    ]);
     expect(result.container.textContent).toContain("By feedback type");
     expect(result.container.textContent).toContain("Confusing behavior");
     expect(
