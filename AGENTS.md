@@ -45,19 +45,19 @@ Repository areas:
 - Preserve user review before transmitting agent-authored feedback.
 - Registration or execution failures must not break the host page.
 
-## Required Verification
+## Local Verification and CI
 
-Run the checks relevant to the change before opening a pull request:
-
-```sh
-bun install
-bun run check
-bun run typecheck
-bun run test:unit
-bun run build
-```
-
-Run `bun run test:browser` when browser behavior or the end-to-end flow changes.
+- During implementation, run the smallest relevant Bun test locally to protect
+  code integrity and keep each logical change working. Prefer targeted commands
+  such as `bun test path/to/relevant.test.ts` over the full test suite.
+- Do not routinely reproduce the pull request CI matrix locally. GitHub Actions
+  is responsible for install, lint and formatting, typecheck, unit, build, and
+  browser verification after a pull request is opened or updated.
+- Run a full CI command locally only when the user explicitly requests it or
+  when diagnosing a failure reported by that CI job. Setup or build commands may
+  still be run when they are required to implement the change itself.
+- After opening or updating a pull request, inspect the required GitHub checks
+  and fix any failures before merge.
 
 ## Pull Requests
 
