@@ -17,7 +17,7 @@ describe("demo-store", () => {
         }}
       />,
     );
-    expect(result.container.textContent).toContain("Auralis Audio");
+    expect(result.container.textContent).toContain("acmeaudio");
     expect(result.container.textContent).toContain("Wireless Headphones");
     expect(result.container.textContent).toContain("Mechanical Keyboard");
     expect(result.container.querySelectorAll("img")).toHaveLength(3);

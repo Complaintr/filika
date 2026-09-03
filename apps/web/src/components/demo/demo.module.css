@@ -125,13 +125,21 @@
   padding: 10px 16px;
 }
 .storeLogo {
-  font-size: 15px;
+  display: inline-flex;
+  gap: 4px;
+  align-items: baseline;
+  color: var(--store-ink);
+  font-size: 16px;
   font-weight: 800;
-  letter-spacing: -0.01em;
-  text-transform: lowercase;
+  letter-spacing: -0.035em;
 }
-.storeLogo::first-letter {
+.storeLogoBrand {
   color: var(--store-accent);
+}
+.storeLogoCategory {
+  color: var(--store-ink);
+  font-weight: 650;
+  letter-spacing: -0.02em;
 }
 .storeNav {
   display: flex;

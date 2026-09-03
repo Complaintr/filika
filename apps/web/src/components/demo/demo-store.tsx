@@ -65,7 +65,10 @@ export function DemoStore({
     <div className={styles.store} id="demo-store" data-demo-step="store">
       <header className={styles.storeTopbar}>
         <div className={styles.storeTopbarInner}>
-          <span className={styles.storeLogo}>Auralis Audio</span>
+          <span className={styles.storeLogo}>
+            <span className={styles.storeLogoBrand}>acme</span>
+            <span className={styles.storeLogoCategory}>audio</span>
+          </span>
           <span className={styles.storeCart}>
             <ShoppingBag aria-hidden="true" /> Cart ({state.cart.length})
           </span>
