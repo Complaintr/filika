@@ -2773,35 +2773,35 @@ html {
   inline-size: min(680px, calc(100vw - 32px));
   max-block-size: min(820px, calc(100vh - 32px));
   border: 1px solid var(--studio-line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--studio-surface);
   color: var(--studio-text);
   box-shadow:
     0 32px 96px rgb(0 0 0 / 30%),
     inset 0 1px 0 rgb(255 255 255 / 36%);
-  overflow: auto;
-  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .report-dialog:not([open]) {
   display: none;
 }
 .report-dialog[open] {
+  display: flex;
   animation: report-enter 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .report-dialog::backdrop {
   background: rgb(37 48 71 / 34%);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 .report-dialog-head {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 18px 12px 24px;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--studio-surface);
+  padding: 18px 20px 14px 26px;
+  border-bottom: 1px solid var(--studio-line);
 }
 .report-dialog-eyebrow {
   display: inline-flex;
@@ -2857,14 +2857,32 @@ html {
   outline-offset: 2px;
 }
 .report-dialog-content {
-  padding: 4px 24px 28px;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 20px 26px 26px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--studio-line) transparent;
+}
+.report-dialog-content::-webkit-scrollbar {
+  width: 10px;
+}
+.report-dialog-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.report-dialog-content::-webkit-scrollbar-thumb {
+  background: var(--studio-line);
+  border: 3px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
 }
 .report-dialog-heading {
-  padding: 6px 0 18px;
+  padding: 0 0 18px;
 }
 .report-dialog-heading h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 600;
   letter-spacing: -0.035em;
   line-height: 1.22;
@@ -2895,22 +2913,20 @@ html {
 .report-context-card {
   padding: 18px 20px;
   border: 1px solid var(--studio-line);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--studio-soft);
 }
 .report-card h3,
 .report-context-card h3 {
   margin: 0 0 9px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12.8px;
+  font-weight: 650;
   color: var(--studio-muted);
 }
 .report-card p {
   margin: 0;
   font-size: 14px;
-  line-height: 1.75;
+  line-height: 1.7;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -2927,7 +2943,7 @@ html {
   min-width: 0;
 }
 .report-context-card dt {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 650;
   color: var(--studio-muted);
   margin-bottom: 3px;
@@ -2949,6 +2965,7 @@ html {
   padding: 28px 0 12px;
 }
 .report-dialog-footer {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2956,9 +2973,6 @@ html {
   padding: 14px 24px;
   border-top: 1px solid var(--studio-line);
   background: var(--studio-surface);
-  position: sticky;
-  bottom: 0;
-  z-index: 1;
 }
 .report-dialog-footer > span {
   display: inline-flex;
@@ -4128,13 +4142,13 @@ html {
   .report-dialog {
     inline-size: calc(100vw - 24px);
     max-block-size: calc(100vh - 24px);
-    border-radius: 14px;
+    border-radius: 12px;
   }
   .report-dialog-head {
-    padding: 12px 10px 10px 16px;
+    padding: 14px 10px 12px 16px;
   }
   .report-dialog-content {
-    padding: 4px 16px 22px;
+    padding: 16px 16px 22px;
   }
   .report-context-card dl {
     grid-template-columns: 1fr;
@@ -5315,16 +5329,14 @@ html {
   margin-top: 12px;
   padding: 18px 20px;
   border: 1px solid var(--studio-line);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--studio-soft);
   overflow-wrap: anywhere;
 }
 .github-issue-panel h3 {
   margin: 0 0 9px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12.8px;
+  font-weight: 650;
   color: var(--studio-muted);
 }
 .github-issue-panel p {
