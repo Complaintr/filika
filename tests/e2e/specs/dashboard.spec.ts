@@ -58,7 +58,8 @@ test("dashboard date range switch reloads the requested window", async ({ page }
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
   await expect(page.locator(".stat-value").first()).toContainText("4");
-  await page.getByLabel("Dashboard date range").selectOption("7");
+  await page.getByRole("button", { name: "Dashboard date range" }).click();
+  await page.getByRole("menuitemradio", { name: "Last 7 days" }).click();
   await expect(page.getByRole("img", { name: /complaints over 7 days/ })).toBeVisible();
   expect(requests).toContain(7);
 });

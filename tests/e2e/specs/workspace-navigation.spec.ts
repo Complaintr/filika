@@ -18,7 +18,7 @@ test("application loads with a connected collector and three navigation destinat
   await expect(navItem(page, "Dashboard")).toBeVisible();
   await expect(navItem(page, "Complaints")).toBeVisible();
   await expect(navItem(page, "Settings")).toBeVisible();
-  await expect(page.getByRole("combobox", { name: "Dashboard date range" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Dashboard date range" })).toBeVisible();
 });
 
 test("complaints list is reachable from the dashboard and renders its empty state", async ({
