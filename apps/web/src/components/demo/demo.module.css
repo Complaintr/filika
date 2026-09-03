@@ -204,7 +204,7 @@
 .productImage {
   display: grid;
   place-items: center;
-  aspect-ratio: 1 / 1;
+  height: 132px;
   border-radius: 6px;
   background: linear-gradient(180deg, #fafaf9 0%, #f1efec 100%);
 }
@@ -894,8 +894,8 @@
 }
 
 .storeBody {
-  gap: 12px;
-  padding: 16px;
+  gap: 10px;
+  padding: 12px 14px 14px;
 }
 
 .storeHeading h2 {
@@ -905,7 +905,7 @@
 
 .productGrid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
   min-height: 0;
   overflow-y: auto;
 }
@@ -913,9 +913,9 @@
 .productCard {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
-  padding: 12px;
+  padding: 10px;
   border-radius: 10px;
   transition: border-color 150ms ease;
 }
@@ -931,9 +931,8 @@
 
 .productImage {
   width: 100%;
-  height: auto;
+  height: 132px;
   min-height: 0;
-  aspect-ratio: 1 / 1;
   overflow: hidden;
   border-radius: 10px;
   background: #f5f6f8;
@@ -948,7 +947,7 @@
 }
 
 .productTagline {
-  min-height: 30px;
+  min-height: 0;
   margin: 0;
   color: var(--store-muted);
   font-size: 11px;

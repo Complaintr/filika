@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Circle, RotateCcw } from "lucide-react";
+import { Check, Circle, Loader2, RotateCcw } from "lucide-react";
 import styles from "./demo.module.css";
 import type { DemoStoreState } from "./demo-store";
 
@@ -59,7 +59,7 @@ export function DemoFlowPanel({
               className={`${event.complete ? styles.liveEventComplete : ""} ${current ? styles.liveEventCurrent : ""}`}
             >
               <span className={styles.liveEventIcon} aria-hidden="true">
-                {event.complete ? <Check /> : <Circle />}
+                {event.complete ? <Check /> : current ? <Loader2 /> : <Circle />}
               </span>
               <span>{event.label}</span>
               <small>{event.complete ? "Done" : current ? "Waiting" : "Pending"}</small>
