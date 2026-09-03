@@ -1773,7 +1773,7 @@
 }
 .approvalTrack {
   position: absolute;
-  top: 18px;
+  top: 32px;
   right: 16.66%;
   left: 16.66%;
   height: 1px;
@@ -1782,7 +1782,7 @@
 .approvalRunner {
   position: absolute;
   z-index: 2;
-  top: 14px;
+  top: 28px;
   left: calc(16.66% - 4px);
   width: 9px;
   height: 9px;
@@ -1797,7 +1797,7 @@
   z-index: 1;
   display: grid;
   justify-items: center;
-  gap: 5px;
+  gap: 18px;
   color: var(--demo-muted);
   font-size: 7px;
   animation: approvalStage 8s ease infinite both;
@@ -1809,9 +1809,8 @@
   animation-delay: 5.3s;
 }
 .approvalStage svg {
-  width: 29px;
-  height: 29px;
-  padding: 6px;
+  width: 20px;
+  height: 20px;
 }
 .approvalAction {
   position: relative;
