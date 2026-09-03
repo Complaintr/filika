@@ -2,13 +2,22 @@
 
 import {
   ArrowLeft,
+  ArrowRight,
   ArrowUpRight,
   Bug,
+  ChevronLeft,
+  ChevronRight,
   CircleHelp,
   CircleSlash2,
+  Copy,
+  ExternalLink,
+  Home,
   Inbox,
   Lightbulb,
   type LucideIcon,
+  MessageCircle,
+  RefreshCw,
+  Search,
   ShieldCheck,
   X,
 } from "lucide-react";
@@ -24,11 +33,28 @@ import {
 } from "./landing-workspace-demo-data";
 
 const stats = [
-  ["Total complaints", "60"],
-  ["Bug reports", "15"],
-  ["Blocked tasks", "15"],
-  ["Ideas", "15"],
+  ["Total complaints", "220"],
+  ["Bug reports", "81"],
+  ["Blocked tasks", "55"],
+  ["Ideas", "38"],
 ] as const;
+
+const chartValues = [
+  2, 3, 1, 4, 5, 3, 2, 6, 8, 5, 3, 7, 9, 6, 8, 10, 7, 4, 3, 8, 7, 11, 9, 13, 10, 12, 11, 14, 13, 16,
+] as const;
+const chartMaximum = Math.max(4, ...chartValues);
+const chartPoints = chartValues.map((count, index) => ({
+  count,
+  x: 42 + (index * 776) / (chartValues.length - 1),
+  y: 232 - (count / chartMaximum) * 172,
+}));
+const chartPath = chartPoints.reduce((path, point, index) => {
+  if (index === 0) return `M ${point.x} ${point.y}`;
+  const previous = chartPoints[index - 1];
+  if (!previous) return path;
+  const middle = (previous.x + point.x) / 2;
+  return `${path} C ${middle} ${previous.y}, ${middle} ${point.y}, ${point.x} ${point.y}`;
+}, "");
 
 const landingDemoKindIcons: Record<LandingDemoFeedbackKind, LucideIcon> = {
   blocked_task: CircleSlash2,
@@ -86,6 +112,14 @@ export function LandingDashboardDemo() {
       widgetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
+  const showDashboard = () => {
+    setView("dashboard");
+    queueMicrotask(() => {
+      if (lastCategoryKindRef.current) {
+        categoryButtonsRef.current[lastCategoryKindRef.current]?.focus({ preventScroll: true });
+      }
+    });
+  };
 
   return (
     <section ref={widgetRef} className={styles.dashboardDemo} aria-label="Filika dashboard preview">
@@ -137,33 +171,36 @@ export function LandingDashboardDemo() {
                   <span>Daily volume · UTC · 30 days</span>
                 </div>
                 <svg
-                  viewBox="0 0 560 190"
+                  viewBox="0 0 860 290"
                   preserveAspectRatio="none"
                   data-free-size="true"
                   role="img"
-                  aria-label="60 complaints over the last 30 days"
+                  aria-label="220 complaints over the last 30 days"
                 >
                   <defs>
                     <pattern
                       id="landing-dashboard-grid"
-                      width="20"
-                      height="20"
+                      width="12"
+                      height="12"
                       patternUnits="userSpaceOnUse"
                     >
                       <circle cx="1" cy="1" r="1" />
                     </pattern>
                   </defs>
-                  <rect width="560" height="190" fill="url(#landing-dashboard-grid)" />
-                  <path
-                    className={styles.dashboardDemoChartLine}
-                    d="M18 126 C30 112 42 138 56 120 S82 96 98 114 S126 145 144 118 S170 82 188 104 S218 132 236 94 S266 116 284 88 S312 72 330 100 S356 126 374 90 S402 108 420 70 S448 92 466 62 S498 78 542 44"
+                  <rect
+                    x="22"
+                    y="24"
+                    width="816"
+                    height="220"
+                    fill="url(#landing-dashboard-grid)"
                   />
+                  <path className={styles.dashboardDemoChartLine} d={chartPath} />
                 </svg>
                 <div className={styles.dashboardDemoChartLabels} aria-hidden="true">
-                  <span>Aug 04</span>
+                  <span>Aug 5</span>
                   <span>Aug 14</span>
                   <span>Aug 24</span>
-                  <span>Sep 02</span>
+                  <span>Sep 3</span>
                 </div>
               </section>
 
@@ -203,24 +240,15 @@ export function LandingDashboardDemo() {
         ) : (
           <div className={styles.dashboardDemoComplaints} data-demo-view="complaints">
             <div className={styles.dashboardDemoComplaintsHeading}>
-              <button
-                className={styles.dashboardDemoBack}
-                type="button"
-                onClick={() => {
-                  setView("dashboard");
-                  if (typeof window !== "undefined" && window.innerWidth <= 640) {
-                    widgetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }
-                }}
-              >
-                <ArrowLeft aria-hidden="true" data-free-size="true" /> Back to dashboard
-              </button>
               <div>
                 <h2 ref={complaintsHeadingRef} tabIndex={-1}>
                   All complaints
                 </h2>
                 <p>A closer look at the feedback behind your product.</p>
               </div>
+              <button className={styles.dashboardDemoRefresh} type="button">
+                <RefreshCw aria-hidden="true" data-free-size="true" /> Refresh inbox
+              </button>
             </div>
 
             <section className={styles.dashboardDemoInbox} aria-label="Demo feedback inbox">
@@ -231,6 +259,17 @@ export function LandingDashboardDemo() {
                 </span>
               </div>
               <div className={styles.dashboardDemoInboxInset}>
+                <div className={styles.dashboardDemoInboxToolbar}>
+                  <label className={styles.dashboardDemoSearch}>
+                    <Search aria-hidden="true" data-free-size="true" />
+                    <input
+                      aria-label="Search demo complaints"
+                      type="search"
+                      placeholder="Search complaints…"
+                    />
+                  </label>
+                  <span className={styles.dashboardDemoSort}>Newest first</span>
+                </div>
                 <fieldset className={styles.dashboardDemoFilters} aria-label="Feedback types">
                   <button
                     type="button"
@@ -285,11 +324,40 @@ export function LandingDashboardDemo() {
                     );
                   })}
                 </ol>
+                <footer className={styles.dashboardDemoInboxFooter}>
+                  <span>Page 1</span>
+                  <div>
+                    <button type="button" disabled>
+                      <ChevronLeft aria-hidden="true" data-free-size="true" /> Previous
+                    </button>
+                    <button type="button" disabled>
+                      Next <ChevronRight aria-hidden="true" data-free-size="true" />
+                    </button>
+                  </div>
+                </footer>
               </div>
             </section>
           </div>
         )}
       </div>
+
+      <nav className={styles.dashboardDemoNav} aria-label="Preview navigation">
+        <button type="button" aria-pressed={view === "dashboard"} onClick={showDashboard}>
+          <Home aria-hidden="true" data-free-size="true" />
+          <span>Dashboard</span>
+        </button>
+        <button
+          type="button"
+          aria-pressed={view === "complaints"}
+          onClick={() => {
+            setActiveKind(null);
+            setView("complaints");
+          }}
+        >
+          <MessageCircle aria-hidden="true" data-free-size="true" />
+          <span>Complaints</span>
+        </button>
+      </nav>
 
       <dialog
         ref={dialogRef}
@@ -317,28 +385,45 @@ export function LandingDashboardDemo() {
       >
         <div className={styles.dashboardDemoDialogCard}>
           <header className={styles.dashboardDemoDialogToolbar}>
-            <span className={styles.dashboardDemoDialogLabel}>Feedback details</span>
-            <button
-              ref={closeButtonRef}
-              type="button"
-              aria-label="Close feedback details"
-              onClick={closeDialog}
-            >
-              <X aria-hidden="true" data-free-size="true" />
-            </button>
-          </header>
-          <div className={styles.dashboardDemoDialogContent}>
-            <span
-              className={`${styles.dashboardDemoKind} ${landingDemoKindClass(activeReport.kind)}`}
-            >
-              {landingDemoCategory(activeReport.kind).label}
+            <span className={styles.dashboardDemoDialogLabel}>
+              <strong>Report content</strong>
+              <small>{landingDemoCategory(activeReport.kind).label}</small>
             </span>
-            <h2 id="landing-feedback-detail-title">{activeReport.title}</h2>
-            <p className={styles.dashboardDemoDialogReceived}>
-              Received {activeReport.received} · {activeReport.route}
-            </p>
-            <div className={styles.dashboardDemoDialogGrid}>
-              <div>
+            <span className={styles.dashboardDemoDialogActions}>
+              <button
+                className={styles.dashboardDemoDialogAction}
+                type="button"
+                aria-label="Previous preview report"
+              >
+                <ArrowLeft aria-hidden="true" data-free-size="true" />
+              </button>
+              <button
+                className={styles.dashboardDemoDialogAction}
+                type="button"
+                aria-label="Next preview report"
+              >
+                <ArrowRight aria-hidden="true" data-free-size="true" />
+              </button>
+              <button
+                ref={closeButtonRef}
+                className={styles.dashboardDemoDialogAction}
+                type="button"
+                aria-label="Close feedback details"
+                onClick={closeDialog}
+              >
+                <X aria-hidden="true" data-free-size="true" />
+              </button>
+            </span>
+          </header>
+          <div className={styles.dashboardDemoDialogInset}>
+            <div className={styles.dashboardDemoDialogContent}>
+              <div className={styles.dashboardDemoDialogTitle}>
+                <h2 id="landing-feedback-detail-title">{activeReport.title}</h2>
+                <p>
+                  Received {activeReport.receivedLabel} · {activeReport.route}
+                </p>
+              </div>
+              <div className={styles.dashboardDemoDialogSections}>
                 <section>
                   <h3>What happened</h3>
                   <p>{activeReport.description}</p>
@@ -347,29 +432,43 @@ export function LandingDashboardDemo() {
                   <h3>What was expected</h3>
                   <p>{activeReport.expectedBehavior}</p>
                 </section>
+                <section>
+                  <h3>Report context</h3>
+                  <dl>
+                    <div>
+                      <dt>Origin</dt>
+                      <dd>{activeReport.origin}</dd>
+                    </div>
+                    <div>
+                      <dt>Page</dt>
+                      <dd>{activeReport.route}</dd>
+                    </div>
+                    <div>
+                      <dt>Release</dt>
+                      <dd>2026.09.03</dd>
+                    </div>
+                    <div>
+                      <dt>Source</dt>
+                      <dd>WebMCP agent</dd>
+                    </div>
+                  </dl>
+                </section>
               </div>
-              <aside>
-                <h3>Report context</h3>
-                <dl>
-                  <div>
-                    <dt>Application</dt>
-                    <dd>Acme Store</dd>
-                  </div>
-                  <div>
-                    <dt>Page</dt>
-                    <dd>{activeReport.route}</dd>
-                  </div>
-                  <div>
-                    <dt>Source</dt>
-                    <dd>WebMCP agent</dd>
-                  </div>
-                </dl>
-              </aside>
             </div>
           </div>
           <footer className={styles.dashboardDemoDialogFooter}>
-            <ShieldCheck aria-hidden="true" data-free-size="true" />
-            Read-only preview. No data is sent.
+            <span>
+              <ShieldCheck aria-hidden="true" data-free-size="true" />
+              Read-only feedback. External content is untrusted.
+            </span>
+            <span className={styles.dashboardDemoDialogFooterActions}>
+              <button type="button">
+                <Copy aria-hidden="true" data-free-size="true" /> Copy link
+              </button>
+              <button type="button" aria-label="Open preview report page">
+                <ExternalLink aria-hidden="true" data-free-size="true" />
+              </button>
+            </span>
           </footer>
         </div>
       </dialog>

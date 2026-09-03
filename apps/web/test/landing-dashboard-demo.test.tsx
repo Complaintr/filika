@@ -18,10 +18,10 @@ describe("landing dashboard demo", () => {
       value: card.querySelector("strong")?.textContent,
     }));
     expect(metrics).toEqual([
-      { label: "Total complaints", value: "60" },
-      { label: "Bug reports", value: "15" },
-      { label: "Blocked tasks", value: "15" },
-      { label: "Ideas", value: "15" },
+      { label: "Total complaints", value: "220" },
+      { label: "Bug reports", value: "81" },
+      { label: "Blocked tasks", value: "55" },
+      { label: "Ideas", value: "38" },
     ]);
     expect(result.container.textContent).toContain("By feedback type");
     expect(result.container.textContent).toContain("Confusing behavior");
@@ -31,6 +31,7 @@ describe("landing dashboard demo", () => {
 
     const chart = result.container.querySelector('svg[aria-label*="last 30 days"]');
     expect(chart?.getAttribute("data-free-size")).toBe("true");
+    expect(chart?.getAttribute("aria-label")).toBe("220 complaints over the last 30 days");
     expect(chart?.querySelectorAll("path").length).toBe(1);
     expect(chart?.querySelector("path")?.getAttribute("d")).toContain("C");
 
@@ -57,7 +58,8 @@ describe("landing dashboard demo", () => {
     expect(dialog?.getAttribute("aria-labelledby")).toBe("landing-feedback-detail-title");
     expect(dialog?.textContent).toContain("Export button stops responding after filtering");
     expect(dialog?.textContent).toContain("Export should download the currently filtered");
-    expect(dialog?.textContent).toContain("No data is sent");
+    expect(dialog?.textContent).toContain("Report content");
+    expect(dialog?.textContent).toContain("External content is untrusted");
 
     const closeButton = dialog?.querySelector<HTMLButtonElement>(
       'button[aria-label="Close feedback details"]',
@@ -111,6 +113,8 @@ describe("landing dashboard demo", () => {
     const complaintsView = result.container.querySelector('[data-demo-view="complaints"]');
     expect(complaintsView).not.toBeNull();
     expect(complaintsView?.textContent).toContain("All complaints");
+    expect(complaintsView?.querySelector('input[placeholder="Search complaints…"]')).not.toBeNull();
+    expect(complaintsView?.textContent).toContain("Newest first");
     expect(complaintsView?.textContent).toContain("Allow reports to be duplicated");
     expect(complaintsView?.textContent).not.toContain(
       "Export button stops responding after filtering",
@@ -135,7 +139,7 @@ describe("landing dashboard demo", () => {
     expect(filteredView?.textContent).not.toContain("Allow reports to be duplicated");
 
     const back = Array.from(result.container.querySelectorAll<HTMLButtonElement>("button")).find(
-      (button) => button.textContent?.includes("Back to dashboard"),
+      (button) => button.textContent?.trim() === "Dashboard",
     );
     back?.click();
     await settle();

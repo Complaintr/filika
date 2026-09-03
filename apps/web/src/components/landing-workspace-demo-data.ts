@@ -22,32 +22,32 @@ export interface LandingDemoReport {
 
 export const LANDING_DEMO_CATEGORIES = [
   {
-    count: 15,
+    count: 81,
     filterLabel: "Bugs",
     kind: "bug",
     label: "Bug report",
-    percentage: 25,
+    percentage: 37,
   },
   {
-    count: 15,
+    count: 55,
     filterLabel: "Blocked tasks",
     kind: "blocked_task",
     label: "Blocked task",
     percentage: 25,
   },
   {
-    count: 15,
+    count: 46,
     filterLabel: "Confusing",
     kind: "confusing_behavior",
     label: "Confusing behavior",
-    percentage: 25,
+    percentage: 21,
   },
   {
-    count: 15,
+    count: 38,
     filterLabel: "Ideas",
     kind: "idea",
     label: "Idea",
-    percentage: 25,
+    percentage: 17,
   },
 ] as const satisfies readonly LandingDemoCategory[];
 
