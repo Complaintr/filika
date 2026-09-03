@@ -519,8 +519,11 @@
   --dashboard-demo-line: rgba(30, 41, 59, 0.1);
   --dashboard-demo-muted: #718096;
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   min-height: 560px;
+  scroll-margin-top: 72px;
   overflow: hidden;
   border: 1px solid var(--dashboard-demo-line);
   border-radius: 16px;
@@ -558,6 +561,9 @@
   font-size: 10px;
 }
 .dashboardDemoBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   padding: 24px;
 }
 .dashboardDemoHeading,
@@ -751,6 +757,11 @@
 .dashboardDemoBreakdownDot.dashboardDemoKindIdea {
   background: currentColor;
 }
+.dashboardDemoComplaints {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 .dashboardDemoComplaintsHeading {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -790,6 +801,9 @@
   height: 12px;
 }
 .dashboardDemoInbox {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   margin-top: 18px;
   padding: 14px;
   border: 1px solid var(--dashboard-demo-line);
@@ -797,6 +811,9 @@
   background: var(--dashboard-demo-surface);
 }
 .dashboardDemoInboxInset {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   margin-top: 10px;
   padding: 11px;
   border: 1px solid var(--dashboard-demo-line);
@@ -837,6 +854,8 @@
 }
 .dashboardDemoComplaintList {
   display: grid;
+  align-content: start;
+  min-height: 245px;
   gap: 7px;
   margin: 11px 0 0;
   padding: 0;
@@ -1773,7 +1792,7 @@
 }
 .approvalTrack {
   position: absolute;
-  top: 18px;
+  top: 32px;
   right: 16.66%;
   left: 16.66%;
   height: 1px;
@@ -1782,7 +1801,7 @@
 .approvalRunner {
   position: absolute;
   z-index: 2;
-  top: 14px;
+  top: 28px;
   left: calc(16.66% - 4px);
   width: 9px;
   height: 9px;
@@ -1797,7 +1816,7 @@
   z-index: 1;
   display: grid;
   justify-items: center;
-  gap: 5px;
+  gap: 18px;
   color: var(--demo-muted);
   font-size: 7px;
   animation: approvalStage 8s ease infinite both;
@@ -1809,9 +1828,8 @@
   animation-delay: 5.3s;
 }
 .approvalStage svg {
-  width: 29px;
-  height: 29px;
-  padding: 6px;
+  width: 20px;
+  height: 20px;
 }
 .approvalAction {
   position: relative;
@@ -2484,11 +2502,33 @@
   color: #ffffff;
 }
 .finalCta h2 span {
-  display: block;
   color: #38bdf8;
 }
-.finalCta .primaryButton {
+.finalCtaActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   flex: 0 0 auto;
+}
+.finalCta .primaryButton,
+.finalCta .secondaryButton {
+  flex: 0 0 auto;
+}
+.finalCta .secondaryButton {
+  min-height: 36px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.finalCta .secondaryButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.38);
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 .finalCtaCopyright {
   position: relative;
@@ -2563,6 +2603,11 @@
   color: #f1f5f9;
 }
 
+:root[data-theme="dark"] .heroMedia {
+  background-image:
+    linear-gradient(rgba(10, 15, 26, 0.58), rgba(10, 15, 26, 0.58)), url("/hero-demo-frame.png");
+}
+
 @media (max-width: 1100px) {
   .pricingGrid {
     grid-template-columns: repeat(2, 1fr);
@@ -2635,7 +2680,7 @@
     line-height: 1.7;
   }
   .dashboardDemo {
-    min-height: 460px;
+    min-height: 580px;
   }
   .dashboardDemoBody {
     padding: 18px;
@@ -2719,6 +2764,14 @@
     width: 13px;
     height: 13px;
   }
+  .heroMedia {
+    padding: 0;
+    background: none;
+    border-radius: 16px;
+  }
+  :root[data-theme="dark"] .heroMedia {
+    background: none;
+  }
 }
 
 @media (max-width: 560px) {
@@ -2726,7 +2779,7 @@
     font-size: 36px;
   }
   .dashboardDemo {
-    min-height: 380px;
+    min-height: 740px;
   }
   .dashboardDemoTopbar {
     padding-inline: 12px;
@@ -2739,12 +2792,22 @@
   }
   .dashboardDemoStats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .dashboardDemoStats article {
+    padding: 10px 12px;
   }
   .dashboardDemoGrid {
     grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 10px;
   }
   .dashboardDemoChart svg {
-    height: 140px;
+    height: 120px;
+  }
+  .dashboardDemoBreakdownRow {
+    min-height: 38px;
   }
   .dashboardDemoDialog {
     padding: 8px;

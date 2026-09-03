@@ -46,6 +46,7 @@ function landingDemoKindClass(kind: LandingDemoFeedbackKind): string | undefined
 }
 
 export function LandingDashboardDemo() {
+  const widgetRef = useRef<HTMLElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const invokerRef = useRef<HTMLButtonElement | null>(null);
@@ -65,9 +66,9 @@ export function LandingDashboardDemo() {
 
   useEffect(() => {
     if (view === "complaints") {
-      complaintsHeadingRef.current?.focus();
+      complaintsHeadingRef.current?.focus({ preventScroll: true });
     } else if (lastCategoryKindRef.current) {
-      categoryButtonsRef.current[lastCategoryKindRef.current]?.focus();
+      categoryButtonsRef.current[lastCategoryKindRef.current]?.focus({ preventScroll: true });
     }
   }, [view]);
 
@@ -76,16 +77,19 @@ export function LandingDashboardDemo() {
     setActiveReport(report);
     invokerRef.current = invoker;
     if (!dialogRef.current?.open) dialogRef.current?.show();
-    queueMicrotask(() => closeButtonRef.current?.focus());
+    queueMicrotask(() => closeButtonRef.current?.focus({ preventScroll: true }));
   };
   const openComplaints = (kind: LandingDemoFeedbackKind) => {
     lastCategoryKindRef.current = kind;
     setActiveKind(kind);
     setView("complaints");
+    if (typeof window !== "undefined" && window.innerWidth <= 640) {
+      widgetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   return (
-    <section className={styles.dashboardDemo} aria-label="Filika dashboard preview">
+    <section ref={widgetRef} className={styles.dashboardDemo} aria-label="Filika dashboard preview">
       <header className={styles.dashboardDemoTopbar}>
         <div className={styles.dashboardDemoBrand}>
           <FilikaBrand href="/" label="Filika home" />
@@ -192,7 +196,12 @@ export function LandingDashboardDemo() {
               <button
                 className={styles.dashboardDemoBack}
                 type="button"
-                onClick={() => setView("dashboard")}
+                onClick={() => {
+                  setView("dashboard");
+                  if (typeof window !== "undefined" && window.innerWidth <= 640) {
+                    widgetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }}
               >
                 <ArrowLeft aria-hidden="true" data-free-size="true" /> Back to dashboard
               </button>
@@ -279,7 +288,7 @@ export function LandingDashboardDemo() {
           event.preventDefault();
           closeDialog();
         }}
-        onClose={() => invokerRef.current?.focus()}
+        onClose={() => invokerRef.current?.focus({ preventScroll: true })}
         onPointerDown={(event) => {
           if (event.target === event.currentTarget) closeDialog();
         }}

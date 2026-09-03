@@ -7,7 +7,7 @@ describe("public landing page", () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
 
     expect(page).toMatch(/reviewed GitHub issues\s*<br \/>/);
-    expect(page).toContain("After the user reviews and confirms a report");
+    expect(page).toContain("Reports reach your collector immediately");
     expect(page).toContain("issue automatically or let your team create it manually");
     expect(page).not.toContain("connects each reviewed report to the relevant code");
   });
@@ -21,7 +21,7 @@ describe("public landing page", () => {
       "Built for intelligent agent workflows.",
       "Complete feedback infrastructure,",
       "Fair questions,",
-      "Find code and behavioral bugs before your users do.",
+      "Start collecting agent-authored feedback today.",
     ];
 
     for (const section of sections) {
@@ -50,11 +50,11 @@ describe("public landing page", () => {
 
     expect(page).toContain("WebMCP native");
     expect(page).toContain("Code &amp; behavioral bugs");
-    expect(page).toContain("100% Free &amp; Open Source");
+    expect(page).toContain("From code errors to broken user flows.");
     expect(page).toContain("2026 Complaintr. All rights reserved.");
-    expect(page).toContain("User-reviewed feedback infrastructure for AI agents.");
+    expect(page).toContain("WebMCP feedback infrastructure for modern web applications.");
     expect(page).toContain('href="/terms"');
-    expect(page).toContain("Human in the loop");
+    expect(page).toContain("Maintainer triage");
     expect(page).toContain("What is Filika?");
     expect(page).toContain("How do WebMCP agents find bugs?");
     expect(page).toContain("How do I connect Filika to my website?");
@@ -140,6 +140,12 @@ describe("public landing page", () => {
     const heroMedia = styles.match(/\.heroMedia\s*\{([^}]*)\}/)?.[1];
     expect(heroMedia).toContain('var(--card) url("/hero-demo-frame.png")');
     expect(styles).toContain("/hero-demo-frame.png");
+
+    const darkHeroMedia = styles.match(
+      /:root\[data-theme="dark"\]\s+\.heroMedia\s*\{([^}]*)\}/,
+    )?.[1];
+    expect(darkHeroMedia).toContain("rgba(10, 15, 26, 0.58)");
+    expect(darkHeroMedia).toContain("/hero-demo-frame.png");
   });
 
   test("serves the home route without authentication or workspace chrome", async () => {

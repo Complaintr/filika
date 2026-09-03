@@ -18,15 +18,15 @@ export const metadata: Metadata = {
     absolute: "Filika",
   },
   description:
-    "Filika is an open-source, 100% free platform that uses WebMCP browser agents to discover code crashes, runtime exceptions, and behavioral bugs in web applications.",
+    "Filika is an open-source WebMCP feedback platform. Browser AI agents report bugs, blocked tasks, and confusing UX directly to your developer inbox.",
 };
 
 const extras = [
   ["WebMCP Protocol", "Native browser tool integration built on document.modelContext standards."],
-  ["Code Context", "Captures stack traces, runtime exceptions, and failed network calls."],
+  ["Code Context", "Captures route labels, release versions, and reproduction steps."],
   [
     "Behavioral Detection",
-    "Spots confusing interaction loops, dead-end states, and broken UI controls.",
+    "Captures confusing interaction loops, dead-end states, and blocked workflows.",
   ],
   [
     "Self-Hostable",
@@ -34,30 +34,30 @@ const extras = [
   ],
   [
     "Developer Triage Workspace",
-    "Filter, search, and manage verified bug reports in a unified inbox.",
+    "Filter, search, and manage incoming bug reports in a unified inbox.",
   ],
   [
     "Privacy by Default",
-    "Automatically strips credentials and tokens before review. No cookies, no tracking, and no ambient recording.",
+    "Zero ambient capture. No cookies, no passwords, no browsing history, and no tracking.",
   ],
 ] as const;
 
 const faqs = [
   [
     "What is Filika?",
-    "Filika is an open-source platform that uses WebMCP browser agents to discover code errors, runtime bugs, and behavioral issues across web applications.",
+    "Filika is an open-source, WebMCP-native feedback system. Browser AI agents draft structured reports about issues they encounter, and maintainers triage them in one place.",
   ],
   [
     "How do WebMCP agents find bugs?",
-    "When a WebMCP-enabled browser agent interacts with your website, it uses structured tools to inspect runtime state, detect broken flows, and draft detailed reports on problems it encounters.",
+    "When a WebMCP-enabled browser agent interacts with your website, it uses the filika_submit_feedback tool to report bugs, blocked tasks, and confusing UX with reproduction steps.",
   ],
   [
     "How do I connect Filika to my website?",
-    "Filika works directly with WebMCP-compliant browser environments and tools with zero client libraries or setup required.",
+    "Add the lightweight script tag to your web pages and approve your website origin in Filika settings. The tool registers with document.modelContext automatically.",
   ],
   [
     "How is user privacy protected?",
-    "Nothing is sent without user review and confirmation. Filika never records cookies, passwords, browsing history, or ambient session data.",
+    "Filika enforces zero ambient capture: no cookies, passwords, browsing history, or session storage. Reports contain only the explicit evidence drafted by the agent.",
   ],
   [
     "Can I self-host Filika?",
@@ -89,7 +89,7 @@ export default function HomePage() {
             <div className={styles.heroPitch}>
               <p>
                 Filika gives browser agents a WebMCP tool to report problems they encounter in your
-                web app. After the user reviews and confirms a report, Filika can create a GitHub
+                web app. Reports reach your collector immediately, where Filika can create a GitHub
                 issue automatically or let your team create it manually.
               </p>
               <div className={styles.heroCta}>
@@ -116,7 +116,7 @@ export default function HomePage() {
               <div className={styles.stepVisual}>
                 <GlobeDemo />
               </div>
-              <p>Direct WebMCP agent connectivity with zero client configuration.</p>
+              <p>Embed the lightweight script snippet and verify your domain in seconds.</p>
             </li>
             <li>
               <div className={styles.cardHeading}>
@@ -125,7 +125,7 @@ export default function HomePage() {
               <div className={styles.stepVisual}>
                 <SiteScanFlowDemo />
               </div>
-              <p>Browser agents detect crashes and broken flows automatically.</p>
+              <p>Browser agents detect blockers and submit structured reports instantly.</p>
             </li>
             <li>
               <div className={styles.cardHeading}>
@@ -134,7 +134,7 @@ export default function HomePage() {
               <div className={styles.stepVisual}>
                 <ResolutionFlowDemo />
               </div>
-              <p>Review sanitized reports and triage in a unified inbox.</p>
+              <p>Inspect incoming reports and triage them in your unified inbox.</p>
             </li>
           </ol>
         </section>
@@ -160,8 +160,7 @@ export default function HomePage() {
                 <Bug aria-hidden="true" /> Code &amp; behavioral bugs
               </h3>
               <p>
-                Finds silent runtime exceptions, console errors, broken interactions, and UX
-                friction.
+                Structured capture for bugs, blocked tasks, confusing behavior, and feature ideas.
               </p>
             </li>
             <li>
@@ -174,10 +173,10 @@ export default function HomePage() {
             <li>
               <ApprovalFlowDemo />
               <h3>
-                <ShieldCheck aria-hidden="true" /> Human in the loop
+                <ShieldCheck aria-hidden="true" /> Maintainer triage
               </h3>
               <p>
-                No data is sent without explicit user review and confirmation. Safe by construction.
+                Triage incoming reports in a unified workspace and export issues directly to GitHub.
               </p>
             </li>
           </ul>
@@ -216,12 +215,25 @@ export default function HomePage() {
         <section className={styles.finalCta}>
           <div className={styles.finalCtaMain}>
             <h2>
-              Find code and behavioral bugs before your users do.{" "}
-              <span>100% Free &amp; Open Source.</span>
+              Start collecting agent-authored feedback today.{" "}
+              <span>From code errors to broken user flows.</span>
             </h2>
-            <a className={styles.primaryButton} href="/login">
-              Get Started <ArrowRight aria-hidden="true" />
-            </a>
+            <div className={styles.finalCtaActions}>
+              <a
+                className={styles.secondaryButton}
+                href="https://github.com/Complaintr/filika"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.51 2.87 8.34 6.84 9.69.5.1.68-.22.68-.5v-1.73c-2.78.62-3.37-1.38-3.37-1.38-.45-1.18-1.1-1.5-1.1-1.5-.91-.63.06-.62.06-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.3 9.3 0 0 1 12 6.94c.85 0 1.7.12 2.5.34 1.9-1.33 2.74-1.05 2.74-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9v2.82c0 .28.18.6.69.5A10.15 10.15 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z" />
+                </svg>
+                <span>GitHub</span>
+              </a>
+              <a className={styles.primaryButton} href="/login">
+                Get Started <ArrowRight aria-hidden="true" />
+              </a>
+            </div>
           </div>
           <p className={styles.finalCtaCopyright}>&copy; 2026 Complaintr. All rights reserved.</p>
         </section>
@@ -230,7 +242,7 @@ export default function HomePage() {
       <footer className={styles.bottomWatermark}>
         <div className={styles.footerTop}>
           <FilikaBrand href="/" label="Filika home" className={styles.footerBrand} />
-          <p>User-reviewed feedback infrastructure for AI agents.</p>
+          <p>WebMCP feedback infrastructure for modern web applications.</p>
           <nav className={styles.footerNav} aria-label="Footer navigation">
             <a href="#features">Features</a>
             <a href="#how-it-works">How it works</a>
