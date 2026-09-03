@@ -340,14 +340,14 @@ export function WorldGlobeDemo() {
       // 1. Atmosphere Rim Halo (soft luminous planetary glow)
       const glowGrad = ctx.createRadialGradient(cx, cy, R * 0.95, cx, cy, R * 1.34);
       if (isDark) {
-        glowGrad.addColorStop(0, "rgba(56, 189, 248, 0.35)");
-        glowGrad.addColorStop(0.35, "rgba(0, 159, 227, 0.16)");
-        glowGrad.addColorStop(0.7, "rgba(0, 159, 227, 0.04)");
+        glowGrad.addColorStop(0, "rgba(56, 189, 248, 0.24)");
+        glowGrad.addColorStop(0.35, "rgba(0, 159, 227, 0.11)");
+        glowGrad.addColorStop(0.7, "rgba(0, 159, 227, 0.03)");
         glowGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
       } else {
-        glowGrad.addColorStop(0, "rgba(90, 190, 255, 0.55)");
-        glowGrad.addColorStop(0.35, "rgba(140, 215, 255, 0.25)");
-        glowGrad.addColorStop(0.7, "rgba(180, 230, 255, 0.08)");
+        glowGrad.addColorStop(0, "rgba(90, 190, 255, 0.38)");
+        glowGrad.addColorStop(0.35, "rgba(140, 215, 255, 0.16)");
+        glowGrad.addColorStop(0.7, "rgba(180, 230, 255, 0.05)");
         glowGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
       }
 
@@ -377,16 +377,16 @@ export function WorldGlobeDemo() {
         oceanGrad.addColorStop(0.45, "#0f233c");
         oceanGrad.addColorStop(1, "#081626");
       } else {
-        oceanGrad.addColorStop(0, "#8ed4fa");
-        oceanGrad.addColorStop(0.45, "#74bef8");
-        oceanGrad.addColorStop(1, "#4da6f2");
+        oceanGrad.addColorStop(0, "#7dc0ea");
+        oceanGrad.addColorStop(0.45, "#68aee6");
+        oceanGrad.addColorStop(1, "#4798dc");
       }
 
       ctx.fillStyle = oceanGrad;
       ctx.fillRect(cx - R - 2, cy - R - 2, R * 2 + 4, R * 2 + 4);
 
       // 4. Subtle Graticule Lines (Parallels & Meridians)
-      ctx.strokeStyle = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.24)";
+      ctx.strokeStyle = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.18)";
       ctx.lineWidth = 0.65;
       ctx.beginPath();
 
@@ -410,8 +410,8 @@ export function WorldGlobeDemo() {
       ctx.stroke();
 
       // 5. Authentic 1:1 Continents & Landmasses (Natural Earth data)
-      ctx.fillStyle = isDark ? "#1e3b5c" : "#daf5db";
-      ctx.strokeStyle = isDark ? "#2a5480" : "#bfe8c2";
+      ctx.fillStyle = isDark ? "#1e3b5c" : "#cfe7cf";
+      ctx.strokeStyle = isDark ? "#2a5480" : "#b0d8b3";
       ctx.lineWidth = 0.9;
 
       ctx.beginPath();
@@ -435,7 +435,7 @@ export function WorldGlobeDemo() {
       ctx.stroke();
 
       // 6. Authentic 1:1 Country Borders (Warm coral lines in light mode, cyan in dark mode)
-      ctx.strokeStyle = isDark ? "rgba(56, 189, 248, 0.48)" : "rgba(240, 115, 105, 0.85)";
+      ctx.strokeStyle = isDark ? "rgba(56, 189, 248, 0.48)" : "rgba(240, 115, 105, 0.7)";
       ctx.lineWidth = 0.85;
 
       ctx.beginPath();
