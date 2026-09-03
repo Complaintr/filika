@@ -672,6 +672,51 @@ describe.skipIf(!isDbAvailable)("collector api and database tests", () => {
     expect(rejectedRows).toHaveLength(0);
   });
 
+  test("duplicate retries answer from storage without consuming the rate-limit budget", async () => {
+    await handle.db.insert(project).values({
+      allowedOrigins: [ALLOWED_ORIGIN],
+      displayName: "Duplicate retry budget",
+      projectKey: "rate-limit-duplicate-test",
+      rateLimitMax: 2,
+      retentionHours: 24,
+    });
+
+    const eventId = "f0000000-0000-4000-8000-000000000001";
+    const first = await postRaw(postEnvelope(eventId, { projectKey: "rate-limit-duplicate-test" }));
+    expect(first.status).toBe(201);
+
+    for (let index = 0; index < 3; index += 1) {
+      const retry = await postRaw(
+        postEnvelope(eventId, { projectKey: "rate-limit-duplicate-test" }),
+      );
+      expect(retry.status).toBe(200);
+      expect(((await retry.json()) as { duplicate: boolean }).duplicate).toBe(true);
+    }
+
+    const fresh = await postRaw(
+      postEnvelope("f0000000-0000-4000-8000-000000000002", {
+        projectKey: "rate-limit-duplicate-test",
+      }),
+    );
+    expect(fresh.status).toBe(201);
+
+    const overBudget = await postRaw(
+      postEnvelope("f0000000-0000-4000-8000-000000000003", {
+        projectKey: "rate-limit-duplicate-test",
+      }),
+    );
+    expect(overBudget.status).toBe(429);
+  });
+
+  test("malformed feedback identifiers on the detail route are not found", async () => {
+    for (const id of ["not-a-uuid", "123", "x".repeat(64)]) {
+      const response = await postRaw(
+        new Request(`${baseUrl}/api/v1/inbox/${id}`, { headers: { Origin: ALLOWED_ORIGIN } }),
+      );
+      expect(response.status).toBe(404);
+    }
+  });
+
   test("resets the rate-limit budget at the hour boundary", async () => {
     const rateProject = await handle.db.query.project.findFirst({
       where: eq(project.projectKey, "rate-limit-test"),

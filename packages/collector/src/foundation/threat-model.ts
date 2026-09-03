@@ -49,6 +49,7 @@ export const THREATS: readonly Threat[] = [
       "Origin is derived from the request header only, never from the body.",
       "Missing, null, and denied origins are rejected before ingest.",
       "Exact-match origin allowlist and Vary: Origin on responses.",
+      "Origin checks stop browser-based forgery; non-browser clients can set any Origin, so per-project rate limits bound them.",
     ],
     title: "Origin spoofing",
     verification: [

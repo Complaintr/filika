@@ -4,14 +4,13 @@ import type { Db } from "./db/client";
 import { project } from "./db/schema";
 import { DEMO_ALLOWED_ORIGINS } from "./db/seed";
 import { type DemoCreationLimiter, demoClientKey, demoCreationLimiter } from "./demo-create-limit";
+import { FEEDBACK_ID_PATTERN } from "./endpoint-contract";
 import { getInboxFeedback, listInbox } from "./inbox";
 import { parseListQuery } from "./inbox-query";
 
 const json = (data: unknown, status = 200) =>
   Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 const failure = (category: string, status: number) => json({ error: { category } }, status);
-
-const FEEDBACK_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function demoProject(
   db: Db,

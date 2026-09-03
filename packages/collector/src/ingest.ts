@@ -8,7 +8,7 @@ import { checkIdempotency } from "./idempotency";
 import { consoleLogger, type Logger } from "./logger";
 import { checkOrigin, type OriginCheck } from "./origin";
 import { decodeJsonBody } from "./parse";
-import { persistFeedback } from "./persistence";
+import { findExistingFeedback, persistFeedback } from "./persistence";
 import { collectAllowedOrigins, isOriginAllowed, resolveProject } from "./project";
 import { consumeProjectRateLimit, retryAfterSeconds } from "./rate-limiting";
 import { buildServerOwnedValues } from "./server-owned";
@@ -106,6 +106,34 @@ async function processIngest(
 
   if (!isOriginAllowed(originCheck.origin, resolvedProject.allowedOrigins)) {
     return reject(logger, "denied_origin");
+  }
+
+  // Retries of an already accepted event answer from storage before the
+  // rate-limit budget is touched, so duplicate storms cannot starve a project.
+  const existing = await dbAttempt(() =>
+    findExistingFeedback(db, resolvedProject.id, validated.envelope.eventId),
+  );
+
+  if (existing !== undefined && existing !== null) {
+    logger.log({
+      eventId: existing.eventId,
+      feedbackId: existing.id,
+      projectKey: validated.envelope.projectKey,
+      type: "ingest_duplicate",
+    });
+
+    return Response.json(
+      buildDuplicateReceipt({
+        eventId: existing.eventId,
+        feedbackId: existing.id,
+        receivedAt: existing.receiptTimestamp.toISOString(),
+      }),
+      { status: 200 },
+    );
+  }
+
+  if (existing === undefined) {
+    return reject(logger, "internal_error");
   }
 
   const rateLimit = await dbAttempt(() =>

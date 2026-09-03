@@ -4,7 +4,12 @@ import { allowOriginHeaders, buildPreflightResponse } from "./cors";
 import { getDashboard } from "./dashboard";
 import type { Db } from "./db/client";
 import { handleDemoRoute, isDemoRoute } from "./demo-routes";
-import { FEEDBACK_ENDPOINT, INBOX_DETAIL_ENDPOINT, INBOX_LIST_ENDPOINT } from "./endpoint-contract";
+import {
+  FEEDBACK_ENDPOINT,
+  FEEDBACK_ID_PATTERN,
+  INBOX_DETAIL_ENDPOINT,
+  INBOX_LIST_ENDPOINT,
+} from "./endpoint-contract";
 import { GitHubClient } from "./github/client";
 import type { GitHubConfig } from "./github/config";
 import { prepareAutomaticGitHubIssue, sendReservedGitHubIssue } from "./github/issue-export";
@@ -127,6 +132,11 @@ export function createFetchHandler(
       const allowedOrigins = await collectAllowedOrigins(db);
       const headers = allowOriginHeaders(request, allowedOrigins);
       const feedbackId = url.pathname.slice(INBOX_DETAIL_ENDPOINT.length);
+
+      if (!FEEDBACK_ID_PATTERN.test(feedbackId)) {
+        return new Response(null, { headers, status: 404 });
+      }
+
       const record = await getInboxFeedback(db, feedbackId);
 
       if (record === null) {

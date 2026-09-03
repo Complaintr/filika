@@ -1,6 +1,6 @@
 {
-  "id": "a46a8f3c-ff14-477a-b6b2-69cc1c91fe89",
-  "prevId": "1e65761b-f458-4414-b5cb-1c7f6644abf9",
+  "id": "1e65761b-f458-4414-b5cb-1c7f6644abf9",
+  "prevId": "678c35f6-2227-43ab-9bdd-88e420b52a13",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -579,14 +579,6 @@
       "name": "project",
       "schema": "",
       "columns": {
-        "kind": {
-          "name": "kind",
-          "type": "project_kind",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'application'"
-        },
         "owner_user_id": {
           "name": "owner_user_id",
           "type": "text",
@@ -1005,11 +997,6 @@
       "name": "feedback_kind",
       "schema": "public",
       "values": ["bug", "blocked_task", "confusing_behavior", "idea"]
-    },
-    "public.project_kind": {
-      "name": "project_kind",
-      "schema": "public",
-      "values": ["application", "demo"]
     }
   },
   "schemas": {},

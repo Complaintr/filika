@@ -31,6 +31,12 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
     config.githubClientId !== "" &&
     config.githubClientSecret !== "";
 
+  if (config.baseURL === undefined) {
+    console.warn(
+      "[filika] BETTER_AUTH_URL is not set; authentication redirects and trusted origins fall back to http://localhost:4173. Set BETTER_AUTH_URL to the public origin in production.",
+    );
+  }
+
   const sendEmail = createAuthMailer(config);
   const emailConfigured = Boolean(config.resendApiKey && config.emailFrom);
   return betterAuth({

@@ -84,3 +84,22 @@ export async function persistFeedback(db: Db, input: PersistFeedbackInput): Prom
     return { feedback: stored, outcome: "duplicate" };
   });
 }
+
+/**
+ * Read-only duplicate lookup used before consuming the rate-limit budget so
+ * retries of an already accepted event never burn the project's allowance.
+ * The unique constraint remains the race backstop for concurrent first-time
+ * submissions.
+ */
+export async function findExistingFeedback(
+  db: Db,
+  projectId: string,
+  eventId: string,
+): Promise<Feedback | null> {
+  const rows = await db
+    .select()
+    .from(feedback)
+    .where(and(eq(feedback.projectId, projectId), eq(feedback.eventId, eventId)))
+    .limit(1);
+  return rows[0] ?? null;
+}
