@@ -1,3 +1,7 @@
+<p align="left">
+  <img src="../filika.png" alt="Filika Logo" width="120">
+</p>
+
 # Self Hosted
 
 Filika is designed to be easily self-hosted using standard production deployment methods. This guide covers the basics for a production setup.

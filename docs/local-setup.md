@@ -1,3 +1,7 @@
+<p align="left">
+  <img src="../filika.png" alt="Filika Logo" width="120">
+</p>
+
 # Local Setup
 
 This guide provides instructions for setting up the Filika repository for local development and loopback testing.

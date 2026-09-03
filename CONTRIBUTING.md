@@ -1,3 +1,7 @@
+<p align="left">
+  <img src="filika.png" alt="Filika Logo" width="120">
+</p>
+
 # Contributing to Filika
 
 We welcome contributions. Please review the following guidelines before submitting a pull request.
