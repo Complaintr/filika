@@ -2555,7 +2555,7 @@
   border-bottom: 1px solid var(--line);
 }
 .extras span {
-  color: var(--muted);
+  color: var(--filika-blue);
   font:
     11px ui-monospace,
     monospace;
