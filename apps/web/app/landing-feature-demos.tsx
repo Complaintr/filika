@@ -160,20 +160,6 @@ export function ApprovalFlowDemo() {
     <div className={styles.featureDemo}>
       <div className={styles.featureDemoInset}>
         <DemoHeader title="Report #184" label="Triage" />
-        <div className={styles.approvalReport}>
-          <div>
-            <span className={styles.approvalReportIcon}>
-              <Bug aria-hidden="true" data-free-size="true" />
-            </span>
-            <span>
-              <b>Broken checkout step</b>
-              <small>Agent-drafted report received</small>
-            </span>
-          </div>
-          <span className={styles.privacyNote}>
-            <Lock aria-hidden="true" data-free-size="true" /> Zero ambient data collected
-          </span>
-        </div>
         <div className={styles.approvalTimeline}>
           <span className={styles.approvalTrack} aria-hidden="true" />
           <span className={styles.approvalRunner} aria-hidden="true" />
@@ -189,6 +175,20 @@ export function ApprovalFlowDemo() {
             <Inbox aria-hidden="true" data-free-size="true" />
             <span>In inbox</span>
           </div>
+        </div>
+        <div className={styles.approvalReport}>
+          <div>
+            <span className={styles.approvalReportIcon}>
+              <Bug aria-hidden="true" data-free-size="true" />
+            </span>
+            <span>
+              <b>Broken checkout step</b>
+              <small>Agent-drafted report received</small>
+            </span>
+          </div>
+          <span className={styles.privacyNote}>
+            <Lock aria-hidden="true" data-free-size="true" /> Zero ambient data collected
+          </span>
         </div>
         <div className={styles.approvalAction}>
           <span className={styles.approvalWaiting}>
