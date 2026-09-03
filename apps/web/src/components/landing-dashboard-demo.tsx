@@ -226,7 +226,9 @@ export function LandingDashboardDemo() {
     for (let index = shuffled.length - 1; index > 0; index -= 1) {
       const swap = Math.floor(Math.random() * (index + 1));
       const current = shuffled[index];
-      shuffled[index] = shuffled[swap] ?? current;
+      const replacement = shuffled[swap];
+      if (current === undefined || replacement === undefined) continue;
+      shuffled[index] = replacement;
       shuffled[swap] = current;
     }
     return shuffled;

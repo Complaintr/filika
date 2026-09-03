@@ -169,7 +169,7 @@ export function hasModelContext(documentValue: unknown): boolean {
 function detectRegister(documentValue: unknown): ModelContextRegister | null {
   if (!hasModelContext(documentValue)) return null;
   try {
-    const context: unknown = Reflect.get(documentValue, "modelContext");
+    const context: unknown = Reflect.get(documentValue as object, "modelContext");
     const register = Reflect.get(context as object, "registerTool") as ModelContextRegister;
     return async (tool, options) => {
       await Reflect.apply(register, context, [tool, options]);
