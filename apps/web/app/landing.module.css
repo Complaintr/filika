@@ -2862,52 +2862,9 @@
   box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
 }
 
-.scanBrowserHeader {
-  display: flex;
-  height: 28px;
-  align-items: center;
-  gap: 6px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  background: #fbfbfc;
-  padding: 0 12px;
-  transition:
-    background 160ms ease,
-    border-color 160ms ease;
-}
-
-:root[data-theme="dark"] .scanBrowserHeader {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-  background: #131316;
-}
-
-.scanBrowserDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #d4d4d8;
-  transition: background 160ms ease;
-}
-
-:root[data-theme="dark"] .scanBrowserDot {
-  background: #3f3f46;
-}
-
-.scanBrowserUrl {
-  margin-left: 8px;
-  font-size: 8px;
-  color: #a1a1aa;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-:root[data-theme="dark"] .scanBrowserUrl {
-  color: #71717a;
-}
-
 .scanBrowserBody {
   position: relative;
-  height: calc(100% - 28px);
+  height: 100%;
   overflow: hidden;
   padding: 16px;
   background: #ffffff;

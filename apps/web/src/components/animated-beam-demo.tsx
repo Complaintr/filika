@@ -49,12 +49,6 @@ export function SiteScanFlowDemo({ className }: { className?: string | undefined
     <div className={`${styles.scanContainer} ${className ?? ""}`.trim()}>
       <div className={styles.scanInner}>
         <div className={styles.scanBrowser}>
-          <div className={styles.scanBrowserHeader}>
-            <span className={styles.scanBrowserDot} />
-            <span className={styles.scanBrowserDot} />
-            <span className={styles.scanBrowserDot} />
-            <span className={styles.scanBrowserUrl}>example.app</span>
-          </div>
           <div className={styles.scanBrowserBody}>
             <div className={styles.scanSkeletonBar} style={{ width: "80px" }} />
             <div className={styles.scanSkeletonGrid}>

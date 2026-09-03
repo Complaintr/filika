@@ -118,6 +118,9 @@ describe("public landing page", () => {
     expect(page).toContain("<ResolutionFlowDemo />");
     expect(page).toContain("<GlobeDemo />");
     expect(page).not.toContain("<AnimatedBeamDemo />");
+    expect(flowDemos).not.toContain("scanBrowserHeader");
+    expect(styles).toContain(".scanBrowserBody");
+    expect(styles).toContain("height: 100%;");
     expect(featureDemos).toContain("WorldGlobeDemo");
     expect(styles).toContain(".globeContainer");
     expect(styles).toContain(".globeCanvas");
