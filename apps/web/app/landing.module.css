@@ -7,6 +7,7 @@
   --primary: #009fe3;
   --primary-hover: #009fe3;
   --primary-soft: rgba(0, 159, 227, 0.08);
+  --filika-blue: #3563e9;
   min-height: 100dvh;
   overflow-x: clip;
   background: #fff;
@@ -27,6 +28,7 @@
   --primary: #009fe3;
   --primary-hover: #009fe3;
   --primary-soft: rgba(0, 159, 227, 0.08);
+  --filika-blue: #78a1ff;
   background: #0e0e10;
   color: var(--ink);
 }
@@ -430,7 +432,7 @@
   letter-spacing: -0.04em;
 }
 .hero h1 span {
-  color: var(--primary);
+  color: var(--filika-blue);
 }
 .heroSocialProof {
   display: flex;
@@ -1509,7 +1511,7 @@
   letter-spacing: -0.035em;
 }
 .sectionTitle span {
-  color: var(--muted);
+  color: var(--filika-blue);
 }
 .steps,
 .featureGrid,
@@ -2858,7 +2860,7 @@
   color: #ffffff;
 }
 .finalCta h2 span {
-  color: #38bdf8;
+  color: #78a1ff;
 }
 .finalCtaActions {
   display: flex;
