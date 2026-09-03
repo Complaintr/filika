@@ -1,15 +1,22 @@
 "use client";
 
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight, Menu, Monitor, Moon, Sun, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { FilikaBrand } from "@/components/filika-brand";
-import { ThemeSwitcher } from "@/components/theme-switcher";
+import {
+  applyTheme,
+  readTheme,
+  saveTheme,
+  type ThemeChoice,
+  ThemeSwitcher,
+} from "@/components/theme-switcher";
 import styles from "../../app/landing.module.css";
 
 export function LandingHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showGetStarted, setShowGetStarted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<ThemeChoice>("light");
 
   useEffect(() => {
     const updateViewportState = () => {
@@ -29,6 +36,26 @@ export function LandingHeader() {
       window.removeEventListener("resize", updateViewportState);
     };
   }, []);
+
+  useEffect(() => {
+    const syncTheme = () => {
+      const nextTheme = readTheme();
+      setTheme(nextTheme);
+      applyTheme(nextTheme);
+    };
+    syncTheme();
+    window.addEventListener("storage", syncTheme);
+    window.addEventListener("filika:preferences", syncTheme);
+    return () => {
+      window.removeEventListener("storage", syncTheme);
+      window.removeEventListener("filika:preferences", syncTheme);
+    };
+  }, []);
+
+  function chooseTheme(nextTheme: ThemeChoice) {
+    setTheme(nextTheme);
+    saveTheme(nextTheme);
+  }
 
   const closeMenu = useCallback(() => {
     setMenuOpen(false);
@@ -105,7 +132,7 @@ export function LandingHeader() {
         <div className={styles.headerActions}>
           <ThemeSwitcher className={styles.themeSwitcher} />
           <a
-            className={styles.secondaryButton}
+            className={styles.headerGithub}
             href="https://github.com/Complaintr/filika"
             rel="noreferrer"
             target="_blank"
@@ -156,6 +183,29 @@ export function LandingHeader() {
         className={`${styles.mobileDrawer ?? "mobileDrawer"} ${menuOpen ? (styles.mobileDrawerOpen ?? "mobileDrawerOpen") : ""}`}
         aria-hidden={!menuOpen}
       >
+        <div className={styles.mobileDrawerTheme}>
+          <span className={styles.mobileDrawerThemeLabel}>Appearance</span>
+          <fieldset className={styles.mobileThemeSwitcher}>
+            <legend className="sr-only">Theme</legend>
+            {(
+              [
+                { value: "light", icon: Sun, label: "Light theme" },
+                { value: "dark", icon: Moon, label: "Dark theme" },
+                { value: "system", icon: Monitor, label: "System theme" },
+              ] as const
+            ).map(({ value, icon: Icon, label }) => (
+              <button
+                key={value}
+                type="button"
+                aria-label={label}
+                aria-pressed={theme === value}
+                onClick={() => chooseTheme(value)}
+              >
+                <Icon aria-hidden="true" />
+              </button>
+            ))}
+          </fieldset>
+        </div>
         <nav aria-label="Mobile navigation">
           <button type="button" onClick={() => navigateToSection("how-it-works")}>
             How it works

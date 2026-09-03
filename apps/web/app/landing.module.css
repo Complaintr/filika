@@ -295,6 +295,39 @@
   width: 18px;
   height: 18px;
 }
+
+.headerGithub {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+}
+.headerGithub:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+:root[data-theme="dark"] .headerGithub {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+:root[data-theme="dark"] .headerGithub:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.headerGithub svg {
+  width: 18px;
+  height: 18px;
+}
 .menuButton {
   display: none;
   place-items: center;
@@ -358,9 +391,59 @@
     0 4px 12px rgba(0, 0, 0, 0.3);
 }
 .mobileDrawerOpen {
-  max-height: 320px;
+  max-height: 460px;
   opacity: 1;
   padding: 8px;
+}
+.mobileDrawerTheme {
+  padding: 6px 6px 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+.mobileDrawerThemeLabel {
+  display: block;
+  margin: 0 0 8px 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.mobileThemeSwitcher {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.mobileThemeSwitcher button {
+  display: grid;
+  place-items: center;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+}
+.mobileThemeSwitcher button:hover {
+  color: var(--ink);
+}
+.mobileThemeSwitcher button[aria-pressed="true"] {
+  background: var(--card);
+  color: var(--filika-blue);
+  box-shadow: 0 2px 7px rgb(37 48 71 / 12%);
+}
+.mobileThemeSwitcher button svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.8;
 }
 .mobileDrawer nav {
   display: flex;
@@ -3082,6 +3165,20 @@
   }
   .headerActions .secondaryButton.headerGetStarted {
     display: inline-flex;
+  }
+  .headerActions .themeSwitcher {
+    display: none;
+  }
+  .headerActions .headerGithub {
+    width: 34px;
+    height: 34px;
+    min-height: 34px;
+    padding: 0;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .headerActions .headerGithub span {
+    display: none;
   }
   .menuButton {
     display: grid;
