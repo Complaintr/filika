@@ -397,7 +397,6 @@
 }
 .mobileDrawerTheme {
   padding: 6px 6px 12px;
-  border-bottom: 1px solid var(--line);
   margin-bottom: 8px;
 }
 .mobileDrawerThemeLabel {
@@ -3283,8 +3282,8 @@
     --header-action-gap: 6px;
     gap: 6px;
   }
-  .headerActions .primaryButton,
-  .headerActions .secondaryButton.headerGetStarted {
+  .headerActions .primaryButton.headerGetStartedVisible,
+  .headerActions .secondaryButton.headerGetStartedVisible {
     min-height: 34px;
     padding: 0 12px;
     border-radius: 9999px;
