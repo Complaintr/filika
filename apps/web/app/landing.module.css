@@ -889,6 +889,10 @@
   gap: 18px;
   align-items: center;
 }
+.dashboardDemoComplaintsTitle {
+  display: grid;
+  justify-items: start;
+}
 .dashboardDemoComplaintsHeading h2 {
   margin: 0;
   font-size: 24px;
@@ -922,6 +926,9 @@
 .dashboardDemoRefresh svg {
   width: 12px;
   height: 12px;
+}
+.dashboardDemoBack {
+  margin-bottom: 9px;
 }
 .dashboardDemoInbox {
   flex: 1;
@@ -1367,10 +1374,30 @@
   color: var(--dashboard-demo-muted);
   font-size: 8px;
 }
-.dashboardDemoDialogFooter > span:first-child {
+.dashboardDemoDialogFooterLead {
+  display: inline-flex;
+  gap: 9px;
+  min-width: 0;
+  align-items: center;
+}
+.dashboardDemoDialogFooterNote {
   display: inline-flex;
   gap: 5px;
   align-items: center;
+}
+.dashboardDemoDialogBack {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--dashboard-demo-line);
+  border-radius: 7px;
+  background: var(--dashboard-demo-surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 8px;
+  white-space: nowrap;
 }
 .dashboardDemoDialogFooter svg {
   width: 14px;
@@ -3147,8 +3174,8 @@
     grid-template-columns: 1fr;
     gap: 9px;
   }
-  .dashboardDemoDialogFooter > span:first-child {
-    max-width: 170px;
+  .dashboardDemoDialogFooterNote {
+    display: none;
   }
   .featureGrid,
   .pricingGrid {

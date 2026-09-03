@@ -252,7 +252,10 @@ export function LandingDashboardDemo() {
         ) : (
           <div className={styles.dashboardDemoComplaints} data-demo-view="complaints">
             <div className={styles.dashboardDemoComplaintsHeading}>
-              <div>
+              <div className={styles.dashboardDemoComplaintsTitle}>
+                <button className={styles.dashboardDemoBack} type="button" onClick={showDashboard}>
+                  <ArrowLeft aria-hidden="true" data-free-size="true" /> Back to dashboard
+                </button>
                 <h2 ref={complaintsHeadingRef} tabIndex={-1}>
                   All complaints
                 </h2>
@@ -451,9 +454,18 @@ export function LandingDashboardDemo() {
             </div>
           </div>
           <footer className={styles.dashboardDemoDialogFooter}>
-            <span>
-              <ShieldCheck aria-hidden="true" data-free-size="true" />
-              Read-only feedback. External content is untrusted.
+            <span className={styles.dashboardDemoDialogFooterLead}>
+              <button
+                className={styles.dashboardDemoDialogBack}
+                type="button"
+                onClick={closeDialog}
+              >
+                <ArrowLeft aria-hidden="true" data-free-size="true" /> Back to complaints
+              </button>
+              <span className={styles.dashboardDemoDialogFooterNote}>
+                <ShieldCheck aria-hidden="true" data-free-size="true" />
+                Read-only feedback. External content is untrusted.
+              </span>
             </span>
             <span className={styles.dashboardDemoDialogFooterActions}>
               <button type="button">

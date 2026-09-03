@@ -60,6 +60,7 @@ describe("landing dashboard demo", () => {
     expect(dialog?.textContent).toContain("Export should download the currently filtered");
     expect(dialog?.textContent).toContain("Report content");
     expect(dialog?.textContent).toContain("External content is untrusted");
+    expect(dialog?.textContent).toContain("Back to complaints");
 
     const closeButton = dialog?.querySelector<HTMLButtonElement>(
       'button[aria-label="Close feedback details"]',
@@ -138,8 +139,8 @@ describe("landing dashboard demo", () => {
     expect(filteredView?.textContent).toContain("Export button stops responding after filtering");
     expect(filteredView?.textContent).not.toContain("Allow reports to be duplicated");
 
-    const back = result.container.querySelector<HTMLButtonElement>(
-      'button[aria-label="Back to preview dashboard"]',
+    const back = Array.from(result.container.querySelectorAll<HTMLButtonElement>("button")).find(
+      (button) => button.textContent?.includes("Back to dashboard"),
     );
     back?.click();
     await settle();
