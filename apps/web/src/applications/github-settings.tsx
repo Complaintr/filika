@@ -92,7 +92,7 @@ export function GitHubSettings({ appSlug }: { appSlug: string }) {
                     {status.connection.isPrivate ? "Private repository" : "Public repository"} ·{" "}
                     {status.connection.active
                       ? "Connected"
-                      : "Access unavailable — select the repository again after restoring access"}
+                      : "Access unavailable: select the repository again after restoring access"}
                   </p>
                 </div>
               </div>
@@ -119,8 +119,8 @@ export function GitHubSettings({ appSlug }: { appSlug: string }) {
                     });
                   }}
                 >
-                  <option value="manual">Manual — review each issue</option>
-                  <option value="automatic">Automatic — create after feedback confirmation</option>
+                  <option value="manual">Manual: review each issue</option>
+                  <option value="automatic">Automatic: create after feedback confirmation</option>
                 </select>
               </div>
               {status.issueMode === "automatic" && (

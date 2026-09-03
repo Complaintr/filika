@@ -335,7 +335,7 @@ export function OnboardingExperience() {
                 onChange={(event) => setOrigin(event.target.value)}
               />
               <p>
-                Optional — you can add it later in application settings. Use the exact origin; paths
+                Optional: you can add it later in application settings. Use the exact origin; paths
                 and trailing slashes are not included.
               </p>
               <label htmlFor="onboarding-slug">Application URL</label>
