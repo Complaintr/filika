@@ -151,12 +151,6 @@ export function LandingHeader() {
             </svg>
             GitHub
           </a>
-          <a href="/demo" onClick={closeMenu}>
-            Demo
-          </a>
-          <a href="/login" onClick={closeMenu}>
-            Get Started
-          </a>
         </nav>
       </div>
 
