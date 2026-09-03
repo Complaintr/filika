@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { demoApi } from "@/services/demo-api";
 import { InboxStatePanel } from "@/workspace/inbox-view";
+import { DemoSignupCta } from "./demo-signup-cta";
 import styles from "./demo-workspace.module.css";
 
 const DEVICE_KEY_STORAGE = "filika-demo-device-v1";
@@ -120,6 +121,8 @@ export function DemoWorkspaceList() {
           ))}
         </ol>
       )}
+
+      <DemoSignupCta />
     </main>
   );
 }

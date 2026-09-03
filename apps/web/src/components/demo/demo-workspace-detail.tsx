@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { InboxDetailViewModel } from "@/contracts/inbox-view-model";
 import { demoApi } from "@/services/demo-api";
 import { InboxDetailReady, InboxStatePanel } from "@/workspace/inbox-view";
+import { DemoSignupCta } from "./demo-signup-cta";
 import styles from "./demo-workspace.module.css";
 
 const DEVICE_KEY_STORAGE = "filika-demo-device-v1";
@@ -86,6 +87,8 @@ export function DemoWorkspaceDetail({ feedbackId }: { feedbackId: string }) {
           </p>
         </>
       )}
+
+      <DemoSignupCta />
     </main>
   );
 }
