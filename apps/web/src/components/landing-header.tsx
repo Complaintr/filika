@@ -34,12 +34,28 @@ export function LandingHeader() {
     setMenuOpen(false);
   }, []);
 
+  const scrollToTop = useCallback(() => {
+    if (window.location.hash) {
+      history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    }
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  }, []);
+
+  const scrollToSection = useCallback((sectionId: string) => {
+    // Re-trigger the scroll when the target hash is already set.
+    if (window.location.hash === `#${sectionId}`) {
+      history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    }
+    window.location.hash = sectionId;
+  }, []);
+
   const navigateToSection = useCallback(
     (sectionId: string) => {
-      window.location.hash = sectionId;
+      scrollToSection(sectionId);
       closeMenu();
     },
-    [closeMenu],
+    [closeMenu, scrollToSection],
   );
 
   /* Close the drawer on Escape */
@@ -72,7 +88,14 @@ export function LandingHeader() {
     <div className={wrapperClasses}>
       <header className={headerClasses}>
         <div className={styles.headerLeft}>
-          <FilikaBrand href="/" label="Filika home" />
+          <FilikaBrand
+            href="/"
+            label="Filika home"
+            onClick={(event) => {
+              event.preventDefault();
+              scrollToTop();
+            }}
+          />
           <nav className={styles.nav} aria-label="Main navigation">
             <a href="#features">Features</a>
             <a href="#how-it-works">How it works</a>

@@ -101,6 +101,40 @@ describe("landing header component", () => {
     await result.close();
   });
 
+  test("brand link glides back to the top of the page", async () => {
+    const result = await renderReact(createElement(LandingHeader));
+    const calls: { top: number; behavior?: ScrollBehavior }[] = [];
+    result.window.scrollTo = ((options?: ScrollToOptions) => {
+      calls.push({ top: options?.top ?? 0, behavior: options?.behavior });
+    }) as typeof result.window.scrollTo;
+
+    const logo = result.container.querySelector<HTMLAnchorElement>('a[aria-label="Filika home"]');
+    logo?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(calls).toContainEqual({ top: 0, behavior: "smooth" });
+    await result.close();
+  });
+
+  test("navigation links move to the matching section", async () => {
+    const result = await renderReact(createElement(LandingHeader));
+
+    const featuresLink =
+      result.container.querySelector<HTMLAnchorElement>('nav a[href="#features"]');
+    featuresLink?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(result.window.location.hash).toBe("#features");
+
+    const howLink = result.container.querySelector<HTMLAnchorElement>(
+      'nav a[href="#how-it-works"]',
+    );
+    howLink?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(result.window.location.hash).toBe("#how-it-works");
+
+    await result.close();
+  });
+
   test("mobile menu button toggles the drawer with navigation links", async () => {
     const result = await renderReact(createElement(LandingHeader));
 
