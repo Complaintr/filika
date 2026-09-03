@@ -146,13 +146,45 @@ describe.skipIf(!isDbAvailable)("application demo seed routes", () => {
   test("rejects mutations from a mismatched origin", async () => {
     const response = await handleApplicationRoute(
       handle.db,
-      routeRequest("/api/v1/apps/demo-seed-app/demo/seed", "POST", "http://localhost:4173"),
+      routeRequest("/api/v1/apps/demo-seed-app/demo/seed", "POST", "https://evil.example"),
       USER_ID,
     );
     expect(response.status).toBe(403);
     expect((await response.json()) as { error: { category: string } }).toEqual({
       error: { category: "denied_origin" },
     });
+  });
+
+  test("accepts the public origin when a reverse proxy hides the request URL", async () => {
+    const previous = process.env.BETTER_AUTH_URL;
+    process.env.BETTER_AUTH_URL = "https://filika.complaintr.com";
+    try {
+      await handleApplicationRoute(
+        handle.db,
+        new Request("http://internal:3000/api/v1/apps/demo-seed-app/demo", {
+          method: "DELETE",
+          headers: { Origin: "https://filika.complaintr.com" },
+        }),
+        USER_ID,
+      );
+      const response = await handleApplicationRoute(
+        handle.db,
+        new Request("http://internal:3000/api/v1/apps/demo-seed-app/demo/seed", {
+          method: "POST",
+          headers: { Origin: "https://filika.complaintr.com" },
+        }),
+        USER_ID,
+      );
+      expect(response.status).toBe(200);
+      const body = (await response.json()) as { created: number };
+      expect(body.created).toBe(DEMO_SEED_BATCH);
+    } finally {
+      if (previous === undefined) {
+        delete process.env.BETTER_AUTH_URL;
+      } else {
+        process.env.BETTER_AUTH_URL = previous;
+      }
+    }
   });
 
   test("does not expose an app the user does not own", async () => {

@@ -14,6 +14,7 @@ import { project, user } from "./db/schema";
 import { countDemoFeedback, removeDemoFeedback, seedDemoFeedback } from "./demo-seed";
 import { getInboxFeedback, listInbox } from "./inbox";
 import { parseListQuery } from "./inbox-query";
+import { publicOriginFromRequest } from "./public-origin";
 
 const json = (data: unknown, status = 200) =>
   Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
@@ -54,8 +55,11 @@ export async function handleApplicationRoute(
   const url = new URL(request.url);
   const mutation =
     request.method === "POST" || request.method === "PATCH" || request.method === "DELETE";
-  if (mutation && request.headers.get("origin") !== url.origin)
-    return failure("denied_origin", 403);
+  if (mutation) {
+    const origin = request.headers.get("origin");
+    if (origin === null || (origin !== publicOriginFromRequest(request) && origin !== url.origin))
+      return failure("denied_origin", 403);
+  }
   const demoMatch = /^\/api\/v1\/apps\/([^/]+)\/demo(?:\/(seed))?$/.exec(url.pathname);
   if (demoMatch?.[1]) {
     const app = await ownedApplication(db, userId, demoMatch[1]);

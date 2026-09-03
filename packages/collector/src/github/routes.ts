@@ -13,6 +13,7 @@ import {
   project,
   rateLimit,
 } from "../db/schema";
+import { publicOriginFromRequest } from "../public-origin";
 import { boundedText, GitHubClient, GitHubError } from "./client";
 import {
   decryptToken,
@@ -496,9 +497,12 @@ export class GitHubRoutes {
       const method = request.method;
       let input: unknown;
       if (method === "POST") {
+        const trustedOrigin = publicOriginFromRequest(request);
+        const origin = request.headers.get("origin");
         if (
-          request.headers.get("origin") !== url.origin ||
-          (this.config && url.origin !== this.config.baseUrl)
+          origin === null ||
+          (origin !== trustedOrigin && origin !== url.origin) ||
+          (this.config && trustedOrigin !== this.config.baseUrl)
         )
           return fail("denied_origin", 403);
         if (
