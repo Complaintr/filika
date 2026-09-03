@@ -3655,7 +3655,8 @@
   gap: 24px;
 }
 
-.footerNav a {
+.footerNav a,
+.footerNav button {
   color: var(--muted);
   font-size: 12px;
   font-weight: 600;
@@ -3663,8 +3664,17 @@
   transition: color 150ms ease;
 }
 
-.footerNav a:hover {
+.footerNav a:hover,
+.footerNav button:hover {
   color: var(--ink);
+}
+
+.footerNavContact {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
 }
 
 .footerAttribution {
@@ -3677,6 +3687,182 @@
   color: var(--filika-blue);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* Contact dialog: a compact workspace-style modal for reaching the team. */
+.contactDialog {
+  padding: 4px;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  inline-size: min(560px, calc(100vw - 32px));
+  max-block-size: min(760px, calc(100vh - 32px));
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 30px 80px rgb(0 0 0 / 28%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.contactDialog:not([open]) {
+  display: none;
+}
+.contactDialog[open] {
+  display: flex;
+}
+.contactDialog::backdrop {
+  background: rgb(15 23 42 / 42%);
+  backdrop-filter: blur(8px);
+}
+.contactDialogHeader {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 6px 20px;
+}
+.contactDialogBrand {
+  display: flex;
+  align-items: center;
+}
+.contactDialogHeaderActions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.contactDialogClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.contactDialogClose:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.contactDialogClose svg {
+  width: 16px;
+  height: 16px;
+}
+.contactDialogTitle {
+  flex: 0 0 auto;
+  padding: 6px 20px 16px;
+}
+.contactDialogTitle h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+}
+.contactDialogTitle p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.contactDialogInset {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.contactDialogInset::-webkit-scrollbar {
+  width: 10px;
+}
+.contactDialogInset::-webkit-scrollbar-track {
+  background: transparent;
+}
+.contactDialogInset::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border: 3px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
+}
+.contactEmailList {
+  display: grid;
+  gap: 12px;
+}
+.contactEmailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+}
+.contactEmailLink {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 650;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.contactEmailLink:hover {
+  color: var(--filika-blue);
+}
+.contactEmailActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.contactSend,
+.contactCopy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+.contactSend:hover,
+.contactCopy:hover {
+  background: var(--paper);
+  border-color: color-mix(in srgb, var(--ink) 20%, var(--line));
+}
+.contactSend svg,
+.contactCopy svg {
+  width: 15px;
+  height: 15px;
+}
+.contactDialogStatus {
+  min-height: 16px;
+  margin: 16px 0 0;
+  color: var(--filika-blue);
+  font-size: 12px;
 }
 
 .bottomWatermarkText {

@@ -1,6 +1,7 @@
 import { ArrowRight, Bot, Bug, ChevronDown, Layers, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { ResolutionFlowDemo, SiteScanFlowDemo } from "@/components/animated-beam-demo";
+import { ContactLink } from "@/components/contact-dialog";
 import { FilikaBrand } from "@/components/filika-brand";
 import { LandingDashboardDemo } from "@/components/landing-dashboard-demo";
 import { LandingHeader } from "@/components/landing-header";
@@ -254,7 +255,7 @@ export default function HomePage() {
             <a href="https://github.com/Complaintr/filika" rel="noreferrer" target="_blank">
               GitHub
             </a>
-            <a href="mailto:filika@complaintr.com">Contact</a>
+            <ContactLink />
             <a href="/terms">Terms</a>
           </nav>
         </div>

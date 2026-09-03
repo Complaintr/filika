@@ -65,7 +65,12 @@ describe("public landing page", () => {
     expect(featureDemos.toLowerCase()).not.toContain("sdk");
 
     // Footer and FAQ contact details
-    expect(page).toContain('href="mailto:filika@complaintr.com"');
+    const contactDialog = await Bun.file(
+      `${import.meta.dir}/../src/components/contact-dialog.tsx`,
+    ).text();
+    expect(page).toContain("<ContactLink");
+    expect(contactDialog).toContain("filika@complaintr.com");
+    expect(contactDialog).not.toContain("mail@complaintr.com");
     expect(page).toContain("Filika is a product of");
     expect(page).toContain('href="https://complaintr.com"');
     expect(page).toContain("Still have questions? Email");
