@@ -10,7 +10,31 @@ const request = (pathname: string, session = false) =>
 
 describe("web proxy public paths", () => {
   test("allows only the explicitly listed landing assets", () => {
-    for (const pathname of ["/filika-logo.svg", "/cta-bg.jpg"]) {
+    for (const pathname of ["/filika-logo.svg", "/cta-bg.jpg", "/theme-bootstrap.js"]) {
+      const response = proxy(request(pathname));
+
+      expect(response.headers.get("x-middleware-next")).toBe("1");
+      expect(response.headers.get("location")).toBeNull();
+    }
+  });
+
+  test("serves the public demo storefront and its workspace without a session", () => {
+    for (const pathname of [
+      "/demo",
+      "/demo/",
+      "/demo/workspace",
+      "/demo/workspace/fb_123",
+      "/demo/anything",
+    ]) {
+      const response = proxy(request(pathname));
+
+      expect(response.headers.get("x-middleware-next")).toBe("1");
+      expect(response.headers.get("location")).toBeNull();
+    }
+  });
+
+  test("allows the browser SDK without a session", () => {
+    for (const pathname of ["/sdk/filika.js", "/sdk/filika.development.js"]) {
       const response = proxy(request(pathname));
 
       expect(response.headers.get("x-middleware-next")).toBe("1");

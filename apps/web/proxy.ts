@@ -6,15 +6,19 @@ function isPublicPath(pathname: string): boolean {
   return (
     pathname === "/" ||
     ["/login", "/register", "/forgot-password", "/reset-password", "/terms"].includes(pathname) ||
+    pathname === "/demo" ||
+    pathname.startsWith("/demo/") ||
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/v1") ||
+    pathname.startsWith("/sdk/") ||
     pathname.startsWith("/_next") ||
     pathname === "/app.css" ||
     pathname === "/favicon.ico" ||
     pathname === "/filika-logo.svg" ||
     pathname === "/icon.svg" ||
-    pathname === "/cta-bg.jpg"
+    pathname === "/cta-bg.jpg" ||
+    pathname === "/theme-bootstrap.js"
   );
 }
 

@@ -4,12 +4,12 @@
 
 Filika is a WebMCP-enabled feedback application. A browser agent drafts a report
 about a problem, complaint, blocked task, confusing behavior, or product idea
-encountered on a website. The user reviews and confirms the report, the collector
-stores it, and maintainers read it in the Filika workspace.
+encountered on a website. The collector stores it, and maintainers read it in
+the Filika workspace.
 
-Nothing is transmitted before user confirmation. People can also submit feedback
-manually when WebMCP is unavailable or they do not want to use an agent. Filika
-provides the feedback workflow, not the AI assistant.
+Agent-authored feedback is transmitted without a user review step. People can
+also submit feedback manually when WebMCP is unavailable or they do not want to
+use an agent. Filika provides the feedback workflow, not the AI assistant.
 
 Repository areas:
 
@@ -42,7 +42,7 @@ Repository areas:
 - Treat browser, agent, and collector data as untrusted until validated.
 - Do not collect page content, credentials, browsing history, screenshots, or
   other ambient data unless a later requirement explicitly adds it.
-- Preserve user review before transmitting agent-authored feedback.
+- Transmit agent-authored feedback without a user review step.
 - Registration or execution failures must not break the host page.
 
 ## Required Verification

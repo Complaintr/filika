@@ -1,0 +1,72 @@
+.workspace {
+  width: min(100% - 48px, 820px);
+  margin: 0 auto;
+  padding: 40px 0 80px;
+  color: #253047;
+}
+.header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+.eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: #3563e9;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.muted {
+  margin: 8px 0 0;
+  color: #5f6b7d;
+}
+.primaryLink {
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: #fff;
+  background: #3563e9;
+  font-weight: 600;
+  text-decoration: none;
+}
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border: 1px solid #e5e8ee;
+  border-radius: 12px;
+  background: #fff;
+  text-decoration: none;
+  color: #253047;
+}
+.row:hover {
+  border-color: #3563e9;
+}
+.row strong {
+  display: block;
+  font-size: 15px;
+}
+.row small {
+  display: block;
+  margin-top: 4px;
+  color: #5f6b7d;
+}

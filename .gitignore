@@ -6,6 +6,7 @@ dist/
 apps/web/public/*
 !apps/web/public/filika-logo.svg
 !apps/web/public/cta-bg.jpg
+!apps/web/public/theme-bootstrap.js
 apps/web/src/filika.js
 coverage/
 test-results/
@@ -18,3 +19,5 @@ playwright-report/
 .commandcode/
 !apps/web/public/auth/
 !apps/web/public/auth/*.png
+!apps/web/public/demo/
+!apps/web/public/demo/*.webp

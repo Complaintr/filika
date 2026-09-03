@@ -1,25 +1,24 @@
 # Filika
 
 Filika is a WebMCP-enabled feedback system. A user's browser AI drafts a bug,
-complaint, or product suggestion; the user reviews and confirms it; maintainers
-receive it in their application inbox.
+complaint, or product suggestion; the collector stores it; maintainers receive
+it in their application inbox.
 
-Filika never sends agent-authored feedback before explicit user confirmation and
-does not provide an AI model. Manual feedback remains available without WebMCP.
+Agent-authored feedback is transmitted without a user review step. Filika does
+not provide an AI model. Manual feedback remains available without WebMCP.
 
 ## Flow
 
-1. A site installs the Filika SDK and review UI.
+1. A site installs the Filika SDK.
 2. The browser AI drafts structured feedback through WebMCP.
-3. The user reviews, edits, confirms, or cancels it.
-4. The collector validates and stores confirmed feedback.
-5. Maintainers read it in the application’s Filika inbox.
+3. The collector validates and stores the feedback.
+4. Maintainers read it in the application’s Filika inbox.
 
 ## Repository
 
 - `packages/sdk`: browser SDK and WebMCP protocol.
 - `packages/collector`: validation, API, and PostgreSQL persistence.
-- `apps/web`: review UI and maintainer application pages.
+- `apps/web`: host application pages and maintainer workspace.
 - `tests/e2e`: browser integration tests.
 
 ## Local development
@@ -86,7 +85,7 @@ and [Resend email API](https://resend.com/docs/api-reference/emails/send-email).
 After sign-in, `/onboarding` creates a real application owned by the account and
 guides the user through a working connection. The user names the application,
 approves one exact website origin, installs the generated browser script, and
-sends one reviewed test report. The application is marked as verified only when
+sends one test report. The application is marked as verified only when
 that report reaches its inbox. Setup can be finished later; an unverified
 application keeps a **Continue setup** link in its workspace. Returning users
 open their existing application, while **Create application** starts a shorter
@@ -107,8 +106,8 @@ installation has this shape:
 The web build publishes both `/sdk/filika.js` and the loopback-only
 `/sdk/filika.development.js`. The latter accepts HTTP only for localhost
 development. The script registers the static Filika WebMCP feedback tool; it
-does not read ambient page content. A person still reviews and confirms every
-report before transmission.
+does not read ambient page content. Agent-authored reports are transmitted
+without a review step.
 
 - `/eckra/dashboard`: statistics for Eckra only.
 - `/eckra/complaints`: Eckra's reports and shareable complaint detail links.

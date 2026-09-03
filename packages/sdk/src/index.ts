@@ -4,7 +4,7 @@ export type { ReviewAdapter, ReviewRequest } from "./execution";
 export * from "./lifecycle";
 export * from "./outcomes";
 export * from "./receipt";
-export { REVIEW_EVENT, type ReviewEventDetail } from "./review-bridge";
+export { createReviewBridge, REVIEW_EVENT, type ReviewEventDetail } from "./review-bridge";
 export { createSdk } from "./sdk";
 export * from "./tool";
 export * from "./version";

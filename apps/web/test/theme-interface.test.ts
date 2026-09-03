@@ -2,11 +2,12 @@ import { expect, test } from "bun:test";
 
 test("the saved theme is applied before the workspace paints", async () => {
   const layout = await Bun.file(`${import.meta.dir}/../app/layout.tsx`).text();
+  const bootstrap = await Bun.file(`${import.meta.dir}/../public/theme-bootstrap.js`).text();
 
-  expect(layout).toContain('strategy="beforeInteractive"');
-  expect(layout).toContain('["light", "dark", "system"].includes(saved.theme)');
-  expect(layout).toContain('matchMedia("(prefers-color-scheme: dark)")');
-  expect(layout).toContain('dataset.theme = "light"');
+  expect(layout).toContain('src="/theme-bootstrap.js"');
+  expect(bootstrap).toContain('["light", "dark", "system"].includes(saved.theme)');
+  expect(bootstrap).toContain('matchMedia("(prefers-color-scheme: dark)")');
+  expect(bootstrap).toContain('dataset.theme = "light"');
   expect(layout).toContain('content="light dark"');
 });
 
@@ -27,7 +28,7 @@ test("dark appearance covers the workspace and floating navigation", async () =>
 
 test("dark appearance uses neutral charcoal surfaces instead of blue-tinted backgrounds", async () => {
   const appCss = await Bun.file(`${import.meta.dir}/../src/app.css`).text();
-  const layout = await Bun.file(`${import.meta.dir}/../app/layout.tsx`).text();
+  const bootstrap = await Bun.file(`${import.meta.dir}/../public/theme-bootstrap.js`).text();
   const navigationCss = await Bun.file(
     `${import.meta.dir}/../src/components/ui/bottom-nav-bar.css`,
   ).text();
@@ -41,7 +42,7 @@ test("dark appearance uses neutral charcoal surfaces instead of blue-tinted back
   expect(navigationCss).toContain("background: rgb(21 21 23 / 96%)");
   expect(navigationCss).toContain("background: #242428");
   expect(navigationCss).toContain("color: #5f8ff5");
-  expect(layout).toContain('theme === "dark" ? "#0e0e10"');
+  expect(bootstrap).toContain('theme === "dark" ? "#0e0e10"');
   expect(appCss).not.toContain("background: #111821");
   expect(appCss).not.toContain("background: #15223a");
 });
