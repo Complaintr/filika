@@ -7,7 +7,6 @@
   --primary: #009fe3;
   --primary-hover: #009fe3;
   --primary-soft: rgba(0, 159, 227, 0.08);
-  --filika-blue: #3563e9;
   min-height: 100dvh;
   overflow-x: clip;
   background: #fff;
@@ -28,7 +27,6 @@
   --primary: #009fe3;
   --primary-hover: #009fe3;
   --primary-soft: rgba(0, 159, 227, 0.08);
-  --filika-blue: #78a1ff;
   background: #0e0e10;
   color: var(--ink);
 }
@@ -436,7 +434,7 @@
 }
 .mobileThemeSwitcher button[aria-pressed="true"] {
   background: var(--card);
-  color: var(--filika-blue);
+  color: var(--primary);
   box-shadow: 0 2px 7px rgb(37 48 71 / 12%);
 }
 .mobileThemeSwitcher button svg {
@@ -468,7 +466,7 @@
 }
 .mobileDrawer nav a:hover,
 .mobileDrawer nav button:hover {
-  background: color-mix(in srgb, var(--filika-blue) 8%, transparent);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
 }
 :root[data-theme="dark"] .mobileDrawer nav a:hover,
 :root[data-theme="dark"] .mobileDrawer nav button:hover {
@@ -523,7 +521,7 @@
   letter-spacing: -0.04em;
 }
 .hero h1 span {
-  color: var(--filika-blue);
+  color: var(--primary);
 }
 .heroSocialProof {
   display: flex;
@@ -583,7 +581,7 @@
 .heroPitch mark {
   padding: 2px 5px;
   border-radius: 5px;
-  background: var(--primary-soft);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
   color: var(--primary);
 }
 .heroCta {
@@ -1602,7 +1600,7 @@
   letter-spacing: -0.035em;
 }
 .sectionTitle span {
-  color: var(--filika-blue);
+  color: var(--primary);
 }
 .steps,
 .featureGrid,
@@ -2646,7 +2644,7 @@
   border-bottom: 1px solid var(--line);
 }
 .extras span {
-  color: var(--filika-blue);
+  color: var(--primary);
   font:
     11px ui-monospace,
     monospace;
@@ -2923,11 +2921,11 @@
   text-align: center;
 }
 .faqsContact a {
-  color: var(--filika-blue);
+  color: var(--primary);
   font-weight: 600;
 }
 .faqs p a {
-  color: var(--filika-blue);
+  color: var(--primary);
   font-weight: 600;
   text-decoration: none;
 }
@@ -2970,7 +2968,7 @@
   color: #ffffff;
 }
 .finalCta h2 span {
-  color: #78a1ff;
+  color: var(--primary);
 }
 .finalCtaActions {
   display: flex;
@@ -3811,7 +3809,7 @@
   text-align: center;
 }
 .footerAttribution a {
-  color: var(--filika-blue);
+  color: var(--primary);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -3947,7 +3945,7 @@
   overflow-wrap: anywhere;
 }
 .contactEmailLink:hover {
-  color: var(--filika-blue);
+  color: var(--primary);
 }
 .contactEmailActions {
   display: flex;
@@ -3988,7 +3986,7 @@
 .contactDialogStatus {
   min-height: 16px;
   margin: 16px 0 0;
-  color: var(--filika-blue);
+  color: var(--primary);
   font-size: 12px;
 }
 
