@@ -232,10 +232,7 @@ html {
   background: color-mix(in srgb, var(--canvas) 90%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease;
+  transition: background-color 160ms ease;
 }
 .topbar-inner {
   max-width: 1360px;
