@@ -6,7 +6,6 @@ dist/
 apps/web/public/*
 !apps/web/public/filika-logo.svg
 !apps/web/public/cta-bg.jpg
-!apps/web/public/hero-demo-frame.png
 !apps/web/public/theme-bootstrap.js
 apps/web/src/filika.js
 coverage/
