@@ -20,7 +20,7 @@
   "protocol": {
     "version": 1,
     "path": "releases/v1-protocol.json",
-    "sha256": "efd3f91911bb46a05d55426f26bea7d55b1040ab711de73c9d2cb916638b3000",
+    "sha256": "6ed6e48acbd6948a26ed25b56d0958750162bb470aa9c1e7e02f73affd8938ab",
     "scope": "SDK-owned V1 schemas, tool metadata, limits, outcome rules, configuration, lifecycle and review event extracted from sourceRevision. Not a claim of collector/native-browser conformance."
   },
   "checksums": [

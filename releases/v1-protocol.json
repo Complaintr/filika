@@ -275,7 +275,7 @@
       "requestTimeoutMs": 10000,
       "registrationTimeoutMs": 5000,
       "receiptBytes": 1024,
-      "outcomeBytes": 1024
+      "outcomeBytes": 4096
     }
   },
   "configuration": {

@@ -26,8 +26,24 @@ const NON_BLANK_PATTERN = /\S/;
 const PROJECT_KEY_PATTERN = /^[A-Za-z0-9_-]+$/;
 const SEMVER_PATTERN = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/;
 
+/**
+ * Count Unicode code points instead of UTF-16 code units so astral characters
+ * (for example emoji) are bounded the same way the SDK counts them.
+ */
+function codePointLength(value: string): number {
+  let length = 0;
+  for (const _ of value) {
+    length += 1;
+  }
+  return length;
+}
+
+function maxCodePoints(maxLength: number) {
+  return (value: string) => codePointLength(value) <= maxLength;
+}
+
 function nonBlankString(maxLength: number): z.ZodString {
-  return z.string().min(1).max(maxLength).regex(NON_BLANK_PATTERN);
+  return z.string().min(1).regex(NON_BLANK_PATTERN).refine(maxCodePoints(maxLength));
 }
 
 const projectKeySchema = z
@@ -41,7 +57,10 @@ const feedbackSchema = z
     kind: z.enum(FEEDBACK_KINDS),
     title: nonBlankString(ENVELOPE_FIELD_LIMITS.titleMax),
     description: nonBlankString(ENVELOPE_FIELD_LIMITS.descriptionMax),
-    expectedBehavior: z.string().max(ENVELOPE_FIELD_LIMITS.expectedBehaviorMax).optional(),
+    expectedBehavior: z
+      .string()
+      .refine(maxCodePoints(ENVELOPE_FIELD_LIMITS.expectedBehaviorMax))
+      .optional(),
     reproductionSteps: z
       .array(nonBlankString(ENVELOPE_FIELD_LIMITS.reproductionStepMax))
       .max(ENVELOPE_FIELD_LIMITS.reproductionStepsMax)

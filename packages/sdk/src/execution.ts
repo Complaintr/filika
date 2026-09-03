@@ -65,6 +65,14 @@ export function createExecution(dependencies: ExecutionDependencies) {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const finish = (outcome: FilikaExecutionOutcome): FilikaExecutionOutcome => {
       settleReviewOutcome?.(outcome);
+      // A receipt cannot be represented inside the outcome byte budget, so the
+      // acceptance is reported conservatively instead of as success.
+      if (
+        outcome.code === "success" &&
+        new TextEncoder().encode(JSON.stringify(outcome)).byteLength > EXECUTION_LIMITS.outcomeBytes
+      ) {
+        return { code: "outcome_unknown" };
+      }
       return outcome;
     };
     try {

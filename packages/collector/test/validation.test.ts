@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { accountSettingsSchema } from "../src/account-profile";
 import { createApplicationSchema } from "../src/applications";
-
+import { ENVELOPE_FIELD_LIMITS } from "../src/envelope";
 import { decodeJsonBody } from "../src/parse";
 import { isOriginAllowed } from "../src/project";
 import { validateEnvelope } from "../src/validate";
@@ -132,6 +132,43 @@ describe("envelope and project validation", () => {
     };
 
     expect(validateEnvelope(withLoneSurrogate).ok).toBe(false);
+  });
+
+  test("bounds free-text fields by code points, matching the SDK count", () => {
+    const emoji = "😀".repeat(4000);
+    const atLimit = {
+      ...VALID_ENVELOPE,
+      feedback: { ...VALID_ENVELOPE.feedback, description: emoji },
+    };
+    expect(validateEnvelope(atLimit).ok).toBe(true);
+    expect(
+      validateEnvelope({ ...atLimit, feedback: { ...atLimit.feedback, description: `${emoji}😀` } })
+        .ok,
+    ).toBe(false);
+  });
+
+  test("rejects envelopes over the SDK byte budget", () => {
+    // Every field sits inside its code-point limit, but astral characters
+    // inflate the UTF-8 bytes across fields far beyond the envelope budget.
+    const emoji = "😀";
+    const oversized = {
+      ...VALID_ENVELOPE,
+      feedback: {
+        ...VALID_ENVELOPE.feedback,
+        title: emoji.repeat(160),
+        description: emoji.repeat(4000),
+        expectedBehavior: emoji.repeat(2000),
+        reproductionSteps: Array.from({ length: 10 }, () => emoji.repeat(500)),
+      },
+      context: {
+        ...VALID_ENVELOPE.context,
+        routeLabel: emoji.repeat(120),
+        applicationRelease: emoji.repeat(80),
+      },
+    };
+    const byteLength = bytesOf(oversized).length;
+    expect(byteLength).toBeGreaterThan(ENVELOPE_FIELD_LIMITS.envelopeBytes);
+    expect(validateEnvelope(oversized).ok).toBe(false);
   });
 
   test("checks the origin against the project allowlist", () => {

@@ -1,6 +1,7 @@
 import { expect, spyOn, test } from "bun:test";
 import { withAbort } from "../src/abort";
 import { createExecution, type ReviewRequest } from "../src/execution";
+import { EXECUTION_LIMITS } from "../src/outcomes";
 import type { RuntimeSession } from "../src/runtime";
 
 const draft = { kind: "bug", title: "Save failed", description: "Saving returned an error." };
@@ -200,4 +201,39 @@ test("caller abort after dispatch retains the event for an explicitly approved r
   expect(await engine.execute(current, null)).toEqual({ code: "outcome_unknown" });
   expect(sent).toHaveLength(2);
   expect(sent[0]).toBe(sent[1]);
+});
+
+test("success outcomes inside the byte budget keep their receipt", async () => {
+  const engine = createExecution({
+    review: confirm,
+    transmit: async () => ({
+      code: "success",
+      receipt: {
+        schemaVersion: 1,
+        eventId: "12345678-1234-4234-8234-123456789abc",
+        feedbackId: "22345678-1234-4234-8234-123456789abc",
+        receivedAt: "2030-01-01T00:00:00.000Z",
+        duplicate: false,
+      },
+    }),
+  });
+  const result = await engine.execute(session(), draft);
+  expect(result.code).toBe("success");
+});
+
+test("success outcomes beyond the byte budget are reported as unknown", async () => {
+  const engine = createExecution({
+    review: confirm,
+    transmit: async () => ({
+      code: "success",
+      receipt: {
+        schemaVersion: 1,
+        eventId: "12345678-1234-4234-8234-123456789abc",
+        feedbackId: "22345678-1234-4234-8234-123456789abc",
+        receivedAt: `2030-01-01T00:00:00.000Z${"x".repeat(EXECUTION_LIMITS.outcomeBytes)}`,
+        duplicate: false,
+      },
+    }),
+  });
+  expect(await engine.execute(session(), draft)).toEqual({ code: "outcome_unknown" });
 });

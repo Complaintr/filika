@@ -21,7 +21,7 @@ export const EXECUTION_LIMITS = {
   requestTimeoutMs: 10_000,
   registrationTimeoutMs: 5_000,
   receiptBytes: 1_024,
-  outcomeBytes: 1_024,
+  outcomeBytes: 4_096,
 } as const;
 
 export const FAILURE_OUTCOME_SCHEMA = {

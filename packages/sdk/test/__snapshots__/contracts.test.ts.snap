@@ -234,7 +234,7 @@ exports[`snapshot: closed outcomes, semantics, and execution limits 1`] = `
     "outcome_unknown",
   ],
   "limits": {
-    "outcomeBytes": 1024,
+    "outcomeBytes": 4096,
     "receiptBytes": 1024,
     "registrationTimeoutMs": 5000,
     "requestTimeoutMs": 10000,
