@@ -138,7 +138,7 @@ describe("public landing page", () => {
     const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
 
     const heroMedia = styles.match(/\.heroMedia\s*\{([^}]*)\}/)?.[1];
-    expect(heroMedia).toContain("var(--card) url(\"/hero-demo-frame.png\")");
+    expect(heroMedia).toContain('var(--card) url("/hero-demo-frame.png")');
     expect(styles).toContain("/hero-demo-frame.png");
   });
 

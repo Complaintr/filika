@@ -1,8 +1,17 @@
 "use client";
 
-import { Copy, GitBranch, Globe2, RefreshCw, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import {
+  Copy,
+  FlaskConical,
+  GitBranch,
+  Globe2,
+  RefreshCw,
+  ShieldCheck,
+  SlidersHorizontal,
+} from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useApplication } from "@/applications/application-context";
+import { DemoDataSettings } from "@/applications/demo-data-settings";
 import { GitHubSettings } from "@/applications/github-settings";
 import { SaveSettings, SettingsLayout } from "@/applications/settings-layout";
 import { type ApplicationSettings, saveApplication } from "@/services/applications-api";
@@ -33,6 +42,12 @@ const sections = [
     label: "Privacy & data",
     icon: ShieldCheck,
     description: "The boundaries around this application's feedback.",
+  },
+  {
+    id: "demo",
+    label: "Demo data",
+    icon: FlaskConical,
+    description: "Load or remove sample feedback for this application.",
   },
 ];
 
@@ -266,7 +281,8 @@ export default function ApplicationSettingsPage() {
               </p>
             </div>
           )}
-          {active !== "privacy" && active !== "github" && (
+          {active === "demo" && <DemoDataSettings appSlug={app.slug} />}
+          {active !== "privacy" && active !== "github" && active !== "demo" && (
             <SaveSettings dirty={dirty} saving={saving} onDiscard={discard} />
           )}
         </fieldset>
