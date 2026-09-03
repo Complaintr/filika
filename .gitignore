@@ -1,6 +1,8 @@
 node_modules/
 dist/
 .env
+.env.*
+!.env.example
 .next/
 .next-e2e/
 apps/web/public/*
