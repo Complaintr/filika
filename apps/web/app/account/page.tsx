@@ -2,13 +2,13 @@
 
 import {
   ArrowLeft,
-  Camera,
   Laptop,
   LogOut,
   Moon,
   Paintbrush,
   ShieldCheck,
   Sun,
+  Trash2,
   UserRound,
 } from "lucide-react";
 import Link from "next/link";
@@ -19,6 +19,7 @@ import {
   type AccountProfile,
   type AccountSettings,
   applicationPath,
+  deleteAccount,
   fetchAccount,
   saveAccount,
 } from "@/services/applications-api";
@@ -30,7 +31,7 @@ const sections = [
     id: "profile",
     label: "Profile",
     icon: UserRound,
-    description: "Your name and photo across all your applications.",
+    description: "Your name across all your applications.",
   },
   {
     id: "appearance",
@@ -49,15 +50,11 @@ const initial: AccountSettings = {
   name: "",
   theme: "light",
   density: "comfortable",
-  useGoogleImage: false,
-  useGithubImage: false,
 };
 const settings = (profile: AccountProfile): AccountSettings => ({
   name: profile.name,
   theme: profile.theme,
   density: profile.density,
-  useGoogleImage: profile.useGoogleImage,
-  useGithubImage: profile.useGithubImage,
 });
 
 export default function AccountPage() {
@@ -67,24 +64,12 @@ export default function AccountPage() {
   const [draft, setDraft] = useState<AccountSettings>(initial);
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
-  const [failedImage, setFailedImage] = useState<string | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const [loadVersion, setLoadVersion] = useState(0);
   const controller = useRef<AbortController | null>(null);
   const baseline = useRef<AccountSettings | null>(null);
-  useEffect(() => {
-    const showPhoto = () => setActive("profile");
-    window.addEventListener("filika:profile-photo", showPhoto);
-    window.addEventListener("hashchange", showPhoto);
-    return () => {
-      window.removeEventListener("filika:profile-photo", showPhoto);
-      window.removeEventListener("hashchange", showPhoto);
-    };
-  }, []);
-  useEffect(() => {
-    if (account && active === "profile" && window.location.hash === "#profile-photo") {
-      document.getElementById("profile-photo")?.focus();
-    }
-  }, [account, active]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: loadVersion explicitly retries the request.
   useEffect(() => {
     let request: AbortController;
@@ -105,14 +90,6 @@ export default function AccountPage() {
                     name: draft.name === previous.name ? next.name : draft.name,
                     theme: draft.theme === previous.theme ? next.theme : draft.theme,
                     density: draft.density === previous.density ? next.density : draft.density,
-                    useGoogleImage:
-                      draft.useGoogleImage === previous.useGoogleImage
-                        ? next.useGoogleImage
-                        : draft.useGoogleImage,
-                    useGithubImage:
-                      draft.useGithubImage === previous.useGithubImage
-                        ? next.useGithubImage
-                        : draft.useGithubImage,
                   }
                 : next,
             );
@@ -148,10 +125,6 @@ export default function AccountPage() {
       if (draft.name.trim() !== account.name) patch.name = draft.name.trim();
       if (draft.theme !== account.theme) patch.theme = draft.theme;
       if (draft.density !== account.density) patch.density = draft.density;
-      if (draft.useGoogleImage !== account.useGoogleImage)
-        patch.useGoogleImage = draft.useGoogleImage;
-      if (draft.useGithubImage !== account.useGithubImage)
-        patch.useGithubImage = draft.useGithubImage;
       if (!Object.keys(patch).length) {
         setDraft(settings(account));
         return;
@@ -170,6 +143,33 @@ export default function AccountPage() {
         setStatus(error instanceof Error ? error.message : "Changes could not be saved.");
     } finally {
       if (!request.signal.aborted) setSaving(false);
+    }
+  }
+  async function removeAccount(): Promise<void> {
+    if (!account || deleting) return;
+    setDeleting(true);
+    setStatus("");
+    const request = new AbortController();
+    controller.current = request;
+    try {
+      await deleteAccount(request.signal);
+      if (request.signal.aborted) return;
+      // biome-ignore lint/suspicious/noDocumentCookie: Clear the session cookie after account deletion.
+      document.cookie =
+        "better-auth.session_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+      // biome-ignore lint/suspicious/noDocumentCookie: Clear the secure session cookie after account deletion.
+      document.cookie =
+        "__Secure-better-auth.session_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+      window.location.assign("/");
+    } catch (error) {
+      if (!request.signal.aborted)
+        setStatus(
+          error instanceof Error
+            ? error.message
+            : "Your account could not be deleted. Please try again.",
+        );
+    } finally {
+      if (!request.signal.aborted) setDeleting(false);
     }
   }
   return (
@@ -214,18 +214,8 @@ export default function AccountPage() {
             {active === "profile" && (
               <div className="settings-section-body">
                 <div className="account-profile">
-                  <span className="account-avatar">
-                    {account?.image && account.image !== failedImage ? (
-                      // biome-ignore lint/performance/noImgElement: OAuth photo is allowlisted by the account API.
-                      <img
-                        src={account.image}
-                        alt="Your profile"
-                        referrerPolicy="no-referrer"
-                        onError={() => setFailedImage(account.image)}
-                      />
-                    ) : (
-                      draft.name.slice(0, 1).toUpperCase() || <UserRound />
-                    )}
+                  <span className="account-avatar" aria-hidden="true">
+                    {draft.name.slice(0, 1).toUpperCase() || <UserRound />}
                   </span>
                   <div>
                     <h3>{account?.name ?? "Your profile"}</h3>
@@ -244,57 +234,6 @@ export default function AccountPage() {
                     required
                     onChange={(event) => setDraft({ ...draft, name: event.target.value })}
                   />
-                </div>
-                <div id="profile-photo" className="profile-photo-setting" tabIndex={-1}>
-                  <Camera />
-                  <div>
-                    <h3>Profile photo</h3>
-                    <p>
-                      {account?.googleConnected || account?.githubConnected
-                        ? "Use a photo provided by Google or GitHub when you signed in. It will appear in the header."
-                        : "Sign in with Google or GitHub to use your provider profile photo. Photo uploads are not available yet."}
-                    </p>
-                    <label className="account-photo-choice">
-                      <input
-                        type="checkbox"
-                        checked={draft.useGoogleImage}
-                        disabled={!account?.googleConnected}
-                        onChange={(event) =>
-                          setDraft({
-                            ...draft,
-                            useGoogleImage: event.target.checked,
-                            useGithubImage: event.target.checked ? false : draft.useGithubImage,
-                          })
-                        }
-                      />
-                      Use Google profile photo
-                    </label>
-                    {!account?.googleConnected && (
-                      <p className="photo-choice-hint">You did not sign in with Google.</p>
-                    )}
-                    <label className="account-photo-choice">
-                      <input
-                        type="checkbox"
-                        checked={draft.useGithubImage}
-                        disabled={!account?.githubConnected}
-                        onChange={(event) =>
-                          setDraft({
-                            ...draft,
-                            useGithubImage: event.target.checked,
-                            useGoogleImage: event.target.checked ? false : draft.useGoogleImage,
-                          })
-                        }
-                      />
-                      Use GitHub profile photo
-                    </label>
-                    {!account?.githubConnected && (
-                      <p className="photo-choice-hint">You did not sign in with GitHub.</p>
-                    )}
-                    <p className="muted">
-                      When enabled, your browser loads this photo from the provider. Turn it off to
-                      use your initial.
-                    </p>
-                  </div>
                 </div>
               </div>
             )}
@@ -386,6 +325,76 @@ export default function AccountPage() {
                     Sign out
                   </button>
                 </div>
+                <div className="settings-info-row">
+                  <div>
+                    <h3>Delete account</h3>
+                    <p>
+                      Permanently removes your account, applications, and every piece of feedback.
+                      This cannot be undone.
+                    </p>
+                  </div>
+                  <button
+                    className="studio-button studio-button-danger"
+                    type="button"
+                    disabled={deleting}
+                    onClick={() => {
+                      setDeleteOpen(true);
+                      setDeleteConfirm("");
+                    }}
+                  >
+                    <Trash2 />
+                    Delete account
+                  </button>
+                </div>
+                {deleteOpen && (
+                  <div className="delete-account-panel">
+                    <div className="delete-account-panel-heading">
+                      <span className="delete-account-icon" aria-hidden="true">
+                        <Trash2 />
+                      </span>
+                      <div>
+                        <h3>Delete your account?</h3>
+                        <p>
+                          This permanently removes your account, your applications, and all the
+                          feedback they received. This cannot be undone.
+                        </p>
+                      </div>
+                    </div>
+                    <label className="delete-account-label" htmlFor="delete-account-confirm">
+                      Type <strong>delete</strong> to confirm
+                    </label>
+                    <input
+                      id="delete-account-confirm"
+                      className="studio-input"
+                      value={deleteConfirm}
+                      maxLength={20}
+                      autoComplete="off"
+                      placeholder="delete"
+                      onChange={(event) => setDeleteConfirm(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") event.preventDefault();
+                      }}
+                    />
+                    <div className="delete-account-actions">
+                      <button
+                        className="studio-button"
+                        type="button"
+                        disabled={deleting}
+                        onClick={() => setDeleteOpen(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="studio-button studio-button-danger"
+                        type="button"
+                        disabled={deleting || deleteConfirm.trim().toLowerCase() !== "delete"}
+                        onClick={() => void removeAccount()}
+                      >
+                        {deleting ? "Deleting…" : "Delete my account"}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             {active !== "security" && (

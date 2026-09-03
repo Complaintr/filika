@@ -279,14 +279,6 @@ html {
     transform 140ms ease,
     border-color 140ms ease;
 }
-.topbar-avatar img,
-.topbar-avatar-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-}
 .topbar-avatar:hover {
   transform: translateY(-1px);
   border-color: #a7e3ef;
@@ -345,14 +337,6 @@ html {
   font-weight: 700;
   overflow: hidden;
   padding: 0;
-}
-.profile-menu-avatar img,
-.profile-menu-avatar-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
 }
 .profile-menu-identity {
   display: grid;
@@ -2304,6 +2288,9 @@ html {
   --studio-line: #e9ecef;
   --studio-accent: #257c8c;
   --studio-accent-soft: #edf6f7;
+  --studio-danger: #c53030;
+  --studio-danger-soft: #fdf0f0;
+  --studio-danger-line: #f2c9c9;
 }
 :root[data-theme="dark"] {
   --studio-text: #eef0f2;
@@ -2313,6 +2300,9 @@ html {
   --studio-line: #2b2e34;
   --studio-accent: #93d3dc;
   --studio-accent-soft: #1b3037;
+  --studio-danger: #f29a9a;
+  --studio-danger-soft: #2a1717;
+  --studio-danger-line: #523030;
 }
 .studio-page-heading {
   display: flex;
@@ -4716,6 +4706,75 @@ html {
   border-color: #3563e9;
   color: #fff;
 }
+.settings-studio .studio-button-danger {
+  background: var(--studio-danger-soft);
+  border-color: var(--studio-danger-line);
+  color: var(--studio-danger);
+}
+.settings-studio .studio-button-danger:hover {
+  background: var(--studio-danger-soft);
+  border-color: var(--studio-danger);
+}
+.delete-account-panel {
+  margin-bottom: 12px;
+  padding: 22px;
+  border: 1px solid var(--studio-danger-line);
+  border-radius: 18px;
+  background: var(--studio-danger-soft);
+}
+.delete-account-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.delete-account-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--studio-danger);
+  color: #fff;
+}
+.delete-account-icon svg {
+  width: 17px;
+  height: 17px;
+}
+.delete-account-panel-heading h3 {
+  font-size: 14px;
+  color: var(--studio-text);
+}
+.delete-account-panel-heading p {
+  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--studio-muted);
+}
+.delete-account-label {
+  display: block;
+  margin: 18px 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--studio-text);
+}
+.delete-account-label strong {
+  color: var(--studio-danger);
+}
+.delete-account-panel .studio-input {
+  min-height: 42px;
+}
+.delete-account-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+.delete-account-actions .studio-button-danger:hover {
+  background: var(--studio-danger);
+  border-color: var(--studio-danger);
+  color: #fff;
+}
 .settings-save-status {
   margin-top: 10px;
   font-size: 11px;
@@ -5111,54 +5170,6 @@ html {
   font-family: monospace;
   overflow-wrap: anywhere;
 }
-.profile-photo-setting {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 24px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-}
-.profile-photo-setting > svg {
-  flex-shrink: 0;
-  margin-block-start: 4px;
-}
-.profile-photo-setting h3 {
-  margin: 0 0 8px;
-}
-.account-photo-choice {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 600;
-  padding-block: 16px;
-}
-.account-photo-choice input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--blue);
-}
-.photo-choice-hint {
-  margin: -12px 0 0 28px;
-  padding-bottom: 4px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-style: italic;
-}
-.account-avatar {
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.account-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.account-profile > div,
-.profile-photo-setting > div {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
 .settings-studio .page-heading {
   flex-wrap: wrap;
 }
@@ -5181,10 +5192,6 @@ html {
   cursor: wait;
   opacity: 0.6;
 }
-.profile-photo-setting:focus-visible {
-  outline: 2px solid var(--blue);
-  outline-offset: 3px;
-}
 @media (max-width: 600px) {
   .profile-menu {
     position: fixed;
@@ -5202,10 +5209,6 @@ html {
     left: 16px;
     right: 16px;
     width: auto;
-  }
-  .profile-photo-setting {
-    padding: 16px;
-    gap: 10px;
   }
 }
 

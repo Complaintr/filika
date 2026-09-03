@@ -28,18 +28,4 @@ describe("github social provider", () => {
   test("never registers the github provider with empty credentials", () => {
     expect(authWith("", "")).toBeUndefined();
   });
-
-  test("keeps the default image column untouched and maps githubImage", async () => {
-    const github = authWith("github-client", "github-secret");
-
-    expect(github).toBeDefined();
-    if (github) {
-      const mapped = (await github.mapProfileToUser({
-        avatar_url: "https://avatars.githubusercontent.com/u/123456?v=4",
-      } as never)) as { image?: unknown; githubImage?: string | null };
-
-      expect(mapped.image).toBeUndefined();
-      expect(mapped.githubImage).toBe("https://avatars.githubusercontent.com/u/123456?v=4");
-    }
-  });
 });

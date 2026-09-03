@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, CircleUserRound, LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
+import { CircleUserRound, LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { type AccountProfile, fetchAccount, saveAccount } from "@/services/applications-api";
@@ -24,7 +24,6 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<ProfileTheme>("light");
   const [session, setSession] = useState<AccountProfile | null>(null);
-  const [imageFailed, setImageFailed] = useState(false);
   const [themeError, setThemeError] = useState("");
   const [themeSaving, setThemeSaving] = useState(false);
   const themeRequest = useRef<AbortController | null>(null);
@@ -40,7 +39,6 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
         .then((value) => {
           if (controller.signal.aborted) return;
           setSession(value);
-          setImageFailed(false);
           savePreferences({ ...readPreferences(), theme: value.theme, density: value.density });
           window.dispatchEvent(new Event("filika:preferences"));
         })
@@ -104,7 +102,6 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
 
   const displayName = session?.name?.trim() || "Your account";
   const displaySubtitle = session?.email || "Filika account";
-  const avatarImage = session?.image;
   const initial = displayName.trim().slice(0, 1).toUpperCase() || "F";
 
   async function selectTheme(nextTheme: ProfileTheme): Promise<void> {
@@ -135,8 +132,6 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
     }
   }
 
-  const showAvatarImage = Boolean(avatarImage && !imageFailed);
-
   return (
     <div className="profile-menu-root" ref={rootRef}>
       <button
@@ -149,18 +144,7 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
         aria-controls={menuId}
         onClick={() => setOpen((current) => !current)}
       >
-        {showAvatarImage ? (
-          // biome-ignore lint/performance/noImgElement: External OAuth avatar URL
-          <img
-            className="topbar-avatar-img"
-            src={avatarImage ?? ""}
-            alt={displayName}
-            referrerPolicy="no-referrer"
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <span aria-hidden="true">{initial}</span>
-        )}
+        <span aria-hidden="true">{initial}</span>
       </button>
       {open ? (
         <div
@@ -193,18 +177,7 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
         >
           <div className="profile-menu-summary">
             <span className="profile-menu-avatar" aria-hidden="true">
-              {showAvatarImage ? (
-                // biome-ignore lint/performance/noImgElement: External OAuth avatar URL
-                <img
-                  className="profile-menu-avatar-img"
-                  src={avatarImage ?? ""}
-                  alt={displayName}
-                  referrerPolicy="no-referrer"
-                  onError={() => setImageFailed(true)}
-                />
-              ) : (
-                initial
-              )}
+              {initial}
             </span>
             <span className="profile-menu-identity">
               <strong>{displayName}</strong>
@@ -256,17 +229,6 @@ export function ProfileMenu({ applicationSlug }: ProfileMenuProps = {}) {
             <Link role="menuitem" href="/account" onClick={() => setOpen(false)}>
               <CircleUserRound aria-hidden="true" />
               <span>Manage profile</span>
-            </Link>
-            <Link
-              role="menuitem"
-              href="/account#profile-photo"
-              onClick={() => {
-                setOpen(false);
-                window.dispatchEvent(new Event("filika:profile-photo"));
-              }}
-            >
-              <Camera aria-hidden="true" />
-              <span>Profile photo</span>
             </Link>
             {applicationSlug && (
               <Link

@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { accountSettingsSchema, getAccountProfile } from "./account-profile";
+import { accountSettingsSchema, deleteAccount, getAccountProfile } from "./account-profile";
 import {
   applicationSettingsSchema,
   applicationView,
@@ -51,11 +51,12 @@ export async function handleApplicationRoute(
   userId: string,
 ): Promise<Response> {
   const url = new URL(request.url);
-  const mutation = request.method === "POST" || request.method === "PATCH";
+  const mutation =
+    request.method === "POST" || request.method === "PATCH" || request.method === "DELETE";
   if (mutation && request.headers.get("origin") !== url.origin)
     return failure("denied_origin", 403);
   let input: unknown;
-  if (mutation) {
+  if (request.method === "POST" || request.method === "PATCH") {
     try {
       input = await readSettings(request);
     } catch {
@@ -69,18 +70,15 @@ export async function handleApplicationRoute(
     if (request.method === "PATCH") {
       const parsed = accountSettingsSchema.safeParse(input);
       if (!parsed.success) return failure("invalid_input", 400);
-      if (parsed.data.useGoogleImage && !profile.googleImageAvailable)
-        return failure("google_photo_unavailable", 400);
-      if (parsed.data.useGithubImage && !profile.githubImageAvailable)
-        return failure("github_photo_unavailable", 400);
-      const updates = { ...parsed.data };
-      if (updates.useGoogleImage) updates.useGithubImage = false;
-      else if (updates.useGithubImage) updates.useGoogleImage = false;
       await db
         .update(user)
-        .set({ ...updates, updatedAt: new Date() })
+        .set({ ...parsed.data, updatedAt: new Date() })
         .where(eq(user.id, userId));
       return json({ account: await getAccountProfile(db, userId) });
+    }
+    if (request.method === "DELETE") {
+      const deleted = await deleteAccount(db, userId);
+      return deleted ? json({ deleted: true }) : failure("not_found", 404);
     }
     return failure("method_not_allowed", 405);
   }
