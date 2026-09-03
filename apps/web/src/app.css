@@ -2764,149 +2764,212 @@ html {
   background: #223039;
 }
 
-/* Native dialog keeps keyboard focus inside the report. */
+/* Feedback details: a centered modal in the Filika review dialog language. */
 .report-dialog {
   padding: 0;
-  width: min(960px, calc(100vw - 48px));
-  max-width: none;
-  max-height: calc(100dvh - 64px);
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  inline-size: min(680px, calc(100vw - 32px));
+  max-block-size: min(820px, calc(100vh - 32px));
   border: 1px solid var(--studio-line);
   border-radius: 16px;
   background: var(--studio-surface);
   color: var(--studio-text);
-  box-shadow: 0 30px 100px #0003;
+  box-shadow:
+    0 32px 96px rgb(0 0 0 / 30%),
+    inset 0 1px 0 rgb(255 255 255 / 36%);
   overflow: auto;
+  overscroll-behavior: contain;
+}
+.report-dialog:not([open]) {
+  display: none;
 }
 .report-dialog[open] {
-  animation: report-enter 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: report-enter 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .report-dialog::backdrop {
-  background: #10182070;
-  backdrop-filter: blur(5px);
+  background: rgb(37 48 71 / 34%);
+  backdrop-filter: blur(10px);
 }
-.report-dialog-toolbar {
+.report-dialog-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px 12px 28px;
-  border-bottom: 1px solid var(--studio-line);
+  gap: 16px;
+  padding: 16px 18px 12px 24px;
   position: sticky;
   top: 0;
-  background: var(--studio-surface);
   z-index: 1;
+  background: var(--studio-surface);
 }
-.report-dialog-toolbar > span {
-  font-size: 11px;
-  color: var(--studio-muted);
+.report-dialog-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
-.report-dialog-toolbar > div {
+.report-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--studio-accent);
+}
+.report-dialog-actions {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
+  flex-shrink: 0;
 }
-.toolbar-divider {
-  width: 1px;
-  height: 18px;
-  margin: 0 8px;
-  background: var(--studio-line);
+.report-ghost-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--studio-muted);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 160ms var(--studio-ease, ease),
+    color 160ms var(--studio-ease, ease),
+    border-color 160ms var(--studio-ease, ease);
+}
+.report-ghost-button:hover:not(:disabled) {
+  background: var(--studio-soft);
+  color: var(--studio-text);
+}
+.report-ghost-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.report-ghost-button svg {
+  width: 17px;
+  height: 17px;
+}
+.report-ghost-button:focus-visible,
+.studio-icon-button:focus-visible,
+.studio-button:focus-visible {
+  outline: 3px solid var(--studio-accent);
+  outline-offset: 2px;
 }
 .report-dialog-content {
-  padding: 34px 36px 40px;
-  min-height: 340px;
+  padding: 4px 24px 28px;
 }
 .report-dialog-heading {
-  padding-bottom: 28px;
-  border-bottom: 1px solid var(--studio-line);
+  padding: 6px 0 18px;
+}
+.report-dialog-heading h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.22;
+  overflow-wrap: anywhere;
+}
+.report-meta {
+  margin: 8px 0 0;
+  color: var(--studio-muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.report-meta > span {
+  padding: 0 7px;
 }
 .feedback-type {
   display: inline-flex;
-  padding: 4px 9px;
-  border-radius: 5px;
-  font-size: 10px;
-  font-weight: 550;
-  margin-bottom: 15px;
-}
-.report-dialog-heading h2 {
-  font-size: clamp(22px, 3vw, 29px);
-  font-weight: 550;
-  letter-spacing: -0.9px;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-}
-.report-dialog-heading p {
-  color: var(--studio-muted);
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
   font-size: 11px;
-  margin-top: 12px;
-  overflow-wrap: anywhere;
+  font-weight: 650;
 }
-.report-dialog-heading p > span {
-  padding: 0 7px;
-}
-.report-detail-layout {
+.report-cards {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 235px;
-  gap: 35px;
-  padding-top: 28px;
+  gap: 12px;
 }
-.report-story section + section {
-  margin-top: 30px;
+.report-card,
+.report-context-card {
+  padding: 18px 20px;
+  border: 1px solid var(--studio-line);
+  border-radius: 12px;
+  background: var(--studio-soft);
 }
-.report-story h3,
-.report-context h3 {
+.report-card h3,
+.report-context-card h3 {
+  margin: 0 0 9px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--studio-muted);
-  margin-bottom: 10px;
 }
-.report-story p {
-  font-size: 13px;
-  line-height: 1.9;
+.report-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.75;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-.report-context {
-  border-left: 1px solid var(--studio-line);
-  padding-left: 25px;
+.report-context-card {
+  margin-top: 12px;
 }
-.report-context dl {
+.report-context-card dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 26px;
   margin: 0;
 }
-.report-context dl > div {
-  margin: 18px 0;
+.report-context-card dl > div {
+  min-width: 0;
 }
-.report-context dt {
-  font-size: 10px;
-  color: var(--studio-muted);
-  margin-bottom: 4px;
-}
-.report-context dd {
-  margin: 0;
+.report-context-card dt {
   font-size: 11px;
-  overflow-wrap: anywhere;
+  font-weight: 650;
+  color: var(--studio-muted);
+  margin-bottom: 3px;
 }
-.report-context .report-id {
-  font-family: monospace;
-  font-size: 10px;
+.report-context-card dd {
+  margin: 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.report-context-card .report-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+.report-dialog-state {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 28px 0 12px;
 }
 .report-dialog-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 15px 24px;
+  padding: 14px 24px;
   border-top: 1px solid var(--studio-line);
-  background: var(--studio-soft);
+  background: var(--studio-surface);
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
 }
 .report-dialog-footer > span {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   color: var(--studio-muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 .report-dialog-footer > span svg {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
 }
 .report-dialog-footer > div {
   display: flex;
@@ -2915,7 +2978,7 @@ html {
 }
 .report-dialog-footer [role="status"] {
   color: var(--studio-muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 @keyframes report-enter {
   from {
@@ -4063,34 +4126,27 @@ html {
     text-align: center;
   }
   .report-dialog {
-    width: calc(100vw - 20px);
-    max-height: calc(100dvh - 24px);
-    border-radius: 12px;
+    inline-size: calc(100vw - 24px);
+    max-block-size: calc(100vh - 24px);
+    border-radius: 14px;
+  }
+  .report-dialog-head {
+    padding: 12px 10px 10px 16px;
   }
   .report-dialog-content {
-    padding: 25px 22px;
+    padding: 4px 16px 22px;
   }
-  .report-detail-layout {
+  .report-context-card dl {
     grid-template-columns: 1fr;
-    gap: 28px;
-  }
-  .report-context {
-    padding: 24px 0 0;
-    border-left: 0;
-    border-top: 1px solid var(--studio-line);
-  }
-  .report-context dl {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 20px;
+    gap: 12px;
   }
   .report-dialog-footer {
     flex-wrap: wrap;
-    padding: 15px 20px;
+    padding: 12px 16px;
   }
   .report-dialog-footer > span {
     width: 100%;
-    font-size: 9px;
+    font-size: 11px;
   }
   .report-dialog-footer > div {
     margin-left: auto;
@@ -4984,33 +5040,6 @@ html {
 .privacy-principle p {
   font-size: 10px;
 }
-.report-dialog {
-  border-radius: 28px;
-  border-color: var(--studio-line);
-}
-.report-dialog-content {
-  background: var(--studio-soft);
-}
-.report-dialog-heading {
-  border-bottom: 0;
-  padding-bottom: 10px;
-}
-.report-detail-layout {
-  gap: 15px;
-}
-.report-story,
-.report-context {
-  padding: 22px;
-  background: var(--white);
-  border: 1px solid var(--studio-line);
-  border-radius: 18px;
-}
-.report-dialog-footer {
-  background: var(--white);
-}
-.report-dialog-footer .studio-button {
-  border-radius: 999px;
-}
 
 @media (max-width: 1100px) {
   .settings-layout {
@@ -5135,10 +5164,6 @@ html {
     font-size: 10px;
     min-height: 32px;
     padding: 6px 10px;
-  }
-  .report-story,
-  .report-context {
-    padding: 18px;
   }
 }
 @media (max-width: 700px) {
@@ -5287,10 +5312,20 @@ html {
   align-items: center;
 }
 .github-issue-panel {
-  border-top: 1px solid var(--border);
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
+  margin-top: 12px;
+  padding: 18px 20px;
+  border: 1px solid var(--studio-line);
+  border-radius: 12px;
+  background: var(--studio-soft);
   overflow-wrap: anywhere;
+}
+.github-issue-panel h3 {
+  margin: 0 0 9px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--studio-muted);
 }
 .github-issue-panel p {
   margin-block: 0.75rem;

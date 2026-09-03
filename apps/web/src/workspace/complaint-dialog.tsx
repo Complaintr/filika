@@ -9,6 +9,15 @@ import { formatDate, kindLabels } from "./dom";
 import { GitHubIssuePanel } from "./github-issue-panel";
 import { InboxDetailState } from "./inbox-view";
 
+function DetailValue({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+}
+
 export function ComplaintDialog({
   appSlug,
   feedbackId,
@@ -95,11 +104,18 @@ export function ComplaintDialog({
           onClose();
       }}
     >
-      <header className="report-dialog-toolbar">
-        <span>Feedback details</span>
-        <div>
+      <header className="report-dialog-head">
+        <div className="report-dialog-eyebrow">
+          <span className="report-eyebrow">Feedback details</span>
+          {state.status === "ready" && (
+            <span className={`feedback-type feedback-type-${state.feedback.kind}`}>
+              {kindLabels[state.feedback.kind]}
+            </span>
+          )}
+        </div>
+        <div className="report-dialog-actions">
           <button
-            className="studio-icon-button"
+            className="report-ghost-button"
             type="button"
             aria-label="Previous report"
             disabled={!previousId}
@@ -108,7 +124,7 @@ export function ComplaintDialog({
             <ArrowLeft />
           </button>
           <button
-            className="studio-icon-button"
+            className="report-ghost-button"
             type="button"
             aria-label="Next report"
             disabled={!nextId}
@@ -116,9 +132,8 @@ export function ComplaintDialog({
           >
             <ArrowRight />
           </button>
-          <span className="toolbar-divider" />
           <button
-            className="studio-icon-button"
+            className="report-ghost-button"
             type="button"
             aria-label="Close report"
             onClick={onClose}
@@ -128,88 +143,71 @@ export function ComplaintDialog({
         </div>
       </header>
       <div className="report-dialog-content" aria-busy={state.status === "loading"}>
-        <div className="report-dialog-heading">
-          {state.status === "ready" && (
-            <span className={`feedback-type feedback-type-${state.feedback.kind}`}>
-              {kindLabels[state.feedback.kind]}
-            </span>
-          )}
-          <h2 id="report-title">
-            {state.status === "ready" ? state.feedback.title : "Complaint details"}
-          </h2>
-          {state.status === "ready" && (
-            <p>
-              Received {formatDate(state.feedback.receivedAt)} <span>·</span>{" "}
-              {state.feedback.routeLabel || "No page label"}
-            </p>
-          )}
-        </div>
         {state.status === "ready" ? (
-          <div className="report-detail-layout">
-            <div className="report-story" data-untrusted="true">
-              <section>
+          <>
+            <div className="report-dialog-heading">
+              <h2 id="report-title">{state.feedback.title}</h2>
+              <p className="report-meta">
+                Received {formatDate(state.feedback.receivedAt)} <span>·</span>{" "}
+                {state.feedback.routeLabel || "No page label"}
+              </p>
+            </div>
+            <div className="report-cards" data-untrusted="true">
+              <section className="report-card">
                 <h3>What happened</h3>
                 <p>{state.feedback.description}</p>
               </section>
               {state.feedback.expectedBehavior && (
-                <section>
+                <section className="report-card">
                   <h3>What was expected</h3>
                   <p>{state.feedback.expectedBehavior}</p>
                 </section>
               )}
               {state.feedback.reproductionSteps && (
-                <section>
+                <section className="report-card">
                   <h3>Steps to reproduce</h3>
                   <p>{state.feedback.reproductionSteps}</p>
                 </section>
               )}
             </div>
-            <aside className="report-context">
+            <section className="report-context-card" data-untrusted="true">
               <h3>Report context</h3>
               <dl>
-                <div>
-                  <dt>Origin</dt>
-                  <dd>{state.feedback.requestOrigin}</dd>
-                </div>
-                <div>
-                  <dt>Page</dt>
-                  <dd>{state.feedback.routeLabel || "Not provided"}</dd>
-                </div>
-                <div>
-                  <dt>Release</dt>
-                  <dd>{state.feedback.applicationRelease || "Not provided"}</dd>
-                </div>
-                <div>
-                  <dt>Received</dt>
-                  <dd>{new Date(state.feedback.receivedAt).toLocaleString("en")}</dd>
-                </div>
-                <div>
-                  <dt>Available until</dt>
-                  <dd>{new Date(state.feedback.expiresAt).toLocaleString("en")}</dd>
-                </div>
+                <DetailValue label="Origin" value={state.feedback.requestOrigin} />
+                <DetailValue label="Page" value={state.feedback.routeLabel || "Not provided"} />
+                <DetailValue
+                  label="Release"
+                  value={state.feedback.applicationRelease || "Not provided"}
+                />
+                <DetailValue
+                  label="Received"
+                  value={new Date(state.feedback.receivedAt).toLocaleString("en")}
+                />
+                <DetailValue
+                  label="Available until"
+                  value={new Date(state.feedback.expiresAt).toLocaleString("en")}
+                />
                 <div>
                   <dt>Report ID</dt>
                   <dd className="report-id">{state.feedback.feedbackId}</dd>
                 </div>
               </dl>
-            </aside>
-          </div>
+            </section>
+            <GitHubIssuePanel
+              key={`${appSlug}:${feedbackId}`}
+              appSlug={appSlug}
+              feedbackId={feedbackId}
+            />
+          </>
         ) : (
-          <>
+          <div className="report-dialog-state">
             <InboxDetailState state={state} />
             {state.status === "error" && (
               <button type="button" className="studio-button" onClick={load}>
                 Try again
               </button>
             )}
-          </>
-        )}
-        {state.status === "ready" && (
-          <GitHubIssuePanel
-            key={`${appSlug}:${feedbackId}`}
-            appSlug={appSlug}
-            feedbackId={feedbackId}
-          />
+          </div>
         )}
       </div>
       <footer className="report-dialog-footer">
