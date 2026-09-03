@@ -71,8 +71,8 @@ export function DemoFlowPanel({
       <footer className={styles.liveFooter}>
         <p className={styles.liveAbout}>
           This is a live demo of Filika: a storefront whose checkout is deliberately broken, and an
-          AI feedback tool that reports the failure. No report leaves this page without your
-          explicit confirmation.
+          AI feedback tool that reports the failure. The prompt asks the agent to confirm with you
+          before reporting.
         </p>
         <button className={styles.resetButton} type="button" onClick={onReset}>
           <RotateCcw aria-hidden="true" /> Reset demo

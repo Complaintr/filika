@@ -114,7 +114,7 @@ export function SetupBanner({ application }: { application: Application }) {
       </span>
       <div>
         <strong>Setup incomplete</strong>
-        <p>Send one reviewed report from {application.displayName} to verify the connection.</p>
+        <p>Send one report from {application.displayName} to verify the connection.</p>
       </div>
       <Link href={`/onboarding?app=${encodeURIComponent(application.slug)}`}>
         Continue setup <ArrowRight />

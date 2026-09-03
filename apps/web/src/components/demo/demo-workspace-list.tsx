@@ -101,7 +101,7 @@ export function DemoWorkspaceList() {
           role="status"
           state="empty"
           heading="No feedback yet"
-          body="Once your agent sends a reviewed report from the demo store, it will appear here."
+          body="Once your agent sends a report from the demo store, it will appear here."
         />
       ) : (
         <ol className={styles.list} aria-label="Demo complaints">

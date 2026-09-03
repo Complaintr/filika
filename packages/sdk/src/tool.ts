@@ -15,7 +15,7 @@ export const FEEDBACK_TOOL = freezeMetadata({
   title: "Submit feedback for review",
   description:
     "Draft feedback about an observed bug, blocked task, confusing behavior, or concrete improvement idea in this application. " +
-    "The user must review and explicitly confirm before anything is sent. " +
+    "Confirm with the user before transmitting. " +
     "Describe only evidence available from the current task; do not invent failures, repeat an existing report, or include credentials or personal data. " +
     "Do not use for unrelated requests or hypothetical problems. A draft is not proof of submission; only a success receipt confirms acceptance.",
   inputSchema: FEEDBACK_DRAFT_SCHEMA,

@@ -236,7 +236,7 @@ export default function ComplaintsPage() {
                 <p>
                   {filtersActive
                     ? "Try another search or clear your filters."
-                    : "Once someone reviews and sends feedback from your website, you’ll find it here."}
+                    : "Once someone sends feedback from your website, you’ll find it here."}
                 </p>
                 {filtersActive ? (
                   <button

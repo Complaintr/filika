@@ -16,6 +16,6 @@ const application: Application = {
 test("setup banner returns an unverified application to its resumable onboarding", () => {
   const html = renderToStaticMarkup(<SetupBanner application={application} />);
   expect(html).toContain("Setup incomplete");
-  expect(html).toContain("Send one reviewed report from Eckra");
+  expect(html).toContain("Send one report from Eckra");
   expect(html).toContain('href="/onboarding?app=eckra"');
 });

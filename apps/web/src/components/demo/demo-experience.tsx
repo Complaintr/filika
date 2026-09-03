@@ -326,7 +326,7 @@ export function DemoExperience() {
           ) : (
             <div className={styles.resultWaiting} role="status">
               <ShieldCheck aria-hidden="true" />
-              <span>Nothing is sent without your approval.</span>
+              <span>Waiting for your agent to report the checkout failure.</span>
             </div>
           )}
         </section>

@@ -264,10 +264,10 @@ export default function ApplicationSettingsPage() {
           )}
           {active === "privacy" && (
             <div className="settings-section-body">
-              <h3>User-reviewed feedback</h3>
+              <h3>Feedback transmission</h3>
               <p>
-                Nothing is transmitted until the person reviews and confirms it. Reports belong only
-                to this application.
+                Agent reports are transmitted as the agent drafts them, after the agent confirms
+                with the user. Reports belong only to this application.
               </p>
               <h3>Retention</h3>
               <p>

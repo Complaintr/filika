@@ -309,7 +309,7 @@ export function OnboardingExperience() {
             </h1>
             <p className="onboarding-description">
               Start with the product you want to hear from. Filika will make a private inbox for its
-              reviewed reports.
+              reports.
             </p>
             <div className="onboarding-name">
               <label htmlFor="onboarding-name">Application name</label>
@@ -422,7 +422,7 @@ export function OnboardingExperience() {
             </h1>
             <p className="onboarding-description">
               {origin
-                ? "Open your website in a WebMCP-enabled browser, ask its agent to send a test report, then review and confirm it. This page will notice when it arrives."
+                ? "Open your website in a WebMCP-enabled browser, ask its agent to send a test report; the agent will confirm with you before submitting. This page will notice when it arrives."
                 : "Add your website origin first, then open your website in a WebMCP-enabled browser and send a test report. This page will notice when it arrives."}
             </p>
             {origin ? (
@@ -491,7 +491,7 @@ export function OnboardingExperience() {
               {application.displayName} is connected.
             </h1>
             <p className="onboarding-description">
-              Your reviewed report crossed the whole path and reached its Filika inbox.
+              Your report crossed the whole path and reached its Filika inbox.
             </p>
             {firstReport && (
               <div className="onboarding-first-report">

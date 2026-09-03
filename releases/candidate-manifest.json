@@ -20,7 +20,7 @@
   "protocol": {
     "version": 1,
     "path": "releases/v1-protocol.json",
-    "sha256": "fe1c7fd798e5fab97b3e97ad1d973b7ce5b373886f0dec7299e8cac3c25f8ec3",
+    "sha256": "efd3f91911bb46a05d55426f26bea7d55b1040ab711de73c9d2cb916638b3000",
     "scope": "SDK-owned V1 schemas, tool metadata, limits, outcome rules, configuration, lifecycle and review event extracted from sourceRevision. Not a claim of collector/native-browser conformance."
   },
   "checksums": [
@@ -38,7 +38,7 @@
     },
     {
       "path": "packages/sdk/test/__snapshots__/contracts.test.ts.snap",
-      "sha256": "50217ec02414ddcce44655bc1c00010cc5183d439711da0eecdce0d0be22e724"
+      "sha256": "c9d5670dbd4495646921090f1fb23b6fbef242b8916819fb108b212157180bf6"
     },
     {
       "path": "packages/collector/drizzle/meta/_journal.json",
