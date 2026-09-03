@@ -1,6 +1,9 @@
+import { eq } from "drizzle-orm";
 import { demoCreationAllowed, deviceDemoApplication, deviceKeySchema } from "./applications";
 import type { Db } from "./db/client";
+import { project } from "./db/schema";
 import { DEMO_ALLOWED_ORIGINS } from "./db/seed";
+import { type DemoCreationLimiter, demoClientKey, demoCreationLimiter } from "./demo-create-limit";
 import { getInboxFeedback, listInbox } from "./inbox";
 import { parseListQuery } from "./inbox-query";
 
@@ -10,9 +13,25 @@ const failure = (category: string, status: number) => json({ error: { category }
 
 const FEEDBACK_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-async function demoProject(db: Db, device: string, request: Request, create: boolean) {
+async function demoProject(
+  db: Db,
+  device: string,
+  request: Request,
+  create: boolean,
+  limiter: DemoCreationLimiter,
+) {
   if (!deviceKeySchema.safeParse(device).success) return null;
   if (create && !(await demoCreationAllowed(db))) return null;
+  if (create) {
+    // Only brand-new device projects consume the per-client budget; refreshing
+    // an existing project stays free so re-opening the demo never blocks.
+    const existing = await db
+      .select({ id: project.id })
+      .from(project)
+      .where(eq(project.slug, `demo-${device}`))
+      .limit(1);
+    if (existing.length === 0 && !limiter.allow(demoClientKey(request))) return null;
+  }
   const allowedOrigins = demoOrigins(request);
   return deviceDemoApplication(db, device, { allowedOrigins });
 }
@@ -47,8 +66,13 @@ function demoOrigins(request: Request): readonly string[] {
  * endpoints never require a session. Device keys are opaque client identifiers
  * that only gate access to the matching demo project.
  */
-export async function handleDemoRoute(db: Db, request: Request): Promise<Response> {
+export async function handleDemoRoute(
+  db: Db,
+  request: Request,
+  options: { limiter?: DemoCreationLimiter } = {},
+): Promise<Response> {
   const url = new URL(request.url);
+  const limiter = options.limiter ?? demoCreationLimiter;
 
   if (url.pathname === "/api/v1/demo/checkout" && request.method === "POST") {
     // Deterministic demo failure: the order never completes.
@@ -62,7 +86,7 @@ export async function handleDemoRoute(db: Db, request: Request): Promise<Respons
 
   const match = /^\/api\/v1\/demo\/([^/]+)(?:\/(app|inbox)(?:\/([^/]+))?)?$/.exec(url.pathname);
   if (!match?.[1] || !match[2]) return failure("not_found", 404);
-  const app = await demoProject(db, match[1], request, match[2] === "app");
+  const app = await demoProject(db, match[1], request, match[2] === "app", limiter);
   if (app === null) return failure(match[2] === "app" ? "demo_unavailable" : "invalid_input", 400);
 
   if (match[2] === "app") return json({ application: app });

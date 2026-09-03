@@ -4,6 +4,8 @@ import postgres from "postgres";
 import { DEMO_PROJECT_CAP, listApplications } from "../src/applications";
 import { createDb, type DbHandle } from "../src/db/client";
 import { seedDemoProject } from "../src/db/seed";
+import { createDemoCreationLimiter } from "../src/demo-create-limit";
+import { handleDemoRoute } from "../src/demo-routes";
 import { startCollectorServer } from "../src/server";
 
 const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/filika_test";
@@ -158,5 +160,26 @@ describe.skipIf(!isDbAvailable)("public device demo routes", () => {
       where: (table, { eq }) => eq(table.kind, "demo"),
     });
     expect(before.length).toBeLessThanOrEqual(DEMO_PROJECT_CAP);
+  });
+
+  test("per-client budget bounds new demo projects without blocking refreshes", async () => {
+    const limiter = createDemoCreationLimiter({ maxPerWindow: 2, windowMs: 3_600_000 });
+    const requestFor = (device: string) =>
+      new Request(`http://localhost/api/v1/demo/${device}/app`, {
+        headers: { Origin: ALLOWED_ORIGIN },
+      });
+
+    const first = await handleDemoRoute(handle.db, requestFor("limit-device-1"), { limiter });
+    expect(first.status).toBe(200);
+    const second = await handleDemoRoute(handle.db, requestFor("limit-device-2"), { limiter });
+    expect(second.status).toBe(200);
+    const third = await handleDemoRoute(handle.db, requestFor("limit-device-3"), { limiter });
+    expect(third.status).toBe(400);
+    expect((await third.json()) as Record<string, unknown>).toEqual({
+      error: { category: "demo_unavailable" },
+    });
+
+    const refresh = await handleDemoRoute(handle.db, requestFor("limit-device-1"), { limiter });
+    expect(refresh.status).toBe(200);
   });
 });

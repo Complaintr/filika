@@ -129,20 +129,17 @@ export const DEMO_PROJECT_CAP = 5_000 as const;
 
 /**
  * Public demo application creation is unauthenticated and keyed by an opaque
- * client identifier, so it is bounded by a global cap. Once the cap is reached
- * new device projects are rejected until cleanup removes expired demo projects.
+ * client identifier, so it is bounded by a global cap plus a per-client
+ * hourly budget. Once the cap is reached, new device projects are rejected
+ * until cleanup removes expired demo projects.
  */
-export async function demoCreationAllowed(db: Db, now: Date = new Date()): Promise<boolean> {
-  if (now.getTime() > 0) {
-    const rows = await db
-      .select({ count: count() })
-      .from(project)
-      .where(eq(project.kind, "demo"))
-      .limit(1);
-    const total = Number(rows[0]?.count ?? 0);
-    return total < DEMO_PROJECT_CAP;
-  }
-  return false;
+export async function demoCreationAllowed(db: Db): Promise<boolean> {
+  const rows = await db
+    .select({ count: count() })
+    .from(project)
+    .where(eq(project.kind, "demo"))
+    .limit(1);
+  return Number(rows[0]?.count ?? 0) < DEMO_PROJECT_CAP;
 }
 
 export async function deviceDemoApplication(
