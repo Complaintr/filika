@@ -2745,6 +2745,14 @@
     width: 13px;
     height: 13px;
   }
+  .heroMedia {
+    padding: 0;
+    background: none;
+    border-radius: 16px;
+  }
+  :root[data-theme="dark"] .heroMedia {
+    background: none;
+  }
 }
 
 @media (max-width: 560px) {
