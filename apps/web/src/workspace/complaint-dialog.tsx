@@ -9,6 +9,15 @@ import { formatDate, kindLabels } from "./dom";
 import { GitHubIssuePanel } from "./github-issue-panel";
 import { InboxDetailState } from "./inbox-view";
 
+function DetailValue({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+}
+
 export function ComplaintDialog({
   appSlug,
   feedbackId,
@@ -70,11 +79,13 @@ export function ComplaintDialog({
     }
   }
 
+  const ready = state.status === "ready";
+
   return (
     <dialog
       ref={dialog}
-      className="report-dialog"
-      aria-labelledby="report-title"
+      className="report-dialog analytics-surface"
+      aria-labelledby="report-heading"
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           event.preventDefault();
@@ -95,11 +106,14 @@ export function ComplaintDialog({
           onClose();
       }}
     >
-      <header className="report-dialog-toolbar">
-        <span>Feedback details</span>
-        <div>
+      <div className="analytics-surface-heading report-dialog-head">
+        <div className="report-dialog-heading">
+          <h2 id="report-heading">{ready ? "Report content" : "Feedback details"}</h2>
+          {ready && <span>{kindLabels[state.feedback.kind]}</span>}
+        </div>
+        <div className="report-dialog-actions">
           <button
-            className="studio-icon-button"
+            className="report-ghost-button"
             type="button"
             aria-label="Previous report"
             disabled={!previousId}
@@ -108,7 +122,7 @@ export function ComplaintDialog({
             <ArrowLeft />
           </button>
           <button
-            className="studio-icon-button"
+            className="report-ghost-button"
             type="button"
             aria-label="Next report"
             disabled={!nextId}
@@ -116,9 +130,8 @@ export function ComplaintDialog({
           >
             <ArrowRight />
           </button>
-          <span className="toolbar-divider" />
           <button
-            className="studio-icon-button"
+            className="report-ghost-button"
             type="button"
             aria-label="Close report"
             onClick={onClose}
@@ -126,90 +139,73 @@ export function ComplaintDialog({
             <X />
           </button>
         </div>
-      </header>
-      <div className="report-dialog-content" aria-busy={state.status === "loading"}>
-        <div className="report-dialog-heading">
-          {state.status === "ready" && (
-            <span className={`feedback-type feedback-type-${state.feedback.kind}`}>
-              {kindLabels[state.feedback.kind]}
-            </span>
-          )}
-          <h2 id="report-title">
-            {state.status === "ready" ? state.feedback.title : "Complaint details"}
-          </h2>
-          {state.status === "ready" && (
-            <p>
-              Received {formatDate(state.feedback.receivedAt)} <span>·</span>{" "}
-              {state.feedback.routeLabel || "No page label"}
-            </p>
-          )}
-        </div>
-        {state.status === "ready" ? (
-          <div className="report-detail-layout">
-            <div className="report-story" data-untrusted="true">
-              <section>
+      </div>
+      <div className="analytics-inset report-dialog-inset" aria-busy={!ready}>
+        {ready ? (
+          <>
+            <div className="report-dialog-title">
+              <h2 tabIndex={-1}>{state.feedback.title}</h2>
+              <p className="muted">
+                Received {formatDate(state.feedback.receivedAt)} ·{" "}
+                {state.feedback.routeLabel || "No page label"}
+              </p>
+            </div>
+            <div className="report-sections" data-untrusted="true">
+              <section className="report-section">
                 <h3>What happened</h3>
                 <p>{state.feedback.description}</p>
               </section>
               {state.feedback.expectedBehavior && (
-                <section>
+                <section className="report-section">
                   <h3>What was expected</h3>
                   <p>{state.feedback.expectedBehavior}</p>
                 </section>
               )}
               {state.feedback.reproductionSteps && (
-                <section>
+                <section className="report-section">
                   <h3>Steps to reproduce</h3>
                   <p>{state.feedback.reproductionSteps}</p>
                 </section>
               )}
+              <section className="report-section">
+                <h3>Report context</h3>
+                <dl className="report-context-grid">
+                  <DetailValue label="Origin" value={state.feedback.requestOrigin} />
+                  <DetailValue label="Page" value={state.feedback.routeLabel || "Not provided"} />
+                  <DetailValue
+                    label="Release"
+                    value={state.feedback.applicationRelease || "Not provided"}
+                  />
+                  <DetailValue
+                    label="Received"
+                    value={new Date(state.feedback.receivedAt).toLocaleString("en")}
+                  />
+                  <DetailValue
+                    label="Available until"
+                    value={new Date(state.feedback.expiresAt).toLocaleString("en")}
+                  />
+                  <div>
+                    <dt>Report ID</dt>
+                    <dd className="report-id">{state.feedback.feedbackId}</dd>
+                  </div>
+                </dl>
+              </section>
             </div>
-            <aside className="report-context">
-              <h3>Report context</h3>
-              <dl>
-                <div>
-                  <dt>Origin</dt>
-                  <dd>{state.feedback.requestOrigin}</dd>
-                </div>
-                <div>
-                  <dt>Page</dt>
-                  <dd>{state.feedback.routeLabel || "Not provided"}</dd>
-                </div>
-                <div>
-                  <dt>Release</dt>
-                  <dd>{state.feedback.applicationRelease || "Not provided"}</dd>
-                </div>
-                <div>
-                  <dt>Received</dt>
-                  <dd>{new Date(state.feedback.receivedAt).toLocaleString("en")}</dd>
-                </div>
-                <div>
-                  <dt>Available until</dt>
-                  <dd>{new Date(state.feedback.expiresAt).toLocaleString("en")}</dd>
-                </div>
-                <div>
-                  <dt>Report ID</dt>
-                  <dd className="report-id">{state.feedback.feedbackId}</dd>
-                </div>
-              </dl>
-            </aside>
-          </div>
+            <GitHubIssuePanel
+              key={`${appSlug}:${feedbackId}`}
+              appSlug={appSlug}
+              feedbackId={feedbackId}
+            />
+          </>
         ) : (
-          <>
+          <div className="report-state">
             <InboxDetailState state={state} />
             {state.status === "error" && (
               <button type="button" className="studio-button" onClick={load}>
                 Try again
               </button>
             )}
-          </>
-        )}
-        {state.status === "ready" && (
-          <GitHubIssuePanel
-            key={`${appSlug}:${feedbackId}`}
-            appSlug={appSlug}
-            feedbackId={feedbackId}
-          />
+          </div>
         )}
       </div>
       <footer className="report-dialog-footer">

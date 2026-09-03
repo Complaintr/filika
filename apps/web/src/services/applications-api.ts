@@ -105,11 +105,13 @@ async function request(path: string, signal: AbortSignal, method = "GET", body?:
       throw new Error("This application URL is already in use. Choose another.");
     if (category === "invalid_input")
       throw new Error("Check the fields and allowed origins, then try again.");
-    throw new Error("Your changes could not be loaded or saved. Please try again.");
+    throw new Error("The collector could not complete this request. Please try again.");
   }
   if (!record(raw)) throw new Error("Invalid response.");
   return raw;
 }
+
+export { request as apiRequest };
 export async function fetchApplications(signal: AbortSignal): Promise<Application[]> {
   const raw = await request("/api/v1/apps", signal);
   if (!Array.isArray(raw.applications) || raw.applications.length > 100)
