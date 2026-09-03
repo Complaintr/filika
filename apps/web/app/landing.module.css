@@ -2584,6 +2584,11 @@
   color: #f1f5f9;
 }
 
+:root[data-theme="dark"] .heroMedia {
+  background-image:
+    linear-gradient(rgba(10, 15, 26, 0.58), rgba(10, 15, 26, 0.58)), url("/hero-demo-frame.png");
+}
+
 @media (max-width: 1100px) {
   .pricingGrid {
     grid-template-columns: repeat(2, 1fr);

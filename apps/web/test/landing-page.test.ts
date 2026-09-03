@@ -138,8 +138,14 @@ describe("public landing page", () => {
     const styles = await Bun.file(`${appDirectory}/landing.module.css`).text();
 
     const heroMedia = styles.match(/\.heroMedia\s*\{([^}]*)\}/)?.[1];
-    expect(heroMedia).toContain("var(--card) url(\"/hero-demo-frame.png\")");
+    expect(heroMedia).toContain('var(--card) url("/hero-demo-frame.png")');
     expect(styles).toContain("/hero-demo-frame.png");
+
+    const darkHeroMedia = styles.match(
+      /:root\[data-theme="dark"\]\s+\.heroMedia\s*\{([^}]*)\}/,
+    )?.[1];
+    expect(darkHeroMedia).toContain("rgba(10, 15, 26, 0.58)");
+    expect(darkHeroMedia).toContain("/hero-demo-frame.png");
   });
 
   test("serves the home route without authentication or workspace chrome", async () => {
