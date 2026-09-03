@@ -266,8 +266,8 @@ export default function ApplicationSettingsPage() {
             <div className="settings-section-body">
               <h3>Feedback transmission</h3>
               <p>
-                Agent reports are transmitted when the agent calls the Filika feedback tool.
-                Reports belong only to this application.
+                Agent reports are transmitted when the agent calls the Filika feedback tool. Reports
+                belong only to this application.
               </p>
               <h3>Retention</h3>
               <p>
