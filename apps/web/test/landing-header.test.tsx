@@ -4,7 +4,7 @@ import { LandingHeader } from "../src/components/landing-header";
 import { renderReact } from "./helpers/render-react";
 
 describe("landing header component", () => {
-  test("renders logo, navigation links, theme switcher, and a hidden get started button", async () => {
+  test("renders logo, navigation links, theme switcher, and hidden header CTAs", async () => {
     const result = await renderReact(createElement(LandingHeader));
 
     const logo = result.container.querySelector('a[aria-label="Filika home"]');
@@ -26,10 +26,15 @@ describe("landing header component", () => {
     expect(getStartedBtn?.className).not.toContain("headerGetStartedVisible");
     expect(getStartedBtn?.getAttribute("tabindex")).toBe("-1");
 
+    const demoBtn = result.container.querySelector('header a[href="/demo"]');
+    expect(demoBtn).not.toBeNull();
+    expect(demoBtn?.className).not.toContain("headerGetStartedVisible");
+    expect(demoBtn?.getAttribute("tabindex")).toBe("-1");
+
     await result.close();
   });
 
-  test("shows get started after the hero scrolls out of view", async () => {
+  test("shows header CTAs after the hero scrolls out of view", async () => {
     const result = await renderReact(createElement(LandingHeader));
     const hero = result.window.document.createElement("section");
     hero.setAttribute("data-landing-hero", "");
@@ -42,6 +47,10 @@ describe("landing header component", () => {
     const getStartedBtn = result.container.querySelector('a[href="/login"]');
     expect(getStartedBtn?.className).toContain("headerGetStartedVisible");
     expect(getStartedBtn?.hasAttribute("tabindex")).toBe(false);
+
+    const demoBtn = result.container.querySelector('header a[href="/demo"]');
+    expect(demoBtn?.className).toContain("headerGetStartedVisible");
+    expect(demoBtn?.hasAttribute("tabindex")).toBe(false);
 
     await result.close();
   });
@@ -104,6 +113,10 @@ describe("landing header component", () => {
     expect(mobileNav?.textContent).toContain("Features");
     expect(mobileNav?.textContent).toContain("How it works");
     expect(mobileNav?.textContent).toContain("GitHub");
+    expect(mobileNav?.textContent).not.toContain("Demo");
+    expect(mobileNav?.textContent).not.toContain("Get Started");
+    expect(mobileNav?.querySelector('a[href="/demo"]')).toBeNull();
+    expect(mobileNav?.querySelector('a[href="/login"]')).toBeNull();
 
     menuBtn?.click();
     await new Promise((resolve) => setTimeout(resolve, 20));
