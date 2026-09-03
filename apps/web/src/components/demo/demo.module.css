@@ -204,12 +204,14 @@
 .productImage {
   display: grid;
   place-items: center;
-  height: 88px;
-  border-radius: 6px;
+  aspect-ratio: 1 / 1;
+  width: min(100%, 200px);
+  margin-inline: auto;
+  border-radius: 10px;
   background: linear-gradient(180deg, #fafaf9 0%, #f1efec 100%);
 }
 .productImage span {
-  font-size: 40px;
+  font-size: 34px;
   line-height: 1;
 }
 .productCardTop {
@@ -651,7 +653,7 @@
     padding: 20px 0 24px 20px;
   }
   .productGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -668,6 +670,9 @@
     gap: 16px;
     margin-right: 0;
     padding: 20px 16px 60px;
+  }
+  .productGrid {
+    grid-template-columns: 1fr;
   }
   .flowPanel {
     position: fixed;
@@ -891,8 +896,8 @@
 }
 
 .storeBody {
-  gap: 12px;
-  padding: 16px;
+  gap: 10px;
+  padding: 12px 14px 14px;
 }
 
 .storeHeading h2 {
@@ -902,7 +907,7 @@
 
 .productGrid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
   min-height: 0;
   overflow-y: auto;
 }
@@ -910,9 +915,9 @@
 .productCard {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
-  padding: 12px;
+  padding: 10px;
   border-radius: 10px;
   transition: border-color 150ms ease;
 }
@@ -927,11 +932,12 @@
 }
 
 .productImage {
-  width: 100%;
-  height: auto;
+  width: min(100%, 200px);
+  aspect-ratio: 1 / 1;
   min-height: 0;
-  aspect-ratio: 1.1;
+  margin-inline: auto;
   overflow: hidden;
+  border-radius: 10px;
   background: #f5f6f8;
 }
 
@@ -944,7 +950,7 @@
 }
 
 .productTagline {
-  min-height: 30px;
+  min-height: 0;
   margin: 0;
   color: var(--store-muted);
   font-size: 11px;
@@ -1303,26 +1309,55 @@
   color: var(--demo-filika);
 }
 
+/* The active step shows a subtle spinner while the agent works on it. */
+.liveEvents .liveEventCurrent .liveEventIcon svg {
+  animation: demo-step-spin 1s linear infinite;
+}
+@keyframes demo-step-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .liveFooter .resetButton {
   width: 100%;
   border-color: transparent;
   background: transparent;
 }
 
+.liveAbout {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--demo-border);
+  border-radius: 10px;
+  background: var(--demo-surface);
+  color: var(--demo-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .productCard {
     transition: none;
+  }
+  .liveEvents .liveEventCurrent .liveEventIcon svg {
+    animation: none;
   }
 }
 
 @media (max-width: 1080px) {
   .experienceMain {
-    width: calc(100% - 312px);
+    width: auto;
+    margin-right: 312px;
     padding-inline: 22px;
   }
 
   .demoHeaderInner {
-    width: calc(100% - 312px);
+    width: auto;
+    margin-right: 312px;
     padding-inline: 22px;
   }
 

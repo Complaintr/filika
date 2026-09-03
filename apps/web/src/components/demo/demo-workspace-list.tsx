@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { demoApi } from "@/services/demo-api";
 import { InboxStatePanel } from "@/workspace/inbox-view";
+import { DemoSignupCta } from "./demo-signup-cta";
 import styles from "./demo-workspace.module.css";
 
 const DEVICE_KEY_STORAGE = "filika-demo-device-v1";
@@ -49,7 +50,6 @@ export function DemoWorkspaceList() {
     <main className={styles.workspace} id="app-content">
       <header className={styles.header}>
         <div>
-          <span className={styles.eyebrow}>Filika demo</span>
           <h1>Complaints for this browser</h1>
           <p className={styles.muted}>
             Reports sent from the demo store in this browser appear here. Demo feedback is retained
@@ -121,6 +121,8 @@ export function DemoWorkspaceList() {
           ))}
         </ol>
       )}
+
+      <DemoSignupCta />
     </main>
   );
 }

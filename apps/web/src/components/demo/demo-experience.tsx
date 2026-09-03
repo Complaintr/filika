@@ -90,11 +90,20 @@ export function DemoExperience() {
   const [projectKey, setProjectKey] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [promptCopied, setPromptCopied] = useState(false);
-  const [storeState, setStoreState] = useState<DemoStoreState>(loadStoreState);
-  const [receipt, setReceipt] = useState<{ feedbackId: string; receivedAt: string } | null>(
-    loadReceipt,
-  );
+  // Start empty so server and client hydration match; load the persisted
+  // state in an effect after mount to avoid a hydration mismatch on the cart
+  // count and receipt.
+  const [storeState, setStoreState] = useState<DemoStoreState>(EMPTY_STORE_STATE);
+  const [receipt, setReceipt] = useState<{ feedbackId: string; receivedAt: string } | null>(null);
   const [pageUrl, setPageUrl] = useState("");
+
+  useEffect(() => {
+    setStoreState(loadStoreState());
+  }, []);
+
+  useEffect(() => {
+    setReceipt(loadReceipt());
+  }, []);
 
   // The store state is persisted per browser so navigating away and back to
   // the demo does not reset the agent's progress. Only "Reset demo" clears it.

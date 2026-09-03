@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Circle, RotateCcw } from "lucide-react";
+import { Check, Circle, Loader2, RotateCcw } from "lucide-react";
 import styles from "./demo.module.css";
 import type { DemoStoreState } from "./demo-store";
 
@@ -59,7 +59,7 @@ export function DemoFlowPanel({
               className={`${event.complete ? styles.liveEventComplete : ""} ${current ? styles.liveEventCurrent : ""}`}
             >
               <span className={styles.liveEventIcon} aria-hidden="true">
-                {event.complete ? <Check /> : <Circle />}
+                {event.complete ? <Check /> : current ? <Loader2 /> : <Circle />}
               </span>
               <span>{event.label}</span>
               <small>{event.complete ? "Done" : current ? "Waiting" : "Pending"}</small>
@@ -69,6 +69,11 @@ export function DemoFlowPanel({
       </ol>
 
       <footer className={styles.liveFooter}>
+        <p className={styles.liveAbout}>
+          This is a live demo of Filika: a storefront whose checkout is deliberately broken, and an
+          AI feedback tool that reports the failure. No report leaves this page without your
+          explicit confirmation.
+        </p>
         <button className={styles.resetButton} type="button" onClick={onReset}>
           <RotateCcw aria-hidden="true" /> Reset demo
         </button>
