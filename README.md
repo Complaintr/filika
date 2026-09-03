@@ -18,6 +18,23 @@
 
 ---
 
+## Table of Contents
+
+- [What is Filika?](#what-is-filika)
+- [Features](#features)
+- [How It Works](#how-it-works)
+- [SDK Installation](#sdk-installation)
+- [WebMCP Tool Contract](#webmcp-tool-contract)
+- [Developer Triage Workspace](#developer-triage-workspace)
+- [Interactive Demo Sandbox](#interactive-demo-sandbox)
+- [GitHub Integration](#github-integration)
+- [Applications and Access Control](#applications-and-access-control)
+- [Authentication and Security](#authentication-and-security)
+- [Repository Architecture](#repository-architecture)
+- [License](#license)
+
+---
+
 ## What is Filika?
 
 Filika is an open-source, WebMCP-native feedback system for modern web applications. When an AI browser agent encounters a bug, a blocked task, confusing UX, or a runtime failure, it uses the static Filika WebMCP tool to draft a structured report. The collector validates and persists the report, and maintainers triage it from a unified workspace or export it directly into GitHub issues.
@@ -44,7 +61,7 @@ Agent-authored feedback is transmitted without a user review step. When WebMCP i
 - **Account security and lifecycle**: Complete user account settings including session security and permanent account deletion (`DELETE /api/v1/account`).
 - **Self-hostable with Bun and PostgreSQL**: Full-stack TypeScript monorepo built with Bun 1.3.14, Next.js 16, Drizzle ORM, and PostgreSQL 16.
 
-## Feedback Flow
+## How It Works
 
 ```mermaid
 graph LR
@@ -60,74 +77,7 @@ graph LR
 3. **Ingestion**: The collector validates the origin against allowed domains, enforces rate limits, and persists the complaint in PostgreSQL.
 4. **Triage and Resolution**: Maintainers inspect the report in the application inbox and export it to GitHub with one click.
 
-## Getting Started
-
-### Prerequisites
-
-- [Bun](https://bun.sh) `1.3.14`
-- [Docker Compose](https://docs.docker.com/compose/) (PostgreSQL 16)
-
-### Installation and Local Setup
-
-1. **Clone the repository and install dependencies**:
-
-   ```bash
-   git clone https://github.com/Complaintr/filika.git
-   cd filika
-   bun install
-   ```
-
-2. **Start the database**:
-
-   ```bash
-   docker compose up db -d
-   ```
-
-3. **Configure environment variables**:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   > [!NOTE]
-   > For local development, the default `.env` settings connect to the Docker PostgreSQL container on port `55432`. Set `BETTER_AUTH_SECRET` to a random string.
-
-4. **Run database migrations and seed demo data**:
-
-   ```bash
-   bun run db:migrate
-   bun run db:seed
-   ```
-
-5. **Start the development server**:
-
-   ```bash
-   bun run dev
-   ```
-
-   Open [http://localhost:4173](http://localhost:4173) in your browser.
-
-> [!TIP]
-> Visit [http://localhost:4173/demo](http://localhost:4173/demo) to test agent feedback submission in the built-in sandbox store.
-
-## Commands
-
-| Command | Action | Description |
-| :--- | :--- | :--- |
-| `bun run dev` | Start dev server | Launches Next.js web application and collector at port `4173` |
-| `bun run build` | Build all packages | Compiles `@filika/sdk`, `@filika/collector`, and `@filika/web` |
-| `bun run check` | Lint and format check | Runs Biome code checks across the repository |
-| `bun run check:fix` | Auto-fix lints | Automatically fixes formatting and safe lint warnings |
-| `bun run format` | Format files | Formats all workspace files with Biome |
-| `bun run typecheck` | Type check | Validates TypeScript in strict mode across all workspaces |
-| `bun run test:unit` | Run unit tests | Executes targeted Bun unit tests |
-| `bun run test:browser` | Browser E2E tests | Runs Playwright integration suite in Chromium |
-| `bun run db:migrate` | Run migrations | Applies latest Drizzle schema migrations to PostgreSQL |
-| `bun run db:seed` | Seed database | Seeds demo project and initial accounts |
-| `bun run db:cleanup` | Prune retention | Removes expired feedback records and artifacts |
-| `bun run db:reset` | Reset database | Wipes and re-applies all database migrations |
-
-## Client Integration
+## SDK Installation
 
 Embed the lightweight Filika SDK into any web application by adding a script tag to your HTML `<head>` or before `</body>`:
 
@@ -155,8 +105,17 @@ For local loopback testing over HTTP, use the development bundle:
 ></script>
 ```
 
+### Script Configuration
+
+| Attribute | Required | Description |
+| :--- | :--- | :--- |
+| `src` | **Yes** | URL to the hosted Filika SDK bundle (`/sdk/filika.js` or `/sdk/filika.development.js`) |
+| `data-project-key` | **Yes** | The application's public identifier generated during onboarding |
+| `data-endpoint` | **Yes** | The collector feedback ingestion URL (`/api/v1/feedback`) |
+| `defer` | **Yes** | Ensures the script executes without blocking initial HTML parsing |
+
 > [!IMPORTANT]
-> The collector verifies incoming requests against the application's **Allowed Origins** list configured in `/[appSlug]/settings`. Unlisted origins are rejected.
+> The collector verifies incoming requests against the application's **Allowed Origins** list configured in `/[appSlug]/settings`. Unlisted website origins are rejected.
 
 ## WebMCP Tool Contract
 
@@ -172,17 +131,22 @@ The SDK registers `filika_submit_feedback` with `document.modelContext`. The too
 | `expectedBehavior` | `string` | No | Up to 2,000 characters | What the agent or user anticipated |
 | `reproductionSteps` | `string[]` | No | Max 10 items, 500 chars each | Sequential steps to reproduce the problem |
 
-## Workspace Routes
+### Safety and Privacy Bounds
+
+- **Zero ambient capture**: Filika never inspects the DOM, session storage, cookies, user input fields, or network logs outside of explicit tool execution.
+- **Closed input schema**: Payloads with unexpected properties are rejected immediately at the collector boundary.
+- **Payload limits**: Strict limits on payload size (max 32 KB envelope, 24 KB tool input) prevent denial-of-service or storage exhaustion.
+
+## Developer Triage Workspace
+
+Maintainers review, search, and manage feedback across dedicated workspace views:
 
 | Route | Purpose | Description |
 | :--- | :--- | :--- |
-| `/` | Landing page | Feature overview, WebMCP explanation, and quick links |
-| `/[appSlug]/dashboard` | Metrics & Analytics | Feedback kind distribution, volume trends, and active stats |
-| `/[appSlug]/complaints` | Triage Workspace | Feedback inbox, detailed inspector, and GitHub issue export |
-| `/[appSlug]/settings` | App Configuration | Public SDK key, allowed website origins, and data retention |
-| `/onboarding` | Guided Setup | Step-by-step application creation and first-report verification |
-| `/demo` | Agent Sandbox | Interactive store to test agent WebMCP tool calling |
-| `/account` | Account & Security | Session management, password settings, and account deletion |
+| `/[appSlug]/dashboard` | Metrics and Trends | Volume trends, feedback kind distributions, and activity statistics |
+| `/[appSlug]/complaints` | Feedback Inbox | Filterable list of reports, detail inspection, and status management |
+| `/[appSlug]/settings` | App Configuration | Public SDK key, allowed origins, and data retention rules |
+| `/account` | User Settings | Profile identity, session security, and account deletion |
 
 <p align="center">
   <img src="dashboard.png" alt="Filika analytics dashboard" width="800">
@@ -193,7 +157,7 @@ The SDK registers `filika_submit_feedback` with `document.modelContext`. The too
 
 ## Interactive Demo Sandbox
 
-Filika includes a full e-commerce sandbox environment at `/demo` designed specifically to test browser AI agents and WebMCP tools in action. Agents can browse products, attempt interactions, spot intentional edge cases, and submit reports directly to the collector.
+Filika provides a complete, self-contained demo store at `/demo` with intentional edge cases, shopping cart anomalies, and error states. Developers and browser AI agents can test end-to-end feedback submission immediately without needing an external website.
 
 <p align="center">
   <img src="demo.png" alt="Filika interactive demo sandbox" width="800">
@@ -204,11 +168,11 @@ Filika includes a full e-commerce sandbox environment at `/demo` designed specif
 
 ## GitHub Integration
 
-Filika connects directly to GitHub to turn verified reports into repository issues:
+Filika connects directly with GitHub to turn verified reports into tracked issues:
 
-1. Configure GitHub App credentials in `.env` (`GITHUB_APP_ID`, `GITHUB_APP_CLIENT_ID`, `GITHUB_APP_PRIVATE_KEY`, etc.).
-2. Connect your GitHub repository in your application settings.
-3. Export complaints to GitHub with complete context, reproduction steps, and links back to Filika.
+1. **Configure credentials**: Provide your GitHub App credentials in `.env` (`GITHUB_APP_ID`, `GITHUB_APP_CLIENT_ID`, `GITHUB_APP_PRIVATE_KEY`, etc.).
+2. **Link repository**: Connect your target repository in the application settings panel.
+3. **Export issues**: Convert any complaint into a formatted GitHub issue containing full descriptions, reproduction steps, and links back to Filika.
 
 <p align="center">
   <img src="github-export.png" alt="Filika GitHub issue integration" width="800">
@@ -216,6 +180,24 @@ Filika connects directly to GitHub to turn verified reports into repository issu
 <p align="center">
   <em>Exporting verified agent reports into structured GitHub issues</em>
 </p>
+
+## Applications and Access Control
+
+Filika isolates data by application to support multi-project workflows:
+
+- **Onboarding workflow**: New accounts create an application, specify approved website origins, install the snippet, and send a verification event.
+- **Unique slugs**: Application URLs use fixed slugs (e.g. `/[appSlug]/dashboard`). Display names can be updated anytime without breaking bookmarks.
+- **Origin verification**: The collector enforces an origin allow-list on every feedback submission. Applications without allowed origins cannot receive reports.
+- **Owner authorization**: All read and write APIs require an active owner session; historical data is never exposed publicly.
+
+## Authentication and Security
+
+Filika includes production-grade authentication powered by Better Auth:
+
+- **Google OAuth**: One-click authentication with Google OAuth credentials.
+- **Email and Password**: Secure credential login with Resend email delivery. Email signup requires verification before login; verification links expire after one hour.
+- **Password Recovery**: The `/forgot-password` route generates single-use reset links valid for 30 minutes, revoking existing sessions upon completion.
+- **Account Deletion**: Users can permanently delete their account and all associated applications, feedback records, and tokens via `DELETE /api/v1/account` with typed confirmation.
 
 ## Repository Architecture
 
@@ -228,31 +210,6 @@ filika/
 │   └── collector/      # Feedback API, Drizzle ORM schema, and PostgreSQL persistence
 └── tests/
     └── e2e/            # Playwright end-to-end browser integration suite
-```
-
-## Verification
-
-Run focused tests locally during development:
-
-```bash
-# Lint and format check
-bun run check
-
-# Typecheck all packages
-bun run typecheck
-
-# Run unit tests
-bun run test:unit
-
-# Build all packages
-bun run build
-```
-
-To run end-to-end browser tests:
-
-```bash
-bun run test:browser:prepare
-bun run test:browser
 ```
 
 ## License
