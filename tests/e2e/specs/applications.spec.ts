@@ -111,74 +111,12 @@ test("onboarding creates an application and the header switches between isolated
   });
 });
 
-test("Google photo is optional, persists, and updates the header without uploads", async ({
-  page,
-}) => {
-  await signInAsE2eUser(page, { google: true });
-  await page.route("https://lh3.googleusercontent.com/test-avatar", (route) =>
-    route.fulfill({
-      contentType: "image/svg+xml",
-      body: '<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><rect width="60" height="60" fill="#3563e9"/></svg>',
-    }),
-  );
-  await page.goto("/account");
-  const choice = page.getByRole("checkbox", { name: "Use Google profile photo" });
-  await expect(choice).toBeEnabled();
-  await expect(choice).not.toBeChecked();
-  await expect(page.locator('.topbar button[aria-label="Open profile menu"] img')).toHaveCount(0);
-  await choice.check();
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.locator(".settings-save-status")).toHaveText("Your changes are saved.");
-  await expect(page.locator('.topbar button[aria-label="Open profile menu"] img')).toBeVisible();
-  await page.reload();
-  await expect(choice).toBeChecked();
-  await page.screenshot({ path: test.info().outputPath("account-profile.png"), fullPage: true });
-  await choice.uncheck();
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.locator(".settings-save-status")).toHaveText("Your changes are saved.");
-  await expect(page.locator('.topbar button[aria-label="Open profile menu"] img')).toHaveCount(0);
-  await expect(page.locator('input[type="file"]')).toHaveCount(0);
-});
-
-test("GitHub photo is optional, persists, and updates the header without uploads", async ({
-  page,
-}) => {
-  await signInAsE2eUser(page, { github: true });
-  await page.route("https://avatars.githubusercontent.com/u/123456?v=4", (route) =>
-    route.fulfill({
-      contentType: "image/svg+xml",
-      body: '<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><rect width="60" height="60" fill="#24292e"/></svg>',
-    }),
-  );
-  await page.goto("/account");
-  const choice = page.getByRole("checkbox", { name: "Use GitHub profile photo" });
-  await expect(choice).toBeEnabled();
-  await expect(choice).not.toBeChecked();
-  await expect(page.locator('.topbar button[aria-label="Open profile menu"] img')).toHaveCount(0);
-  await choice.check();
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.locator(".settings-save-status")).toHaveText("Your changes are saved.");
-  await expect(page.locator('.topbar button[aria-label="Open profile menu"] img')).toBeVisible();
-  await page.reload();
-  await expect(choice).toBeChecked();
-  await choice.uncheck();
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.locator(".settings-save-status")).toHaveText("Your changes are saved.");
-  await expect(page.locator('.topbar button[aria-label="Open profile menu"] img')).toHaveCount(0);
-});
-
-test("password-only accounts cannot select a Google or GitHub photo and cannot read another app", async ({
-  page,
-  browser,
-}) => {
+test("an account cannot read another account's application", async ({ page, browser }) => {
   const first = await signInAsE2eUser(page);
   const otherContext = await browser.newContext();
   try {
     const other = await otherContext.newPage();
     await signInAsE2eUser(other);
-    await other.goto(`${webOrigin}/account`);
-    await expect(other.getByRole("checkbox", { name: "Use Google profile photo" })).toBeDisabled();
-    await expect(other.getByRole("checkbox", { name: "Use GitHub profile photo" })).toBeDisabled();
     const denied = await other.request.get(`${webOrigin}/api/v1/apps/${first.slug}/inbox`);
     expect(denied.status()).toBe(404);
     await other.goto(`${webOrigin}/${first.slug}/complaints`);
@@ -186,4 +124,27 @@ test("password-only accounts cannot select a Google or GitHub photo and cannot r
   } finally {
     await otherContext.close();
   }
+});
+
+test("deleting the account requires typed confirmation and removes the session", async ({
+  page,
+}) => {
+  const identity = await signInAsE2eUser(page);
+  await page.goto("/account");
+  await page.getByRole("button", { name: "Security", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Delete account", exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Delete account", exact: true }).click();
+  const confirmButton = page.getByRole("button", { name: "Delete my account", exact: true });
+  await expect(confirmButton).toBeDisabled();
+
+  const confirmInput = page.locator(".delete-account-panel input");
+  await confirmInput.fill("delete");
+  await expect(confirmButton).toBeEnabled();
+  await confirmButton.click();
+
+  await expect(page).toHaveURL(`${webOrigin}/`);
+  const session = await page.request.get(`${webOrigin}/api/v1/account`);
+  expect(session.status()).toBe(401);
+  expect(identity.userId.length).toBeGreaterThan(0);
 });

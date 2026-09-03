@@ -7,7 +7,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { runCleanup } from "../src/db/cleanup";
 import { createDb, type DbHandle } from "../src/db/client";
-import { account, feedback, project, rateLimit, user } from "../src/db/schema";
+import { account, feedback, project, rateLimit, session, user } from "../src/db/schema";
 import { DEMO_PROJECT_KEY, seedDemoProject } from "../src/db/seed";
 import {
   ABUSE_CONTROL_MATRIX,
@@ -1143,97 +1143,47 @@ describe.skipIf(!isDbAvailable)("owned applications and account settings", () =>
     expect((await (await other.request("/apps")).json()).applications).toEqual([]);
   });
 
-  test("Google photo is opt-in, verified against the linked provider, and never accepts arbitrary URLs", async () => {
+  test("deletes the account, its applications, and their feedback", async () => {
     const owner = await identity();
-    const settings = {
-      name: "Updated owner",
-      theme: "dark",
-      density: "compact",
-      useGoogleImage: true,
-    };
-    expect((await owner.request("/account", "PATCH", settings)).status).toBe(400);
-    expect(
-      (
-        await owner.request("/account", "PATCH", {
-          ...settings,
-          image: "https://evil.example/photo",
-        })
-      ).status,
-    ).toBe(400);
+    const slug = `del-${crypto.randomUUID()}`;
+    const app = (await (await owner.request("/apps", "POST", { ...settings, slug })).json())
+      .application;
+    const eventId = crypto.randomUUID();
+    expect((await postRaw(postEnvelope(eventId, { projectKey: app.projectKey }))).status).toBe(201);
+    expect((await (await owner.request(`/apps/${slug}/inbox`)).json()).items).toHaveLength(1);
+    await handle.db.insert(session).values({
+      id: crypto.randomUUID(),
+      token: crypto.randomUUID(),
+      userId: owner.id,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
     await handle.db.insert(account).values({
       id: crypto.randomUUID(),
       userId: owner.id,
-      accountId: "google-test",
-      providerId: "google",
-      issuer: "https://accounts.google.com",
-      accessToken: "must-not-leak",
+      accountId: "credential-test",
+      providerId: "credential",
+      issuer: "filika",
     });
-    await handle.db
-      .update(user)
-      .set({ googleImage: "https://lh3.googleusercontent.com/test-photo" })
-      .where(eq(user.id, owner.id));
-    expect((await (await owner.request("/account")).json()).account.image).toBeNull();
-    const response = await owner.request("/account", "PATCH", settings);
-    expect(response.status).toBe(200);
-    const profile = (await response.json()).account;
-    expect(profile).toMatchObject({
-      name: "Updated owner",
-      image: "https://lh3.googleusercontent.com/test-photo",
-      theme: "dark",
-      density: "compact",
-      googleConnected: true,
-    });
-    expect(JSON.stringify(profile)).not.toContain("must-not-leak");
-    expect(
-      (await owner.request("/account", "PATCH", settings, "https://evil.example")).status,
-    ).toBe(403);
-    await owner.request("/account", "PATCH", { ...settings, useGoogleImage: false });
-    expect((await (await owner.request("/account")).json()).account.image).toBeNull();
-  });
 
-  test("GitHub photo is opt-in, verified against the linked provider, and never accepts arbitrary URLs", async () => {
-    const owner = await identity();
-    const settings = {
-      name: "GitHub owner",
-      theme: "dark",
-      density: "compact",
-      useGithubImage: true,
-    };
-    expect((await owner.request("/account", "PATCH", settings)).status).toBe(400);
+    expect((await owner.request("/account", "DELETE", {}, "https://evil.example")).status).toBe(
+      403,
+    );
+    expect((await owner.request("/account", "DELETE")).status).toBe(200);
+
+    expect((await owner.request("/account")).status).toBe(401);
+    expect((await owner.request(`/apps/${slug}`)).status).toBe(404);
+    expect((await (await owner.request("/apps")).json()).applications).toEqual([]);
+    expect(await handle.db.select().from(user).where(eq(user.id, owner.id))).toHaveLength(0);
+    expect(await handle.db.select().from(project).where(eq(project.slug, slug))).toHaveLength(0);
     expect(
-      (
-        await owner.request("/account", "PATCH", {
-          ...settings,
-          image: "https://evil.example/photo",
-        })
-      ).status,
-    ).toBe(400);
-    await handle.db.insert(account).values({
-      id: crypto.randomUUID(),
-      userId: owner.id,
-      accountId: "github-test",
-      providerId: "github",
-      issuer: "https://github.com",
-      accessToken: "must-not-leak",
-    });
-    await handle.db
-      .update(user)
-      .set({ githubImage: "https://avatars.githubusercontent.com/u/123456?v=4" })
-      .where(eq(user.id, owner.id));
-    expect((await (await owner.request("/account")).json()).account.image).toBeNull();
-    const response = await owner.request("/account", "PATCH", settings);
-    expect(response.status).toBe(200);
-    const profile = (await response.json()).account;
-    expect(profile).toMatchObject({
-      name: "GitHub owner",
-      image: "https://avatars.githubusercontent.com/u/123456?v=4",
-      theme: "dark",
-      density: "compact",
-      githubConnected: true,
-    });
-    expect(JSON.stringify(profile)).not.toContain("must-not-leak");
-    await owner.request("/account", "PATCH", { ...settings, useGithubImage: false });
-    expect((await (await owner.request("/account")).json()).account.image).toBeNull();
+      await handle.db.select().from(feedback).where(eq(feedback.eventId, eventId)),
+    ).toHaveLength(0);
+    expect(await handle.db.select().from(session).where(eq(session.userId, owner.id))).toHaveLength(
+      0,
+    );
+    expect(await handle.db.select().from(account).where(eq(account.userId, owner.id))).toHaveLength(
+      0,
+    );
   });
 });
 
@@ -1293,8 +1243,6 @@ describe.skipIf(!isDbAvailable)("application schema compatibility", () => {
         id: "legacy-user",
         email: "legacy@example.test",
         image: "https://lh3.googleusercontent.com/legacy",
-        googleImage: null,
-        useGoogleImage: false,
         theme: "light",
         density: "comfortable",
       });

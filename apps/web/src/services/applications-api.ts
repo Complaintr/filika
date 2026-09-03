@@ -1,4 +1,3 @@
-import { githubPhotoUrl, googlePhotoUrl } from "@filika/collector/photo-url";
 import { readBoundedJson } from "./response";
 
 export interface Application {
@@ -15,20 +14,10 @@ export interface AccountProfile {
   id: string;
   name: string;
   email: string;
-  image: string | null;
-  googleConnected: boolean;
-  googleImageAvailable: boolean;
-  useGoogleImage: boolean;
-  githubConnected: boolean;
-  githubImageAvailable: boolean;
-  useGithubImage: boolean;
   theme: "light" | "dark" | "system";
   density: "comfortable" | "compact";
 }
-export type AccountSettings = Pick<
-  AccountProfile,
-  "name" | "useGoogleImage" | "useGithubImage" | "theme" | "density"
->;
+export type AccountSettings = Pick<AccountProfile, "name" | "theme" | "density">;
 export type ApplicationSettings = Pick<
   Application,
   "displayName" | "allowedOrigins" | "dashboardDays"
@@ -80,34 +69,14 @@ function parseAccount(value: unknown): AccountProfile {
     !text(value.id, 200) ||
     !text(value.name, 200) ||
     !text(value.email, 320) ||
-    !(value.image === null || text(value.image, 2048)) ||
-    typeof value.googleConnected !== "boolean" ||
-    typeof value.googleImageAvailable !== "boolean" ||
-    typeof value.useGoogleImage !== "boolean" ||
-    typeof value.githubConnected !== "boolean" ||
-    typeof value.githubImageAvailable !== "boolean" ||
-    typeof value.useGithubImage !== "boolean" ||
     !["light", "dark", "system"].includes(String(value.theme)) ||
     !["compact", "comfortable"].includes(String(value.density))
   )
     throw new Error("Invalid account response.");
-  let image: string | null = null;
-  if (value.useGoogleImage && value.googleConnected) {
-    image = googlePhotoUrl(value.image);
-  } else if (value.useGithubImage && value.githubConnected) {
-    image = githubPhotoUrl(value.image);
-  }
   return {
     id: value.id,
     name: value.name,
     email: value.email,
-    image,
-    googleConnected: value.googleConnected,
-    googleImageAvailable: value.googleImageAvailable,
-    useGoogleImage: value.useGoogleImage,
-    githubConnected: value.githubConnected,
-    githubImageAvailable: value.githubImageAvailable,
-    useGithubImage: value.useGithubImage,
     theme: value.theme as AccountProfile["theme"],
     density: value.density as AccountProfile["density"],
   };
@@ -134,10 +103,6 @@ async function request(path: string, signal: AbortSignal, method = "GET", body?:
     const category = record(raw) && record(raw.error) ? raw.error.category : null;
     if (category === "slug_taken")
       throw new Error("This application URL is already in use. Choose another.");
-    if (category === "google_photo_unavailable")
-      throw new Error("Sign in with Google again to make your Google photo available.");
-    if (category === "github_photo_unavailable")
-      throw new Error("Sign in with GitHub again to make your GitHub photo available.");
     if (category === "invalid_input")
       throw new Error("Check the fields and allowed origins, then try again.");
     throw new Error("Your changes could not be loaded or saved. Please try again.");
@@ -175,6 +140,9 @@ export async function fetchAccount(signal: AbortSignal) {
 }
 export async function saveAccount(input: Partial<AccountSettings>, signal: AbortSignal) {
   return parseAccount((await request("/api/v1/account", signal, "PATCH", input)).account);
+}
+export async function deleteAccount(signal: AbortSignal): Promise<void> {
+  await request("/api/v1/account", signal, "DELETE");
 }
 export function applicationPath(slug: string, page: "dashboard" | "complaints" | "settings") {
   return `/${encodeURIComponent(slug)}/${page}`;

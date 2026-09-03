@@ -7,13 +7,6 @@ const profile = {
   id: "test-user",
   name: "Test User",
   email: "test@example.test",
-  image: null,
-  googleConnected: false,
-  googleImageAvailable: false,
-  useGoogleImage: false,
-  githubConnected: false,
-  githubImageAvailable: false,
-  useGithubImage: false,
   theme: "light",
   density: "comfortable",
 };
@@ -39,30 +32,72 @@ test("account loading and failure states do not expose an empty disabled form", 
   }
 });
 
-test("the profile photo action opens Profile from another account section", async () => {
-  const originalFetch = globalThis.fetch;
-  globalThis.fetch = (async () => Response.json({ account: profile })) as typeof fetch;
-  const result = await renderReact(createElement(AccountPage));
-  try {
-    const appearance = Array.from(
-      result.container.querySelectorAll<HTMLButtonElement>("nav button"),
-    ).find((button) => button.textContent === "Appearance");
-    appearance?.click();
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(result.container.querySelector("#profile-photo")).toBeNull();
-    result.window.history.replaceState(null, "", "/account#profile-photo");
-    result.window.dispatchEvent(new result.window.Event("filika:profile-photo"));
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(result.container.querySelector("#profile-photo")).not.toBeNull();
-    expect(result.window.document.activeElement?.id).toBe("profile-photo");
-  } finally {
-    await result.close();
-    globalThis.fetch = originalFetch;
-  }
-});
-
 test("inbox spacing choices reflow instead of overflowing a narrow settings column", async () => {
   const css = await Bun.file(`${import.meta.dir}/../src/app.css`).text();
 
   expect(css).toContain("grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));");
+});
+
+test("the security section requires typed confirmation before deleting the account", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls: { method: string }[] = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const method = (init?.method ?? "GET").toUpperCase();
+    calls.push({ method });
+    if (String(input).endsWith("/api/v1/account") && method === "GET")
+      return Response.json({ account: profile });
+    if (String(input).endsWith("/api/v1/account") && method === "DELETE")
+      return Response.json({ deleted: true });
+    return Response.json({}, { status: 404 });
+  }) as typeof fetch;
+  const result = await renderReact(createElement(AccountPage));
+  try {
+    const security = Array.from(
+      result.container.querySelectorAll<HTMLButtonElement>("nav button"),
+    ).find((button) => button.textContent === "Security");
+    security?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    const openDelete = Array.from(
+      result.container.querySelectorAll<HTMLButtonElement>("button"),
+    ).find((button) => button.textContent?.includes("Delete account"));
+    expect(openDelete?.hasAttribute("disabled")).toBe(false);
+    openDelete?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    const confirmButton = Array.from(
+      result.container.querySelectorAll<HTMLButtonElement>("button"),
+    ).find((button) => button.textContent === "Delete my account");
+    expect(confirmButton?.hasAttribute("disabled")).toBe(true);
+
+    const input = result.container.querySelector<HTMLInputElement>(".delete-account-panel input");
+    expect(input).not.toBeNull();
+    if (input) {
+      const setter = Object.getOwnPropertyDescriptor(
+        result.window.HTMLInputElement.prototype,
+        "value",
+      )?.set;
+      setter?.call(input, "delete");
+      input.dispatchEvent(new result.window.Event("input", { bubbles: true }));
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    const enabledConfirm = Array.from(
+      result.container.querySelectorAll<HTMLButtonElement>("button"),
+    ).find((button) => button.textContent === "Delete my account");
+    expect(enabledConfirm?.hasAttribute("disabled")).toBe(false);
+
+    let redirectedTo = "";
+    result.window.location.assign = (url: string | URL) => {
+      redirectedTo = String(url);
+    };
+    enabledConfirm?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(calls.some((call) => call.method === "DELETE")).toBe(true);
+    expect(redirectedTo).toBe("/");
+  } finally {
+    await result.close();
+    globalThis.fetch = originalFetch;
+  }
 });
