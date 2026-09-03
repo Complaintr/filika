@@ -58,7 +58,7 @@ export function AuthExperience() {
           <div className="auth-art-island">
             <Image
               className="auth-photo auth-photo-login"
-              src="/auth/photo.png"
+              src="/auth/auth-login-visual.png"
               alt=""
               fill
               sizes="(max-width: 760px) 100vw, 1600px"
@@ -66,7 +66,7 @@ export function AuthExperience() {
             />
             <Image
               className="auth-photo auth-photo-register"
-              src="/auth/photo2.png"
+              src="/auth/auth-register-visual.png"
               alt=""
               fill
               sizes="(max-width: 760px) 100vw, 1600px"

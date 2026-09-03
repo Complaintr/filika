@@ -259,7 +259,7 @@ export function OnboardingExperience() {
     <main id="app-content" className="onboarding-page">
       <aside className="onboarding-visual" aria-label="Filika product preview">
         <Image
-          src="/auth/photo2.png"
+          src="/auth/auth-register-visual.png"
           alt=""
           fill
           sizes="(max-width: 900px) 100vw, 1600px"
