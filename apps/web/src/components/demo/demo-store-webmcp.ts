@@ -87,7 +87,7 @@ function parseProductId(
 
 function catalogText(): string {
   const lines = DEMO_PRODUCTS.map(
-    (product) => `${product.id}: ${product.name} (${product.price}) — ${product.tagline}`,
+    (product) => `${product.id}: ${product.name} (${product.price}) - ${product.tagline}`,
   );
   return `Available products:\n${lines.join("\n")}`;
 }

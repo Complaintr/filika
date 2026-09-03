@@ -41,19 +41,30 @@ export function createSetupBrief(input: {
   applicationName: string;
   collectorOrigin: string;
   projectKey: string;
-  websiteOrigin: string;
+  websiteOrigin?: string | undefined;
 }): string {
   const snippet = createInstallSnippet(input.collectorOrigin, input.projectKey);
-  return `Set up Filika for ${input.applicationName}
-
-Allowed website origin: ${input.websiteOrigin}
+  const origin = input.websiteOrigin?.trim() || "";
+  const originLines = origin
+    ? `Allowed website origin: ${origin}
 
 Add this script before the closing </body> tag on every page where feedback should be available:
 
 ${snippet}
 
-Then open ${input.websiteOrigin} in a WebMCP-enabled browser and ask the browser agent:
-“Send a test feedback report through Filika.”
+Then open ${origin} in a WebMCP-enabled browser and ask the browser agent:
+`
+    : `Add your website origin in Filika application settings before installing.
+
+Add this script before the closing </body> tag on every page where feedback should be available:
+
+${snippet}
+
+Then open the website in a WebMCP-enabled browser and ask the browser agent:
+`;
+  return `Set up Filika for ${input.applicationName}
+
+${originLines}“Send a test feedback report through Filika.”
 
 Review and confirm the report. Filika will mark the connection as verified when the report reaches the inbox.`;
 }

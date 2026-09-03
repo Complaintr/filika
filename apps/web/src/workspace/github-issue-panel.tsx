@@ -145,7 +145,7 @@ export function GitHubIssuePanel({ appSlug, feedbackId }: { appSlug: string; fee
                 <strong>Destination: {data.connection.fullName}</strong> ·{" "}
                 {data.connection.isPrivate
                   ? "Private repository"
-                  : "Public repository — anyone can read this issue"}
+                  : "Public repository: anyone can read this issue"}
               </p>
               <p>
                 Review the full content before sending it to GitHub. Remove personal data,

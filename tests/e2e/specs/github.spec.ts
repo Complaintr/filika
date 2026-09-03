@@ -133,7 +133,7 @@ test("issue review sends nothing until confirmation and preserves the GitHub lin
   await page.getByRole("button", { name: /^Checkout fails/ }).click();
   const panel = page.getByRole("region", { name: "GitHub issue", exact: true });
   await panel.getByRole("button", { name: "Create GitHub issue", exact: true }).click();
-  await expect(panel.getByText(/Public repository — anyone/)).toBeVisible();
+  await expect(panel.getByText(/Public repository: anyone/)).toBeVisible();
   expect(posts).toBe(0);
   await panel.getByRole("button", { name: "Cancel", exact: true }).click();
   expect(posts).toBe(0);
