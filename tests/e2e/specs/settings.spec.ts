@@ -60,7 +60,7 @@ test("settings rejects a blank application name", async ({ page }) => {
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(saveStatus(page)).toHaveText("Enter an application name before saving.");
   await page.reload();
-  await expect(name).toHaveValue("Eckra");
+  await expect(name).toHaveValue("My Store");
 });
 
 test("appearance exposes accessible light, dark, and system choices and persists them", async ({

@@ -8,7 +8,7 @@ function menu(props: ProfileMenuProps = {}) {
 
 describe("header profile menu", () => {
   test("opens from the header trigger with unavailable account actions", async () => {
-    const result = await renderReact(menu({ applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "my-store" }));
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
     );
@@ -22,7 +22,7 @@ describe("header profile menu", () => {
     expect(result.container.textContent).toContain("Application settings");
     expect(result.container.textContent).toContain("Sign out");
     expect(result.container.querySelector('a[href="/account"]')).not.toBeNull();
-    expect(result.container.querySelector('a[href="/eckra/settings"]')).not.toBeNull();
+    expect(result.container.querySelector('a[href="/my-store/settings"]')).not.toBeNull();
     expect(result.container.textContent).not.toContain("Other Accounts");
     expect(result.container.textContent).not.toContain("Add another account");
 
@@ -30,7 +30,7 @@ describe("header profile menu", () => {
   });
 
   test("escape closes the menu and restores focus to its trigger", async () => {
-    const result = await renderReact(menu({ applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "my-store" }));
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
     );
@@ -50,7 +50,7 @@ describe("header profile menu", () => {
   });
 
   test("an outside pointer closes the open menu", async () => {
-    const result = await renderReact(menu({ applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "my-store" }));
     const trigger = result.container.querySelector<HTMLButtonElement>(
       '[aria-label="Open profile menu"]',
     );
@@ -68,7 +68,7 @@ describe("header profile menu", () => {
   });
 
   test("keyboard navigation moves between menu actions and closes when focus leaves", async () => {
-    const result = await renderReact(menu({ applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "my-store" }));
     try {
       result.container
         .querySelector<HTMLButtonElement>('[aria-label="Open profile menu"]')
@@ -89,7 +89,7 @@ describe("header profile menu", () => {
           bubbles: true,
         }) as unknown as Event,
       );
-      expect(result.window.document.activeElement?.getAttribute("href")).toBe("/eckra/settings");
+      expect(result.window.document.activeElement?.getAttribute("href")).toBe("/my-store/settings");
       const outside = result.window.document.createElement("button");
       result.window.document.body.append(outside);
       outside.focus();
@@ -113,7 +113,7 @@ describe("header profile menu", () => {
       init?.method === "PATCH"
         ? Response.json({ error: { category: "internal_error" } }, { status: 500 })
         : Response.json({ account: profile })) as typeof fetch;
-    const result = await renderReact(menu({ applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "my-store" }));
     try {
       result.container
         .querySelector<HTMLButtonElement>('[aria-label="Open profile menu"]')
@@ -133,7 +133,7 @@ describe("header profile menu", () => {
   });
 
   test("light, dark, and system choices share the workspace theme preference", async () => {
-    const result = await renderReact(menu({ applicationSlug: "eckra" }));
+    const result = await renderReact(menu({ applicationSlug: "my-store" }));
     const themeColor = result.window.document.createElement("meta");
     themeColor.name = "theme-color";
     result.window.document.head.append(themeColor);

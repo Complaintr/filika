@@ -52,7 +52,7 @@ export async function seedE2eSession(
     const projectKey = `app_${userId.replaceAll("-", "")}`;
     if (options.application !== false) {
       await sql`INSERT INTO project (project_key, display_name, allowed_origins, owner_user_id, slug)
-        VALUES (${projectKey}, 'Eckra', ARRAY[${webOrigin}], ${userId}, ${slug})`;
+        VALUES (${projectKey}, 'My Store', ARRAY[${webOrigin}], ${userId}, ${slug})`;
     }
     if (options.google) {
       await sql`INSERT INTO account (id, user_id, account_id, provider_id, issuer)

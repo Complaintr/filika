@@ -40,8 +40,8 @@ describe("demoApi", () => {
         new Response(
           JSON.stringify({
             application: {
-              slug: "eckra",
-              displayName: "Eckra",
+              slug: "my-store",
+              displayName: "My Store",
               kind: "application",
               projectKey: "app_x",
               allowedOrigins: ["http://localhost:4173"],

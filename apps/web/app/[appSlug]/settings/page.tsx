@@ -206,8 +206,8 @@ export default function ApplicationSettingsPage() {
                 <label htmlFor="allowed-origins">
                   Allowed origins
                   <span>
-                    One exact origin per line, such as https://eckra.com. HTTP is allowed only for
-                    localhost development.
+                    One exact origin per line, such as https://my-store.example. HTTP is allowed
+                    only for localhost development.
                   </span>
                 </label>
                 <textarea

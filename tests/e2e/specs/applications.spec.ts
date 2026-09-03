@@ -9,13 +9,13 @@ test("onboarding creates an application and the header switches between isolated
   const identity = await signInAsE2eUser(page, { application: false });
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/onboarding$/);
-  await page.getByLabel("Application name", { exact: true }).fill("Eckra");
-  const slug = `eckra-${identity.userId.slice(0, 8)}`;
+  await page.getByLabel("Application name", { exact: true }).fill("My Store");
+  const slug = `my-store-${identity.userId.slice(0, 8)}`;
   await page.getByLabel("Application URL", { exact: true }).fill(slug);
   await page.getByLabel("Website origin", { exact: true }).fill(webOrigin);
   await page.getByRole("button", { name: "Create application", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/onboarding\\?app=${slug}$`));
-  await expect(page.getByRole("heading", { name: "Add Filika to Eckra." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Add Filika to My Store." })).toBeVisible();
   await expect(page.getByText(`/sdk/filika.development.js`, { exact: false })).toBeVisible();
   await page.screenshot({
     path: test.info().outputPath("onboarding-install.png"),
@@ -47,7 +47,7 @@ test("onboarding creates an application and the header switches between isolated
     },
   });
   expect(feedback.status()).toBe(201);
-  await expect(page.getByRole("heading", { name: "Eckra is connected." })).toBeVisible({
+  await expect(page.getByRole("heading", { name: "My Store is connected." })).toBeVisible({
     timeout: 10_000,
   });
   await expect(page.getByText(title, { exact: true })).toBeVisible();
@@ -57,7 +57,7 @@ test("onboarding creates an application and the header switches between isolated
   });
   await page.getByRole("link", { name: "Open the first report", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/${slug}/complaints/`));
-  await expect(page.getByRole("button", { name: "Switch application" })).toContainText("Eckra");
+  await expect(page.getByRole("button", { name: "Switch application" })).toContainText("My Store");
 
   const secondSlug = `second-${identity.userId.slice(0, 8)}`;
   await page.goto("/onboarding?new=1");
@@ -73,7 +73,7 @@ test("onboarding creates an application and the header switches between isolated
   await page.getByRole("button", { name: "Switch application" }).click();
   await page
     .getByRole("navigation", { name: "Your applications" })
-    .getByRole("link", { name: /Eckra/ })
+    .getByRole("link", { name: /My Store/ })
     .click();
   await expect(page).toHaveURL(new RegExp(`/${slug}/dashboard$`));
   await page.getByRole("button", { name: "Switch application" }).click();
@@ -93,7 +93,7 @@ test("onboarding creates an application and the header switches between isolated
     fullPage: true,
   });
   const first = await page.request.get(`/api/v1/apps/${slug}`);
-  expect((await first.json()).application.displayName).toBe("Eckra");
+  expect((await first.json()).application.displayName).toBe("My Store");
   await page.getByRole("button", { name: "Open profile menu" }).click();
   await page.getByRole("menuitem", { name: "Manage profile", exact: true }).click();
   await expect(page).toHaveURL(/\/account$/);

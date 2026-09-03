@@ -1077,7 +1077,7 @@ describe.skipIf(!isDbAvailable)("owned applications and account settings", () =>
       );
     return { id, request };
   }
-  const settings = { displayName: "Eckra", allowedOrigins: [ALLOWED_ORIGIN], dashboardDays: 30 };
+  const settings = { displayName: "My Store", allowedOrigins: [ALLOWED_ORIGIN], dashboardDays: 30 };
 
   test("creates persisted applications and rejects invalid, reserved, duplicate and cross-origin writes", async () => {
     const owner = await identity();
@@ -1100,7 +1100,7 @@ describe.skipIf(!isDbAvailable)("owned applications and account settings", () =>
     expect(list.applications).toHaveLength(1);
     expect(list.applications[0]).toMatchObject({
       slug,
-      displayName: "Eckra",
+      displayName: "My Store",
       dashboardDays: 30,
       integrationVerifiedAt: null,
     });

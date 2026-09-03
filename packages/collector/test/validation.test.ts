@@ -24,9 +24,9 @@ function bytesOf(value: unknown): Uint8Array {
 
 describe("application and profile validation", () => {
   const input = {
-    displayName: "Eckra",
-    slug: "eckra",
-    allowedOrigins: ["https://eckra.com"],
+    displayName: "My Store",
+    slug: "my-store",
+    allowedOrigins: ["https://my-store.example"],
     dashboardDays: 30,
   };
   test("rejects reserved paths, invalid origins, and unknown ownership fields", () => {
@@ -36,9 +36,9 @@ describe("application and profile validation", () => {
       "api",
       "onboarding",
       "login",
-      "../eckra",
-      "Eckra",
-      "eckra/complaints",
+      "../my-store",
+      "My Store",
+      "my-store/complaints",
       "x".repeat(49),
     ]) {
       expect(createApplicationSchema.safeParse({ ...input, slug }).success).toBe(false);
@@ -46,9 +46,9 @@ describe("application and profile validation", () => {
     for (const origin of [
       "*",
       "null",
-      "http://eckra.com",
-      "https://eckra.com/path",
-      "https://user:pass@eckra.com",
+      "http://my-store.example",
+      "https://my-store.example/path",
+      "https://user:pass@my-store.example",
     ]) {
       expect(
         createApplicationSchema.safeParse({ ...input, allowedOrigins: [origin] }).success,
@@ -60,7 +60,7 @@ describe("application and profile validation", () => {
     expect(
       createApplicationSchema.safeParse({
         ...input,
-        allowedOrigins: Array(21).fill("https://eckra.com"),
+        allowedOrigins: Array(21).fill("https://my-store.example"),
       }).success,
     ).toBe(false);
   });

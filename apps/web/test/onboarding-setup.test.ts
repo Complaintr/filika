@@ -25,19 +25,19 @@ describe("onboarding setup instructions", () => {
 
   test("builds a complete handoff brief without hidden network actions", () => {
     const brief = createSetupBrief({
-      applicationName: "Eckra",
+      applicationName: "My Store",
       collectorOrigin: "https://feedback.example",
       projectKey: "app_demo",
-      websiteOrigin: "https://eckra.example",
+      websiteOrigin: "https://my-store.example",
     });
-    expect(brief).toContain("Set up Filika for Eckra");
-    expect(brief).toContain("https://eckra.example");
+    expect(brief).toContain("Set up Filika for My Store");
+    expect(brief).toContain("https://my-store.example");
     expect(brief).toContain("Send a test feedback report through Filika.");
   });
 
   test("guides the user to add a missing origin before verifying", () => {
     const brief = createSetupBrief({
-      applicationName: "Eckra",
+      applicationName: "My Store",
       collectorOrigin: "https://feedback.example",
       projectKey: "app_demo",
     });
