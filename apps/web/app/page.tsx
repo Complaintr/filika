@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     absolute: "Filika",
   },
   description:
-    "Filika is an open-source, 100% free WebMCP feedback platform. Browser AI agents report bugs, blocked tasks, and confusing UX directly to your developer inbox.",
+    "Filika is an open-source WebMCP feedback platform. Browser AI agents report bugs, blocked tasks, and confusing UX directly to your developer inbox.",
 };
 
 const extras = [
@@ -215,8 +215,8 @@ export default function HomePage() {
         <section className={styles.finalCta}>
           <div className={styles.finalCtaMain}>
             <h2>
-              Find code and behavioral bugs before your users do.{" "}
-              <span>100% Free &amp; Open Source.</span>
+              Start collecting agent-authored feedback today.{" "}
+              <span>From code errors to broken user flows.</span>
             </h2>
             <a className={styles.primaryButton} href="/login">
               Get Started <ArrowRight aria-hidden="true" />

@@ -21,7 +21,7 @@ describe("public landing page", () => {
       "Built for intelligent agent workflows.",
       "Complete feedback infrastructure,",
       "Fair questions,",
-      "Find code and behavioral bugs before your users do.",
+      "Start collecting agent-authored feedback today.",
     ];
 
     for (const section of sections) {
@@ -50,7 +50,7 @@ describe("public landing page", () => {
 
     expect(page).toContain("WebMCP native");
     expect(page).toContain("Code &amp; behavioral bugs");
-    expect(page).toContain("100% Free &amp; Open Source");
+    expect(page).toContain("From code errors to broken user flows.");
     expect(page).toContain("2026 Complaintr. All rights reserved.");
     expect(page).toContain("WebMCP feedback infrastructure for modern web applications.");
     expect(page).toContain('href="/terms"');
