@@ -20,4 +20,10 @@ We welcome contributions. Please review the following guidelines before submitti
 
 ## Local Verification
 
-During implementation, run the smallest relevant Bun test locally to protect code integrity and keep each logical change working. Prefer targeted commands such as `bun test path/to/relevant.test.ts`. After opening or updating a pull request, inspect the required GitHub checks and fix any failures before merge.
+During implementation, run the smallest relevant Bun test locally to protect code integrity and keep each logical change working. After opening or updating a pull request, inspect the required GitHub checks and fix any failures before merge.
+
+### Helpful Commands
+
+- **Code Quality**: Run `bun run check:fix` to auto-fix linting issues, and `bun run format` to format code.
+- **Unit Tests**: Run `bun run test:unit` for standard tests.
+- **End-to-End Tests**: Run `bun run test:browser:prepare` followed by `bun run test:browser` for Playwright testing.

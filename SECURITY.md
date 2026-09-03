@@ -6,7 +6,7 @@ Currently, only the latest commit on the `main` branch is actively supported wit
 
 ## Reporting a Vulnerability
 
-Please do not open a public issue for security vulnerabilities. Instead, send a private message or email to the repository maintainers. We take all security vulnerabilities seriously and will work to address them promptly.
+Please do not open a public issue for security vulnerabilities. Instead, send an email to `security@complaintr.com` or send a private message to the repository maintainers. We take all security vulnerabilities seriously and will work to address them promptly.
 
 ## Architecture and Safety
 

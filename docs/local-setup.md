@@ -25,9 +25,13 @@ This guide provides instructions for setting up the Filika repository for local 
    ```
 2. Run database migrations to set up the schema:
    ```bash
-   bun run db:push
+   bun run db:migrate
    ```
-3. Start the development server:
+3. (Optional) Seed the database with demo data:
+   ```bash
+   bun run db:seed
+   ```
+4. Start the development server:
    ```bash
    bun run dev
    ```
