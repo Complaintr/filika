@@ -232,7 +232,8 @@
   box-shadow: none;
   white-space: nowrap;
 }
-.headerActions .primaryButton {
+.headerActions .primaryButton,
+.headerActions .secondaryButton {
   border-radius: 9999px;
   white-space: nowrap;
 }
@@ -502,6 +503,10 @@
 .heroCta small {
   flex-basis: 100%;
   color: color-mix(in srgb, var(--muted) 80%, transparent);
+}
+.heroCta .secondaryButton {
+  min-height: 36px;
+  padding: 8px 14px;
 }
 .mobileQuote,
 .laurelMobile {
