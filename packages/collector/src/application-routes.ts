@@ -11,6 +11,7 @@ import {
 import { getDashboard } from "./dashboard";
 import type { Db } from "./db/client";
 import { project, user } from "./db/schema";
+import { countDemoFeedback, removeDemoFeedback, seedDemoFeedback } from "./demo-seed";
 import { getInboxFeedback, listInbox } from "./inbox";
 import { parseListQuery } from "./inbox-query";
 
@@ -55,6 +56,18 @@ export async function handleApplicationRoute(
     request.method === "POST" || request.method === "PATCH" || request.method === "DELETE";
   if (mutation && request.headers.get("origin") !== url.origin)
     return failure("denied_origin", 403);
+  const demoMatch = /^\/api\/v1\/apps\/([^/]+)\/demo(?:\/(seed))?$/.exec(url.pathname);
+  if (demoMatch?.[1]) {
+    const app = await ownedApplication(db, userId, demoMatch[1]);
+    if (!app) return failure("not_found", 404);
+    if (request.method === "GET" && !demoMatch[2])
+      return json({ count: await countDemoFeedback(db, app.id) });
+    if (request.method === "POST" && demoMatch[2] === "seed")
+      return json(await seedDemoFeedback(db, app, new Date()));
+    if (request.method === "DELETE" && !demoMatch[2])
+      return json({ deleted: await removeDemoFeedback(db, app.id) });
+    return failure("method_not_allowed", 405);
+  }
   let input: unknown;
   if (request.method === "POST" || request.method === "PATCH") {
     try {
