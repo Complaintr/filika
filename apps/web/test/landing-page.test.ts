@@ -64,6 +64,11 @@ describe("public landing page", () => {
     expect(page.toLowerCase()).not.toContain("sdk");
     expect(featureDemos.toLowerCase()).not.toContain("sdk");
 
+    // Footer and FAQ contact details
+    expect(page).toContain('href="mailto:filika@complaintr.com"');
+    expect(page).toContain("Filika is a product of Complaintr.");
+    expect(page).toContain("Still have questions? Email");
+
     // Extras section items
     expect(page).toContain("WebMCP Protocol");
     expect(page).toContain("Code Context");

@@ -213,6 +213,10 @@ export default function HomePage() {
               </details>
             ))}
           </div>
+          <p className={styles.faqsContact}>
+            Still have questions? Email{" "}
+            <a href="mailto:filika@complaintr.com">filika@complaintr.com</a>.
+          </p>
         </section>
 
         <section className={styles.finalCta}>
@@ -252,9 +256,11 @@ export default function HomePage() {
             <a href="https://github.com/Complaintr/filika" rel="noreferrer" target="_blank">
               GitHub
             </a>
+            <a href="mailto:filika@complaintr.com">Contact</a>
             <a href="/terms">Terms</a>
           </nav>
         </div>
+        <p className={styles.footerAttribution}>Filika is a product of Complaintr.</p>
         <span className={styles.bottomWatermarkText} aria-hidden="true">
           filika
         </span>

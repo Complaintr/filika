@@ -2824,6 +2824,17 @@
   font-size: 14px;
   line-height: 1.75;
 }
+.faqsContact {
+  max-width: 800px;
+  margin: 28px auto 0;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+.faqsContact a {
+  color: var(--filika-blue);
+  font-weight: 600;
+}
 .finalCta {
   position: relative;
   display: flex;
@@ -3654,6 +3665,13 @@
 
 .footerNav a:hover {
   color: var(--ink);
+}
+
+.footerAttribution {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
 }
 
 .bottomWatermarkText {
