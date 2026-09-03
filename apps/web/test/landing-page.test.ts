@@ -66,7 +66,8 @@ describe("public landing page", () => {
 
     // Footer and FAQ contact details
     expect(page).toContain('href="mailto:filika@complaintr.com"');
-    expect(page).toContain("Filika is a product of Complaintr.");
+    expect(page).toContain("Filika is a product of");
+    expect(page).toContain('href="https://complaintr.com"');
     expect(page).toContain("Still have questions? Email");
 
     // Extras section items

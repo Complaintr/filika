@@ -3673,6 +3673,11 @@
   font-size: 11px;
   text-align: center;
 }
+.footerAttribution a {
+  color: var(--filika-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 .bottomWatermarkText {
   display: block;

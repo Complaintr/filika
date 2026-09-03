@@ -260,7 +260,13 @@ export default function HomePage() {
             <a href="/terms">Terms</a>
           </nav>
         </div>
-        <p className={styles.footerAttribution}>Filika is a product of Complaintr.</p>
+        <p className={styles.footerAttribution}>
+          Filika is a product of{" "}
+          <a href="https://complaintr.com" target="_blank" rel="noreferrer">
+            Complaintr
+          </a>
+          .
+        </p>
         <span className={styles.bottomWatermarkText} aria-hidden="true">
           filika
         </span>
