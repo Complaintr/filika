@@ -97,8 +97,8 @@ export function LandingHeader() {
             }}
           />
           <nav className={styles.nav} aria-label="Main navigation">
-            <a href="#features">Features</a>
             <a href="#how-it-works">How it works</a>
+            <a href="#features">Features</a>
           </nav>
         </div>
 
@@ -157,11 +157,11 @@ export function LandingHeader() {
         aria-hidden={!menuOpen}
       >
         <nav aria-label="Mobile navigation">
-          <button type="button" onClick={() => navigateToSection("features")}>
-            Features
-          </button>
           <button type="button" onClick={() => navigateToSection("how-it-works")}>
             How it works
+          </button>
+          <button type="button" onClick={() => navigateToSection("features")}>
+            Features
           </button>
           <a
             href="https://github.com/Complaintr/filika"
