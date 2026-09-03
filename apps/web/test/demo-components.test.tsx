@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { DEMO_CHECKOUT_FAILURE_CODE, demoPrompt } from "../src/components/demo/demo-data";
+import { DemoExperience } from "../src/components/demo/demo-experience";
 import { DemoFlowPanel } from "../src/components/demo/demo-flow-panel";
 import { DemoStore, type DemoStoreState } from "../src/components/demo/demo-store";
 import { renderReact } from "./helpers/render-react";
@@ -106,6 +107,42 @@ describe("demo-flow-panel", () => {
     reset?.click();
     expect(resets).toEqual([true]);
     await result.close();
+  });
+});
+
+describe("demo-experience", () => {
+  test("explains when WebMCP tools are missing instead of waiting silently", async () => {
+    const windowRef = (await renderReact(null)).window;
+    const originalStorage = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+    Object.defineProperty(globalThis, "localStorage", {
+      configurable: true,
+      value: windowRef.localStorage,
+    });
+    const originalFetch = Object.getOwnPropertyDescriptor(globalThis, "fetch");
+    Object.defineProperty(globalThis, "fetch", {
+      configurable: true,
+      value: () => Promise.reject(new TypeError("no collector in unit tests")),
+    });
+    try {
+      const result = await renderReact(<DemoExperience />);
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      expect(result.container.querySelector('[data-demo-webmcp="missing"]')).not.toBeNull();
+      expect(result.container.textContent).toContain("WebMCP tools are not available");
+      expect(result.container.textContent).toContain("document.modelContext");
+      await result.close();
+    } finally {
+      if (originalStorage === undefined) {
+        Reflect.deleteProperty(globalThis, "localStorage");
+      } else {
+        Object.defineProperty(globalThis, "localStorage", originalStorage);
+      }
+      if (originalFetch === undefined) {
+        Reflect.deleteProperty(globalThis, "fetch");
+      } else {
+        Object.defineProperty(globalThis, "fetch", originalFetch);
+      }
+      await windowRef.happyDOM.close();
+    }
   });
 });
 

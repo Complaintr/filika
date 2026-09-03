@@ -8,6 +8,7 @@ import {
   type DemoStoreTool,
   type DemoStoreTools,
   demoCheckoutFailureText,
+  hasModelContext,
   registerDemoStoreTools,
 } from "../src/components/demo/demo-store-webmcp";
 
@@ -145,6 +146,14 @@ describe("demo store WebMCP tools", () => {
         noopTools(),
       ),
     ).resolves.toBeUndefined();
+  });
+
+  test("hasModelContext detects a usable registerTool without touching other globals", () => {
+    expect(hasModelContext({ modelContext: { registerTool: async () => {} } })).toBe(true);
+    expect(hasModelContext({ modelContext: {} })).toBe(false);
+    expect(hasModelContext({ modelContext: null })).toBe(false);
+    expect(hasModelContext({})).toBe(false);
+    expect(hasModelContext(null)).toBe(false);
   });
 
   test("registerDemoStoreTools stops after abort", async () => {

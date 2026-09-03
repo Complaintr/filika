@@ -437,6 +437,23 @@
   color: var(--demo-danger);
   font-weight: 600;
 }
+.webmcpNotice {
+  grid-column: 1 / -1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 14px 18px;
+  border: 1px solid var(--demo-border);
+  border-radius: 12px;
+  background: var(--demo-filika-soft);
+  color: var(--demo-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.webmcpNotice strong {
+  display: block;
+  color: var(--demo-ink);
+  font-weight: 650;
+}
 .srOnly {
   position: absolute;
   width: 1px;

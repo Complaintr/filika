@@ -13,6 +13,7 @@ import { DemoStore, type DemoStoreState } from "./demo-store";
 import {
   type DemoStoreTools,
   demoCheckoutFailureText,
+  hasModelContext,
   registerDemoStoreTools,
 } from "./demo-store-webmcp";
 
@@ -96,6 +97,11 @@ export function DemoExperience() {
   const [storeState, setStoreState] = useState<DemoStoreState>(EMPTY_STORE_STATE);
   const [receipt, setReceipt] = useState<{ feedbackId: string; receivedAt: string } | null>(null);
   const [pageUrl, setPageUrl] = useState("");
+  const [webmcpAvailable, setWebmcpAvailable] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    setWebmcpAvailable(hasModelContext(document));
+  }, []);
 
   useEffect(() => {
     setStoreState(loadStoreState());
@@ -304,6 +310,14 @@ export function DemoExperience() {
             {promptCopied ? "Copied" : "Copy prompt"}
           </button>
         </section>
+
+        {webmcpAvailable === false ? (
+          <section className={styles.webmcpNotice} role="status" data-demo-webmcp="missing">
+            <strong>WebMCP tools are not available in this browser.</strong>
+            Open the demo in a WebMCP-enabled browser to let its agent shop through
+            document.modelContext and report the failure through Filika.
+          </section>
+        ) : null}
 
         <DemoStore state={storeState} onChange={setStoreState} />
 

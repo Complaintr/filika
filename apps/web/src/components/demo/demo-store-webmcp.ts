@@ -154,15 +154,25 @@ type ModelContextRegister = (
   options: { signal: AbortSignal },
 ) => Promise<void>;
 
-function detectRegister(documentValue: unknown): ModelContextRegister | null {
+/** True when the document exposes a usable WebMCP registerTool function. */
+export function hasModelContext(documentValue: unknown): boolean {
   try {
-    if (typeof documentValue !== "object" || documentValue === null) return null;
+    if (typeof documentValue !== "object" || documentValue === null) return false;
     const context: unknown = Reflect.get(documentValue, "modelContext");
-    if (typeof context !== "object" || context === null) return null;
-    const register: unknown = Reflect.get(context, "registerTool");
-    if (typeof register !== "function") return null;
+    if (typeof context !== "object" || context === null) return false;
+    return typeof Reflect.get(context, "registerTool") === "function";
+  } catch {
+    return false;
+  }
+}
+
+function detectRegister(documentValue: unknown): ModelContextRegister | null {
+  if (!hasModelContext(documentValue)) return null;
+  try {
+    const context: unknown = Reflect.get(documentValue, "modelContext");
+    const register = Reflect.get(context as object, "registerTool") as ModelContextRegister;
     return async (tool, options) => {
-      await Reflect.apply(register as (...args: unknown[]) => unknown, context, [tool, options]);
+      await Reflect.apply(register, context, [tool, options]);
     };
   } catch {
     return null;
