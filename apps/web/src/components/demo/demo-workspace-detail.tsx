@@ -49,7 +49,6 @@ export function DemoWorkspaceDetail({ feedbackId }: { feedbackId: string }) {
     <main className={styles.workspace} id="app-content">
       <header className={styles.header}>
         <div>
-          <span className={styles.eyebrow}>Filika demo</span>
           <h1>Complaint details</h1>
         </div>
         <a className={styles.primaryLink} href="/demo/workspace">

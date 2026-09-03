@@ -49,7 +49,6 @@ export function DemoWorkspaceList() {
     <main className={styles.workspace} id="app-content">
       <header className={styles.header}>
         <div>
-          <span className={styles.eyebrow}>Filika demo</span>
           <h1>Complaints for this browser</h1>
           <p className={styles.muted}>
             Reports sent from the demo store in this browser appear here. Demo feedback is retained
