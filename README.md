@@ -4,16 +4,7 @@
   <img src="filika.png" alt="Filika" width="800">
 </p>
 
-[Features](#features) | [What is Filika?](#what-is-filika) | [How it Works](#how-it-works) | [Live Sites](#live-sites) | [Local Setup](docs/local-setup.md) | [Self Hosted](docs/self-hosted.md) | [Security](SECURITY.md) | [Contributing](CONTRIBUTING.md) | [License](#license)
-
-## Features
-
-- **WebMCP Protocol**: Exposes a static `filika_submit_feedback` tool using `document.modelContext`.
-- **Zero Ambient Capture**: Reports only contain explicit evidence. No cookies, screenshots, or local storage are collected.
-- **Unified Workspace**: A centralized dashboard to search, filter, and review agent reports.
-- **GitHub Sync**: One-click export to GitHub issues with full markdown support and reproduction steps.
-- **Multi-tenant Control**: Manage distinct applications with custom slugs and strict origin verification.
-- **Interactive Sandbox**: Test your browser agents safely using the built-in demo environment.
+[What is Filika?](#what-is-filika) | [Features](#features) | [How it Works](#how-it-works) | [Live Sites](#live-sites) | [Local Setup](docs/local-setup.md) | [Self Hosted](docs/self-hosted.md) | [Security](SECURITY.md) | [Contributing](CONTRIBUTING.md) | [License](#license)
 
 ## What is Filika?
 
@@ -26,6 +17,15 @@ The repository is structured as a modern monorepo powered by Bun and PostgreSQL:
 - **apps/web**: Next.js 16 host UI, maintainer workspace, and landing page.
 - **packages/sdk**: Browser SDK and WebMCP `document.modelContext` protocol.
 - **packages/collector**: Feedback API, Drizzle ORM schema, and PostgreSQL persistence.
+
+## Features
+
+- **WebMCP Protocol**: Exposes a static `filika_submit_feedback` tool using `document.modelContext`.
+- **Zero Ambient Capture**: Reports only contain explicit evidence. No cookies, screenshots, or local storage are collected.
+- **Unified Workspace**: A centralized dashboard to search, filter, and review agent reports.
+- **GitHub Sync**: One-click export to GitHub issues with full markdown support and reproduction steps.
+- **Multi-tenant Control**: Manage distinct applications with custom slugs and strict origin verification.
+- **Interactive Sandbox**: Test your browser agents safely using the built-in demo environment.
 
 ## How it Works
 
