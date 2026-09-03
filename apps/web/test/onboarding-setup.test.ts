@@ -34,4 +34,15 @@ describe("onboarding setup instructions", () => {
     expect(brief).toContain("https://eckra.example");
     expect(brief).toContain("Send a test feedback report through Filika.");
   });
+
+  test("guides the user to add a missing origin before verifying", () => {
+    const brief = createSetupBrief({
+      applicationName: "Eckra",
+      collectorOrigin: "https://feedback.example",
+      projectKey: "app_demo",
+    });
+    expect(brief).toContain("Add your website origin in Filika application settings");
+    expect(brief).not.toContain("Allowed website origin:");
+    expect(brief).toContain(createInstallSnippet("https://feedback.example", "app_demo"));
+  });
 });

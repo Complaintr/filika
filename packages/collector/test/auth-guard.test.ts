@@ -103,7 +103,7 @@ describe("collector route auth guard", () => {
     );
 
     // The ingest pipeline itself rejects the body before any session check is
-    // relevant — anything but a 401 proves the route is not guarded.
+    // relevant (anything but a 401 proves the route is not guarded).
     expect(response.status).not.toBe(401);
   });
 

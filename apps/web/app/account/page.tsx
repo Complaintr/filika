@@ -74,6 +74,10 @@ export default function AccountPage() {
   const [loadVersion, setLoadVersion] = useState(0);
   const controller = useRef<AbortController | null>(null);
   const baseline = useRef<AccountSettings | null>(null);
+  const confirmRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (deleteOpen) confirmRef.current?.focus();
+  }, [deleteOpen]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: loadVersion explicitly retries the request.
   useEffect(() => {
     let request: AbortController;
@@ -352,7 +356,7 @@ export default function AccountPage() {
                   </button>
                 </div>
                 {deleteOpen && (
-                  <div className="delete-account-panel" aria-labelledby="delete-account-title">
+                  <fieldset className="delete-account-panel" aria-labelledby="delete-account-title">
                     <div className="delete-account-panel-heading">
                       <span className="delete-account-icon" aria-hidden="true">
                         <Trash2 />
@@ -385,18 +389,21 @@ export default function AccountPage() {
                         </span>
                       </li>
                     </ul>
-                    <label className="delete-account-confirm-label" htmlFor="delete-account-confirm">
+                    <label
+                      className="delete-account-confirm-label"
+                      htmlFor="delete-account-confirm"
+                    >
                       Type <strong>delete</strong> to confirm
                     </label>
                     <input
                       id="delete-account-confirm"
                       className="studio-input"
+                      ref={confirmRef}
                       value={deleteConfirm}
                       maxLength={20}
                       autoComplete="off"
                       placeholder="delete"
                       disabled={deleting}
-                      autoFocus
                       onChange={(event) => setDeleteConfirm(event.target.value)}
                       onKeyDown={(event) => {
                         if (event.key === "Enter") {
@@ -432,7 +439,7 @@ export default function AccountPage() {
                         {deleting ? "Deleting…" : "Delete my account"}
                       </button>
                     </div>
-                  </div>
+                  </fieldset>
                 )}
               </div>
             )}
