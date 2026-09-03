@@ -10,11 +10,15 @@
 
 ## Verification
 
-- [ ] `bun run check`
-- [ ] `bun run typecheck`
-- [ ] `bun run test:unit`
-- [ ] `bun run build`
-- [ ] `bun run test:browser` or explained why it is not applicable
+<!-- List the focused local checks you ran. Do not reproduce the full CI matrix unless the change or a reported CI failure requires it. -->
+
+- [ ] Relevant focused checks are listed below and pass locally.
+- [ ] Skipped or non-applicable checks are explained below.
+- [ ] Required GitHub Actions checks pass before merge.
+
+Commands and notes:
+
+-
 
 ## Security and Privacy
 
