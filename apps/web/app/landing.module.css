@@ -2484,11 +2484,33 @@
   color: #ffffff;
 }
 .finalCta h2 span {
-  display: block;
   color: #38bdf8;
 }
-.finalCta .primaryButton {
+.finalCtaActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   flex: 0 0 auto;
+}
+.finalCta .primaryButton,
+.finalCta .secondaryButton {
+  flex: 0 0 auto;
+}
+.finalCta .secondaryButton {
+  min-height: 36px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.finalCta .secondaryButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.38);
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 .finalCtaCopyright {
   position: relative;
