@@ -84,7 +84,7 @@ export function ComplaintDialog({
   return (
     <dialog
       ref={dialog}
-      className="report-dialog"
+      className="report-dialog analytics-surface"
       aria-labelledby="report-heading"
       onKeyDown={(event) => {
         if (event.key === "Escape") {
@@ -106,7 +106,7 @@ export function ComplaintDialog({
           onClose();
       }}
     >
-      <header className="report-dialog-head">
+      <div className="analytics-surface-heading report-dialog-head">
         <div className="report-dialog-heading">
           <h2 id="report-heading">{ready ? "Report content" : "Feedback details"}</h2>
           {ready && <span>{kindLabels[state.feedback.kind]}</span>}
@@ -139,8 +139,8 @@ export function ComplaintDialog({
             <X />
           </button>
         </div>
-      </header>
-      <div className="report-dialog-content" aria-busy={!ready}>
+      </div>
+      <div className="analytics-inset report-dialog-inset" aria-busy={!ready}>
         {ready ? (
           <>
             <div className="report-dialog-title">
@@ -198,7 +198,7 @@ export function ComplaintDialog({
             />
           </>
         ) : (
-          <div className="report-dialog-state">
+          <div className="report-state">
             <InboxDetailState state={state} />
             {state.status === "error" && (
               <button type="button" className="studio-button" onClick={load}>
