@@ -14,7 +14,7 @@ test("standalone pages share canvas colors across theme changes and navigation",
     ["light", "rgb(255, 255, 255)"],
     ["dark", "rgb(14, 14, 16)"],
   ] as const) {
-    if (theme === "dark") await page.getByRole("button", { name: "Switch to dark theme" }).click();
+    if (theme === "dark") await page.getByRole("button", { name: "Light theme" }).click();
     for (const path of ["/login", "/register", "/terms", "/forgot-password", "/reset-password"]) {
       await page.goto(path);
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
@@ -79,7 +79,7 @@ test("mobile auth and terms keep the theme and fit without horizontal scrolling"
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/register");
-  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  await page.getByRole("button", { name: "Light theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
@@ -88,7 +88,8 @@ test("mobile auth and terms keep the theme and fit without horizontal scrolling"
   await expect(page.getByRole("heading", { name: "Terms of Service" })).toBeVisible();
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await page.getByRole("button", { name: "Dark theme" }).click();
+  await page.getByRole("button", { name: "System theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 

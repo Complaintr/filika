@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "auditedOn": "2026-09-01",
-  "lockfileSha256": "c51bf5d9666613c0145bbc3847b04faee0f741f9af7b5f23ea7ccc13dd46d429",
+  "lockfileSha256": "cd1ae815f2eade3fa6dd33a99ab35a9fa439f2cea66ee12bbc992daa767a0f40",
   "method": "Exact-version npm registry license declarations; all distribution integrity values match bun.lock. This inventory does not replace package license and notice texts.",
   "packages": [
     {
@@ -1785,6 +1785,15 @@
       "platformOptional": false,
       "registryMetadata": "https://registry.npmjs.org/detect-libc/2.1.2",
       "integrity": "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ=="
+    },
+    {
+      "name": "driver.js",
+      "version": "1.8.0",
+      "license": "MIT",
+      "scope": "runtime",
+      "platformOptional": false,
+      "registryMetadata": "https://registry.npmjs.org/driver.js/1.8.0",
+      "integrity": "sha512-+8/IO7h1v14IzWh2GP60N7T3PFZweXwdn5e5POuxRSBoCYUojsBxzqawPeXh3YZIibRy7EehYNEyxe7slwwtdg=="
     },
     {
       "name": "drizzle-kit",

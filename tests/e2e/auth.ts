@@ -24,7 +24,7 @@ async function signSessionToken(token: string, secret: string): Promise<string> 
 export async function seedE2eSession(
   databaseUrl: string,
   secret: string,
-  options: { application?: boolean; google?: boolean } = {},
+  options: { application?: boolean; google?: boolean; github?: boolean } = {},
 ): Promise<{
   cookieName: string;
   cookieValue: string;
@@ -58,6 +58,11 @@ export async function seedE2eSession(
       await sql`UPDATE "user" SET google_image = 'https://lh3.googleusercontent.com/test-avatar' WHERE id = ${userId}`;
       await sql`INSERT INTO account (id, user_id, account_id, provider_id, issuer)
         VALUES (${randomUUID()}, ${userId}, ${userId}, 'google', 'https://accounts.google.com')`;
+    }
+    if (options.github) {
+      await sql`UPDATE "user" SET github_image = 'https://avatars.githubusercontent.com/u/123456?v=4' WHERE id = ${userId}`;
+      await sql`INSERT INTO account (id, user_id, account_id, provider_id, issuer)
+        VALUES (${randomUUID()}, ${userId}, ${userId}, 'github', 'https://github.com')`;
     }
     return {
       userId,

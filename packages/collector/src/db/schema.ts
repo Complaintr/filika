@@ -34,7 +34,10 @@ export const feedbackKind = pgEnum("feedback_kind", [
   "idea",
 ]);
 
+export const projectKind = pgEnum("project_kind", ["application", "demo"]);
+
 export const project = pgTable(PROJECT_TABLE_NAME, {
+  kind: projectKind("kind").notNull().default("application"),
   ownerUserId: text("owner_user_id").references(() => user.id),
   slug: text("slug").unique(),
   dashboardDays: integer("dashboard_days").notNull().default(30),
@@ -92,6 +95,8 @@ export const rateLimit = pgTable(
 export const user = pgTable(USER_TABLE_NAME, {
   googleImage: text("google_image"),
   useGoogleImage: boolean("use_google_image").notNull().default(false),
+  githubImage: text("github_image"),
+  useGithubImage: boolean("use_github_image").notNull().default(false),
   theme: text("theme").notNull().default("light"),
   density: text("density").notNull().default("comfortable"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -71,9 +71,14 @@ export async function handleApplicationRoute(
       if (!parsed.success) return failure("invalid_input", 400);
       if (parsed.data.useGoogleImage && !profile.googleImageAvailable)
         return failure("google_photo_unavailable", 400);
+      if (parsed.data.useGithubImage && !profile.githubImageAvailable)
+        return failure("github_photo_unavailable", 400);
+      const updates = { ...parsed.data };
+      if (updates.useGoogleImage) updates.useGithubImage = false;
+      else if (updates.useGithubImage) updates.useGoogleImage = false;
       await db
         .update(user)
-        .set({ ...parsed.data, updatedAt: new Date() })
+        .set({ ...updates, updatedAt: new Date() })
         .where(eq(user.id, userId));
       return json({ account: await getAccountProfile(db, userId) });
     }

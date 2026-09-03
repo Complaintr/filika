@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, count, eq } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "./db/client";
 import { type Project, project, user } from "./db/schema";
@@ -63,6 +63,7 @@ export function applicationView(row: Project) {
     slug: row.slug,
     displayName: row.displayName,
     integrationVerifiedAt: row.integrationVerifiedAt?.toISOString() ?? null,
+    kind: row.kind,
     projectKey: row.projectKey,
     allowedOrigins: row.allowedOrigins,
     dashboardDays: row.dashboardDays,
@@ -74,7 +75,7 @@ export async function listApplications(db: Db, userId: string) {
   const rows = await db
     .select()
     .from(project)
-    .where(eq(project.ownerUserId, userId))
+    .where(and(eq(project.ownerUserId, userId), eq(project.kind, "application")))
     .orderBy(asc(project.createdAt), asc(project.id))
     .limit(100);
   return rows.map(applicationView);
@@ -101,7 +102,7 @@ export async function createApplication(
     const existing = await tx
       .select({ id: project.id })
       .from(project)
-      .where(eq(project.ownerUserId, userId))
+      .where(and(eq(project.ownerUserId, userId), eq(project.kind, "application")))
       .limit(100);
     if (existing.length >= 100) return { error: "application_limit" as const };
     const rows = await tx
@@ -116,4 +117,60 @@ export async function createApplication(
     const row = rows[0];
     return row ? { application: applicationView(row) } : { error: "slug_taken" as const };
   });
+}
+
+export const deviceKeySchema = z
+  .string()
+  .min(8)
+  .max(64)
+  .regex(/^[a-z0-9-]+$/);
+
+export const DEMO_PROJECT_CAP = 5_000 as const;
+
+/**
+ * Public demo application creation is unauthenticated and keyed by an opaque
+ * client identifier, so it is bounded by a global cap. Once the cap is reached
+ * new device projects are rejected until cleanup removes expired demo projects.
+ */
+export async function demoCreationAllowed(db: Db, now: Date = new Date()): Promise<boolean> {
+  if (now.getTime() > 0) {
+    const rows = await db
+      .select({ count: count() })
+      .from(project)
+      .where(eq(project.kind, "demo"))
+      .limit(1);
+    const total = Number(rows[0]?.count ?? 0);
+    return total < DEMO_PROJECT_CAP;
+  }
+  return false;
+}
+
+export async function deviceDemoApplication(
+  db: Db,
+  deviceKey: string,
+  options: { allowedOrigins: readonly string[] },
+) {
+  const slug = `demo-${deviceKey}`;
+  const existing = await db.select().from(project).where(eq(project.slug, slug)).limit(1);
+  if (existing[0]) {
+    if (existing[0].kind !== "demo") return null;
+    const merged = [...new Set([...existing[0].allowedOrigins, ...options.allowedOrigins])];
+    if (merged.length !== existing[0].allowedOrigins.length) {
+      await db.update(project).set({ allowedOrigins: merged }).where(eq(project.slug, slug));
+      return { ...existing[0], allowedOrigins: merged };
+    }
+    return existing[0];
+  }
+  const rows = await db
+    .insert(project)
+    .values({
+      allowedOrigins: [...options.allowedOrigins],
+      displayName: "Filika Demo",
+      kind: "demo",
+      projectKey: `app_${crypto.randomUUID().replaceAll("-", "")}`,
+      slug,
+    })
+    .onConflictDoNothing({ target: project.slug })
+    .returning();
+  return rows[0] ?? null;
 }

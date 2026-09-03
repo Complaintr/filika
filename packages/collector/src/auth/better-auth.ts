@@ -1,10 +1,9 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
-import { googlePhotoUrl } from "../account-profile";
-
 import type { Db } from "../db/client";
 import * as schema from "../db/schema";
+import { githubPhotoUrl, googlePhotoUrl } from "../photo-url";
 import { type AuthEmailConfig, createAuthMailer } from "./email";
 
 export interface BetterAuthConfig extends AuthEmailConfig {
@@ -41,6 +40,8 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
       additionalFields: {
         googleImage: { type: "string", required: false, input: false },
         useGoogleImage: { type: "boolean", defaultValue: false, input: false },
+        githubImage: { type: "string", required: false, input: false },
+        useGithubImage: { type: "boolean", defaultValue: false, input: false },
         theme: { type: "string", defaultValue: "light", input: false },
         density: { type: "string", defaultValue: "comfortable", input: false },
       },
@@ -104,7 +105,13 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
         ? {
             google: {
               overrideUserInfoOnSignIn: true,
-              mapProfileToUser: (profile) => ({ googleImage: googlePhotoUrl(profile.picture) }),
+              mapProfileToUser: (profile) => ({
+                googleImage:
+                  googlePhotoUrl((profile as { picture?: unknown }).picture) ??
+                  googlePhotoUrl((profile as { image?: unknown }).image) ??
+                  googlePhotoUrl((profile as { avatar_url?: unknown }).avatar_url),
+                useGoogleImage: true,
+              }),
               clientId: config.googleClientId as string,
               clientSecret: config.googleClientSecret as string,
             },
@@ -114,9 +121,13 @@ export function createBetterAuth(db: Db, config: BetterAuthConfig = {}) {
         ? {
             github: {
               overrideUserInfoOnSignIn: true,
-              // Never persist an unvalidated avatar into the default user.image
-              // column; the collector keeps images behind its own validator.
-              mapProfileToUser: () => ({}),
+              mapProfileToUser: (profile) => ({
+                githubImage:
+                  githubPhotoUrl((profile as { avatar_url?: unknown }).avatar_url) ??
+                  githubPhotoUrl((profile as { picture?: unknown }).picture) ??
+                  githubPhotoUrl((profile as { image?: unknown }).image),
+                useGithubImage: true,
+              }),
               clientId: config.githubClientId as string,
               clientSecret: config.githubClientSecret as string,
             },

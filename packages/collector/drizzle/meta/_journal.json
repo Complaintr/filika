@@ -50,6 +50,20 @@
       "when": 1788300120371,
       "tag": "0006_misty_thena",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788310000000,
+      "tag": "0007_github_profile_photo",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788372399610,
+      "tag": "0008_demo-application",
+      "breakpoints": true
     }
   ]
 }

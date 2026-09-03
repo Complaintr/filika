@@ -1,10 +1,11 @@
-import { googlePhotoUrl } from "@filika/collector/photo-url";
+import { githubPhotoUrl, googlePhotoUrl } from "@filika/collector/photo-url";
 import { readBoundedJson } from "./response";
 
 export interface Application {
   slug: string;
   displayName: string;
   integrationVerifiedAt: string | null;
+  kind: "application" | "demo";
   projectKey: string;
   allowedOrigins: string[];
   dashboardDays: 7 | 30 | 90;
@@ -18,10 +19,16 @@ export interface AccountProfile {
   googleConnected: boolean;
   googleImageAvailable: boolean;
   useGoogleImage: boolean;
+  githubConnected: boolean;
+  githubImageAvailable: boolean;
+  useGithubImage: boolean;
   theme: "light" | "dark" | "system";
   density: "comfortable" | "compact";
 }
-export type AccountSettings = Pick<AccountProfile, "name" | "useGoogleImage" | "theme" | "density">;
+export type AccountSettings = Pick<
+  AccountProfile,
+  "name" | "useGoogleImage" | "useGithubImage" | "theme" | "density"
+>;
 export type ApplicationSettings = Pick<
   Application,
   "displayName" | "allowedOrigins" | "dashboardDays"
@@ -44,6 +51,7 @@ function parseApplication(value: unknown): Application {
       (text(value.integrationVerifiedAt, 40) &&
         Number.isFinite(Date.parse(value.integrationVerifiedAt)))
     ) ||
+    !["application", "demo"].includes(String(value.kind)) ||
     !text(value.projectKey, 128) ||
     !Array.isArray(value.allowedOrigins) ||
     value.allowedOrigins.length > 20 ||
@@ -59,6 +67,7 @@ function parseApplication(value: unknown): Application {
     slug: value.slug,
     displayName: value.displayName,
     integrationVerifiedAt: value.integrationVerifiedAt as string | null,
+    kind: value.kind as "application" | "demo",
     projectKey: value.projectKey,
     allowedOrigins: value.allowedOrigins as string[],
     dashboardDays: value.dashboardDays as 7 | 30 | 90,
@@ -75,6 +84,9 @@ function parseAccount(value: unknown): AccountProfile {
     typeof value.googleConnected !== "boolean" ||
     typeof value.googleImageAvailable !== "boolean" ||
     typeof value.useGoogleImage !== "boolean" ||
+    typeof value.githubConnected !== "boolean" ||
+    typeof value.githubImageAvailable !== "boolean" ||
+    typeof value.useGithubImage !== "boolean" ||
     !["light", "dark", "system"].includes(String(value.theme)) ||
     !["compact", "comfortable"].includes(String(value.density))
   )
@@ -82,6 +94,8 @@ function parseAccount(value: unknown): AccountProfile {
   let image: string | null = null;
   if (value.useGoogleImage && value.googleConnected) {
     image = googlePhotoUrl(value.image);
+  } else if (value.useGithubImage && value.githubConnected) {
+    image = githubPhotoUrl(value.image);
   }
   return {
     id: value.id,
@@ -91,6 +105,9 @@ function parseAccount(value: unknown): AccountProfile {
     googleConnected: value.googleConnected,
     googleImageAvailable: value.googleImageAvailable,
     useGoogleImage: value.useGoogleImage,
+    githubConnected: value.githubConnected,
+    githubImageAvailable: value.githubImageAvailable,
+    useGithubImage: value.useGithubImage,
     theme: value.theme as AccountProfile["theme"],
     density: value.density as AccountProfile["density"],
   };
@@ -119,6 +136,8 @@ async function request(path: string, signal: AbortSignal, method = "GET", body?:
       throw new Error("This application URL is already in use. Choose another.");
     if (category === "google_photo_unavailable")
       throw new Error("Sign in with Google again to make your Google photo available.");
+    if (category === "github_photo_unavailable")
+      throw new Error("Sign in with GitHub again to make your GitHub photo available.");
     if (category === "invalid_input")
       throw new Error("Check the fields and allowed origins, then try again.");
     throw new Error("Your changes could not be loaded or saved. Please try again.");

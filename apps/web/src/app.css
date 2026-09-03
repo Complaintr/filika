@@ -226,9 +226,16 @@ html {
   background: #a34d59;
 }
 .topbar {
-  background: var(--canvas);
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 60;
+  background: color-mix(in srgb, var(--canvas) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
 }
 .topbar-inner {
   max-width: 1360px;
@@ -620,6 +627,15 @@ html {
 .button-primary:hover {
   background: #2851cc;
   border-color: #2851cc;
+}
+.button-secondary {
+  background: #f8faff;
+  border-color: #cdd7e8;
+  color: #2851cc;
+}
+.button-secondary:hover {
+  background: #eef3ff;
+  border-color: #b4c4e2;
 }
 .button-quiet {
   background: transparent;
@@ -1856,10 +1872,16 @@ html {
   color: var(--auth-muted);
   display: grid;
   place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 .auth-theme:hover {
   background: var(--auth-field);
   color: var(--auth-text);
+}
+.auth-theme svg {
+  width: 18px;
+  height: 18px;
 }
 .auth-form-content {
   width: min(390px, 100%);
@@ -3159,6 +3181,8 @@ html {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
+  clear: both;
+  width: 100%;
 }
 .appearance-choice {
   border: 1px solid var(--studio-line);
@@ -3265,6 +3289,8 @@ html {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: 15px;
+  clear: both;
+  width: 100%;
 }
 .density-choices label {
   position: relative;
@@ -4202,72 +4228,6 @@ html {
 .auth-header .filika-brand {
   color: var(--auth-text, var(--ink));
 }
-.workspace-shell {
-  --header-gutter: 40px;
-  padding-top: 0;
-}
-/* Only the header controls float; there is no bar, frame, or divider. */
-.topbar {
-  position: relative;
-  z-index: 50;
-  background: transparent;
-  border: 0;
-  pointer-events: none;
-}
-.topbar-inner {
-  min-height: 76px;
-}
-.topbar .workspace-identity,
-.topbar .topbar-actions {
-  position: fixed;
-  top: 18px;
-  pointer-events: auto;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  padding: 0;
-}
-.topbar .workspace-identity {
-  left: max(var(--header-gutter), calc((100vw - 1360px) / 2 + var(--header-gutter)));
-  max-width: calc(100vw - 90px - var(--header-gutter) - var(--header-gutter));
-  min-height: 38px;
-  gap: 11px;
-}
-.topbar .topbar-actions {
-  right: max(var(--header-gutter), calc((100vw - 1360px) / 2 + var(--header-gutter)));
-  margin: 0;
-}
-.topbar .connection-status {
-  right: 0;
-  bottom: 0;
-}
-@media (max-width: 1200px) {
-  .workspace-shell {
-    --header-gutter: 24px;
-  }
-}
-@media (max-width: 700px) {
-  .workspace-shell {
-    --header-gutter: 16px;
-  }
-  .topbar-inner {
-    min-height: 70px;
-  }
-  .topbar .workspace-identity,
-  .topbar .topbar-actions {
-    top: 16px;
-  }
-  .topbar .workspace-identity {
-    gap: 6px;
-  }
-  .topbar .workspace-switcher {
-    gap: 6px;
-  }
-  .topbar .workspace-avatar {
-    display: none;
-  }
-}
 
 html {
   scroll-padding-top: 88px;
@@ -4770,13 +4730,20 @@ html {
   border-radius: 18px;
   padding: 20px;
   margin-bottom: 12px;
+  min-width: 0;
 }
 .settings-studio .studio-fieldset legend {
   float: left;
   width: 100%;
   font-size: 12px;
   padding: 0;
+  margin-bottom: 14px;
+}
+.settings-studio .studio-fieldset legend:has(+ p) {
   margin-bottom: 5px;
+}
+.settings-studio .studio-fieldset > :not(legend) {
+  clear: both;
 }
 .settings-studio .studio-fieldset > p {
   clear: both;
@@ -5170,6 +5137,13 @@ html {
   width: 18px;
   height: 18px;
   accent-color: var(--blue);
+}
+.photo-choice-hint {
+  margin: -12px 0 0 28px;
+  padding-bottom: 4px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
 .account-avatar {
   overflow: hidden;
@@ -5574,4 +5548,123 @@ html {
   .workspace-setup-banner > a {
     grid-column: 2;
   }
+}
+
+/* Receipt toast: compact status card for accepted feedback. */
+.filika-receipt-toast {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 60;
+  width: min(360px, calc(100vw - 32px));
+  box-sizing: border-box;
+  border: 1px solid var(--border, #e5e8ee);
+  border-radius: 14px;
+  background: var(--white, #ffffff);
+  box-shadow:
+    0 18px 48px rgb(37 48 71 / 14%),
+    0 2px 8px rgb(37 48 71 / 8%);
+  color: var(--foreground, #253047);
+  font-family: inherit;
+  overflow: hidden;
+}
+.filika-receipt-toast .toast-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border, #e5e8ee);
+  background: #f8faff;
+}
+.filika-receipt-toast .toast-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e7f0ff;
+  color: #2851cc;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.filika-receipt-toast .toast-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2f80ed;
+}
+.filika-receipt-toast .toast-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--foreground, #253047);
+}
+.filika-receipt-toast .toast-dismiss-btn {
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: #818b9d;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.filika-receipt-toast .toast-dismiss-btn:hover {
+  background: #eef1f7;
+  color: #536079;
+}
+.filika-receipt-toast .toast-body {
+  padding: 12px 14px 14px;
+}
+.filika-receipt-toast .toast-facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 12px;
+  font-size: 12px;
+}
+.filika-receipt-toast .toast-facts dt {
+  color: #707b8e;
+}
+.filika-receipt-toast .toast-facts dd {
+  margin: 0;
+  color: var(--foreground, #253047);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.filika-receipt-toast .toast-facts dd.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+.filika-receipt-toast .button-secondary {
+  margin-top: 12px;
+}
+:root[data-theme="dark"] .filika-receipt-toast {
+  background: #1b1b1e;
+  border-color: #2c2c31;
+  color: #e8e8ea;
+  box-shadow: 0 18px 48px rgb(0 0 0 / 45%);
+}
+:root[data-theme="dark"] .filika-receipt-toast .toast-header {
+  background: #202024;
+  border-color: #2c2c31;
+}
+:root[data-theme="dark"] .filika-receipt-toast .toast-badge {
+  background: #25314e;
+  color: #9db9ff;
+}
+:root[data-theme="dark"] .filika-receipt-toast .toast-dismiss-btn {
+  color: #9aa0ad;
+}
+:root[data-theme="dark"] .filika-receipt-toast .toast-dismiss-btn:hover {
+  background: #2a2a2f;
+  color: #e8e8ea;
+}
+:root[data-theme="dark"] .filika-receipt-toast .toast-facts dt {
+  color: #9aa0ad;
 }

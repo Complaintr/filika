@@ -21,6 +21,8 @@ const INBOX_LIST_ENDPOINT = "/api/v1/inbox";
 export interface InboxApiOptions {
   collectorOrigin: string;
   appSlug?: string;
+  /** Overrides the appSlug prefix with a full API prefix (e.g. demo device scope). */
+  demoPrefix?: string;
   fetchFn?: FetchFn;
 }
 
@@ -125,9 +127,11 @@ export class InboxApiService {
   readonly #appPrefix: string;
 
   constructor(options: InboxApiOptions) {
-    this.#appPrefix = options.appSlug
-      ? `/api/v1/apps/${encodeURIComponent(options.appSlug)}/inbox`
-      : INBOX_LIST_ENDPOINT;
+    this.#appPrefix =
+      options.demoPrefix ??
+      (options.appSlug
+        ? `/api/v1/apps/${encodeURIComponent(options.appSlug)}/inbox`
+        : INBOX_LIST_ENDPOINT);
     this.#collectorOrigin = options.collectorOrigin.replace(/\/+$/, "");
     this.#fetch = options.fetchFn ?? ((input, init) => fetch(input, init));
   }

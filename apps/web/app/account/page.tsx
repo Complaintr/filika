@@ -50,12 +50,14 @@ const initial: AccountSettings = {
   theme: "light",
   density: "comfortable",
   useGoogleImage: false,
+  useGithubImage: false,
 };
 const settings = (profile: AccountProfile): AccountSettings => ({
   name: profile.name,
   theme: profile.theme,
   density: profile.density,
   useGoogleImage: profile.useGoogleImage,
+  useGithubImage: profile.useGithubImage,
 });
 
 export default function AccountPage() {
@@ -107,6 +109,10 @@ export default function AccountPage() {
                       draft.useGoogleImage === previous.useGoogleImage
                         ? next.useGoogleImage
                         : draft.useGoogleImage,
+                    useGithubImage:
+                      draft.useGithubImage === previous.useGithubImage
+                        ? next.useGithubImage
+                        : draft.useGithubImage,
                   }
                 : next,
             );
@@ -144,6 +150,8 @@ export default function AccountPage() {
       if (draft.density !== account.density) patch.density = draft.density;
       if (draft.useGoogleImage !== account.useGoogleImage)
         patch.useGoogleImage = draft.useGoogleImage;
+      if (draft.useGithubImage !== account.useGithubImage)
+        patch.useGithubImage = draft.useGithubImage;
       if (!Object.keys(patch).length) {
         setDraft(settings(account));
         return;
@@ -208,7 +216,7 @@ export default function AccountPage() {
                 <div className="account-profile">
                   <span className="account-avatar">
                     {account?.image && account.image !== failedImage ? (
-                      // biome-ignore lint/performance/noImgElement: Google OAuth photo is allowlisted by the account API.
+                      // biome-ignore lint/performance/noImgElement: OAuth photo is allowlisted by the account API.
                       <img
                         src={account.image}
                         alt="Your profile"
@@ -242,26 +250,49 @@ export default function AccountPage() {
                   <div>
                     <h3>Profile photo</h3>
                     <p>
-                      {account?.googleConnected
-                        ? account.googleImageAvailable
-                          ? "Use the photo provided by Google when you signed in. It will appear in the header."
-                          : "Sign in with Google again to refresh your profile photo."
-                        : "Sign in with Google to use your Google profile photo. Photo uploads are not available yet."}
+                      {account?.googleConnected || account?.githubConnected
+                        ? "Use a photo provided by Google or GitHub when you signed in. It will appear in the header."
+                        : "Sign in with Google or GitHub to use your provider profile photo. Photo uploads are not available yet."}
                     </p>
                     <label className="account-photo-choice">
                       <input
                         type="checkbox"
                         checked={draft.useGoogleImage}
-                        disabled={!account?.googleImageAvailable && !draft.useGoogleImage}
+                        disabled={!account?.googleConnected}
                         onChange={(event) =>
-                          setDraft({ ...draft, useGoogleImage: event.target.checked })
+                          setDraft({
+                            ...draft,
+                            useGoogleImage: event.target.checked,
+                            useGithubImage: event.target.checked ? false : draft.useGithubImage,
+                          })
                         }
                       />
                       Use Google profile photo
                     </label>
+                    {!account?.googleConnected && (
+                      <p className="photo-choice-hint">You did not sign in with Google.</p>
+                    )}
+                    <label className="account-photo-choice">
+                      <input
+                        type="checkbox"
+                        checked={draft.useGithubImage}
+                        disabled={!account?.githubConnected}
+                        onChange={(event) =>
+                          setDraft({
+                            ...draft,
+                            useGithubImage: event.target.checked,
+                            useGoogleImage: event.target.checked ? false : draft.useGoogleImage,
+                          })
+                        }
+                      />
+                      Use GitHub profile photo
+                    </label>
+                    {!account?.githubConnected && (
+                      <p className="photo-choice-hint">You did not sign in with GitHub.</p>
+                    )}
                     <p className="muted">
-                      When enabled, your browser loads this photo from Google. Turn it off to use
-                      your initial.
+                      When enabled, your browser loads this photo from the provider. Turn it off to
+                      use your initial.
                     </p>
                   </div>
                 </div>
