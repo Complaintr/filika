@@ -4718,6 +4718,7 @@ html {
 .delete-account-panel {
   margin: 16px 0 4px;
   padding: 20px;
+  min-width: 0;
   border: 1px solid var(--studio-danger-line);
   border-radius: 16px;
   background: var(--studio-surface);
