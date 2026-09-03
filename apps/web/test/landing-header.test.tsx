@@ -66,6 +66,32 @@ describe("landing header component", () => {
     await result.close();
   });
 
+  test("keeps the scrolled state stable around the transition threshold", async () => {
+    const result = await renderReact(createElement(LandingHeader));
+    const wrapper = result.container.firstElementChild as HTMLElement;
+
+    Object.defineProperty(result.window, "scrollY", {
+      configurable: true,
+      writable: true,
+      value: 25,
+    });
+    result.window.dispatchEvent(new result.window.Event("scroll"));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(wrapper.className).toContain("headerWrapperScrolled");
+
+    Object.defineProperty(result.window, "scrollY", { value: 15 });
+    result.window.dispatchEvent(new result.window.Event("scroll"));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(wrapper.className).toContain("headerWrapperScrolled");
+
+    Object.defineProperty(result.window, "scrollY", { value: 5 });
+    result.window.dispatchEvent(new result.window.Event("scroll"));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(wrapper.className).not.toContain("headerWrapperScrolled");
+
+    await result.close();
+  });
+
   test("mobile menu button toggles the drawer with navigation links", async () => {
     const result = await renderReact(createElement(LandingHeader));
 
@@ -78,6 +104,18 @@ describe("landing header component", () => {
     expect(mobileNav?.textContent).toContain("Features");
     expect(mobileNav?.textContent).toContain("How it works");
     expect(mobileNav?.textContent).toContain("GitHub");
+
+    menuBtn?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(menuBtn?.getAttribute("aria-label")).toBe("Close menu");
+    expect(menuBtn?.getAttribute("aria-expanded")).toBe("true");
+
+    const featuresButton = mobileNav?.querySelector("button");
+    expect(featuresButton).not.toBeNull();
+    featuresButton?.click();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(menuBtn?.getAttribute("aria-label")).toBe("Open menu");
+    expect(menuBtn?.getAttribute("aria-expanded")).toBe("false");
 
     await result.close();
   });

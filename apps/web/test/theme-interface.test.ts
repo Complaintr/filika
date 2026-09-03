@@ -26,6 +26,14 @@ test("dark appearance covers the workspace and floating navigation", async () =>
   expect(navigationCss).toContain(':root[data-theme="dark"] .bottom-nav-item[data-active="true"]');
 });
 
+test("workspace header has no divider line", async () => {
+  const appCss = await Bun.file(`${import.meta.dir}/../src/app.css`).text();
+  const topbar = appCss.match(/\.topbar\s*\{([^}]*)\}/)?.[1];
+
+  expect(topbar).toBeDefined();
+  expect(topbar).not.toContain("border-bottom");
+});
+
 test("dark appearance uses neutral charcoal surfaces instead of blue-tinted backgrounds", async () => {
   const appCss = await Bun.file(`${import.meta.dir}/../src/app.css`).text();
   const bootstrap = await Bun.file(`${import.meta.dir}/../public/theme-bootstrap.js`).text();

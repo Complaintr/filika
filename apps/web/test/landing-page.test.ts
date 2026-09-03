@@ -87,12 +87,19 @@ describe("public landing page", () => {
     ).text();
     const featureDemos = await Bun.file(`${appDirectory}/landing-feature-demos.tsx`).text();
 
-    expect(page).toContain("Widget Area");
+    expect(page).toContain("<LandingDashboardDemo />");
+    expect(page).not.toContain("Widget Area");
     expect(styles).toContain("--primary: #009fe3");
     expect(styles.match(/--primary: #009fe3/g)).toHaveLength(2);
     expect(styles).toContain(".headerWrapper");
     expect(styles).toContain(".headerScrolled");
     expect(styles).toContain(".themeSwitcher");
+    const headerLeft = styles.match(/\.headerLeft\s*\{([^}]*)\}/)?.[1];
+    const navLink = styles.match(/\.nav a\s*\{([^}]*)\}/)?.[1];
+    expect(headerLeft).toContain("align-items: center");
+    expect(headerLeft).toContain("height: 100%");
+    expect(navLink).toContain("height: 22px");
+    expect(navLink).toContain("line-height: 1");
     expect(styles).toContain("line-height: 1.2");
     expect(styles).toContain("align-items: flex-start");
     expect(styles).toContain("align-self: flex-start");
@@ -108,11 +115,14 @@ describe("public landing page", () => {
     expect(styles).not.toContain("rgba(48, 93, 222");
     expect(styles).toContain("grid-template-columns: repeat(3, 1fr)");
     expect(styles).toContain("@media (max-width: 560px)");
-    expect(styles).toContain(".widgetArea");
+    expect(styles).toContain(".dashboardDemo");
     expect(page).toContain("<SiteScanFlowDemo />");
     expect(page).toContain("<ResolutionFlowDemo />");
     expect(page).toContain("<GlobeDemo />");
     expect(page).not.toContain("<AnimatedBeamDemo />");
+    expect(flowDemos).not.toContain("scanBrowserHeader");
+    expect(styles).toContain(".scanBrowserBody");
+    expect(styles).toContain("height: 100%;");
     expect(featureDemos).toContain("WorldGlobeDemo");
     expect(styles).toContain(".globeContainer");
     expect(styles).toContain(".globeCanvas");

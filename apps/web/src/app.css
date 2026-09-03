@@ -232,10 +232,7 @@ html {
   background: color-mix(in srgb, var(--canvas) 90%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease;
+  transition: background-color 160ms ease;
 }
 .topbar-inner {
   max-width: 1360px;
@@ -823,7 +820,8 @@ html {
 }
 .chart-line {
   fill: none;
-  stroke: url(#dashboard-line-fade);
+  /* Keep the data series visible when a browser cannot resolve SVG paint URLs. */
+  stroke: #3478f6;
   stroke-width: 3;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;

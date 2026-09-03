@@ -2,6 +2,7 @@ import { ArrowRight, Bot, Bug, ChevronDown, Layers, ShieldCheck } from "lucide-r
 import type { Metadata } from "next";
 import { ResolutionFlowDemo, SiteScanFlowDemo } from "@/components/animated-beam-demo";
 import { FilikaBrand } from "@/components/filika-brand";
+import { LandingDashboardDemo } from "@/components/landing-dashboard-demo";
 import { LandingHeader } from "@/components/landing-header";
 import styles from "./landing.module.css";
 import {
@@ -99,7 +100,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className={styles.heroMedia}>
-            <div className={styles.widgetArea}>Widget Area</div>
+            <LandingDashboardDemo />
           </div>
         </section>
 
