@@ -1201,7 +1201,7 @@ describe.skipIf(!isDbAvailable)("application schema compatibility", () => {
       );
       for (const entry of previousEntries) {
         await copyFile(
-          `${import.meta.dir}/../drizzle/${entry.tag}.sql`,
+          join(import.meta.dir, "../drizzle", `${entry.tag}.sql`),
           join(folder, `${entry.tag}.sql`),
         );
       }

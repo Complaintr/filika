@@ -23,7 +23,11 @@ test("account loading and failure states do not expose an empty disabled form", 
       "Create application",
     );
     pending.resolve(Response.json({}, { status: 500 }));
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    for (let i = 0; i < 25; i++) {
+      if (result.container.textContent?.includes("Your account could not be loaded. Try again."))
+        break;
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
     expect(result.container.textContent).toContain("Your account could not be loaded. Try again.");
     expect(result.container.querySelector("form")).toBeNull();
   } finally {
