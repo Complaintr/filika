@@ -2,14 +2,17 @@
 
 import {
   ArrowLeft,
+  FolderX,
   Laptop,
   LogOut,
+  MessageSquareX,
   Moon,
   Paintbrush,
   ShieldCheck,
   Sun,
   Trash2,
   UserRound,
+  UserX,
 } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useEffect, useRef, useState } from "react";
@@ -67,6 +70,7 @@ export default function AccountPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const [loadVersion, setLoadVersion] = useState(0);
   const controller = useRef<AbortController | null>(null);
   const baseline = useRef<AccountSettings | null>(null);
@@ -148,7 +152,7 @@ export default function AccountPage() {
   async function removeAccount(): Promise<void> {
     if (!account || deleting) return;
     setDeleting(true);
-    setStatus("");
+    setDeleteError("");
     const request = new AbortController();
     controller.current = request;
     try {
@@ -163,7 +167,7 @@ export default function AccountPage() {
       window.location.assign("/");
     } catch (error) {
       if (!request.signal.aborted)
-        setStatus(
+        setDeleteError(
           error instanceof Error
             ? error.message
             : "Your account could not be deleted. Please try again.",
@@ -340,6 +344,7 @@ export default function AccountPage() {
                     onClick={() => {
                       setDeleteOpen(true);
                       setDeleteConfirm("");
+                      setDeleteError("");
                     }}
                   >
                     <Trash2 />
@@ -347,20 +352,40 @@ export default function AccountPage() {
                   </button>
                 </div>
                 {deleteOpen && (
-                  <div className="delete-account-panel">
+                  <div className="delete-account-panel" aria-labelledby="delete-account-title">
                     <div className="delete-account-panel-heading">
                       <span className="delete-account-icon" aria-hidden="true">
                         <Trash2 />
                       </span>
                       <div>
-                        <h3>Delete your account?</h3>
-                        <p>
-                          This permanently removes your account, your applications, and all the
-                          feedback they received. This cannot be undone.
-                        </p>
+                        <h3 id="delete-account-title">Delete your account?</h3>
+                        <p>This is permanent and cannot be undone.</p>
                       </div>
                     </div>
-                    <label className="delete-account-label" htmlFor="delete-account-confirm">
+                    <ul className="delete-account-impact" aria-label="What gets removed">
+                      <li>
+                        <UserX aria-hidden="true" />
+                        <span>
+                          <strong>Your profile</strong>
+                          <small>Name, email, and sign-in</small>
+                        </span>
+                      </li>
+                      <li>
+                        <FolderX aria-hidden="true" />
+                        <span>
+                          <strong>Your applications</strong>
+                          <small>Every application you own</small>
+                        </span>
+                      </li>
+                      <li>
+                        <MessageSquareX aria-hidden="true" />
+                        <span>
+                          <strong>All feedback</strong>
+                          <small>Reports they received, for good</small>
+                        </span>
+                      </li>
+                    </ul>
+                    <label className="delete-account-confirm-label" htmlFor="delete-account-confirm">
                       Type <strong>delete</strong> to confirm
                     </label>
                     <input
@@ -370,22 +395,36 @@ export default function AccountPage() {
                       maxLength={20}
                       autoComplete="off"
                       placeholder="delete"
+                      disabled={deleting}
+                      autoFocus
                       onChange={(event) => setDeleteConfirm(event.target.value)}
                       onKeyDown={(event) => {
-                        if (event.key === "Enter") event.preventDefault();
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          if (deleteConfirm.trim().toLowerCase() === "delete") void removeAccount();
+                        }
                       }}
                     />
+                    {deleteError && (
+                      <p className="delete-account-error" role="alert">
+                        {deleteError}
+                      </p>
+                    )}
                     <div className="delete-account-actions">
                       <button
-                        className="studio-button"
+                        className="studio-text-button"
                         type="button"
                         disabled={deleting}
-                        onClick={() => setDeleteOpen(false)}
+                        onClick={() => {
+                          setDeleteOpen(false);
+                          setDeleteConfirm("");
+                          setDeleteError("");
+                        }}
                       >
                         Cancel
                       </button>
                       <button
-                        className="studio-button studio-button-danger"
+                        className="studio-button delete-account-confirm-button"
                         type="button"
                         disabled={deleting || deleteConfirm.trim().toLowerCase() !== "delete"}
                         onClick={() => void removeAccount()}
