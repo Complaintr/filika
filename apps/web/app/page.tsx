@@ -96,6 +96,9 @@ export default function HomePage() {
                 <a className={styles.primaryButton} href="/login">
                   Get Started <ArrowRight aria-hidden="true" />
                 </a>
+                <a className={styles.secondaryButton} href="/demo">
+                  Demo
+                </a>
               </div>
             </div>
           </div>

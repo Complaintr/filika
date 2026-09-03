@@ -232,7 +232,8 @@
   box-shadow: none;
   white-space: nowrap;
 }
-.headerActions .primaryButton {
+.headerActions .primaryButton,
+.headerActions .secondaryButton {
   border-radius: 9999px;
   white-space: nowrap;
 }
@@ -496,12 +497,17 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  align-items: center;
+  align-items: stretch;
   margin-top: 24px;
 }
 .heroCta small {
   flex-basis: 100%;
   color: color-mix(in srgb, var(--muted) 80%, transparent);
+}
+.heroCta .primaryButton,
+.heroCta .secondaryButton {
+  min-height: 36px;
+  padding: 8px 14px;
 }
 .mobileQuote,
 .laurelMobile {
@@ -2642,6 +2648,9 @@
   .headerActions .secondaryButton {
     display: none;
   }
+  .headerActions .secondaryButton.headerGetStarted {
+    display: inline-flex;
+  }
   .menuButton {
     display: grid;
   }
@@ -2745,7 +2754,8 @@
     --header-action-gap: 6px;
     gap: 6px;
   }
-  .headerActions .primaryButton {
+  .headerActions .primaryButton,
+  .headerActions .secondaryButton.headerGetStarted {
     min-height: 34px;
     padding: 0 12px;
     border-radius: 9999px;

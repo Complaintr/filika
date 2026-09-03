@@ -93,6 +93,17 @@ export function LandingHeader() {
             <span>GitHub</span>
           </a>
           <a
+            className={`${styles.secondaryButton ?? "secondaryButton"} ${
+              styles.headerGetStarted ?? "headerGetStarted"
+            } ${
+              showGetStarted ? (styles.headerGetStartedVisible ?? "headerGetStartedVisible") : ""
+            }`}
+            href="/demo"
+            tabIndex={showGetStarted ? undefined : -1}
+          >
+            Demo
+          </a>
+          <a
             className={`${styles.primaryButton ?? "primaryButton"} ${
               styles.headerGetStarted ?? "headerGetStarted"
             } ${
