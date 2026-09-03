@@ -4,13 +4,7 @@
   <img src="filika.png" alt="Filika" width="800">
 </p>
 
-## Documentation
-
-- [Local Setup](docs/local-setup.md)
-- [Self-Hosting](docs/self-hosted.md)
-- [Security](SECURITY.md)
-- [Contributing](CONTRIBUTING.md)
-- [License](LICENSE)
+[Local Setup](docs/local-setup.md) | [Self-Hosting](docs/self-hosted.md) | [Security](SECURITY.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE)
 
 ## What is Filika?
 
