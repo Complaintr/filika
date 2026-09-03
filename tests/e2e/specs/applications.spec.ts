@@ -67,7 +67,7 @@ test("onboarding creates an application and the header switches between isolated
   await page.getByLabel("Application URL", { exact: true }).fill(secondSlug);
   await page.getByRole("button", { name: "Create application", exact: true }).click();
   await page.getByRole("button", { name: "Finish later", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/${secondSlug}/complaints$`));
+  await expect(page).toHaveURL(new RegExp(`/${secondSlug}/dashboard$`));
   await expect(page.getByText("Setup incomplete", { exact: true })).toBeVisible();
   await page.reload();
   await page.getByRole("button", { name: "Switch application" }).click();
@@ -75,13 +75,13 @@ test("onboarding creates an application and the header switches between isolated
     .getByRole("navigation", { name: "Your applications" })
     .getByRole("link", { name: /Eckra/ })
     .click();
-  await expect(page).toHaveURL(new RegExp(`/${slug}/complaints$`));
+  await expect(page).toHaveURL(new RegExp(`/${slug}/dashboard$`));
   await page.getByRole("button", { name: "Switch application" }).click();
   await page
     .getByRole("navigation", { name: "Your applications" })
     .getByRole("link", { name: /Second application/ })
     .click();
-  await expect(page).toHaveURL(new RegExp(`/${secondSlug}/complaints$`));
+  await expect(page).toHaveURL(new RegExp(`/${secondSlug}/dashboard$`));
   await page.locator(".bottom-nav-item", { hasText: "Settings" }).click();
   await expect(page.getByLabel(/^Application name/)).toHaveValue("Second application");
   await page.getByLabel(/^Application name/).fill("Renamed second app");

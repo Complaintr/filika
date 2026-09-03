@@ -109,7 +109,7 @@ export function OnboardingExperience() {
           setAdditional(applications.length > 1);
           setStep(resumed.integrationVerifiedAt ? 3 : 1);
         } else if (firstApplication && !params.has("new")) {
-          window.location.replace(applicationPath(firstApplication.slug, "complaints"));
+          window.location.replace(applicationPath(firstApplication.slug, "dashboard"));
           return;
         } else {
           setAdditional(applications.length > 0);
@@ -252,7 +252,8 @@ export function OnboardingExperience() {
         websiteOrigin: origin,
       })
     : "";
-  const inboxPath = application ? applicationPath(application.slug, "complaints") : "/account";
+  const dashboardPath = application ? applicationPath(application.slug, "dashboard") : "/account";
+  const complaintsPath = application ? applicationPath(application.slug, "complaints") : "/account";
 
   return (
     <main id="app-content" className="onboarding-page">
@@ -289,7 +290,7 @@ export function OnboardingExperience() {
           >
             <ChevronLeft />
           </button>
-          <Link href={application ? inboxPath : "/account"}>
+          <Link href={application ? dashboardPath : "/account"}>
             {application ? "Exit setup" : "Account settings"} <ArrowRight />
           </Link>
         </div>
@@ -405,7 +406,7 @@ export function OnboardingExperience() {
             <button
               className="onboarding-secondary-action"
               type="button"
-              onClick={() => window.location.assign(inboxPath)}
+              onClick={() => window.location.assign(dashboardPath)}
             >
               Finish later
             </button>
@@ -475,7 +476,7 @@ export function OnboardingExperience() {
             <button
               className="onboarding-secondary-action"
               type="button"
-              onClick={() => window.location.assign(inboxPath)}
+              onClick={() => window.location.assign(dashboardPath)}
             >
               Finish later
             </button>
@@ -505,9 +506,9 @@ export function OnboardingExperience() {
             )}
             <Link
               className="onboarding-continue"
-              href={firstReport ? `${inboxPath}/${firstReport.feedbackId}` : inboxPath}
+              href={firstReport ? `${complaintsPath}/${firstReport.feedbackId}` : dashboardPath}
             >
-              {firstReport ? "Open the first report" : "Open your inbox"} <ArrowRight />
+              {firstReport ? "Open the first report" : "Open your dashboard"} <ArrowRight />
             </Link>
           </div>
         ) : (
