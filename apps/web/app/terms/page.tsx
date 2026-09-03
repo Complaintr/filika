@@ -29,9 +29,8 @@ export default function TermsPage() {
           </p>
           <h2>Feedback stays in your hands</h2>
           <p>
-            Filika does not provide an AI assistant. A browser agent may draft feedback, but
-            agent-authored feedback is sent only after you review and confirm it. You can edit or
-            cancel a draft, or submit feedback manually. Review every report and include only
+            Filika does not provide an AI assistant. A browser agent may submit feedback when it
+            calls the Filika tool. You can submit feedback manually, and should include only
             information you are authorized to share.
           </p>
           <h2>Acceptable use</h2>

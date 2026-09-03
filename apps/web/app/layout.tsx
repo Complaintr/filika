@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     template: "%s · Filika",
   },
   description:
-    "Filika helps AI agents report bugs, blockers, and product feedback through WebMCP with code context and user review.",
+    "Filika helps AI agents report bugs, blockers, and product feedback through WebMCP with structured, privacy-conscious reports.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

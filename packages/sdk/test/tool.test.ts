@@ -25,9 +25,9 @@ test("the static tool accepts only report fields, not host or transport claims",
   expect(validate({ ...draft, title: " " })).toBe(false);
 });
 
-test("metadata asks for user confirmation and does not mark submission read-only", () => {
+test("metadata explains that the tool transmits feedback and does not mark submission read-only", () => {
   expect(FEEDBACK_TOOL.name).toBe("filika_submit_feedback");
-  expect(FEEDBACK_TOOL.description).toContain("Confirm with the user before transmitting");
+  expect(FEEDBACK_TOOL.description).toContain("transmits the report");
   expect(FEEDBACK_TOOL.description).not.toContain("must review");
   expect(FEEDBACK_TOOL.annotations).toEqual({ readOnlyHint: false, untrustedContentHint: false });
 });

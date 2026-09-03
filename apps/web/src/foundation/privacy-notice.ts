@@ -26,7 +26,7 @@ export const FILIKA_PRIVACY_DISCLOSURE: PrivacyDisclosure = {
     items: [
       "Expected behavior and steps to reproduce (can be left blank).",
       "Host-supplied context: route label (page name) and application release.",
-      "Any optional field can be removed or edited before confirming submission.",
+      "Optional fields are supplied only when the agent includes them in the report.",
     ],
   },
   excluded: {
@@ -75,7 +75,7 @@ export function renderPrivacyNotice(document: Document): HTMLElement {
   trustBadges.className = "privacy-trust-badges";
   const badges = [
     "Zero ambient telemetry",
-    "Explicit user review",
+    "Structured agent reports",
     "Cleanup after 24h",
     "No cookies or DOM capture",
   ];

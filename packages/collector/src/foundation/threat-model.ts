@@ -101,7 +101,7 @@ export const THREATS: readonly Threat[] = [
     mitigations: [
       "Tool name, title, description, and schema stay static.",
       "Collector text is reconstructed into a safe receipt that cannot carry instructions.",
-      "Agent-authored fields are bounded and agents are instructed to confirm with the user before transmission.",
+      "Agent-authored fields are bounded, and reports are validated before storage.",
     ],
     title: "Prompt injection",
     verification: ["packages/sdk/test/receipt.test.ts", "packages/sdk/test/sdk.test.ts"],
@@ -130,7 +130,7 @@ export const THREATS: readonly Threat[] = [
     impact: "Data exposure through the inbox and logs.",
     likelihood: "medium",
     mitigations: [
-      "Agents are instructed to confirm with the user before transmission.",
+      "Agents receive static guidance to report only observed evidence.",
       "Collector never logs full report bodies.",
       "Logs sanitize identifiers.",
       "Synthetic data only; expired feedback requires explicit cleanup.",

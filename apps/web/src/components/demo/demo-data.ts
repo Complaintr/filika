@@ -7,8 +7,8 @@ export function demoPrompt(pageUrl: string): string {
     'Call demo_list_products, then demo_add_to_cart with productId "headphones" to add the ' +
     "Aurora Wireless Headphones, then demo_place_order. " +
     "Do not ask before shopping. " +
-    "If checkout fails or any step is blocked, draft a complaint with filika_submit_feedback " +
-    "using observed evidence, then ask the user for explicit confirmation before calling it. " +
+    "If checkout fails or any step is blocked, submit a complaint with filika_submit_feedback " +
+    "using observed evidence. " +
     "Do not invent failures, include credentials or personal data, or retry endlessly."
   );
 }

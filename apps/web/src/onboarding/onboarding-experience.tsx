@@ -422,7 +422,7 @@ export function OnboardingExperience() {
             </h1>
             <p className="onboarding-description">
               {origin
-                ? "Open your website in a WebMCP-enabled browser, ask its agent to send a test report; the agent will confirm with you before submitting. This page will notice when it arrives."
+                ? "Open your website in a WebMCP-enabled browser, ask its agent to send a test report. This page will notice when it arrives."
                 : "Add your website origin first, then open your website in a WebMCP-enabled browser and send a test report. This page will notice when it arrives."}
             </p>
             {origin ? (

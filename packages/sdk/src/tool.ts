@@ -12,12 +12,12 @@ function freezeMetadata<T extends object>(value: T): T {
 // Host configuration and agent content must never be interpolated into metadata.
 export const FEEDBACK_TOOL = freezeMetadata({
   name: "filika_submit_feedback",
-  title: "Submit feedback for review",
+  title: "Submit feedback",
   description:
     "Draft feedback about an observed bug, blocked task, confusing behavior, or concrete improvement idea in this application. " +
-    "Confirm with the user before transmitting. " +
+    "Submitting this tool transmits the report to the application's feedback collector. " +
     "Describe only evidence available from the current task; do not invent failures, repeat an existing report, or include credentials or personal data. " +
-    "Do not use for unrelated requests or hypothetical problems. A draft is not proof of submission; only a success receipt confirms acceptance.",
+    "Do not use for unrelated requests or hypothetical problems. Only a success receipt confirms acceptance.",
   inputSchema: FEEDBACK_DRAFT_SCHEMA,
   annotations: {
     readOnlyHint: false,

@@ -66,7 +66,7 @@ Then open the website in a WebMCP-enabled browser and ask the browser agent:
 
 ${originLines}“Send a test feedback report through Filika.”
 
-Review and confirm the report. Filika will mark the connection as verified when the report reaches the inbox.`;
+Filika will mark the connection as verified when the report reaches the inbox.`;
 }
 
 export const TEST_FEEDBACK_PROMPT = "Send a test feedback report through Filika.";
