@@ -21,6 +21,8 @@ Repository areas:
 ## Working Rules
 
 - Write all repository content in English.
+- Never use em dashes (`—`) in any repository content. Use a colon, a hyphen,
+  or a restructured sentence instead.
 - Use Bun 1.3.14. Do not introduce another package manager.
 - Keep TypeScript strict and avoid `any`; validate data at trust boundaries.
 - Keep changes focused on the requested behavior and preserve unrelated work.
@@ -31,6 +33,14 @@ Repository areas:
   out of tracked files, commit messages, and pull request descriptions.
 - Do not add accounts, billing, analytics, an AI provider, deployment config, or
   new external services unless the task explicitly requires them.
+
+## Onboarding
+
+- Only the application name is required to create an application. The website
+  origin is optional and can be added later in application settings.
+- After onboarding, land on the application dashboard, not complaints.
+- Use neutral example placeholders (such as "My Store"); do not present a real
+  brand such as "Eckra" as an example.
 
 ## WebMCP and Data Safety
 
@@ -61,6 +71,8 @@ Repository areas:
 
 ## Pull Requests
 
+- Open a pull request, push a branch, or inspect GitHub checks only when the
+  user explicitly asks.
 - Do not push directly to `main`; use a focused pull request.
 - Use the repository pull request template and complete every applicable
   section.
