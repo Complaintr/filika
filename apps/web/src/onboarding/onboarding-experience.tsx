@@ -309,7 +309,7 @@ export function OnboardingExperience() {
                 id="onboarding-name"
                 maxLength={60}
                 value={name}
-                placeholder="Eckra"
+                placeholder="My Store"
                 onChange={(event) => {
                   const value = event.target.value;
                   setName(value);
@@ -323,7 +323,7 @@ export function OnboardingExperience() {
                 type="url"
                 maxLength={2048}
                 value={origin}
-                placeholder="https://eckra.com"
+                placeholder="https://mystore.com"
                 onChange={(event) => setOrigin(event.target.value)}
               />
               <p>Use the exact origin. Paths and trailing slashes are not included.</p>
@@ -333,13 +333,13 @@ export function OnboardingExperience() {
                 id="onboarding-slug"
                 value={slug}
                 maxLength={48}
-                placeholder="eckra"
+                placeholder="my-store"
                 onChange={(event) => {
                   setSlugEdited(true);
                   setSlug(event.target.value);
                 }}
               />
-              <p className="application-url-preview">/{slug || "eckra"}/complaints</p>
+              <p className="application-url-preview">/{slug || "my-store"}/complaints</p>
             </div>
             <button
               className="onboarding-continue"
