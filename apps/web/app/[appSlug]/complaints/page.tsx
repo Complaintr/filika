@@ -250,7 +250,10 @@ export default function ComplaintsPage() {
                     Clear filters
                   </button>
                 ) : (
-                  <Link href="/onboarding?edit=1" className="button filika-pill">
+                  <Link
+                    href={`/onboarding?app=${encodeURIComponent(slug)}`}
+                    className="button filika-pill"
+                  >
                     Set up your feedback flow <ArrowRight />
                   </Link>
                 )}
