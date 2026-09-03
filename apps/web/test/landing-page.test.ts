@@ -7,7 +7,7 @@ describe("public landing page", () => {
     const page = await Bun.file(`${appDirectory}/page.tsx`).text();
 
     expect(page).toMatch(/reviewed GitHub issues\s*<br \/>/);
-    expect(page).toContain("After the user reviews and confirms a report");
+    expect(page).toContain("Reports reach your collector immediately");
     expect(page).toContain("issue automatically or let your team create it manually");
     expect(page).not.toContain("connects each reviewed report to the relevant code");
   });
@@ -52,9 +52,9 @@ describe("public landing page", () => {
     expect(page).toContain("Code &amp; behavioral bugs");
     expect(page).toContain("100% Free &amp; Open Source");
     expect(page).toContain("2026 Complaintr. All rights reserved.");
-    expect(page).toContain("User-reviewed feedback infrastructure for AI agents.");
+    expect(page).toContain("WebMCP feedback infrastructure for modern web applications.");
     expect(page).toContain('href="/terms"');
-    expect(page).toContain("Human in the loop");
+    expect(page).toContain("Maintainer triage");
     expect(page).toContain("What is Filika?");
     expect(page).toContain("How do WebMCP agents find bugs?");
     expect(page).toContain("How do I connect Filika to my website?");

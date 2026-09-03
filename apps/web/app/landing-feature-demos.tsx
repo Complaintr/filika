@@ -116,8 +116,8 @@ export function BugAnalyticsDemo() {
             <Bug aria-hidden="true" data-free-size="true" />
           </span>
           <span>
-            <b>Unhandled checkout exception</b>
-            <small>Captured with route and stack context</small>
+            <b>Checkout button unresponsive</b>
+            <small>Reported with route and release context</small>
           </span>
           <em>New</em>
         </div>
@@ -159,7 +159,7 @@ export function ApprovalFlowDemo() {
   return (
     <div className={styles.featureDemo}>
       <div className={styles.featureDemoInset}>
-        <DemoHeader title="Report #184" label="Private" />
+        <DemoHeader title="Report #184" label="Triage" />
         <div className={styles.approvalReport}>
           <div>
             <span className={styles.approvalReportIcon}>
@@ -167,11 +167,11 @@ export function ApprovalFlowDemo() {
             </span>
             <span>
               <b>Broken checkout step</b>
-              <small>Agent-drafted report ready for review</small>
+              <small>Agent-drafted report received</small>
             </span>
           </div>
           <span className={styles.privacyNote}>
-            <Lock aria-hidden="true" data-free-size="true" /> Sensitive data removed
+            <Lock aria-hidden="true" data-free-size="true" /> Zero ambient data collected
           </span>
         </div>
         <div className={styles.approvalTimeline}>
@@ -183,7 +183,7 @@ export function ApprovalFlowDemo() {
           </div>
           <div className={styles.approvalStage}>
             <ShieldCheck aria-hidden="true" data-free-size="true" />
-            <span>Reviewed</span>
+            <span>Ingested</span>
           </div>
           <div className={styles.approvalStage}>
             <Inbox aria-hidden="true" data-free-size="true" />
@@ -192,10 +192,10 @@ export function ApprovalFlowDemo() {
         </div>
         <div className={styles.approvalAction}>
           <span className={styles.approvalWaiting}>
-            <Route aria-hidden="true" data-free-size="true" /> Waiting for confirmation
+            <Route aria-hidden="true" data-free-size="true" /> Ingestion validated
           </span>
           <span className={styles.approvalComplete}>
-            <Check aria-hidden="true" data-free-size="true" /> User confirmed and sent
+            <Check aria-hidden="true" data-free-size="true" /> Ready for developer triage
           </span>
         </div>
       </div>

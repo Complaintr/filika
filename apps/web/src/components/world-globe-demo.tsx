@@ -647,7 +647,7 @@ export function WorldGlobeDemo() {
   return (
     <div
       ref={containerRef}
-      aria-label="Interactive 3D real-time globe showing autonomous WebMCP agents discovering issues globally"
+      aria-label="Interactive 3D real-time globe showing WebMCP feedback connections across regions"
       className={styles.globeContainer}
       role="img"
     >
