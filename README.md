@@ -60,4 +60,4 @@ Filika can be set up for local development or deployed as a self-hosted producti
 
 ## License
 
-Distributed under the [Apache-2.0](LICENSE) License. Copyright &copy; 2026 Complaintr.
+Filika is distributed under the [Apache License 2.0](LICENSE). Copyright &copy; 2026 Complaintr. See [NOTICE](NOTICE) for project attribution.
