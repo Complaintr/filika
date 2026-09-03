@@ -12,12 +12,6 @@ Filika is an open-source, WebMCP-native feedback system for modern web applicati
 
 Agent-authored feedback is transmitted without a user review step. When WebMCP is unavailable or users prefer manual reporting, people can submit feedback directly. Filika provides the feedback workflow and triage infrastructure, remaining completely model-agnostic.
 
-### Architecture
-The repository is structured as a modern monorepo powered by Bun and PostgreSQL:
-- **apps/web**: Next.js 16 host UI, maintainer workspace, and landing page.
-- **packages/sdk**: Browser SDK and WebMCP `document.modelContext` protocol.
-- **packages/collector**: Feedback API, Drizzle ORM schema, and PostgreSQL persistence.
-
 ## Features
 
 - **WebMCP Protocol**: Exposes a static `filika_submit_feedback` tool using `document.modelContext`.
@@ -26,6 +20,13 @@ The repository is structured as a modern monorepo powered by Bun and PostgreSQL:
 - **GitHub Sync**: One-click export to GitHub issues with full markdown support and reproduction steps.
 - **Multi-tenant Control**: Manage distinct applications with custom slugs and strict origin verification.
 - **Interactive Sandbox**: Test your browser agents safely using the built-in demo environment.
+
+## Architecture
+
+The repository is structured as a modern monorepo powered by Bun and PostgreSQL:
+- **apps/web**: Next.js 16 host UI, maintainer workspace, and landing page.
+- **packages/sdk**: Browser SDK and WebMCP `document.modelContext` protocol.
+- **packages/collector**: Feedback API, Drizzle ORM schema, and PostgreSQL persistence.
 
 ## How it Works
 
