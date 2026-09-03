@@ -141,20 +141,23 @@
 
 .headerLeft {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 28px;
 }
 
 .nav {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 20px;
 }
 
 .nav a {
+  display: inline-flex;
+  align-items: center;
   color: var(--muted);
   font-size: 14px;
   font-weight: 500;
+  line-height: 22px;
   transition: color 150ms ease;
 }
 
