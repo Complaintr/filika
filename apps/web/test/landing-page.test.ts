@@ -60,6 +60,7 @@ describe("public landing page", () => {
     expect(page).toContain("How do I connect Filika to my website?");
     expect(page).toContain("How is user privacy protected?");
     expect(page).toContain("Can I self-host Filika?");
+    expect(page).toContain("Is Filika open source?");
     expect(page).not.toContain("Is Filika completely free?");
     expect(page.toLowerCase()).not.toContain("sdk");
     expect(featureDemos.toLowerCase()).not.toContain("sdk");
@@ -74,6 +75,8 @@ describe("public landing page", () => {
     expect(page).toContain("Filika is a product of");
     expect(page).toContain('href="https://complaintr.com"');
     expect(page).toContain("Still have questions? Email");
+    expect(page).toContain("Filika is open source");
+    expect(page).toContain('href="https://github.com/Complaintr/filika"');
 
     // Extras section items
     expect(page).toContain("WebMCP Protocol");

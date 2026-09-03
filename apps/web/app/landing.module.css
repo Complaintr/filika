@@ -2835,6 +2835,14 @@
   color: var(--filika-blue);
   font-weight: 600;
 }
+.faqs p a {
+  color: var(--filika-blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+.faqs p a:hover {
+  text-decoration: underline;
+}
 .finalCta {
   position: relative;
   display: flex;

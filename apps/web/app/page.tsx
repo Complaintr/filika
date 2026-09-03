@@ -64,7 +64,20 @@ const faqs = [
     "Can I self-host Filika?",
     "Yes. Both the WebMCP collector and web workspace are open source and easy to self-host with Bun and PostgreSQL on your own servers.",
   ],
+  ["Is Filika open source?", openSourceAnswer()],
 ] as const;
+
+function openSourceAnswer() {
+  return (
+    <>
+      Yes. Filika is open source and the full codebase is public. You can{" "}
+      <a href="https://github.com/Complaintr/filika" target="_blank" rel="noreferrer">
+        browse it on GitHub
+      </a>
+      .
+    </>
+  );
+}
 
 function SectionTitle({ children, muted }: { children: React.ReactNode; muted: React.ReactNode }) {
   return (
